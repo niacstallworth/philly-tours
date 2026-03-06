@@ -1,0 +1,81 @@
+﻿:root {
+  --bg: #020617;
+  --panel: #0f172a;
+  --panel-2: #1e293b;
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --accent: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top right, #1d4ed8, var(--bg));
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+header {
+  padding: 16px;
+}
+
+header p {
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+main {
+  padding: 16px;
+}
+
+.card {
+  background: color-mix(in srgb, var(--panel) 85%, black);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.badge {
+  display: inline-block;
+  background: var(--panel-2);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+
+#tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid #334155;
+  background: #0b1220;
+  position: sticky;
+  bottom: 0;
+}
+
+#tabs button {
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  padding: 10px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+#tabs button.active {
+  background: var(--panel-2);
+  color: var(--text);
+}

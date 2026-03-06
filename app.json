@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Philly AR Tours",
+    "slug": "philly-ar-tours",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.founders.phillyartours",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops while touring."
+      }
+    },
+    "android": {
+      "package": "com.founders.phillyartours",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-location"
+    ],
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
