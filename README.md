@@ -59,7 +59,3 @@ Open `http://localhost:8080`.
 
 ## Native Module Skeletons
 - See native bridge templates and setup steps: `native-bridge-templates/INTEGRATION.md`
-
-## Native Project Status
-- `android/` has been generated and `PhillyNativeAR` is registered in `MainApplication.kt`.
-- `ios/` was not generated in this Windows environment, so the iOS bridge templates remain in `native-bridge-templates/ios` for the next macOS/Xcode step.
