@@ -1,4 +1,6 @@
-﻿import { Stop } from "../types";
+﻿import { Platform } from "react-native";
+import { arAssetCatalogByStopId } from "../data/arAssetCatalog";
+import { Stop } from "../types";
 
 export type ARScenePayload = {
   stopId: string;
@@ -7,11 +9,49 @@ export type ARScenePayload = {
   rotationYDeg: number;
 };
 
+const modelBaseUrl =
+  ((globalThis as any)?.process?.env?.EXPO_PUBLIC_AR_MODEL_BASE_URL as string | undefined)?.trim() || "";
+
+function absolutizeModelUrl(pathOrUrl: string): string {
+  if (!pathOrUrl) {
+    return pathOrUrl;
+  }
+  if (/^https?:\/\//i.test(pathOrUrl) || /^file:\/\//i.test(pathOrUrl)) {
+    return pathOrUrl;
+  }
+  if (!modelBaseUrl) {
+    return pathOrUrl;
+  }
+  const base = modelBaseUrl.replace(/\/+$/, "");
+  const path = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
+  return `${base}${path}`;
+}
+
+function withPlatformModelFormat(pathOrUrl: string): string {
+  const lower = pathOrUrl.toLowerCase();
+  if (Platform.OS === "ios" && lower.endsWith(".glb")) {
+    return pathOrUrl.slice(0, -4) + ".usdz";
+  }
+  if (Platform.OS === "android" && lower.endsWith(".usdz")) {
+    return pathOrUrl.slice(0, -5) + ".glb";
+  }
+  return pathOrUrl;
+}
+
 export function toARScenePayload(stop: Stop): ARScenePayload {
+  const catalogEntry = arAssetCatalogByStopId.get(stop.id);
+  const rawModelUrl =
+    Platform.OS === "ios"
+      ? catalogEntry?.iosAsset || stop.modelUrl
+      : Platform.OS === "android"
+        ? catalogEntry?.androidAsset || stop.modelUrl
+        : catalogEntry?.webAsset || stop.modelUrl;
+  const platformUrl = withPlatformModelFormat(rawModelUrl);
+  const modelUrl = absolutizeModelUrl(platformUrl);
   return {
     stopId: stop.id,
-    modelUrl: stop.modelUrl,
-    scale: 1,
-    rotationYDeg: 180
+    modelUrl,
+    scale: catalogEntry?.scale ?? 1,
+    rotationYDeg: catalogEntry?.rotationYDeg ?? 180
   };
 }
