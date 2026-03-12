@@ -1,9 +1,11 @@
-﻿export type NativeARProvider = "arkit" | "arcore" | "unsupported";
+export type NativeARProvider = "arkit" | "arcore" | "unsupported";
 
 export type NativeARStatus = {
   provider: NativeARProvider;
   available: boolean;
   reason?: string;
+  sessionRunning?: boolean;
+  placedModelCount?: number;
 };
 
 export type ARModelPlacement = {
@@ -11,6 +13,9 @@ export type ARModelPlacement = {
   modelUrl: string;
   scale: number;
   rotationYDeg: number;
+  fallbackType?: "box" | "card" | "none";
+  title?: string;
+  subtitle?: string;
 };
 
 export interface NativeARAdapter {

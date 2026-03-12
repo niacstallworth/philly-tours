@@ -7,6 +7,9 @@ export type ARScenePayload = {
   modelUrl: string;
   scale: number;
   rotationYDeg: number;
+  fallbackType: "box" | "card" | "none";
+  title: string;
+  subtitle: string;
 };
 
 const modelBaseUrl =
@@ -48,10 +51,14 @@ export function toARScenePayload(stop: Stop): ARScenePayload {
         : catalogEntry?.webAsset || stop.modelUrl;
   const platformUrl = withPlatformModelFormat(rawModelUrl);
   const modelUrl = absolutizeModelUrl(platformUrl);
+  const subtitle = stop.description.split("|")[0]?.trim() || "Historic AR stop";
   return {
     stopId: stop.id,
     modelUrl,
     scale: catalogEntry?.scale ?? 1,
-    rotationYDeg: catalogEntry?.rotationYDeg ?? 180
+    rotationYDeg: catalogEntry?.rotationYDeg ?? 180,
+    fallbackType: catalogEntry?.fallbackType ?? "box",
+    title: stop.title,
+    subtitle
   };
 }
