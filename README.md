@@ -45,7 +45,7 @@ This README is a current project-status document so reviewers can quickly see wh
   - `src/screens/HomeScreen.tsx`
   - `src/screens/MapScreen.tsx`
   - `src/screens/ARScreen.tsx`
-  - `src/screens/ProgressScreen.tsx`
+  - `src/screens/DriveScreen.tsx`
   - `src/screens/ProfileScreen.tsx`
   - `src/screens/OnboardingScreen.tsx`
 
@@ -171,6 +171,7 @@ Active build focus:
 - webhook-driven Stripe status updates
 - improving AR tab from scaffold to working native behavior
 - moving from local/static tour data toward a real content layer
+- proving phone-side drive companion and handoff flows before native CarPlay / Android Auto targets
 
 ## Planning Docs
 
