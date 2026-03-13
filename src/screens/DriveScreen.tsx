@@ -1,7 +1,18 @@
 import React from "react";
 import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { getDriveStops, getDriveTourSummaries } from "../services/driveMode";
+import {
+  DriveSession,
+  advanceDriveSession,
+  clearDriveSession,
+  getCurrentDriveStop,
+  getDriveStops,
+  getDriveTourSummaries,
+  getNextDriveStop,
+  loadDriveSession,
+  markDriveArrived,
+  startDriveSession
+} from "../services/driveMode";
 
 type Props = {
   initialTourId?: string;
@@ -11,6 +22,8 @@ const driveTours = getDriveTourSummaries();
 
 export function DriveScreen({ initialTourId }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialTourId || driveTours[0]?.id || "");
+  const [driveSession, setDriveSession] = React.useState<DriveSession | null>(null);
+  const [status, setStatus] = React.useState<"idle" | "loading" | "ready">("loading");
 
   React.useEffect(() => {
     if (initialTourId && driveTours.some((tour) => tour.id === initialTourId)) {
@@ -18,22 +31,84 @@ export function DriveScreen({ initialTourId }: Props) {
     }
   }, [initialTourId]);
 
+  React.useEffect(() => {
+    loadDriveSession()
+      .then((stored) => {
+        if (!stored) {
+          return;
+        }
+        setDriveSession(stored);
+        setSelectedTourId(stored.tourId);
+      })
+      .finally(() => setStatus("ready"));
+  }, []);
+
   const selectedTour = React.useMemo(
     () => driveTours.find((tour) => tour.id === selectedTourId) || driveTours[0],
     [selectedTourId]
   );
   const driveStops = React.useMemo(() => getDriveStops(selectedTour?.id || ""), [selectedTour?.id]);
-  const nextStop = driveStops[0];
+  const activeSession = driveSession?.tourId === selectedTour?.id ? driveSession : null;
+  const currentStop = React.useMemo(() => getCurrentDriveStop(activeSession), [activeSession]);
+  const nextStop = React.useMemo(
+    () => (activeSession ? getNextDriveStop(activeSession) : driveStops[0] || null),
+    [activeSession, driveStops]
+  );
 
   async function previewArrivalHandoff() {
-    if (!nextStop) {
+    const targetStop = activeSession ? currentStop : nextStop;
+    if (!targetStop) {
       return;
     }
     try {
-      await Linking.openURL(nextStop.handoffDeepLink);
+      await Linking.openURL(targetStop.handoffDeepLink);
     } catch (error) {
       Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
     }
+  }
+
+  async function onStartDriveSession() {
+    if (!selectedTour) {
+      return;
+    }
+    try {
+      const nextSession = await startDriveSession(selectedTour.id);
+      setDriveSession(nextSession);
+    } catch (error) {
+      Alert.alert("Drive session unavailable", (error as Error).message || "Could not start this drive session.");
+    }
+  }
+
+  async function onMarkArrived() {
+    if (!activeSession) {
+      return;
+    }
+    try {
+      const nextSession = await markDriveArrived(activeSession);
+      setDriveSession(nextSession);
+    } catch (error) {
+      Alert.alert("Arrival update failed", (error as Error).message || "Could not update arrival state.");
+    }
+  }
+
+  async function onAdvanceStop() {
+    if (!activeSession) {
+      return;
+    }
+    try {
+      const nextSession = await advanceDriveSession(activeSession);
+      setDriveSession(nextSession);
+      if (!nextSession) {
+        Alert.alert("Drive session complete", "You reached the last stop in this drive route.");
+      }
+    } catch (error) {
+      Alert.alert("Advance failed", (error as Error).message || "Could not move to the next stop.");
+    }
+  }
+
+  async function onClearSession() {
+    await clearDriveSession();
+    setDriveSession(null);
   }
 
   return (
@@ -49,15 +124,19 @@ export function DriveScreen({ initialTourId }: Props) {
       <Card style={styles.panel}>
         <Text style={styles.label}>Tour route</Text>
         <View style={styles.tourWrap}>
-          {driveTours.map((tour) => (
-            <Text
-              key={tour.id}
-              onPress={() => setSelectedTourId(tour.id)}
-              style={[styles.tourChip, selectedTourId === tour.id && styles.tourChipActive, selectedTourId === tour.id && styles.tourChipTextActive]}
-            >
-              {tour.title}
-            </Text>
-          ))}
+          {driveTours.map((tour) => {
+            const isActive = selectedTourId === tour.id;
+            const hasSession = driveSession?.tourId === tour.id;
+            return (
+              <Text
+                key={tour.id}
+                onPress={() => setSelectedTourId(tour.id)}
+                style={[styles.tourChip, isActive && styles.tourChipActive, isActive && styles.tourChipTextActive]}
+              >
+                {tour.title}{hasSession ? " • live" : ""}
+              </Text>
+            );
+          })}
         </View>
       </Card>
 
@@ -70,42 +149,71 @@ export function DriveScreen({ initialTourId }: Props) {
           </Text>
           <View style={styles.chips}>
             <Chip label={`Hero stop ${selectedTour.heroStopTitle || "selected"}`} tone="warn" />
-            <Chip label="Phone handoff ready" tone="success" />
+            <Chip label={activeSession ? `Session ${activeSession.mode}` : status === "loading" ? "Loading session" : "Ready to start"} tone="success" />
           </View>
         </Card>
       ) : null}
 
-      {nextStop ? (
+      {(currentStop || nextStop) ? (
         <Card style={styles.panel}>
-          <Text style={styles.label}>Next stop</Text>
-          <Text style={styles.nextStopTitle}>{nextStop.title}</Text>
-          <Text style={styles.copy}>{nextStop.arrivalSummary}</Text>
-          <View style={styles.chips}>
-            <Chip label={`${nextStop.triggerRadiusM}m arrival radius`} tone="default" />
-            <Chip label={nextStop.handoffDeepLink.endsWith("/ar") ? "Continue to AR" : "Continue on foot"} tone="success" />
-          </View>
-          <Text style={styles.specLabel}>Handoff link</Text>
-          <Text style={styles.handoffLink}>{nextStop.handoffDeepLink}</Text>
+          {currentStop ? (
+            <>
+              <Text style={styles.label}>Current stop</Text>
+              <Text style={styles.nextStopTitle}>{currentStop.title}</Text>
+              <Text style={styles.copy}>{currentStop.arrivalSummary}</Text>
+              <View style={styles.chips}>
+                <Chip label={activeSession?.mode === "arrived" ? "Arrived" : "Driving now"} tone="success" />
+                <Chip label={currentStop.handoffDeepLink.endsWith("/ar") ? "AR handoff" : "On-foot handoff"} tone="warn" />
+              </View>
+              <Text style={styles.specLabel}>Handoff link</Text>
+              <Text style={styles.handoffLink}>{currentStop.handoffDeepLink}</Text>
+            </>
+          ) : null}
+
+          {nextStop ? (
+            <>
+              <Text style={styles.label}>{currentStop ? "Up next" : "Next stop"}</Text>
+              <Text style={styles.nextStopTitle}>{nextStop.title}</Text>
+              <Text style={styles.copy}>{nextStop.arrivalSummary}</Text>
+              <View style={styles.chips}>
+                <Chip label={`${nextStop.triggerRadiusM}m arrival radius`} tone="default" />
+                <Chip label={nextStop.handoffDeepLink.endsWith("/ar") ? "Continue to AR" : "Continue on foot"} tone="success" />
+              </View>
+            </>
+          ) : null}
+
           <View style={styles.actions}>
-            <PrimaryButton label="Start Drive Session" onPress={() => undefined} />
-            <PrimaryButton label="Preview Arrival Handoff" onPress={previewArrivalHandoff} />
+            {!activeSession ? <PrimaryButton label="Start Drive Session" onPress={onStartDriveSession} /> : null}
+            {activeSession && activeSession.mode !== "arrived" ? (
+              <PrimaryButton label="Mark Arrived" onPress={onMarkArrived} />
+            ) : null}
+            {activeSession ? <PrimaryButton label="Preview Arrival Handoff" onPress={previewArrivalHandoff} /> : null}
+            {activeSession ? <PrimaryButton label="Advance To Next Stop" onPress={onAdvanceStop} /> : null}
+            {activeSession ? <PrimaryButton label="Clear Drive Session" onPress={onClearSession} /> : null}
           </View>
         </Card>
       ) : null}
 
       <Card style={styles.panel}>
         <Text style={styles.label}>Upcoming stops</Text>
-        {driveStops.slice(0, 5).map((stop, index) => (
-          <View key={stop.id} style={styles.stopRow}>
-            <View style={styles.stopIndexWrap}>
-              <Text style={styles.stopIndex}>{index + 1}</Text>
+        {driveStops.slice(0, 5).map((stop, index) => {
+          const isCurrent = currentStop?.id === stop.id;
+          const isNext = nextStop?.id === stop.id;
+          return (
+            <View key={stop.id} style={styles.stopRow}>
+              <View style={[styles.stopIndexWrap, isCurrent && styles.stopIndexWrapCurrent, isNext && styles.stopIndexWrapNext]}>
+                <Text style={styles.stopIndex}>{index + 1}</Text>
+              </View>
+              <View style={styles.stopContent}>
+                <Text style={styles.stopTitle}>
+                  {stop.title}
+                  {isCurrent ? " • current" : isNext ? " • next" : ""}
+                </Text>
+                <Text style={styles.copy}>{stop.arrivalSummary}</Text>
+              </View>
             </View>
-            <View style={styles.stopContent}>
-              <Text style={styles.stopTitle}>{stop.title}</Text>
-              <Text style={styles.copy}>{stop.arrivalSummary}</Text>
-            </View>
-          </View>
-        ))}
+          );
+        })}
       </Card>
 
       <Card style={styles.panel}>
@@ -235,6 +343,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#231338",
     alignItems: "center",
     justifyContent: "center"
+  },
+  stopIndexWrapCurrent: {
+    backgroundColor: "#ff8ca8"
+  },
+  stopIndexWrapNext: {
+    backgroundColor: "#8fd7c3"
   },
   stopIndex: {
     color: "#fff3ea",
