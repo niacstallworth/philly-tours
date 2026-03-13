@@ -94,6 +94,7 @@ class PhillyNativeAR: NSObject {
     let headline = (placement["headline"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? title
     let summary = (placement["summary"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? subtitle
     let placementNote = (placement["placementNote"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let conceptImageUri = (placement["conceptImageUri"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     let plannedProvider = (placement["plannedProvider"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "unassigned"
     let generatedProvider = (placement["generatedProvider"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "not generated"
     let contentLayers = (placement["contentLayers"] as? [String]) ?? []
@@ -117,6 +118,7 @@ class PhillyNativeAR: NSObject {
           headline: headline,
           summary: summary,
           placementNote: placementNote,
+          conceptImageUri: conceptImageUri,
           plannedProvider: plannedProvider,
           generatedProvider: generatedProvider,
           contentLayers: contentLayers,
@@ -199,6 +201,7 @@ final class PhillyARViewController: UIViewController {
     headline: String,
     summary: String,
     placementNote: String,
+    conceptImageUri: String,
     plannedProvider: String,
     generatedProvider: String,
     contentLayers: [String],
@@ -221,6 +224,7 @@ final class PhillyARViewController: UIViewController {
       headline: headline,
       summary: summary,
       placementNote: placementNote,
+      conceptImageUri: conceptImageUri,
       plannedProvider: plannedProvider,
       generatedProvider: generatedProvider,
       contentLayers: contentLayers,
@@ -243,6 +247,7 @@ final class PhillyARViewController: UIViewController {
     headline: String,
     summary: String,
     placementNote: String,
+    conceptImageUri: String,
     plannedProvider: String,
     generatedProvider: String,
     contentLayers: [String],
@@ -268,6 +273,7 @@ final class PhillyARViewController: UIViewController {
         headline: headline,
         summary: summary,
         placementNote: placementNote,
+        conceptImageUri: conceptImageUri,
         plannedProvider: plannedProvider,
         generatedProvider: generatedProvider,
         contentLayers: contentLayers,
@@ -287,6 +293,7 @@ final class PhillyARViewController: UIViewController {
     headline: String,
     summary: String,
     placementNote: String,
+    conceptImageUri: String,
     plannedProvider: String,
     generatedProvider: String,
     contentLayers: [String],
@@ -358,6 +365,13 @@ final class PhillyARViewController: UIViewController {
       UIColor(red: 15/255, green: 23/255, blue: 42/255, alpha: 0.94).setFill()
       UIBezierPath(roundedRect: CGRect(x: 736, y: 110, width: 420, height: 584), cornerRadius: 28).fill()
 
+      if let conceptImage = loadConceptUIImage(from: conceptImageUri) {
+        conceptImage.draw(in: CGRect(x: 764, y: 188, width: 364, height: 204))
+      } else {
+        UIColor(red: 30/255, green: 41/255, blue: 59/255, alpha: 1).setFill()
+        UIBezierPath(roundedRect: CGRect(x: 764, y: 188, width: 364, height: 204), cornerRadius: 18).fill()
+      }
+
       let metadataHeader = NSString(string: "Scene runtime")
       metadataHeader.draw(
         in: CGRect(x: 764, y: 140, width: 240, height: 32),
@@ -369,7 +383,7 @@ final class PhillyARViewController: UIViewController {
 
       let providerLine = NSString(string: "Planned: \(plannedProvider)\nGenerated: \(generatedProvider)")
       providerLine.draw(
-        in: CGRect(x: 764, y: 188, width: 320, height: 60),
+        in: CGRect(x: 764, y: 412, width: 320, height: 60),
         withAttributes: [
           .font: UIFont.systemFont(ofSize: 20, weight: .medium),
           .foregroundColor: UIColor(red: 253/255, green: 224/255, blue: 71/255, alpha: 1)
@@ -379,7 +393,7 @@ final class PhillyARViewController: UIViewController {
       let layersBody = contentLayers.prefix(4).isEmpty ? "Scene layers pending" : contentLayers.prefix(4).joined(separator: "\n• ")
       let layersText = NSString(string: "Layers\n• \(layersBody)")
       layersText.draw(
-        in: CGRect(x: 764, y: 274, width: 336, height: 190),
+        in: CGRect(x: 764, y: 492, width: 336, height: 124),
         withAttributes: [
           .font: UIFont.systemFont(ofSize: 22, weight: .regular),
           .foregroundColor: UIColor.white
@@ -389,7 +403,7 @@ final class PhillyARViewController: UIViewController {
       let checklistBody = productionChecklist.prefix(4).isEmpty ? "Production checklist pending" : productionChecklist.prefix(4).joined(separator: "\n• ")
       let checklistText = NSString(string: "Checklist\n• \(checklistBody)")
       checklistText.draw(
-        in: CGRect(x: 764, y: 490, width: 336, height: 176),
+        in: CGRect(x: 764, y: 620, width: 336, height: 108),
         withAttributes: [
           .font: UIFont.systemFont(ofSize: 22, weight: .regular),
           .foregroundColor: UIColor(red: 191/255, green: 219/255, blue: 254/255, alpha: 1)
@@ -409,6 +423,28 @@ final class PhillyARViewController: UIViewController {
     let entity = ModelEntity(mesh: mesh, materials: [material])
     entity.position = SIMD3<Float>(0, 0.08, 0)
     return entity
+  }
+
+  private func loadConceptUIImage(from rawValue: String) -> UIImage? {
+    let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+
+    if let fileURL = URL(string: trimmed), fileURL.isFileURL {
+      return UIImage(contentsOfFile: fileURL.path)
+    }
+
+    if let remoteURL = URL(string: trimmed),
+       remoteURL.scheme?.hasPrefix("http") == true,
+       let data = try? Data(contentsOf: remoteURL),
+       let image = UIImage(data: data) {
+      return image
+    }
+
+    if FileManager.default.fileExists(atPath: trimmed) {
+      return UIImage(contentsOfFile: trimmed)
+    }
+
+    return nil
   }
 
   private func candidateModelPaths(from raw: String) -> [String] {

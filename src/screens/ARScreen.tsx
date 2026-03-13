@@ -162,6 +162,7 @@ export function ARScreen() {
         summary: selectedPayload.summary,
         placementNote: selectedPayload.placementNote,
         conceptImagePath: selectedPayload.conceptImagePath,
+        conceptImageUri: selectedPayload.conceptImageUri,
         plannedProvider: selectedPayload.plannedProvider,
         generatedProvider: selectedPayload.generatedProvider,
         contentLayers: selectedPayload.contentLayers,

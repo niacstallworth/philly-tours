@@ -1,5 +1,6 @@
-﻿import { Platform } from "react-native";
+﻿import { Image, Platform } from "react-native";
 import { arAssetCatalogByStopId } from "../data/arAssetCatalog";
+import { arGeneratedImageMap } from "../data/arGeneratedImageMap";
 import { toARSceneManifest } from "./arManifest";
 import { Stop } from "../types";
 
@@ -15,6 +16,7 @@ export type ARScenePayload = {
   summary: string;
   placementNote: string;
   conceptImagePath: string;
+  conceptImageUri: string;
   plannedProvider: string;
   generatedProvider: string;
   contentLayers: string[];
@@ -50,6 +52,16 @@ function withPlatformModelFormat(pathOrUrl: string): string {
   return pathOrUrl;
 }
 
+function resolveConceptImageUri(stopId: string): string {
+  const source = arGeneratedImageMap[stopId];
+  if (!source) {
+    return "";
+  }
+
+  const resolved = Image.resolveAssetSource(source);
+  return resolved?.uri || "";
+}
+
 export function toARScenePayload(stop: Stop): ARScenePayload {
   const catalogEntry = arAssetCatalogByStopId.get(stop.id);
   const manifest = toARSceneManifest(stop);
@@ -74,6 +86,7 @@ export function toARScenePayload(stop: Stop): ARScenePayload {
     summary: manifest.summary,
     placementNote: manifest.placementNote,
     conceptImagePath: manifest.conceptImagePath,
+    conceptImageUri: resolveConceptImageUri(stop.id),
     plannedProvider: manifest.plannedProvider,
     generatedProvider: manifest.generatedProvider,
     contentLayers: manifest.contentLayers,

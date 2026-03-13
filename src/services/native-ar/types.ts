@@ -20,6 +20,7 @@ export type ARModelPlacement = {
   summary?: string;
   placementNote?: string;
   conceptImagePath?: string;
+  conceptImageUri?: string;
   plannedProvider?: string;
   generatedProvider?: string;
   contentLayers?: string[];
