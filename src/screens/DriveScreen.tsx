@@ -1,15 +1,14 @@
 import React from "react";
 import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
+import { useDriveSession } from "../hooks/useDriveSession";
 import {
-  DriveSession,
   advanceDriveSession,
   clearDriveSession,
   getCurrentDriveStop,
   getDriveStops,
   getDriveTourSummaries,
   getNextDriveStop,
-  loadDriveSession,
   markDriveArrived,
   startDriveSession
 } from "../services/driveMode";
@@ -22,8 +21,7 @@ const driveTours = getDriveTourSummaries();
 
 export function DriveScreen({ initialTourId }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialTourId || driveTours[0]?.id || "");
-  const [driveSession, setDriveSession] = React.useState<DriveSession | null>(null);
-  const [status, setStatus] = React.useState<"idle" | "loading" | "ready">("loading");
+  const { driveSession, setDriveSession, loading } = useDriveSession();
 
   React.useEffect(() => {
     if (initialTourId && driveTours.some((tour) => tour.id === initialTourId)) {
@@ -32,16 +30,10 @@ export function DriveScreen({ initialTourId }: Props) {
   }, [initialTourId]);
 
   React.useEffect(() => {
-    loadDriveSession()
-      .then((stored) => {
-        if (!stored) {
-          return;
-        }
-        setDriveSession(stored);
-        setSelectedTourId(stored.tourId);
-      })
-      .finally(() => setStatus("ready"));
-  }, []);
+    if (driveSession?.tourId) {
+      setSelectedTourId(driveSession.tourId);
+    }
+  }, [driveSession?.tourId]);
 
   const selectedTour = React.useMemo(
     () => driveTours.find((tour) => tour.id === selectedTourId) || driveTours[0],
@@ -149,7 +141,7 @@ export function DriveScreen({ initialTourId }: Props) {
           </Text>
           <View style={styles.chips}>
             <Chip label={`Hero stop ${selectedTour.heroStopTitle || "selected"}`} tone="warn" />
-            <Chip label={activeSession ? `Session ${activeSession.mode}` : status === "loading" ? "Loading session" : "Ready to start"} tone="success" />
+            <Chip label={activeSession ? `Session ${activeSession.mode}` : loading ? "Loading session" : "Ready to start"} tone="success" />
           </View>
         </Card>
       ) : null}
