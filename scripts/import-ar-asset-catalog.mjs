@@ -12,6 +12,9 @@ const FALLBACK_TYPE_VALUES = new Set(["box", "card", "none"]);
 const COORD_QUALITY_VALUES = new Set(["verified", "approximate"]);
 const EFFORT_VALUES = new Set(["", "low", "medium", "high"]);
 const FAL_IMAGE_SIZE_VALUES = new Set(["square_hd", "square", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"]);
+const STABILITY_ENDPOINT_VALUES = new Set(["core", "ultra"]);
+const STABILITY_ASPECT_RATIO_VALUES = new Set(["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21"]);
+const STABILITY_OUTPUT_FORMAT_VALUES = new Set(["png", "jpeg", "webp"]);
 
 function normalizeRepoPath(assetPath) {
   return assetPath.replace(/^\/+/, "");
@@ -89,6 +92,10 @@ function readCatalogRows() {
       falModel: record.falModel?.trim() || "",
       falPrompt: record.falPrompt?.trim() || "",
       falImageSize: asOptionalEnum(record.falImageSize, FAL_IMAGE_SIZE_VALUES, "falImageSize", rowNumber),
+      stabilityEndpoint: asOptionalEnum(record.stabilityEndpoint, STABILITY_ENDPOINT_VALUES, "stabilityEndpoint", rowNumber),
+      stabilityPrompt: record.stabilityPrompt?.trim() || "",
+      stabilityAspectRatio: asOptionalEnum(record.stabilityAspectRatio, STABILITY_ASPECT_RATIO_VALUES, "stabilityAspectRatio", rowNumber),
+      stabilityOutputFormat: asOptionalEnum(record.stabilityOutputFormat, STABILITY_OUTPUT_FORMAT_VALUES, "stabilityOutputFormat", rowNumber),
       generatedImagePath: record.generatedImagePath?.trim() || "",
       generatedImageExistsLocal: record.generatedImagePath?.trim() ? assetExistsInRepo(record.generatedImagePath.trim()) : false
     };
@@ -122,6 +129,10 @@ function writeCatalogModule(rows) {
   falModel: string;
   falPrompt: string;
   falImageSize: "" | "square_hd" | "square" | "portrait_4_3" | "portrait_16_9" | "landscape_4_3" | "landscape_16_9";
+  stabilityEndpoint: "" | "core" | "ultra";
+  stabilityPrompt: string;
+  stabilityAspectRatio: "" | "21:9" | "16:9" | "3:2" | "5:4" | "1:1" | "4:5" | "2:3" | "9:16" | "9:21";
+  stabilityOutputFormat: "" | "png" | "jpeg" | "webp";
   generatedImagePath: string;
   generatedImageExistsLocal: boolean;
 };

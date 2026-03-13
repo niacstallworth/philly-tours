@@ -180,6 +180,10 @@ Catalog fields used by the generator:
 - `falModel`
 - `falPrompt`
 - `falImageSize`
+- `stabilityEndpoint`
+- `stabilityPrompt`
+- `stabilityAspectRatio`
+- `stabilityOutputFormat`
 - `generatedImagePath`
 
 ### Import catalog changes
@@ -204,6 +208,23 @@ Useful options:
 Notes:
 - `FAL_KEY` must be present in `.env` or the shell environment.
 - This generator is local/server-side only. Do not expose `FAL_KEY` in mobile client code.
+- Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
+
+### Generate AR concept images with Stability
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:stability:generate
+```
+
+Useful options:
+- `npm run ar:stability:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
+- `npm run ar:stability:generate -- --limit 3`
+- `npm run ar:stability:generate -- --force`
+
+Notes:
+- `STABILITY_API_KEY` must be present in `.env` or the shell environment.
+- Current implementation uses the official Stability `v2beta/stable-image/generate/{core|ultra}` API.
 - Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
 
 ## Files To Review First
