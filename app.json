@@ -2,9 +2,11 @@
   "expo": {
     "name": "Philly AR Tours",
     "slug": "philly-ar-tours",
+    "scheme": "phillyartours",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
@@ -22,7 +24,14 @@
       ]
     },
     "plugins": [
-      "expo-location"
+      "expo-location",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.founders.phillyartours",
+          "enableGooglePay": true
+        }
+      ]
     ],
     "web": {
       "bundler": "metro"
