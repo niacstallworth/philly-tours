@@ -1,11 +1,11 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ARScreen } from "../screens/ARScreen";
+import { DriveScreen } from "../screens/DriveScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { MapScreen } from "../screens/MapScreen";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
-import { ProgressScreen } from "../screens/ProgressScreen";
 import { HandoffTarget } from "../services/deepLinks";
 
 type SessionInfo = {
@@ -20,7 +20,7 @@ type Props = {
 };
 
 export function MainTabs({ session, handoffTarget }: Props) {
-  const [tab, setTab] = React.useState<"Home" | "Map" | "AR" | "Progress" | "Profile">("Home");
+  const [tab, setTab] = React.useState<"Home" | "Map" | "AR" | "Drive" | "Profile">("Home");
 
   React.useEffect(() => {
     if (!handoffTarget) {
@@ -54,17 +54,17 @@ export function MainTabs({ session, handoffTarget }: Props) {
     if (tab === "AR") {
       return <ARScreen initialTourId={handoffTarget?.tourId} initialStopId={handoffTarget?.stopId} />;
     }
-    if (tab === "Progress") {
-      return <ProgressScreen />;
+    if (tab === "Drive") {
+      return <DriveScreen initialTourId={handoffTarget?.tourId} />;
     }
     return <ProfileScreen displayName={session.displayName} mode={session.mode} email={session.email} />;
   }
 
-  const tabs: Array<{ key: "Home" | "Map" | "AR" | "Progress" | "Profile"; label: string }> = [
+  const tabs: Array<{ key: "Home" | "Map" | "AR" | "Drive" | "Profile"; label: string }> = [
     { key: "Home", label: "Home" },
     { key: "Map", label: "Map" },
     { key: "AR", label: "AR" },
-    { key: "Progress", label: "Progress" },
+    { key: "Drive", label: "Drive" },
     { key: "Profile", label: "Profile" }
   ];
 
