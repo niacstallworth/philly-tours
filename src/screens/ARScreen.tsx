@@ -35,6 +35,10 @@ export function ARScreen() {
   );
   const manifest = useMemo(() => (selectedStop ? toARSceneManifest(selectedStop) : null), [selectedStop]);
   const payload = useMemo(() => (selectedStop ? toARScenePayload(selectedStop) : null), [selectedStop]);
+  const unsupportedSimulator =
+    arStatus?.provider === "arkit" &&
+    arStatus?.available === false &&
+    (arStatus?.reason || "").toLowerCase().includes("unsupported");
 
   useEffect(() => {
     if (!arStops.length) {
@@ -66,6 +70,7 @@ export function ARScreen() {
         modelUrl: payload.modelUrl,
         scale: payload.scale,
         rotationYDeg: payload.rotationYDeg,
+        verticalOffsetM: payload.verticalOffsetM,
         fallbackType: payload.fallbackType,
         title: payload.title,
         subtitle: payload.subtitle,
@@ -164,6 +169,11 @@ export function ARScreen() {
           </View>
           <Text style={styles.specLabel}>Placement</Text>
           <Text style={styles.specCopy}>{manifest.placementNote}</Text>
+          <Text style={styles.specLabel}>Tuning</Text>
+          <Text style={styles.specCopy}>
+            Scale {payload?.scale ?? 1} | Rotation {payload?.rotationYDeg ?? 180}deg | Vertical offset{" "}
+            {payload?.verticalOffsetM ?? 0}m
+          </Text>
           <Text style={styles.specLabel}>Scene layers</Text>
           <Text style={styles.specCopy}>{manifest.contentLayers.slice(0, 3).join(" | ")}</Text>
         </Card>
@@ -178,6 +188,11 @@ export function ARScreen() {
         </View>
         <Text style={styles.meta}>State: {actionStatus}</Text>
         <Text style={styles.meta}>Provider: {arStatus?.provider || "unknown"}</Text>
+        {unsupportedSimulator ? (
+          <Text style={styles.meta}>
+            This simulator cannot run ARKit. Use an ARKit-capable iPhone or iPad to validate the real 3D scene.
+          </Text>
+        ) : null}
         {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
       </Card>
 

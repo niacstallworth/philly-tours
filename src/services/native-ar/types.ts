@@ -13,6 +13,7 @@ export type ARModelPlacement = {
   modelUrl: string;
   scale: number;
   rotationYDeg: number;
+  verticalOffsetM?: number;
   fallbackType?: "box" | "card" | "none";
   title?: string;
   subtitle?: string;

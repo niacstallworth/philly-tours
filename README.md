@@ -323,6 +323,7 @@ First stop wired for this flow:
 Docs:
 - `ios/PhillyARTours/ARAssets/README.md`
 - `docs/ar-assets/mother-bethel-ame-church.md`
+- `docs/ar-assets/mother-bethel-ame-church-device-checklist.md`
 
 ## Files To Review First
 

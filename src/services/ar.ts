@@ -8,6 +8,7 @@ export type ARScenePayload = {
   modelUrl: string;
   scale: number;
   rotationYDeg: number;
+  verticalOffsetM: number;
   fallbackType: "box" | "card" | "none";
   title: string;
   subtitle: string;
@@ -67,6 +68,7 @@ export function toARScenePayload(stop: Stop): ARScenePayload {
     modelUrl,
     scale: catalogEntry?.scale ?? 1,
     rotationYDeg: catalogEntry?.rotationYDeg ?? 180,
+    verticalOffsetM: catalogEntry?.verticalOffsetM ?? stop.verticalOffsetM ?? 0,
     fallbackType: catalogEntry?.fallbackType ?? "box",
     title: stop.title,
     subtitle,

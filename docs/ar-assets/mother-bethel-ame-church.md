@@ -6,6 +6,10 @@ This is the first real iOS hero-asset pipeline for the AR runtime.
 
 - Catalog path: `/models/mother-bethel-ame-church.usdz`
 - Bundled iOS path: `ios/PhillyARTours/ARAssets/models/mother-bethel-ame-church.usdz`
+- Runtime tuning fields:
+  - `scale`
+  - `rotationYDeg`
+  - `verticalOffsetM`
 - Rebuild command after asset drop:
 
 ```bash
@@ -54,6 +58,10 @@ npx expo run:ios --port 8081
 - No missing textures
 - Normals and material orientation look correct on device
 - Rebuild app and verify runtime loads model instead of fallback card
+- Tune current starting values on device:
+  - `scale: 1`
+  - `rotationYDeg: 180`
+  - `verticalOffsetM: 0`
 
 ## Nice-to-have later
 

@@ -14,6 +14,7 @@ export type ARAssetCatalogEntry = {
   webAssetExistsLocal: boolean;
   scale: number;
   rotationYDeg: number;
+  verticalOffsetM?: number;
   anchorStyle: "front_of_user" | "ground" | "image_target" | "location_marker";
   fallbackType: "box" | "card" | "none";
   coordQuality: "verified" | "approximate";
@@ -60,6 +61,7 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "webAssetExistsLocal": false,
     "scale": 1,
     "rotationYDeg": 180,
+    "verticalOffsetM": 0,
     "anchorStyle": "front_of_user",
     "fallbackType": "card",
     "coordQuality": "approximate",

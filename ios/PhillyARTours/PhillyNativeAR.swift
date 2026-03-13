@@ -88,6 +88,7 @@ class PhillyNativeAR: NSObject {
     }
 
     let rotationYDeg = (placement["rotationYDeg"] as? NSNumber)?.floatValue ?? 0
+    let verticalOffsetM = (placement["verticalOffsetM"] as? NSNumber)?.floatValue ?? 0
     let fallbackType = (placement["fallbackType"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "box"
     let title = (placement["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? id
     let subtitle = (placement["subtitle"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Historic AR stop"
@@ -111,6 +112,7 @@ class PhillyNativeAR: NSObject {
           modelUrl: modelUrl,
           scale: scale,
           rotationYDeg: rotationYDeg,
+          verticalOffsetM: verticalOffsetM,
           fallbackType: fallbackType,
           title: title,
           subtitle: subtitle,
@@ -193,6 +195,7 @@ final class PhillyARViewController: UIViewController {
     modelUrl: String,
     scale: Float,
     rotationYDeg: Float,
+    verticalOffsetM: Float,
     fallbackType: String,
     title: String,
     subtitle: String,
@@ -228,6 +231,7 @@ final class PhillyARViewController: UIViewController {
     )
     entity.name = id
     entity.scale = SIMD3<Float>(repeating: scale)
+    entity.position = SIMD3<Float>(0, verticalOffsetM, 0)
     let rotationRadians = rotationYDeg * .pi / 180
     entity.orientation = simd_quatf(angle: rotationRadians, axis: SIMD3<Float>(0, 1, 0))
 
