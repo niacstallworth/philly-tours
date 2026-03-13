@@ -493,11 +493,45 @@ final class PhillyARViewController: UIViewController {
     let ns = normalized as NSString
     let ext = ns.pathExtension
     let base = ns.deletingPathExtension
+    let bundle = Bundle.main
 
-    if ext.isEmpty {
-      return Bundle.main.url(forResource: base, withExtension: nil)
+    var resourceCandidates: [String] = [normalized]
+    if !normalized.hasPrefix("ARAssets/") {
+      resourceCandidates.append("ARAssets/\(normalized)")
+    }
+    if !normalized.hasPrefix("models/") {
+      resourceCandidates.append("models/\(normalized)")
+    } else {
+      let tail = String(normalized.dropFirst("models/".count))
+      resourceCandidates.append(tail)
+      resourceCandidates.append("ARAssets/\(normalized)")
     }
 
-    return Bundle.main.url(forResource: base, withExtension: ext)
+    if ext.isEmpty {
+      if let bundled = bundle.url(forResource: base, withExtension: nil) {
+        return bundled
+      }
+
+      for candidate in resourceCandidates {
+        if let url = bundle.resourceURL?.appendingPathComponent(candidate),
+           FileManager.default.fileExists(atPath: url.path) {
+          return url
+        }
+      }
+      return nil
+    }
+
+    if let bundled = bundle.url(forResource: base, withExtension: ext) {
+      return bundled
+    }
+
+    for candidate in resourceCandidates {
+      if let url = bundle.resourceURL?.appendingPathComponent(candidate),
+         FileManager.default.fileExists(atPath: url.path) {
+        return url
+      }
+    }
+
+    return nil
   }
 }

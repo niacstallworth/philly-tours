@@ -309,6 +309,21 @@ Notes:
 - Default model is `black-forest-labs/flux-pro`.
 - Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
 
+### First real `.usdz` intake
+The iOS runtime now supports a stable bundled asset intake path for hero-stop models.
+
+Contract:
+- keep catalog/runtime paths as `/models/<slug>.usdz`
+- drop the actual iOS file into `ios/PhillyARTours/ARAssets/models/<slug>.usdz`
+- rebuild iOS after adding or replacing the asset
+
+First stop wired for this flow:
+- `Mother Bethel AME Church` -> `/models/mother-bethel-ame-church.usdz`
+
+Docs:
+- `ios/PhillyARTours/ARAssets/README.md`
+- `docs/ar-assets/mother-bethel-ame-church.md`
+
 ## Files To Review First
 
 - `App.tsx`
