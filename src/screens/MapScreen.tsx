@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
@@ -191,6 +191,17 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     }
   }
 
+  async function onPreviewArrivalHandoff() {
+    if (!currentDriveStop || driveSession?.mode !== "arrived") {
+      return;
+    }
+    try {
+      await Linking.openURL(currentDriveStop.handoffDeepLink);
+    } catch (error) {
+      Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -252,6 +263,9 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
               onPress={driveSession?.mode === "arrived" ? onAdvanceDriveStop : onMarkDriveArrived}
               disabled={!currentDriveStopInRange && driveSession?.mode !== "arrived"}
             />
+            {driveSession?.mode === "arrived" ? (
+              <PrimaryButton label="Preview Arrival Handoff" onPress={onPreviewArrivalHandoff} />
+            ) : null}
           </View>
         </Card>
       ) : null}

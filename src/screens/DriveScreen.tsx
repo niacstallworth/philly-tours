@@ -187,7 +187,9 @@ export function DriveScreen({ initialTourId }: Props) {
             {activeSession && activeSession.mode !== "arrived" ? (
               <PrimaryButton label="Mark Arrived" onPress={onMarkArrived} />
             ) : null}
-            {activeSession ? <PrimaryButton label="Preview Arrival Handoff" onPress={previewArrivalHandoff} /> : null}
+            {activeSession?.mode === "arrived" ? (
+              <PrimaryButton label="Preview Arrival Handoff" onPress={previewArrivalHandoff} />
+            ) : null}
             {activeSession ? <PrimaryButton label="Advance To Next Stop" onPress={onAdvanceStop} /> : null}
             {activeSession ? <PrimaryButton label="Clear Drive Session" onPress={onClearSession} /> : null}
           </View>
