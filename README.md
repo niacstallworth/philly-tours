@@ -38,6 +38,9 @@ This README is a current project-status document so reviewers can quickly see wh
 ### Mobile app
 - Entry: `App.tsx`
 - Navigation shell: `src/navigation/MainTabs.tsx`
+- Vehicle handoff helpers:
+  - `src/services/driveMode.ts`
+  - `src/services/deepLinks.ts`
 - Screens:
   - `src/screens/HomeScreen.tsx`
   - `src/screens/MapScreen.tsx`
@@ -177,6 +180,7 @@ Active build focus:
 - AR production briefs: `docs/ar-briefs/README.md`
 - AR scene manifests: `docs/ar-scene-manifests/README.md`
 - Product direction: `docs/product-direction.md`
+- Vehicle platform plan: `docs/vehicle-platform-plan.md`
 
 ## AR Asset Generation
 

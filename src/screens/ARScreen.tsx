@@ -11,9 +11,14 @@ import { createRealtimeSyncFromEnv } from "../services/realtime";
 const adapter = getNativeARAdapter();
 const sync = createRealtimeSyncFromEnv();
 
-export function ARScreen() {
-  const [selectedTourId, setSelectedTourId] = useState<string>(tours[0]?.id || "");
-  const [selectedStopId, setSelectedStopId] = useState<string>("");
+type Props = {
+  initialTourId?: string;
+  initialStopId?: string;
+};
+
+export function ARScreen({ initialTourId, initialStopId }: Props) {
+  const [selectedTourId, setSelectedTourId] = useState<string>(initialTourId || tours[0]?.id || "");
+  const [selectedStopId, setSelectedStopId] = useState<string>(initialStopId || "");
   const [roomName, setRoomName] = useState("historic-philly-main");
   const [actionStatus, setActionStatus] = useState<string>("idle");
   const [actionError, setActionError] = useState<string | null>(null);
@@ -41,12 +46,23 @@ export function ARScreen() {
     (arStatus?.reason || "").toLowerCase().includes("unsupported");
 
   useEffect(() => {
+    if (initialTourId && tours.some((tour) => tour.id === initialTourId)) {
+      setSelectedTourId(initialTourId);
+    }
+  }, [initialTourId]);
+
+  useEffect(() => {
     if (!arStops.length) {
       setSelectedStopId("");
       return;
     }
-    setSelectedStopId((prev) => (prev && arStops.some((stop) => stop.id === prev) ? prev : arStops[0].id));
-  }, [arStops]);
+    setSelectedStopId((prev) => {
+      if (initialStopId && arStops.some((stop) => stop.id === initialStopId)) {
+        return initialStopId;
+      }
+      return prev && arStops.some((stop) => stop.id === prev) ? prev : arStops[0].id;
+    });
+  }, [arStops, initialStopId]);
 
   async function refreshStatus() {
     try {

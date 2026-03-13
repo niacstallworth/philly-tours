@@ -5,11 +5,28 @@ import { tours } from "../data/tours";
 
 type Props = {
   displayName?: string;
+  initialSelectedTourId?: string;
+  highlightedStopId?: string;
+  handoffMode?: "arrive" | "map" | "ar";
 };
 
-export function HomeScreen({ displayName = "Founder" }: Props) {
-  const [selectedTourId, setSelectedTourId] = React.useState<string>(tours[0]?.id || "");
+export function HomeScreen({
+  displayName = "Founder",
+  initialSelectedTourId,
+  highlightedStopId,
+  handoffMode
+}: Props) {
+  const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
+  React.useEffect(() => {
+    if (initialSelectedTourId && tours.some((tour) => tour.id === initialSelectedTourId)) {
+      setSelectedTourId(initialSelectedTourId);
+    }
+  }, [initialSelectedTourId]);
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
+  const highlightedStop = React.useMemo(
+    () => selectedTour?.stops.find((stop) => stop.id === highlightedStopId) || null,
+    [highlightedStopId, selectedTour]
+  );
   const heroStop = selectedTour?.stops[0];
   const plannedCount = selectedTour?.stops.filter((stop) => typeof stop.arPriority === "number").length ?? 0;
 
@@ -33,6 +50,22 @@ export function HomeScreen({ displayName = "Founder" }: Props) {
           Pick a tour pack below. Keep the experience light, focused, and story-first.
         </Text>
       </Card>
+
+      {selectedTour && highlightedStop ? (
+        <Card style={styles.handoffCard}>
+          <Text style={styles.featureEyebrow}>Vehicle handoff</Text>
+          <Text style={styles.handoffTitle}>
+            Continue at {highlightedStop.title}
+          </Text>
+          <Text style={styles.handoffCopy}>
+            {highlightedStop.description.split("|")[0]?.trim() || "Arrive and continue on foot."}
+          </Text>
+          <View style={styles.heroChips}>
+            <Chip label={selectedTour.title} tone="default" />
+            <Chip label={handoffMode === "ar" ? "Ready for AR" : handoffMode === "map" ? "Open map context" : "Arrive on foot"} tone="success" />
+          </View>
+        </Card>
+      ) : null}
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Tour Packs</Text>
@@ -146,6 +179,21 @@ const styles = StyleSheet.create({
   },
   welcomeCopy: {
     color: "#cdbed5",
+    lineHeight: 21
+  },
+  handoffCard: {
+    backgroundColor: "#24112c",
+    borderColor: "rgba(255, 140, 168, 0.28)",
+    gap: 10
+  },
+  handoffTitle: {
+    color: "#fff8f3",
+    fontSize: 24,
+    lineHeight: 29,
+    fontWeight: "800"
+  },
+  handoffCopy: {
+    color: "#ead7e2",
     lineHeight: 21
   },
   sectionHeader: {
