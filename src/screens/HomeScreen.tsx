@@ -30,19 +30,25 @@ export function HomeScreen({
         return;
       }
       setDriveSession(stored);
+      if (!initialSelectedTourId && tours.some((tour) => tour.id === stored.tourId)) {
+        setSelectedTourId(stored.tourId);
+      }
     });
-  }, []);
+  }, [initialSelectedTourId]);
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
-  const highlightedStop = React.useMemo(
-    () => selectedTour?.stops.find((stop) => stop.id === highlightedStopId) || null,
-    [highlightedStopId, selectedTour]
-  );
   const activeDriveTour = React.useMemo(
     () => (driveSession ? tours.find((tour) => tour.id === driveSession.tourId) || null : null),
     [driveSession]
   );
   const currentDriveStop = React.useMemo(() => getCurrentDriveStop(driveSession), [driveSession]);
   const nextDriveStop = React.useMemo(() => getNextDriveStop(driveSession), [driveSession]);
+  const highlightedStop = React.useMemo(
+    () => {
+      const preferredStopId = highlightedStopId || currentDriveStop?.id;
+      return selectedTour?.stops.find((stop) => stop.id === preferredStopId) || null;
+    },
+    [currentDriveStop?.id, highlightedStopId, selectedTour]
+  );
   const heroStop = selectedTour?.stops[0];
   const plannedCount = selectedTour?.stops.filter((stop) => typeof stop.arPriority === "number").length ?? 0;
 

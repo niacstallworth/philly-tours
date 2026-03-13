@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
+import { getCurrentDriveStop, loadDriveSession, type DriveSession } from "../services/driveMode";
 import { getTriggeredStops, haversineDistanceM } from "../services/geofence";
 import {
   getCurrentPosition,
@@ -32,6 +33,7 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [visibleTourIds, setVisibleTourIds] = useState<Set<string>>(() => new Set([initialFocusedTourId || tours[0]?.id || ""]));
   const [focusedTourId, setFocusedTourId] = useState<string>(initialFocusedTourId || tours[0]?.id || "");
+  const [driveSession, setDriveSession] = useState<DriveSession | null>(null);
   const [mapRegion, setMapRegion] = useState<Region | null>(null);
   const watchRef = useRef<{ remove: () => void } | null>(null);
 
@@ -53,9 +55,13 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
       }))
     );
   }, [tourColorById, visibleTours]);
+  const currentDriveStop = useMemo(() => getCurrentDriveStop(driveSession), [driveSession]);
   const highlightedStop = useMemo(
-    () => visibleStops.find((stop) => stop.id === highlightedStopId) || null,
-    [highlightedStopId, visibleStops]
+    () => {
+      const preferredStopId = highlightedStopId || currentDriveStop?.id;
+      return visibleStops.find((stop) => stop.id === preferredStopId) || null;
+    },
+    [currentDriveStop?.id, highlightedStopId, visibleStops]
   );
 
   useEffect(() => {
@@ -63,6 +69,19 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
       setFocusedTourId(initialFocusedTourId);
       setVisibleTourIds(new Set([initialFocusedTourId]));
     }
+  }, [initialFocusedTourId]);
+
+  useEffect(() => {
+    loadDriveSession().then((stored) => {
+      if (!stored) {
+        return;
+      }
+      setDriveSession(stored);
+      if (!initialFocusedTourId && tours.some((tour) => tour.id === stored.tourId)) {
+        setFocusedTourId(stored.tourId);
+        setVisibleTourIds(new Set([stored.tourId]));
+      }
+    });
   }, [initialFocusedTourId]);
 
   useEffect(() => {
