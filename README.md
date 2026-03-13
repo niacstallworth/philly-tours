@@ -178,6 +178,12 @@ The AR asset catalog now supports `fal`-driven concept image generation for plan
 
 Catalog fields used by the generator:
 - `imageProvider`
+- `fallbackImageProvider`
+- `generatedImageProvider`
+- `stylePreset`
+- `visualPriority`
+- `historicalEra`
+- `negativePrompt`
 - `falModel`
 - `falPrompt`
 - `falImageSize`
@@ -237,6 +243,8 @@ Routing defaults:
 
 Notes:
 - Explicit `imageProvider` on a catalog row overrides type-based routing.
+- Explicit `fallbackImageProvider` overrides provider-fallback defaults.
+- `generatedImageProvider` records which provider actually produced the current concept image.
 
 ### Generate AR concept images with Stability
 ```bash

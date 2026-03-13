@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { readCatalogCsv } from "./lib/arAssetCatalogCsv.mjs";
 import { IMAGE_PROVIDER_VALUES, resolveFallbackImageProvider, resolveImageProvider } from "./lib/arImageRouting.mjs";
+import { STYLE_PRESET_VALUES, VISUAL_PRIORITY_VALUES, resolveStylePreset, resolveVisualPriority } from "./lib/arPromptBuilder.mjs";
 
 const rootDir = process.cwd();
 const csvPath = path.join(rootDir, "docs", "ar-asset-catalog.csv");
@@ -95,6 +96,10 @@ function readCatalogRows() {
       imageProvider: asEnum(resolveImageProvider(record), IMAGE_PROVIDER_VALUES, "imageProvider", rowNumber),
       fallbackImageProvider: asEnum(resolveFallbackImageProvider(record), IMAGE_PROVIDER_VALUES, "fallbackImageProvider", rowNumber),
       generatedImageProvider: asOptionalEnum(record.generatedImageProvider, IMAGE_PROVIDER_VALUES, "generatedImageProvider", rowNumber),
+      stylePreset: asEnum(resolveStylePreset(record), STYLE_PRESET_VALUES, "stylePreset", rowNumber),
+      visualPriority: asEnum(resolveVisualPriority(record), VISUAL_PRIORITY_VALUES, "visualPriority", rowNumber),
+      historicalEra: record.historicalEra?.trim() || "",
+      negativePrompt: record.negativePrompt?.trim() || "",
       falModel: record.falModel?.trim() || "",
       falPrompt: record.falPrompt?.trim() || "",
       falImageSize: asOptionalEnum(record.falImageSize, FAL_IMAGE_SIZE_VALUES, "falImageSize", rowNumber),
@@ -139,6 +144,10 @@ function writeCatalogModule(rows) {
   imageProvider: "fal" | "stability" | "replicate";
   fallbackImageProvider: "fal" | "stability" | "replicate";
   generatedImageProvider: "" | "fal" | "stability" | "replicate";
+  stylePreset: "" | "architectural" | "cinematic" | "editorial" | "museum_card" | "documentary";
+  visualPriority: "" | "facade_accuracy" | "historical_accuracy" | "atmosphere" | "readability" | "silhouette";
+  historicalEra: string;
+  negativePrompt: string;
   falModel: string;
   falPrompt: string;
   falImageSize: "" | "square_hd" | "square" | "portrait_4_3" | "portrait_16_9" | "landscape_4_3" | "landscape_16_9";

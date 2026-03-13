@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { readCatalogCsv, writeCatalogCsv } from "./lib/arAssetCatalogCsv.mjs";
+import { buildProviderPrompt } from "./lib/arPromptBuilder.mjs";
 
 const rootDir = process.cwd();
 const csvPath = path.join(rootDir, "docs", "ar-asset-catalog.csv");
@@ -80,13 +81,7 @@ function resolveOutputPath(record) {
 }
 
 function buildPrompt(record) {
-  if (record.replicatePrompt?.trim()) {
-    return record.replicatePrompt.trim();
-  }
-
-  const arTypeLabel = (record.arType || "ar scene").replaceAll("_", " ");
-  const assetBrief = (record.assetNeeded || "historic Philadelphia storytelling scene").trim();
-  return `Atmospheric concept art for a mobile augmented reality ${arTypeLabel} experience at ${record.stopTitle} in Philadelphia. Show ${assetBrief}. Historically grounded. Strong cinematic composition for an AR tour app.`;
+  return buildProviderPrompt(record, "replicate", record.replicatePrompt);
 }
 
 function assertEnum(value, allowed, fieldName, record) {
