@@ -1,4 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { tours } from "../data/tours";
+
+const DRIVE_SESSION_KEY = "philly_tours_drive_session_v1";
 
 export type DriveTourSummary = {
   id: string;
@@ -73,4 +76,82 @@ export function createDriveSession(tourId: string, currentStopId: string, mode: 
     startedAt: Date.now(),
     mode
   };
+}
+
+export function getDriveStopIndex(tourId: string, stopId: string) {
+  return getDriveStops(tourId).findIndex((stop) => stop.id === stopId);
+}
+
+export function getCurrentDriveStop(session: DriveSession | null) {
+  if (!session) {
+    return null;
+  }
+  return getDriveStops(session.tourId).find((stop) => stop.id === session.currentStopId) || null;
+}
+
+export function getNextDriveStop(session: DriveSession | null) {
+  if (!session) {
+    return null;
+  }
+  const stops = getDriveStops(session.tourId);
+  const currentIndex = stops.findIndex((stop) => stop.id === session.currentStopId);
+  if (currentIndex < 0) {
+    return stops[0] || null;
+  }
+  return stops[currentIndex + 1] || null;
+}
+
+export async function loadDriveSession(): Promise<DriveSession | null> {
+  try {
+    const raw = await AsyncStorage.getItem(DRIVE_SESSION_KEY);
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw) as DriveSession;
+    if (!parsed.tourId || !parsed.currentStopId || !parsed.mode) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveDriveSession(session: DriveSession): Promise<void> {
+  await AsyncStorage.setItem(DRIVE_SESSION_KEY, JSON.stringify(session));
+}
+
+export async function clearDriveSession(): Promise<void> {
+  await AsyncStorage.removeItem(DRIVE_SESSION_KEY);
+}
+
+export async function startDriveSession(tourId: string) {
+  const firstStop = getDriveStops(tourId)[0];
+  if (!firstStop) {
+    throw new Error("This tour has no drivable stops.");
+  }
+  const session = createDriveSession(tourId, firstStop.id, "drive");
+  await saveDriveSession(session);
+  return session;
+}
+
+export async function markDriveArrived(session: DriveSession) {
+  const next = { ...session, mode: "arrived" as const };
+  await saveDriveSession(next);
+  return next;
+}
+
+export async function advanceDriveSession(session: DriveSession) {
+  const nextStop = getNextDriveStop(session);
+  if (!nextStop) {
+    await clearDriveSession();
+    return null;
+  }
+  const nextSession: DriveSession = {
+    ...session,
+    currentStopId: nextStop.id,
+    mode: "drive"
+  };
+  await saveDriveSession(nextSession);
+  return nextSession;
 }
