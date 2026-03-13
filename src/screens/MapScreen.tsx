@@ -19,14 +19,19 @@ type StopWithTour = (typeof tours)[number]["stops"][number] & {
 
 const TOUR_COLORS = ["#ff8ca8", "#ffbc8a", "#ffd36b", "#8fd7c3", "#7dc9ff", "#b79cff"];
 
-export function MapScreen() {
+type Props = {
+  initialFocusedTourId?: string;
+  highlightedStopId?: string;
+};
+
+export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
   const mapRef = useRef<MapView | null>(null);
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
   const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
   const [watching, setWatching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [visibleTourIds, setVisibleTourIds] = useState<Set<string>>(() => new Set([tours[0]?.id || ""]));
-  const [focusedTourId, setFocusedTourId] = useState<string>(tours[0]?.id || "");
+  const [visibleTourIds, setVisibleTourIds] = useState<Set<string>>(() => new Set([initialFocusedTourId || tours[0]?.id || ""]));
+  const [focusedTourId, setFocusedTourId] = useState<string>(initialFocusedTourId || tours[0]?.id || "");
   const [mapRegion, setMapRegion] = useState<Region | null>(null);
   const watchRef = useRef<{ remove: () => void } | null>(null);
 
@@ -48,6 +53,17 @@ export function MapScreen() {
       }))
     );
   }, [tourColorById, visibleTours]);
+  const highlightedStop = useMemo(
+    () => visibleStops.find((stop) => stop.id === highlightedStopId) || null,
+    [highlightedStopId, visibleStops]
+  );
+
+  useEffect(() => {
+    if (initialFocusedTourId && tours.some((tour) => tour.id === initialFocusedTourId)) {
+      setFocusedTourId(initialFocusedTourId);
+      setVisibleTourIds(new Set([initialFocusedTourId]));
+    }
+  }, [initialFocusedTourId]);
 
   useEffect(() => {
     return () => {
@@ -161,6 +177,14 @@ export function MapScreen() {
         </View>
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </Card>
+
+      {highlightedStop ? (
+        <Card style={styles.panel}>
+          <Text style={styles.label}>Vehicle handoff target</Text>
+          <Text style={styles.copy}>{highlightedStop.title}</Text>
+          <Text style={styles.copy}>{highlightedStop.description.split("|")[0]?.trim()}</Text>
+        </Card>
+      ) : null}
 
       <MapView
         ref={(ref) => {

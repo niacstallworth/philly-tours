@@ -6,6 +6,7 @@ import { MapScreen } from "../screens/MapScreen";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { ProgressScreen } from "../screens/ProgressScreen";
+import { HandoffTarget } from "../services/deepLinks";
 
 type SessionInfo = {
   displayName: string;
@@ -15,20 +16,43 @@ type SessionInfo = {
 
 type Props = {
   session: SessionInfo;
+  handoffTarget?: HandoffTarget | null;
 };
 
-export function MainTabs({ session }: Props) {
+export function MainTabs({ session, handoffTarget }: Props) {
   const [tab, setTab] = React.useState<"Home" | "Map" | "AR" | "Progress" | "Profile">("Home");
+
+  React.useEffect(() => {
+    if (!handoffTarget) {
+      return;
+    }
+    if (handoffTarget.mode === "ar") {
+      setTab("AR");
+      return;
+    }
+    if (handoffTarget.mode === "map") {
+      setTab("Map");
+      return;
+    }
+    setTab("Home");
+  }, [handoffTarget]);
 
   function renderTab() {
     if (tab === "Home") {
-      return <HomeScreen displayName={session.displayName} />;
+      return (
+        <HomeScreen
+          displayName={session.displayName}
+          initialSelectedTourId={handoffTarget?.tourId}
+          highlightedStopId={handoffTarget?.stopId}
+          handoffMode={handoffTarget?.mode}
+        />
+      );
     }
     if (tab === "Map") {
-      return <MapScreen />;
+      return <MapScreen initialFocusedTourId={handoffTarget?.tourId} highlightedStopId={handoffTarget?.stopId} />;
     }
     if (tab === "AR") {
-      return <ARScreen />;
+      return <ARScreen initialTourId={handoffTarget?.tourId} initialStopId={handoffTarget?.stopId} />;
     }
     if (tab === "Progress") {
       return <ProgressScreen />;
