@@ -63,7 +63,7 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at Mother Bethel AME Church in Philadelphia. Show exterior reconstruction scene; site card; archival textures. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
-    "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-mother-bethel-ame-church.jpeg",
+    "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-mother-bethel-ame-church.png",
     "generatedImageExistsLocal": true
   },
   {
@@ -96,7 +96,7 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at President's House / Liberty Bell Center in Philadelphia. Show household reconstruction; figure markers; timeline overlays. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
-    "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center.jpeg",
+    "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center.png",
     "generatedImageExistsLocal": true
   },
   {
@@ -129,7 +129,7 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality historical figure presence experience at Johnson House in Philadelphia. Show Underground Railroad scene; host figure silhouette; route overlay. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
-    "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-johnson-house.jpeg",
+    "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-johnson-house.png",
     "generatedImageExistsLocal": true
   },
   {
