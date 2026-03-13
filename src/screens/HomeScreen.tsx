@@ -2,7 +2,8 @@ import React from "react";
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
-import { getCurrentDriveStop, getNextDriveStop, loadDriveSession, type DriveSession } from "../services/driveMode";
+import { useDriveSession } from "../hooks/useDriveSession";
+import { getCurrentDriveStop, getNextDriveStop } from "../services/driveMode";
 
 type Props = {
   displayName?: string;
@@ -18,23 +19,17 @@ export function HomeScreen({
   handoffMode
 }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
-  const [driveSession, setDriveSession] = React.useState<DriveSession | null>(null);
+  const { driveSession } = useDriveSession();
   React.useEffect(() => {
     if (initialSelectedTourId && tours.some((tour) => tour.id === initialSelectedTourId)) {
       setSelectedTourId(initialSelectedTourId);
     }
   }, [initialSelectedTourId]);
   React.useEffect(() => {
-    loadDriveSession().then((stored) => {
-      if (!stored) {
-        return;
-      }
-      setDriveSession(stored);
-      if (!initialSelectedTourId && tours.some((tour) => tour.id === stored.tourId)) {
-        setSelectedTourId(stored.tourId);
-      }
-    });
-  }, [initialSelectedTourId]);
+    if (!initialSelectedTourId && driveSession?.tourId && tours.some((tour) => tour.id === driveSession.tourId)) {
+      setSelectedTourId(driveSession.tourId);
+    }
+  }, [driveSession?.tourId, initialSelectedTourId]);
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
   const activeDriveTour = React.useMemo(
     () => (driveSession ? tours.find((tour) => tour.id === driveSession.tourId) || null : null),

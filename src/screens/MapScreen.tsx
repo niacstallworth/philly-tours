@@ -3,7 +3,8 @@ import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "r
 import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
-import { advanceDriveSession, getCurrentDriveStop, loadDriveSession, markDriveArrived, type DriveSession } from "../services/driveMode";
+import { useDriveSession } from "../hooks/useDriveSession";
+import { advanceDriveSession, getCurrentDriveStop, markDriveArrived } from "../services/driveMode";
 import { getTriggeredStops, haversineDistanceM } from "../services/geofence";
 import {
   getCurrentPosition,
@@ -33,9 +34,10 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [visibleTourIds, setVisibleTourIds] = useState<Set<string>>(() => new Set([initialFocusedTourId || tours[0]?.id || ""]));
   const [focusedTourId, setFocusedTourId] = useState<string>(initialFocusedTourId || tours[0]?.id || "");
-  const [driveSession, setDriveSession] = useState<DriveSession | null>(null);
+  const { driveSession, setDriveSession } = useDriveSession();
   const [mapRegion, setMapRegion] = useState<Region | null>(null);
   const watchRef = useRef<{ remove: () => void } | null>(null);
+  const autoArrivedStopIdRef = useRef<string | null>(null);
 
   const tourColorById = useMemo(() => {
     const map = new Map<string, string>();
@@ -72,17 +74,11 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
   }, [initialFocusedTourId]);
 
   useEffect(() => {
-    loadDriveSession().then((stored) => {
-      if (!stored) {
-        return;
-      }
-      setDriveSession(stored);
-      if (!initialFocusedTourId && tours.some((tour) => tour.id === stored.tourId)) {
-        setFocusedTourId(stored.tourId);
-        setVisibleTourIds(new Set([stored.tourId]));
-      }
-    });
-  }, [initialFocusedTourId]);
+    if (!initialFocusedTourId && driveSession?.tourId && tours.some((tour) => tour.id === driveSession.tourId)) {
+      setFocusedTourId(driveSession.tourId);
+      setVisibleTourIds(new Set([driveSession.tourId]));
+    }
+  }, [driveSession?.tourId, initialFocusedTourId]);
 
   useEffect(() => {
     return () => {
@@ -103,6 +99,24 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     }
     return triggeredIds.has(currentDriveStop.id);
   }, [currentDriveStop, triggeredIds]);
+
+  useEffect(() => {
+    if (!driveSession || driveSession.mode !== "drive" || !currentDriveStop || !currentDriveStopInRange) {
+      return;
+    }
+    if (autoArrivedStopIdRef.current === currentDriveStop.id) {
+      return;
+    }
+
+    autoArrivedStopIdRef.current = currentDriveStop.id;
+    markDriveArrived(driveSession)
+      .then((nextSession) => {
+        setDriveSession(nextSession);
+      })
+      .catch(() => {
+        autoArrivedStopIdRef.current = null;
+      });
+  }, [currentDriveStop, currentDriveStopInRange, driveSession, setDriveSession]);
 
   const nearest = useMemo(() => {
     if (!userPosition || visibleStops.length === 0) {
