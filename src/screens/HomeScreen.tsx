@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
+import { getCurrentDriveStop, getNextDriveStop, loadDriveSession, type DriveSession } from "../services/driveMode";
 
 type Props = {
   displayName?: string;
@@ -17,16 +18,31 @@ export function HomeScreen({
   handoffMode
 }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
+  const [driveSession, setDriveSession] = React.useState<DriveSession | null>(null);
   React.useEffect(() => {
     if (initialSelectedTourId && tours.some((tour) => tour.id === initialSelectedTourId)) {
       setSelectedTourId(initialSelectedTourId);
     }
   }, [initialSelectedTourId]);
+  React.useEffect(() => {
+    loadDriveSession().then((stored) => {
+      if (!stored) {
+        return;
+      }
+      setDriveSession(stored);
+    });
+  }, []);
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
   const highlightedStop = React.useMemo(
     () => selectedTour?.stops.find((stop) => stop.id === highlightedStopId) || null,
     [highlightedStopId, selectedTour]
   );
+  const activeDriveTour = React.useMemo(
+    () => (driveSession ? tours.find((tour) => tour.id === driveSession.tourId) || null : null),
+    [driveSession]
+  );
+  const currentDriveStop = React.useMemo(() => getCurrentDriveStop(driveSession), [driveSession]);
+  const nextDriveStop = React.useMemo(() => getNextDriveStop(driveSession), [driveSession]);
   const heroStop = selectedTour?.stops[0];
   const plannedCount = selectedTour?.stops.filter((stop) => typeof stop.arPriority === "number").length ?? 0;
 
@@ -50,6 +66,21 @@ export function HomeScreen({
           Pick a tour pack below. Keep the experience light, focused, and story-first.
         </Text>
       </Card>
+
+      {driveSession && activeDriveTour && currentDriveStop ? (
+        <Card style={styles.driveCard}>
+          <Text style={styles.featureEyebrow}>Resume drive session</Text>
+          <Text style={styles.driveTitle}>{activeDriveTour.title}</Text>
+          <Text style={styles.driveCopy}>
+            Current: {currentDriveStop.title}
+            {nextDriveStop ? ` | Next: ${nextDriveStop.title}` : " | Final stop reached"}
+          </Text>
+          <View style={styles.heroChips}>
+            <Chip label={`Mode ${driveSession.mode}`} tone="success" />
+            <Chip label={nextDriveStop ? "Open Drive tab to continue" : "Route complete"} tone="warn" />
+          </View>
+        </Card>
+      ) : null}
 
       {selectedTour && highlightedStop ? (
         <Card style={styles.handoffCard}>
@@ -185,6 +216,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#24112c",
     borderColor: "rgba(255, 140, 168, 0.28)",
     gap: 10
+  },
+  driveCard: {
+    backgroundColor: "#201228",
+    borderColor: "rgba(143, 215, 195, 0.24)",
+    gap: 10
+  },
+  driveTitle: {
+    color: "#fff8f3",
+    fontSize: 24,
+    lineHeight: 29,
+    fontWeight: "800"
+  },
+  driveCopy: {
+    color: "#e4d7e7",
+    lineHeight: 21
   },
   handoffTitle: {
     color: "#fff8f3",
