@@ -163,6 +163,11 @@ export function ARBuildQueueScreen() {
         } else {
           acc.androidMissing += 1;
         }
+        if (entry.generatedImageExistsLocal) {
+          acc.generatedPresent += 1;
+        } else {
+          acc.generatedMissing += 1;
+        }
         return acc;
       },
       {
@@ -170,6 +175,8 @@ export function ARBuildQueueScreen() {
         iosMissing: 0,
         androidPresent: 0,
         androidMissing: 0,
+        generatedPresent: 0,
+        generatedMissing: 0,
         uncataloged: 0
       }
     );
@@ -193,6 +200,7 @@ export function ARBuildQueueScreen() {
       `Visible ready to build: ${filteredCounts.ready || 0}`,
       `Visible scenes built: ${builtVisibleCount}`,
       `Visible QA complete: ${qaVisibleCount}`,
+      `Visible generated concept images: ${localAssetPresence.generatedPresent}`,
       "",
       "## Tour Progress"
     ];
@@ -233,7 +241,8 @@ export function ARBuildQueueScreen() {
     qaVisibleCount,
     readinessFilter,
     sceneBuiltIds,
-    tourFilter
+    tourFilter,
+    localAssetPresence.generatedPresent
   ]);
 
   React.useEffect(() => {
@@ -420,6 +429,8 @@ export function ARBuildQueueScreen() {
         <Chip label={`iOS files missing: ${localAssetPresence.iosMissing}`} tone={localAssetPresence.iosMissing > 0 ? "danger" : "success"} />
         <Chip label={`Android files present: ${localAssetPresence.androidPresent}`} tone={localAssetPresence.androidPresent > 0 ? "success" : "default"} />
         <Chip label={`Android files missing: ${localAssetPresence.androidMissing}`} tone={localAssetPresence.androidMissing > 0 ? "danger" : "success"} />
+        <Chip label={`Concept images present: ${localAssetPresence.generatedPresent}`} tone={localAssetPresence.generatedPresent > 0 ? "success" : "default"} />
+        <Chip label={`Concept images missing: ${localAssetPresence.generatedMissing}`} tone={localAssetPresence.generatedMissing > 0 ? "warn" : "success"} />
       </View>
 
       <Card style={styles.card}>
@@ -483,11 +494,19 @@ export function ARBuildQueueScreen() {
               ) : (
                 <Chip label="Android file missing" tone="danger" />
               )}
+              {catalogEntry?.generatedImageExistsLocal ? (
+                <Chip label="Concept image present" tone="success" />
+              ) : (
+                <Chip label="Concept image missing" tone="warn" />
+              )}
             </View>
             <Text style={styles.meta}>Coords: {stop.coordQuality || "approximate"} | Radius: {stop.triggerRadiusM}m</Text>
             <Text style={styles.asset}>Asset brief: {stop.assetNeeded || "No asset blockers remaining"}</Text>
             <Text style={styles.meta}>
               Catalog asset paths: iOS {catalogEntry?.iosAsset || "n/a"} | Android {catalogEntry?.androidAsset || "n/a"}
+            </Text>
+            <Text style={styles.meta}>
+              Fal concept image: {catalogEntry?.generatedImagePath || "n/a"} | Model {catalogEntry?.falModel || "n/a"}
             </Text>
             <Pressable style={styles.actionButton} onPress={() => toggleAssetComplete(stop.id)}>
               <Text style={styles.actionButtonText}>

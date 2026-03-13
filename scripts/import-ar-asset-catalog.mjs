@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { readCatalogCsv } from "./lib/arAssetCatalogCsv.mjs";
 
 const rootDir = process.cwd();
 const csvPath = path.join(rootDir, "docs", "ar-asset-catalog.csv");
@@ -10,6 +11,7 @@ const ANCHOR_STYLE_VALUES = new Set(["front_of_user", "ground", "image_target", 
 const FALLBACK_TYPE_VALUES = new Set(["box", "card", "none"]);
 const COORD_QUALITY_VALUES = new Set(["verified", "approximate"]);
 const EFFORT_VALUES = new Set(["", "low", "medium", "high"]);
+const FAL_IMAGE_SIZE_VALUES = new Set(["square_hd", "square", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"]);
 
 function normalizeRepoPath(assetPath) {
   return assetPath.replace(/^\/+/, "");
@@ -23,62 +25,6 @@ function assetExistsInRepo(assetPath) {
   ];
 
   return candidates.some((candidate) => fs.existsSync(candidate));
-}
-
-function parseCsv(input) {
-  const rows = [];
-  let row = [];
-  let cell = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < input.length; i += 1) {
-    const char = input[i];
-    const next = input[i + 1];
-
-    if (inQuotes) {
-      if (char === '"' && next === '"') {
-        cell += '"';
-        i += 1;
-      } else if (char === '"') {
-        inQuotes = false;
-      } else {
-        cell += char;
-      }
-      continue;
-    }
-
-    if (char === '"') {
-      inQuotes = true;
-      continue;
-    }
-
-    if (char === ",") {
-      row.push(cell);
-      cell = "";
-      continue;
-    }
-
-    if (char === "\n") {
-      row.push(cell);
-      rows.push(row);
-      row = [];
-      cell = "";
-      continue;
-    }
-
-    if (char === "\r") {
-      continue;
-    }
-
-    cell += char;
-  }
-
-  if (cell.length > 0 || row.length > 0) {
-    row.push(cell);
-    rows.push(row);
-  }
-
-  return rows.filter((candidate) => candidate.some((value) => value.trim().length > 0));
 }
 
 function required(value, fieldName, rowNumber) {
@@ -103,19 +49,19 @@ function asEnum(value, allowed, fieldName, rowNumber) {
   return value;
 }
 
-function readCatalogRows() {
-  const raw = fs.readFileSync(csvPath, "utf8").replace(/^\uFEFF/, "");
-  const rows = parseCsv(raw);
-  if (rows.length < 2) {
-    throw new Error("Catalog CSV must include a header row and at least one data row");
+function asOptionalEnum(value, allowed, fieldName, rowNumber) {
+  const trimmed = (value || "").trim();
+  if (!trimmed) {
+    return "";
   }
+  return asEnum(trimmed, allowed, fieldName, rowNumber);
+}
 
-  const [header, ...body] = rows;
-  const headers = header.map((value) => value.trim());
+function readCatalogRows() {
+  const { records } = readCatalogCsv(csvPath);
 
-  return body.map((values, index) => {
+  return records.map((record, index) => {
     const rowNumber = index + 2;
-    const record = Object.fromEntries(headers.map((key, columnIndex) => [key, values[columnIndex] ?? ""]));
 
     return {
       tourId: required(record.tourId, "tourId", rowNumber),
@@ -139,7 +85,12 @@ function readCatalogRows() {
       triggerRadiusM: asNumber(required(record.triggerRadiusM, "triggerRadiusM", rowNumber), "triggerRadiusM", rowNumber),
       assetNeeded: record.assetNeeded?.trim() || "",
       estimatedEffort: asEnum((record.estimatedEffort || "").trim(), EFFORT_VALUES, "estimatedEffort", rowNumber),
-      notes: record.notes?.trim() || ""
+      notes: record.notes?.trim() || "",
+      falModel: record.falModel?.trim() || "",
+      falPrompt: record.falPrompt?.trim() || "",
+      falImageSize: asOptionalEnum(record.falImageSize, FAL_IMAGE_SIZE_VALUES, "falImageSize", rowNumber),
+      generatedImagePath: record.generatedImagePath?.trim() || "",
+      generatedImageExistsLocal: record.generatedImagePath?.trim() ? assetExistsInRepo(record.generatedImagePath.trim()) : false
     };
   });
 }
@@ -168,6 +119,11 @@ function writeCatalogModule(rows) {
   assetNeeded: string;
   estimatedEffort: "low" | "medium" | "high" | "";
   notes: string;
+  falModel: string;
+  falPrompt: string;
+  falImageSize: "" | "square_hd" | "square" | "portrait_4_3" | "portrait_16_9" | "landscape_4_3" | "landscape_16_9";
+  generatedImagePath: string;
+  generatedImageExistsLocal: boolean;
 };
 
 export const arAssetCatalog: ARAssetCatalogEntry[] = ${JSON.stringify(rows, null, 2)};

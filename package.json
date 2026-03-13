@@ -9,11 +9,13 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "ar:catalog:import": "node scripts/import-ar-asset-catalog.mjs",
+    "ar:fal:generate": "node scripts/generate-fal-ar-images.mjs",
     "sync-server": "node server/sync-server.js",
     "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
+    "@fal-ai/client": "^1.9.4",
     "@react-native-async-storage/async-storage": "^3.0.1",
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/native": "^7.1.33",
