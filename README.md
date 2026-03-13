@@ -177,6 +177,7 @@ Active build focus:
 The AR asset catalog now supports `fal`-driven concept image generation for planned AR stops.
 
 Catalog fields used by the generator:
+- `imageProvider`
 - `falModel`
 - `falPrompt`
 - `falImageSize`
@@ -209,6 +210,29 @@ Notes:
 - `FAL_KEY` must be present in `.env` or the shell environment.
 - This generator is local/server-side only. Do not expose `FAL_KEY` in mobile client code.
 - Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
+
+### Generate routed AR concept images
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:images:generate
+```
+
+Useful options:
+- `npm run ar:images:generate -- --limit 5`
+- `npm run ar:images:generate -- --provider stability`
+- `npm run ar:images:generate -- --provider fal`
+- `npm run ar:images:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
+- `npm run ar:images:generate -- --force`
+
+Routing defaults:
+- `stability`: `before_after_overlay`, `object_on_plinth`, `animated_diagram`
+- `replicate`: `portal_reconstruction`, `historical_figure_presence`
+- `fal`: `floating_story_card`, `route_ghost`
+
+Notes:
+- Explicit `imageProvider` on a catalog row overrides type-based routing.
+- `replicate` routing is defined but not wired yet. Routed rows are reported and skipped for now.
 
 ### Generate AR concept images with Stability
 ```bash

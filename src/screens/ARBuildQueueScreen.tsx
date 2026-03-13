@@ -479,6 +479,7 @@ export function ARBuildQueueScreen() {
             <Text style={styles.tour}>{stop.tourTitle}</Text>
             <View style={styles.chips}>
               <Chip label={stop.arType || "not assigned"} tone={stop.arType ? "warn" : "default"} />
+              <Chip label={`Provider: ${catalogEntry?.imageProvider || "n/a"}`} tone="default" />
               <Chip label={readiness.label} tone={readiness.tone} />
               <Chip label={`Effort: ${stop.estimatedEffort || "n/a"}`} tone="default" />
               {assetCompleteIds.has(stop.id) ? <Chip label="Assets marked complete" tone="success" /> : null}
