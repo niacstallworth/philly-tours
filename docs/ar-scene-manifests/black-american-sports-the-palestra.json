@@ -1,0 +1,38 @@
+{
+  "stopId": "black-american-sports-the-palestra",
+  "stopTitle": "The Palestra",
+  "tourId": "black-american-sports",
+  "tourTitle": "Black American Sports",
+  "arPriority": 11,
+  "arType": "portal_reconstruction",
+  "headline": "Hero portal reconstruction",
+  "summary": "historic game scene; score overlay; court reconstruction",
+  "historicalEra": "20th century Philadelphia",
+  "stylePreset": "cinematic",
+  "visualPriority": "atmosphere",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "conceptImagePath": "assets/generated/ar-references/black-american-sports-the-palestra.jpeg",
+  "plannedProvider": "replicate",
+  "fallbackProvider": "stability",
+  "generatedProvider": "not generated",
+  "runtimeAssets": {
+    "ios": "/models/the-palestra.usdz",
+    "android": "/models/the-palestra.glb",
+    "web": "/models/the-palestra.glb"
+  },
+  "contentLayers": [
+    "historic game scene",
+    "score overlay",
+    "court reconstruction",
+    "portal frame",
+    "foreground occlusion pass",
+    "historic depth backdrop"
+  ],
+  "productionChecklist": [
+    "Confirm portal framing",
+    "Define foreground props",
+    "Validate scene depth",
+    "Check occlusion and sightlines"
+  ],
+  "negativePrompt": "science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins"
+}

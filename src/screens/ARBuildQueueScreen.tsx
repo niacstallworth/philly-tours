@@ -5,6 +5,7 @@ import { Card, Chip, SectionTitle } from "../components/ui/Primitives";
 import { arAssetCatalogByStopId } from "../data/arAssetCatalog";
 import { tours } from "../data/tours";
 import { getARReadiness } from "../services/arPlanning";
+import { toARProductionBrief } from "../services/arBrief";
 import {
   loadBuiltSceneIds,
   loadCompletedAssetIds,
@@ -33,6 +34,7 @@ export function ARBuildQueueScreen() {
   const [qaCompleteIds, setQACompleteIds] = React.useState<Set<string>>(() => new Set());
   const [storageLoaded, setStorageLoaded] = React.useState(false);
   const [copyStatus, setCopyStatus] = React.useState<"idle" | "copied" | "error">("idle");
+  const [openBriefStopId, setOpenBriefStopId] = React.useState<string | null>(null);
 
   const plannedStops = React.useMemo<PlannedStop[]>(() => {
     return tours
@@ -472,6 +474,8 @@ export function ARBuildQueueScreen() {
         const sceneBuilt = sceneBuiltIds.has(stop.id);
         const qaComplete = qaCompleteIds.has(stop.id);
         const catalogEntry = arAssetCatalogByStopId.get(stop.id);
+        const brief = toARProductionBrief(stop, stop.tourTitle);
+        const briefOpen = openBriefStopId === stop.id;
         return (
           <Card key={stop.id} style={styles.card}>
             <Text style={styles.priority}>Priority {stop.arPriority}</Text>
@@ -519,6 +523,25 @@ export function ARBuildQueueScreen() {
             <Text style={styles.meta}>
               Era: {catalogEntry?.historicalEra || "n/a"} | Negative: {catalogEntry?.negativePrompt || "n/a"}
             </Text>
+            <Pressable
+              style={styles.actionButton}
+              onPress={() => setOpenBriefStopId((prev) => (prev === stop.id ? null : stop.id))}
+            >
+              <Text style={styles.actionButtonText}>{briefOpen ? "Close Brief" : "Open Brief"}</Text>
+            </Pressable>
+            {briefOpen ? (
+              <View style={styles.briefBlock}>
+                <Text style={styles.briefHeadline}>{brief.headline}</Text>
+                <Text style={styles.meta}>Brief path: {brief.briefPath}</Text>
+                <Text style={styles.meta}>Manifest path: {brief.manifestPath}</Text>
+                <Text style={styles.asset}>Summary: {brief.summary}</Text>
+                <Text style={styles.meta}>
+                  Runtime assets: iOS {brief.runtimeAssets.ios} | Android {brief.runtimeAssets.android} | Web {brief.runtimeAssets.web}
+                </Text>
+                <Text style={styles.meta}>Layers: {brief.contentLayers.join(" | ")}</Text>
+                <Text style={styles.meta}>Checklist: {brief.productionChecklist.join(" | ")}</Text>
+              </View>
+            ) : null}
             <Pressable style={styles.actionButton} onPress={() => toggleAssetComplete(stop.id)}>
               <Text style={styles.actionButtonText}>
                 {assetCompleteIds.has(stop.id) ? "Mark Assets Incomplete" : "Mark Assets Complete"}
@@ -571,6 +594,18 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 12,
     lineHeight: 18
+  },
+  briefBlock: {
+    backgroundColor: "#020617",
+    borderColor: "#334155",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    gap: 6
+  },
+  briefHeadline: {
+    color: colors.text,
+    fontWeight: "800"
   },
   actionButton: {
     backgroundColor: "#0f172a",

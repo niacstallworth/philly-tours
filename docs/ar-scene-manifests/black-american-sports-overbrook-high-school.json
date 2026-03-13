@@ -1,0 +1,36 @@
+{
+  "stopId": "black-american-sports-overbrook-high-school",
+  "stopTitle": "Overbrook High School",
+  "tourId": "black-american-sports",
+  "tourTitle": "Black American Sports",
+  "arPriority": 13,
+  "arType": "floating_story_card",
+  "headline": "Editorial AR story card",
+  "summary": "Wilt and Kobe legacy cards; stats overlays",
+  "historicalEra": "20th century Philadelphia",
+  "stylePreset": "editorial",
+  "visualPriority": "readability",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "conceptImagePath": "assets/generated/ar-references/black-american-sports-overbrook-high-school.jpeg",
+  "plannedProvider": "fal",
+  "fallbackProvider": "stability",
+  "generatedProvider": "not generated",
+  "runtimeAssets": {
+    "ios": "/models/overbrook-high-school.usdz",
+    "android": "/models/overbrook-high-school.glb",
+    "web": "/models/overbrook-high-school.glb"
+  },
+  "contentLayers": [
+    "Wilt and Kobe legacy cards",
+    "stats overlays",
+    "story card stack",
+    "headline frame",
+    "lightweight foreground treatment"
+  ],
+  "productionChecklist": [
+    "Check card readability",
+    "Trim background clutter",
+    "Validate mobile-safe margins"
+  ],
+  "negativePrompt": "busy backgrounds, unreadable layouts, overdecorated borders, dense clutter"
+}

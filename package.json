@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "ar:catalog:import": "node scripts/import-ar-asset-catalog.mjs",
     "ar:briefs:generate": "node scripts/generate-ar-briefs.mjs",
+    "ar:manifests:generate": "node scripts/generate-ar-scene-manifests.mjs",
     "ar:images:generate": "node scripts/generate-ar-images.mjs",
     "ar:fal:generate": "node scripts/generate-fal-ar-images.mjs",
     "ar:replicate:generate": "node scripts/generate-replicate-ar-images.mjs",

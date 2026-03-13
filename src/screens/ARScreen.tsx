@@ -4,6 +4,7 @@ import { Card, Chip, PrimaryButton, SectionTitle } from "../components/ui/Primit
 import { arGeneratedImageMap } from "../data/arGeneratedImageMap";
 import { tours } from "../data/tours";
 import { useBuildQueueProgress } from "../hooks/useBuildQueueProgress";
+import { toARProductionBrief } from "../services/arBrief";
 import { toARSceneManifest } from "../services/arManifest";
 import { toARScenePayload } from "../services/ar";
 import { getARReadiness } from "../services/arPlanning";
@@ -52,6 +53,10 @@ export function ARScreen() {
   const selectedManifest = useMemo(
     () => (selectedStop ? toARSceneManifest(selectedStop) : null),
     [selectedStop]
+  );
+  const selectedBrief = useMemo(
+    () => (selectedStop ? toARProductionBrief(selectedStop, selectedTour.title) : null),
+    [selectedStop, selectedTour.title]
   );
   const selectedQuality = useMemo(() => {
     const verified = selectedTour.stops.filter((s) => s.coordQuality === "verified").length;
@@ -302,6 +307,19 @@ export function ARScreen() {
             <Text style={styles.value}>Concept image: {selectedManifest.conceptImagePath || "none yet"}</Text>
           </>
         ) : null}
+        {selectedBrief ? (
+          <>
+            <Text style={styles.label}>Open Brief</Text>
+            <View style={styles.chips}>
+              <Chip label={`Brief ${selectedBrief.briefPath}`} tone="default" />
+              <Chip label={`Manifest ${selectedBrief.manifestPath}`} tone="default" />
+            </View>
+            <Text style={styles.value}>Intent: {selectedBrief.headline}</Text>
+            <Text style={styles.value}>Summary: {selectedBrief.summary}</Text>
+            <Text style={styles.value}>Assets: {selectedBrief.assetNeeded}</Text>
+            <Text style={styles.value}>Checklist: {selectedBrief.productionChecklist.join(" | ")}</Text>
+          </>
+        ) : null}
       </Card>
 
       <Card style={styles.statusCard}>
@@ -382,6 +400,9 @@ export function ARScreen() {
                     <Text style={styles.value}>Layers: {manifest.contentLayers.join(" | ")}</Text>
                     <Text style={styles.value}>Checklist: {manifest.productionChecklist.join(" | ")}</Text>
                     <Text style={styles.value}>Concept: {manifest.conceptImagePath || "none yet"}</Text>
+                    {stop ? (
+                      <Text style={styles.value}>Brief: {toARProductionBrief(stop, selectedTour.title).briefPath}</Text>
+                    ) : null}
                   </>
                 ) : null}
               </>

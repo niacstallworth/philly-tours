@@ -1,0 +1,38 @@
+{
+  "stopId": "black-american-legacy-and-quaker-heritage-johnson-house",
+  "stopTitle": "Johnson House",
+  "tourId": "black-american-legacy-and-quaker-heritage",
+  "tourTitle": "Black American Legacy & Quaker Heritage",
+  "arPriority": 3,
+  "arType": "historical_figure_presence",
+  "headline": "Figure-led historic scene",
+  "summary": "Underground Railroad scene; host figure silhouette; route overlay",
+  "historicalEra": "18th to 19th century Philadelphia",
+  "stylePreset": "cinematic",
+  "visualPriority": "silhouette",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "conceptImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-johnson-house.png",
+  "plannedProvider": "replicate",
+  "fallbackProvider": "stability",
+  "generatedProvider": "replicate",
+  "runtimeAssets": {
+    "ios": "/models/johnson-house.usdz",
+    "android": "/models/johnson-house.glb",
+    "web": "/models/johnson-house.glb"
+  },
+  "contentLayers": [
+    "Underground Railroad scene",
+    "host figure silhouette",
+    "route overlay",
+    "hero figure silhouette",
+    "staging marker",
+    "supporting context card"
+  ],
+  "productionChecklist": [
+    "Confirm respectful figure staging",
+    "Lock silhouette readability",
+    "Check period wardrobe cues",
+    "Validate context card copy"
+  ],
+  "negativePrompt": "uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter"
+}

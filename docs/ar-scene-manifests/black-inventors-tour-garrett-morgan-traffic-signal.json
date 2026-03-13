@@ -1,0 +1,37 @@
+{
+  "stopId": "black-inventors-tour-garrett-morgan-traffic-signal",
+  "stopTitle": "Garrett Morgan Traffic Signal",
+  "tourId": "black-inventors-tour",
+  "tourTitle": "Black Inventors Tour",
+  "arPriority": 15,
+  "arType": "animated_diagram",
+  "headline": "Animated explainer scene",
+  "summary": "signal mechanism; intersection overlay; patent timeline",
+  "historicalEra": "historic Philadelphia",
+  "stylePreset": "architectural",
+  "visualPriority": "historical_accuracy",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "conceptImagePath": "assets/generated/ar-references/black-inventors-tour-garrett-morgan-traffic-signal.jpeg",
+  "plannedProvider": "stability",
+  "fallbackProvider": "fal",
+  "generatedProvider": "not generated",
+  "runtimeAssets": {
+    "ios": "/models/garrett-morgan-traffic-signal.usdz",
+    "android": "/models/garrett-morgan-traffic-signal.glb",
+    "web": "/models/garrett-morgan-traffic-signal.glb"
+  },
+  "contentLayers": [
+    "signal mechanism",
+    "intersection overlay",
+    "patent timeline",
+    "primary mechanism",
+    "step labels",
+    "motion sequence overlays"
+  ],
+  "productionChecklist": [
+    "Approve mechanism breakdown",
+    "Check animation step order",
+    "Verify label legibility"
+  ],
+  "negativePrompt": "messy composition, extra parts, abstract background noise, unreadable labels"
+}
