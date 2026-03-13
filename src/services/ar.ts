@@ -1,5 +1,6 @@
 ﻿import { Platform } from "react-native";
 import { arAssetCatalogByStopId } from "../data/arAssetCatalog";
+import { toARSceneManifest } from "./arManifest";
 import { Stop } from "../types";
 
 export type ARScenePayload = {
@@ -10,6 +11,14 @@ export type ARScenePayload = {
   fallbackType: "box" | "card" | "none";
   title: string;
   subtitle: string;
+  headline: string;
+  summary: string;
+  placementNote: string;
+  conceptImagePath: string;
+  plannedProvider: string;
+  generatedProvider: string;
+  contentLayers: string[];
+  productionChecklist: string[];
 };
 
 const modelBaseUrl =
@@ -43,6 +52,7 @@ function withPlatformModelFormat(pathOrUrl: string): string {
 
 export function toARScenePayload(stop: Stop): ARScenePayload {
   const catalogEntry = arAssetCatalogByStopId.get(stop.id);
+  const manifest = toARSceneManifest(stop);
   const rawModelUrl =
     Platform.OS === "ios"
       ? catalogEntry?.iosAsset || stop.modelUrl
@@ -59,6 +69,14 @@ export function toARScenePayload(stop: Stop): ARScenePayload {
     rotationYDeg: catalogEntry?.rotationYDeg ?? 180,
     fallbackType: catalogEntry?.fallbackType ?? "box",
     title: stop.title,
-    subtitle
+    subtitle,
+    headline: manifest.headline,
+    summary: manifest.summary,
+    placementNote: manifest.placementNote,
+    conceptImagePath: manifest.conceptImagePath,
+    plannedProvider: manifest.plannedProvider,
+    generatedProvider: manifest.generatedProvider,
+    contentLayers: manifest.contentLayers,
+    productionChecklist: manifest.productionChecklist
   };
 }

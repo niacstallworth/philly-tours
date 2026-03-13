@@ -154,7 +154,18 @@ export function ARScreen() {
         id: selectedPayload.stopId,
         modelUrl: selectedPayload.modelUrl,
         scale: selectedPayload.scale,
-        rotationYDeg: selectedPayload.rotationYDeg
+        rotationYDeg: selectedPayload.rotationYDeg,
+        fallbackType: selectedPayload.fallbackType,
+        title: selectedPayload.title,
+        subtitle: selectedPayload.subtitle,
+        headline: selectedPayload.headline,
+        summary: selectedPayload.summary,
+        placementNote: selectedPayload.placementNote,
+        conceptImagePath: selectedPayload.conceptImagePath,
+        plannedProvider: selectedPayload.plannedProvider,
+        generatedProvider: selectedPayload.generatedProvider,
+        contentLayers: selectedPayload.contentLayers,
+        productionChecklist: selectedPayload.productionChecklist
       });
       await refreshStatus();
 

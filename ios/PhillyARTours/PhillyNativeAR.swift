@@ -91,6 +91,13 @@ class PhillyNativeAR: NSObject {
     let fallbackType = (placement["fallbackType"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "box"
     let title = (placement["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? id
     let subtitle = (placement["subtitle"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Historic AR stop"
+    let headline = (placement["headline"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? title
+    let summary = (placement["summary"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? subtitle
+    let placementNote = (placement["placementNote"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let plannedProvider = (placement["plannedProvider"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "unassigned"
+    let generatedProvider = (placement["generatedProvider"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "not generated"
+    let contentLayers = (placement["contentLayers"] as? [String]) ?? []
+    let productionChecklist = (placement["productionChecklist"] as? [String]) ?? []
 
     DispatchQueue.main.async {
       guard let controller = self.arController else {
@@ -106,7 +113,14 @@ class PhillyNativeAR: NSObject {
           rotationYDeg: rotationYDeg,
           fallbackType: fallbackType,
           title: title,
-          subtitle: subtitle
+          subtitle: subtitle,
+          headline: headline,
+          summary: summary,
+          placementNote: placementNote,
+          plannedProvider: plannedProvider,
+          generatedProvider: generatedProvider,
+          contentLayers: contentLayers,
+          productionChecklist: productionChecklist
         )
         self.placedModelIds.insert(id)
         resolve(nil)
@@ -181,7 +195,14 @@ final class PhillyARViewController: UIViewController {
     rotationYDeg: Float,
     fallbackType: String,
     title: String,
-    subtitle: String
+    subtitle: String,
+    headline: String,
+    summary: String,
+    placementNote: String,
+    plannedProvider: String,
+    generatedProvider: String,
+    contentLayers: [String],
+    productionChecklist: [String]
   ) throws {
     guard let frame = arView.session.currentFrame else {
       throw NSError(domain: "PhillyNativeAR", code: 1001, userInfo: [NSLocalizedDescriptionKey: "AR frame unavailable"]) 
@@ -192,7 +213,19 @@ final class PhillyARViewController: UIViewController {
     let transform = simd_mul(frame.camera.transform, offset)
     let anchor = AnchorEntity(world: transform)
 
-    let entity = try loadOrFallbackModel(modelUrl: modelUrl, fallbackType: fallbackType, title: title, subtitle: subtitle)
+    let entity = try loadOrFallbackModel(
+      modelUrl: modelUrl,
+      fallbackType: fallbackType,
+      title: title,
+      subtitle: subtitle,
+      headline: headline,
+      summary: summary,
+      placementNote: placementNote,
+      plannedProvider: plannedProvider,
+      generatedProvider: generatedProvider,
+      contentLayers: contentLayers,
+      productionChecklist: productionChecklist
+    )
     entity.name = id
     entity.scale = SIMD3<Float>(repeating: scale)
     let rotationRadians = rotationYDeg * .pi / 180
@@ -206,7 +239,14 @@ final class PhillyARViewController: UIViewController {
     modelUrl: String,
     fallbackType: String,
     title: String,
-    subtitle: String
+    subtitle: String,
+    headline: String,
+    summary: String,
+    placementNote: String,
+    plannedProvider: String,
+    generatedProvider: String,
+    contentLayers: [String],
+    productionChecklist: [String]
   ) throws -> ModelEntity {
     for candidate in candidateModelPaths(from: modelUrl) {
       if let localURL = resolveModelURL(candidate),
@@ -222,7 +262,17 @@ final class PhillyARViewController: UIViewController {
     }
 
     if fallbackType.lowercased() == "card",
-       let cardEntity = makeStoryCardEntity(title: title, subtitle: subtitle) {
+       let cardEntity = makeStoryCardEntity(
+        title: title,
+        subtitle: subtitle,
+        headline: headline,
+        summary: summary,
+        placementNote: placementNote,
+        plannedProvider: plannedProvider,
+        generatedProvider: generatedProvider,
+        contentLayers: contentLayers,
+        productionChecklist: productionChecklist
+       ) {
       return cardEntity
     }
 
@@ -231,15 +281,25 @@ final class PhillyARViewController: UIViewController {
     return ModelEntity(mesh: mesh, materials: [material])
   }
 
-  private func makeStoryCardEntity(title: String, subtitle: String) -> ModelEntity? {
-    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 900, height: 540))
+  private func makeStoryCardEntity(
+    title: String,
+    subtitle: String,
+    headline: String,
+    summary: String,
+    placementNote: String,
+    plannedProvider: String,
+    generatedProvider: String,
+    contentLayers: [String],
+    productionChecklist: [String]
+  ) -> ModelEntity? {
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1200, height: 760))
     let image = renderer.image { context in
-      let bounds = CGRect(x: 0, y: 0, width: 900, height: 540)
+      let bounds = CGRect(x: 0, y: 0, width: 1200, height: 760)
       UIColor(red: 8/255, green: 15/255, blue: 33/255, alpha: 0.96).setFill()
       UIBezierPath(roundedRect: bounds, cornerRadius: 34).fill()
 
       UIColor(red: 59/255, green: 130/255, blue: 246/255, alpha: 1).setFill()
-      UIBezierPath(roundedRect: CGRect(x: 28, y: 28, width: 220, height: 56), cornerRadius: 20).fill()
+      UIBezierPath(roundedRect: CGRect(x: 28, y: 28, width: 236, height: 56), cornerRadius: 20).fill()
 
       let badgeText = NSString(string: "AR STORY CARD")
       badgeText.draw(
@@ -250,26 +310,91 @@ final class PhillyARViewController: UIViewController {
         ]
       )
 
-      let titleText = NSString(string: title)
+      let titleText = NSString(string: headline)
       titleText.draw(
-        in: CGRect(x: 42, y: 122, width: 816, height: 150),
+        in: CGRect(x: 44, y: 114, width: 660, height: 110),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 54, weight: .heavy),
+          .font: UIFont.systemFont(ofSize: 46, weight: .heavy),
           .foregroundColor: UIColor.white
+        ]
+      )
+
+      let stopTitleText = NSString(string: title)
+      stopTitleText.draw(
+        in: CGRect(x: 44, y: 212, width: 660, height: 48),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 30, weight: .bold),
+          .foregroundColor: UIColor(red: 147/255, green: 197/255, blue: 253/255, alpha: 1)
         ]
       )
 
       let subtitleText = NSString(string: subtitle)
       subtitleText.draw(
-        in: CGRect(x: 42, y: 278, width: 816, height: 180),
+        in: CGRect(x: 44, y: 258, width: 660, height: 74),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 34, weight: .medium),
+          .font: UIFont.systemFont(ofSize: 28, weight: .medium),
           .foregroundColor: UIColor(white: 0.88, alpha: 1)
         ]
       )
 
-      UIColor(red: 245/255, green: 158/255, blue: 11/255, alpha: 1).setFill()
-      UIBezierPath(roundedRect: CGRect(x: 42, y: 458, width: 260, height: 22), cornerRadius: 11).fill()
+      let summaryText = NSString(string: summary)
+      summaryText.draw(
+        in: CGRect(x: 44, y: 346, width: 660, height: 144),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 24, weight: .regular),
+          .foregroundColor: UIColor.white
+        ]
+      )
+
+      let placementText = NSString(string: placementNote.isEmpty ? "Placement note unavailable." : placementNote)
+      placementText.draw(
+        in: CGRect(x: 44, y: 512, width: 660, height: 126),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 22, weight: .regular),
+          .foregroundColor: UIColor(red: 226/255, green: 232/255, blue: 240/255, alpha: 1)
+        ]
+      )
+
+      UIColor(red: 15/255, green: 23/255, blue: 42/255, alpha: 0.94).setFill()
+      UIBezierPath(roundedRect: CGRect(x: 736, y: 110, width: 420, height: 584), cornerRadius: 28).fill()
+
+      let metadataHeader = NSString(string: "Scene runtime")
+      metadataHeader.draw(
+        in: CGRect(x: 764, y: 140, width: 240, height: 32),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 28, weight: .bold),
+          .foregroundColor: UIColor.white
+        ]
+      )
+
+      let providerLine = NSString(string: "Planned: \(plannedProvider)\nGenerated: \(generatedProvider)")
+      providerLine.draw(
+        in: CGRect(x: 764, y: 188, width: 320, height: 60),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 20, weight: .medium),
+          .foregroundColor: UIColor(red: 253/255, green: 224/255, blue: 71/255, alpha: 1)
+        ]
+      )
+
+      let layersBody = contentLayers.prefix(4).isEmpty ? "Scene layers pending" : contentLayers.prefix(4).joined(separator: "\n• ")
+      let layersText = NSString(string: "Layers\n• \(layersBody)")
+      layersText.draw(
+        in: CGRect(x: 764, y: 274, width: 336, height: 190),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 22, weight: .regular),
+          .foregroundColor: UIColor.white
+        ]
+      )
+
+      let checklistBody = productionChecklist.prefix(4).isEmpty ? "Production checklist pending" : productionChecklist.prefix(4).joined(separator: "\n• ")
+      let checklistText = NSString(string: "Checklist\n• \(checklistBody)")
+      checklistText.draw(
+        in: CGRect(x: 764, y: 490, width: 336, height: 176),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 22, weight: .regular),
+          .foregroundColor: UIColor(red: 191/255, green: 219/255, blue: 254/255, alpha: 1)
+        ]
+      )
     }
 
     guard let cgImage = image.cgImage,
@@ -280,7 +405,7 @@ final class PhillyARViewController: UIViewController {
     var material = UnlitMaterial()
     material.color = .init(texture: .init(texture))
 
-    let mesh = MeshResource.generatePlane(width: 0.54, height: 0.32)
+    let mesh = MeshResource.generatePlane(width: 0.62, height: 0.39)
     let entity = ModelEntity(mesh: mesh, materials: [material])
     entity.position = SIMD3<Float>(0, 0.08, 0)
     return entity

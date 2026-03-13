@@ -16,6 +16,14 @@ export type ARModelPlacement = {
   fallbackType?: "box" | "card" | "none";
   title?: string;
   subtitle?: string;
+  headline?: string;
+  summary?: string;
+  placementNote?: string;
+  conceptImagePath?: string;
+  plannedProvider?: string;
+  generatedProvider?: string;
+  contentLayers?: string[];
+  productionChecklist?: string[];
 };
 
 export interface NativeARAdapter {
