@@ -7,6 +7,7 @@ import { STYLE_PRESET_VALUES, VISUAL_PRIORITY_VALUES, resolveStylePreset, resolv
 const rootDir = process.cwd();
 const csvPath = path.join(rootDir, "docs", "ar-asset-catalog.csv");
 const outputPath = path.join(rootDir, "src", "data", "arAssetCatalog.ts");
+const imageMapOutputPath = path.join(rootDir, "src", "data", "arGeneratedImageMap.ts");
 
 const ASSET_STATUS_VALUES = new Set(["planned", "in_production", "ready", "approved"]);
 const ANCHOR_STYLE_VALUES = new Set(["front_of_user", "ground", "image_target", "location_marker"]);
@@ -171,6 +172,26 @@ export const arAssetCatalogByStopId = new Map(arAssetCatalog.map((entry) => [ent
   fs.writeFileSync(outputPath, fileContents);
 }
 
+function toModuleRelativeAssetPath(assetPath) {
+  const normalized = assetPath.replace(/^\/+/, "").split(path.sep).join("/");
+  return `../../${normalized}`;
+}
+
+function writeGeneratedImageMap(rows) {
+  const existingRows = rows.filter((row) => row.generatedImageExistsLocal && row.generatedImagePath);
+  const entries = existingRows
+    .map((row) => `  "${row.stopId}": require("${toModuleRelativeAssetPath(row.generatedImagePath)}"),`)
+    .join("\n");
+
+  const fileContents = `export const arGeneratedImageMap: Record<string, any> = {
+${entries}
+};
+`;
+
+  fs.writeFileSync(imageMapOutputPath, fileContents);
+}
+
 const rows = readCatalogRows().sort((left, right) => left.arPriority - right.arPriority || left.stopTitle.localeCompare(right.stopTitle));
 writeCatalogModule(rows);
+writeGeneratedImageMap(rows);
 console.log(`Imported ${rows.length} AR asset catalog rows.`);

@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton, SectionTitle } from "../components/ui/Primitives";
+import { arGeneratedImageMap } from "../data/arGeneratedImageMap";
 import { tours } from "../data/tours";
 import { useBuildQueueProgress } from "../hooks/useBuildQueueProgress";
 import { toARSceneManifest } from "../services/arManifest";
@@ -283,6 +284,13 @@ export function ARScreen() {
         {selectedManifest ? (
           <>
             <Text style={styles.label}>Scene Manifest</Text>
+            {arGeneratedImageMap[selectedManifest.stopId] ? (
+              <Image
+                source={arGeneratedImageMap[selectedManifest.stopId]}
+                style={styles.heroPreview}
+                resizeMode="cover"
+              />
+            ) : null}
             <Text style={styles.value}>Headline: {selectedManifest.headline}</Text>
             <Text style={styles.value}>Era: {selectedManifest.historicalEra}</Text>
             <Text style={styles.value}>Style: {selectedManifest.stylePreset}</Text>
@@ -357,6 +365,13 @@ export function ARScreen() {
                 </Text>
                 {manifest ? (
                   <>
+                    {arGeneratedImageMap[manifest.stopId] ? (
+                      <Image
+                        source={arGeneratedImageMap[manifest.stopId]}
+                        style={styles.cardPreview}
+                        resizeMode="cover"
+                      />
+                    ) : null}
                     <View style={styles.chips}>
                       <Chip label={manifest.headline} tone="success" />
                       <Chip label={`Provider ${manifest.generatedProvider}`} tone="default" />
@@ -394,6 +409,23 @@ const styles = StyleSheet.create({
   },
   statusCard: { gap: 8 },
   card: { gap: 4 },
+  heroPreview: {
+    width: "100%",
+    height: 220,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#334155",
+    backgroundColor: "#020617"
+  },
+  cardPreview: {
+    width: "100%",
+    height: 180,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#334155",
+    backgroundColor: "#020617",
+    marginBottom: 6
+  },
   tourList: { gap: 8 },
   tourRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
   tourChip: {
