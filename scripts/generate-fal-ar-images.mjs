@@ -156,6 +156,7 @@ async function generateForRecord(record) {
 
   return {
     ...record,
+    generatedImageProvider: "fal",
     falModel: model,
     falPrompt: prompt,
     falImageSize: imageSize,

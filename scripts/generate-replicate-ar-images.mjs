@@ -159,6 +159,7 @@ async function generateForRecord(record, apiToken) {
 
   return {
     ...record,
+    generatedImageProvider: "replicate",
     replicateModel: model,
     replicatePrompt: prompt,
     replicateAspectRatio: aspectRatio,

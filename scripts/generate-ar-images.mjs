@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { readCatalogCsv } from "./lib/arAssetCatalogCsv.mjs";
-import { IMAGE_PROVIDER_VALUES, resolveImageProvider } from "./lib/arImageRouting.mjs";
+import { IMAGE_PROVIDER_VALUES, resolveFallbackImageProvider, resolveImageProvider } from "./lib/arImageRouting.mjs";
 
 const rootDir = process.cwd();
 const csvPath = path.join(rootDir, "docs", "ar-asset-catalog.csv");
@@ -78,8 +78,19 @@ function runNodeScript(scriptName, extraArgs) {
     env: process.env
   });
 
-  if (result.status !== 0) {
-    throw new Error(`${scriptName} failed with exit code ${result.status ?? "unknown"}`);
+  return result.status ?? 1;
+}
+
+function scriptForProvider(provider) {
+  switch (provider) {
+    case "fal":
+      return "generate-fal-ar-images.mjs";
+    case "stability":
+      return "generate-stability-ar-images.mjs";
+    case "replicate":
+      return "generate-replicate-ar-images.mjs";
+    default:
+      throw new Error(`Unsupported provider '${provider}'`);
   }
 }
 
@@ -95,7 +106,8 @@ function main() {
     .filter((record) => !args.stopId || record.stopId === args.stopId)
     .map((record) => ({
       ...record,
-      resolvedProvider: resolveImageProvider(record)
+      resolvedProvider: resolveImageProvider(record),
+      resolvedFallbackProvider: resolveFallbackImageProvider(record)
     }))
     .filter((record) => !args.provider || record.resolvedProvider === args.provider)
     .slice(0, args.limit);
@@ -105,36 +117,43 @@ function main() {
     return;
   }
 
+  const fallbackRows = [];
+
   for (const record of selected) {
-    if (record.resolvedProvider === "fal") {
-      const scriptArgs = ["--stop-id", record.stopId];
-      if (args.force) {
-        scriptArgs.push("--force");
-      }
-      runNodeScript("generate-fal-ar-images.mjs", scriptArgs);
+    const scriptArgs = ["--stop-id", record.stopId];
+    if (args.force) {
+      scriptArgs.push("--force");
+    }
+
+    const primaryStatus = runNodeScript(scriptForProvider(record.resolvedProvider), scriptArgs);
+    if (primaryStatus === 0) {
       continue;
     }
 
-    if (record.resolvedProvider === "stability") {
-      const scriptArgs = ["--stop-id", record.stopId];
-      if (args.force) {
-        scriptArgs.push("--force");
-      }
-      runNodeScript("generate-stability-ar-images.mjs", scriptArgs);
-      continue;
+    if (!record.resolvedFallbackProvider || record.resolvedFallbackProvider === record.resolvedProvider) {
+      throw new Error(`Primary provider '${record.resolvedProvider}' failed for ${record.stopId} with no usable fallback.`);
     }
 
-    if (record.resolvedProvider === "replicate") {
-      const scriptArgs = ["--stop-id", record.stopId];
-      if (args.force) {
-        scriptArgs.push("--force");
-      }
-      runNodeScript("generate-replicate-ar-images.mjs", scriptArgs);
-      continue;
+    console.log(
+      `Primary provider '${record.resolvedProvider}' failed for ${record.stopTitle}. Falling back to '${record.resolvedFallbackProvider}'.`
+    );
+    const fallbackStatus = runNodeScript(scriptForProvider(record.resolvedFallbackProvider), scriptArgs);
+    if (fallbackStatus !== 0) {
+      throw new Error(
+        `Fallback provider '${record.resolvedFallbackProvider}' also failed for ${record.stopId}.`
+      );
     }
+    fallbackRows.push(`${record.stopTitle}: ${record.resolvedProvider} -> ${record.resolvedFallbackProvider}`);
   }
 
   runNodeScript("import-ar-asset-catalog.mjs", []);
+
+  if (fallbackRows.length > 0) {
+    console.log("Fallback provider used for:");
+    for (const line of fallbackRows) {
+      console.log(`- ${line}`);
+    }
+  }
 }
 
 try {

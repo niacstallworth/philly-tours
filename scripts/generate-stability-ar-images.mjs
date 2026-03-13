@@ -135,6 +135,7 @@ async function generateForRecord(record, apiKey) {
 
   return {
     ...record,
+    generatedImageProvider: "stability",
     stabilityEndpoint: endpoint,
     stabilityPrompt: prompt,
     stabilityAspectRatio: aspectRatio,

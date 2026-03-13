@@ -24,3 +24,24 @@ export function resolveImageProvider(record) {
   }
   return inferImageProviderFromArType(record.arType);
 }
+
+export function inferFallbackImageProvider(primaryProvider) {
+  switch ((primaryProvider || "").trim()) {
+    case "replicate":
+      return "stability";
+    case "stability":
+      return "fal";
+    case "fal":
+      return "stability";
+    default:
+      return "stability";
+  }
+}
+
+export function resolveFallbackImageProvider(record) {
+  const explicit = (record.fallbackImageProvider || "").trim();
+  if (explicit) {
+    return explicit;
+  }
+  return inferFallbackImageProvider(resolveImageProvider(record));
+}
