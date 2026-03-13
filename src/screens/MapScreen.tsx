@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
-import { getCurrentDriveStop, loadDriveSession, type DriveSession } from "../services/driveMode";
+import { advanceDriveSession, getCurrentDriveStop, loadDriveSession, markDriveArrived, type DriveSession } from "../services/driveMode";
 import { getTriggeredStops, haversineDistanceM } from "../services/geofence";
 import {
   getCurrentPosition,
@@ -97,6 +97,12 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     }
     return new Set(getTriggeredStops(userPosition.latitude, userPosition.longitude, visibleStops).map((stop) => stop.id));
   }, [userPosition, visibleStops]);
+  const currentDriveStopInRange = useMemo(() => {
+    if (!currentDriveStop) {
+      return false;
+    }
+    return triggeredIds.has(currentDriveStop.id);
+  }, [currentDriveStop, triggeredIds]);
 
   const nearest = useMemo(() => {
     if (!userPosition || visibleStops.length === 0) {
@@ -158,6 +164,33 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     setVisibleTourIds(new Set([tourId]));
   }
 
+  async function onMarkDriveArrived() {
+    if (!driveSession) {
+      return;
+    }
+    try {
+      const nextSession = await markDriveArrived(driveSession);
+      setDriveSession(nextSession);
+    } catch (error) {
+      Alert.alert("Arrival update failed", (error as Error).message || "Could not update arrival state.");
+    }
+  }
+
+  async function onAdvanceDriveStop() {
+    if (!driveSession) {
+      return;
+    }
+    try {
+      const nextSession = await advanceDriveSession(driveSession);
+      setDriveSession(nextSession);
+      if (!nextSession) {
+        Alert.alert("Drive session complete", "You reached the last stop in this route.");
+      }
+    } catch (error) {
+      Alert.alert("Advance failed", (error as Error).message || "Could not advance to the next stop.");
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -202,6 +235,24 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
           <Text style={styles.label}>Vehicle handoff target</Text>
           <Text style={styles.copy}>{highlightedStop.title}</Text>
           <Text style={styles.copy}>{highlightedStop.description.split("|")[0]?.trim()}</Text>
+        </Card>
+      ) : null}
+
+      {currentDriveStop ? (
+        <Card style={styles.panel}>
+          <Text style={styles.label}>Active route stop</Text>
+          <Text style={styles.copy}>{currentDriveStop.title}</Text>
+          <View style={styles.chips}>
+            <Chip label={driveSession?.mode === "arrived" ? "Arrived" : currentDriveStopInRange ? "In range now" : "Not in range"} tone={currentDriveStopInRange || driveSession?.mode === "arrived" ? "success" : "default"} />
+            <Chip label={`${currentDriveStop.triggerRadiusM}m trigger`} tone="warn" />
+          </View>
+          <View style={styles.actionsRow}>
+            <PrimaryButton
+              label={driveSession?.mode === "arrived" ? "Advance To Next Stop" : "Mark Arrived At Stop"}
+              onPress={driveSession?.mode === "arrived" ? onAdvanceDriveStop : onMarkDriveArrived}
+              disabled={!currentDriveStopInRange && driveSession?.mode !== "arrived"}
+            />
+          </View>
         </Card>
       ) : null}
 
