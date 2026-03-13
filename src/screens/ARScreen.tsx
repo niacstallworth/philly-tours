@@ -1,199 +1,360 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
+import { toARSceneManifest } from "../services/arManifest";
 import { toARScenePayload } from "../services/ar";
 import { getNativeARAdapter } from "../services/native-ar";
 import { NativeARStatus } from "../services/native-ar/types";
-import { createRealtimeSyncFromEnv, SyncEvent } from "../services/realtime";
+import { createRealtimeSyncFromEnv } from "../services/realtime";
 
 const adapter = getNativeARAdapter();
 const sync = createRealtimeSyncFromEnv();
 
-export function ARScreen() {
-  const payloads = tours[0].stops.map(toARScenePayload);
-  const [arStatus, setArStatus] = useState<NativeARStatus | null>(null);
-  const [events, setEvents] = useState<SyncEvent[]>([]);
-  const [joined, setJoined] = useState(false);
+type Props = {
+  initialTourId?: string;
+  initialStopId?: string;
+};
+
+export function ARScreen({ initialTourId, initialStopId }: Props) {
+  const [selectedTourId, setSelectedTourId] = useState<string>(initialTourId || tours[0]?.id || "");
+  const [selectedStopId, setSelectedStopId] = useState<string>(initialStopId || "");
   const [roomName, setRoomName] = useState("historic-philly-main");
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [roomMembers, setRoomMembers] = useState<string[]>([]);
+  const [actionStatus, setActionStatus] = useState<string>("idle");
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [arStatus, setArStatus] = useState<NativeARStatus | null>(null);
+  const [joined, setJoined] = useState(false);
+
+  const selectedTour = useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
+  const arStops = useMemo(() => {
+    const planned = selectedTour.stops.filter((stop) => typeof stop.arPriority === "number");
+    return (planned.length ? planned : selectedTour.stops).sort((left, right) => {
+      const leftPriority = left.arPriority ?? Number.MAX_SAFE_INTEGER;
+      const rightPriority = right.arPriority ?? Number.MAX_SAFE_INTEGER;
+      return leftPriority - rightPriority;
+    });
+  }, [selectedTour]);
+  const selectedStop = useMemo(
+    () => arStops.find((stop) => stop.id === selectedStopId) || arStops[0],
+    [arStops, selectedStopId]
+  );
+  const manifest = useMemo(() => (selectedStop ? toARSceneManifest(selectedStop) : null), [selectedStop]);
+  const payload = useMemo(() => (selectedStop ? toARScenePayload(selectedStop) : null), [selectedStop]);
+  const unsupportedSimulator =
+    arStatus?.provider === "arkit" &&
+    arStatus?.available === false &&
+    (arStatus?.reason || "").toLowerCase().includes("unsupported");
 
   useEffect(() => {
-    const offEvent = sync.onEvent((event) => {
-      setEvents((prev) => [...prev, event]);
-    });
+    if (initialTourId && tours.some((tour) => tour.id === initialTourId)) {
+      setSelectedTourId(initialTourId);
+    }
+  }, [initialTourId]);
 
-    const offMembers = sync.onRoomMembers((sessionId, members) => {
-      if (sessionId === activeSessionId) {
-        setRoomMembers(members);
+  useEffect(() => {
+    if (!arStops.length) {
+      setSelectedStopId("");
+      return;
+    }
+    setSelectedStopId((prev) => {
+      if (initialStopId && arStops.some((stop) => stop.id === initialStopId)) {
+        return initialStopId;
       }
+      return prev && arStops.some((stop) => stop.id === prev) ? prev : arStops[0].id;
     });
+  }, [arStops, initialStopId]);
 
-    return () => {
-      offEvent?.();
-      offMembers?.();
-    };
-  }, [activeSessionId]);
-
-  const eventsText = useMemo(
-    () => events.slice(-5).map((e) => `${e.type} ${e.objectId}`).join(" | "),
-    [events]
-  );
-
-  async function onCheckAR() {
-    const status = await adapter.getStatus();
-    setArStatus(status);
-  }
-
-  async function onStartARSession() {
-    await adapter.startSession();
-  }
-
-  async function onPlaceFirstModel() {
-    const first = payloads[0];
-    await adapter.placeModel({
-      id: first.stopId,
-      modelUrl: first.modelUrl,
-      scale: first.scale,
-      rotationYDeg: first.rotationYDeg
-    });
-
-    if (!activeSessionId) {
-      return;
+  async function refreshStatus() {
+    try {
+      const status = await adapter.getStatus();
+      setArStatus(status);
+    } catch {
+      // no-op
     }
-
-    sync.send({
-      type: "spawn",
-      sessionId: activeSessionId,
-      objectId: first.stopId,
-      modelUrl: first.modelUrl
-    });
   }
 
-  function onJoinSession() {
-    const room = roomName.trim();
-    if (!room) {
-      return;
-    }
+  async function launchStop(shared: boolean) {
+    setActionStatus(shared ? "launching_shared" : "launching");
+    setActionError(null);
+    try {
+      if (!payload) {
+        throw new Error("No AR stop is selected.");
+      }
+      await adapter.startSession();
+      await adapter.placeModel({
+        id: payload.stopId,
+        modelUrl: payload.modelUrl,
+        scale: payload.scale,
+        rotationYDeg: payload.rotationYDeg,
+        verticalOffsetM: payload.verticalOffsetM,
+        fallbackType: payload.fallbackType,
+        title: payload.title,
+        subtitle: payload.subtitle,
+        headline: payload.headline,
+        summary: payload.summary,
+        placementNote: payload.placementNote,
+        conceptImagePath: payload.conceptImagePath,
+        plannedProvider: payload.plannedProvider,
+        generatedProvider: payload.generatedProvider,
+        contentLayers: payload.contentLayers,
+        productionChecklist: payload.productionChecklist
+      });
+      await refreshStatus();
 
-    if (joined) {
-      sync.leaveSession();
-      setJoined(false);
-      setActiveSessionId(null);
-      setRoomMembers([]);
-      return;
+      if (shared) {
+        const room = roomName.trim();
+        if (!joined && room) {
+          sync.joinSession(room);
+          setJoined(true);
+        }
+        if (room) {
+          sync.send({
+            type: "spawn",
+            sessionId: room,
+            objectId: payload.stopId,
+            modelUrl: payload.modelUrl
+          });
+        }
+      }
+      setActionStatus(shared ? "shared_live" : "live");
+    } catch (error) {
+      setActionStatus("error");
+      setActionError((error as Error).message || "Could not launch this AR scene.");
     }
-
-    sync.joinSession(room);
-    setJoined(true);
-    setActiveSessionId(room);
   }
 
-  async function onStopARSession() {
-    await adapter.stopSession();
+  async function closeAR() {
+    setActionStatus("closing");
+    setActionError(null);
+    try {
+      await adapter.stopSession();
+      await refreshStatus();
+      setActionStatus("idle");
+    } catch (error) {
+      setActionStatus("error");
+      setActionError((error as Error).message || "Could not close AR.");
+    }
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>AR Session and Realtime Sync</Text>
-      <Text style={styles.helper}>Ordered updates: 1 native bridge, 3 lobby UI, 2 location watch.</Text>
+      <View style={styles.heroPanel}>
+        <Text style={styles.heroEyebrow}>AR moments</Text>
+        <Text style={styles.heroTitle}>A small-screen AR experience should feel precise, not crowded.</Text>
+        <Text style={styles.heroCopy}>
+          Launch one clean spatial object or story moment at a time. Keep the user’s eye focused on the site itself.
+        </Text>
+      </View>
 
-      <View style={styles.statusCard}>
-        <Text style={styles.label}>Lobby</Text>
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Choose tour</Text>
+        <View style={styles.choiceWrap}>
+          {tours.map((tour) => (
+            <PrimaryChoice
+              key={tour.id}
+              active={selectedTourId === tour.id}
+              label={tour.title}
+              onPress={() => setSelectedTourId(tour.id)}
+            />
+          ))}
+        </View>
+      </Card>
+
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Choose AR stop</Text>
+        <View style={styles.choiceWrap}>
+          {arStops.map((stop, index) => (
+            <PrimaryChoice
+              key={stop.id}
+              active={selectedStopId === stop.id}
+              label={`${typeof stop.arPriority === "number" ? `P${stop.arPriority}` : `Stop ${index + 1}`} ${stop.title}`}
+              onPress={() => setSelectedStopId(stop.id)}
+            />
+          ))}
+        </View>
+      </Card>
+
+      {selectedStop && manifest ? (
+        <Card style={styles.featureCard}>
+          <Text style={styles.featureEyebrow}>{selectedTour.title}</Text>
+          <Text style={styles.featureTitle}>{selectedStop.title}</Text>
+          <Text style={styles.featureBody}>{manifest.summary}</Text>
+          <View style={styles.chips}>
+            <Chip label={manifest.arType.replaceAll("_", " ")} tone="warn" />
+            <Chip label={`${selectedStop.triggerRadiusM}m reveal radius`} tone="default" />
+          </View>
+          <Text style={styles.specLabel}>Placement</Text>
+          <Text style={styles.specCopy}>{manifest.placementNote}</Text>
+          <Text style={styles.specLabel}>Tuning</Text>
+          <Text style={styles.specCopy}>
+            Scale {payload?.scale ?? 1} | Rotation {payload?.rotationYDeg ?? 180}deg | Vertical offset{" "}
+            {payload?.verticalOffsetM ?? 0}m
+          </Text>
+          <Text style={styles.specLabel}>Scene layers</Text>
+          <Text style={styles.specCopy}>{manifest.contentLayers.slice(0, 3).join(" | ")}</Text>
+        </Card>
+      ) : null}
+
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Launch</Text>
+        <View style={styles.actionStack}>
+          <PrimaryButton label="Launch AR Moment" onPress={() => launchStop(false)} />
+          <PrimaryButton label="Launch Shared AR Moment" onPress={() => launchStop(true)} />
+          <PrimaryButton label="Close AR" onPress={closeAR} />
+        </View>
+        <Text style={styles.meta}>State: {actionStatus}</Text>
+        <Text style={styles.meta}>Provider: {arStatus?.provider || "unknown"}</Text>
+        {unsupportedSimulator ? (
+          <Text style={styles.meta}>
+            This simulator cannot run ARKit. Use an ARKit-capable iPhone or iPad to validate the real 3D scene.
+          </Text>
+        ) : null}
+        {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
+      </Card>
+
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Shared room</Text>
         <TextInput
           value={roomName}
           onChangeText={setRoomName}
           style={styles.input}
-          placeholder="Enter room name"
-          placeholderTextColor="#64748b"
+          placeholder="historic-philly-main"
+          placeholderTextColor="#8e7d99"
           autoCapitalize="none"
         />
-        <Pressable style={styles.button} onPress={onJoinSession}>
-          <Text style={styles.buttonText}>{joined ? "Leave Room" : "Join Room"}</Text>
-        </Pressable>
-        <Text style={styles.value}>Active room: {activeSessionId || "none"}</Text>
-        <Text style={styles.value}>You: {sync.getClientId()}</Text>
-        <Text style={styles.value}>Members ({roomMembers.length}): {roomMembers.join(", ") || "none"}</Text>
-      </View>
-
-      <View style={styles.controls}>
-        <Pressable style={styles.button} onPress={onCheckAR}>
-          <Text style={styles.buttonText}>Check AR Provider</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={onStartARSession}>
-          <Text style={styles.buttonText}>Start AR Session</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={onPlaceFirstModel}>
-          <Text style={styles.buttonText}>Place and Sync First Model</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={onStopARSession}>
-          <Text style={styles.buttonText}>Stop AR Session</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.statusCard}>
-        <Text style={styles.label}>AR Provider:</Text>
-        <Text style={styles.value}>{arStatus ? arStatus.provider : "unknown"}</Text>
-        <Text style={styles.label}>Available:</Text>
-        <Text style={styles.value}>{arStatus ? String(arStatus.available) : "unknown"}</Text>
-        <Text style={styles.label}>Reason:</Text>
-        <Text style={styles.value}>{arStatus?.reason || "n/a"}</Text>
-        <Text style={styles.label}>Realtime events:</Text>
-        <Text style={styles.value}>{eventsText || "none yet"}</Text>
-      </View>
-
-      {payloads.map((p) => (
-        <View key={p.stopId} style={styles.card}>
-          <Text style={styles.stopLabel}>Stop: {p.stopId}</Text>
-          <Text style={styles.value}>Model: {p.modelUrl}</Text>
-          <Text style={styles.value}>Scale: {p.scale}</Text>
-          <Text style={styles.value}>RotationY: {p.rotationYDeg}</Text>
-        </View>
-      ))}
+        <Text style={styles.meta}>Only use shared mode if you’re co-viewing the same stop.</Text>
+      </Card>
     </ScrollView>
   );
 }
 
+type PrimaryChoiceProps = {
+  active: boolean;
+  label: string;
+  onPress: () => void;
+};
+
+function PrimaryChoice({ active, label, onPress }: PrimaryChoiceProps) {
+  return (
+    <Text onPress={onPress} style={[styles.choiceChip, active && styles.choiceChipActive, active && styles.choiceChipTextActive]}>
+      {label}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12 },
-  title: { color: "#f8fafc", fontSize: 24, fontWeight: "800" },
-  helper: { color: "#94a3b8" },
-  controls: { gap: 8 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#334155",
-    borderRadius: 10,
-    color: "#f8fafc",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: "#020617"
+  container: {
+    padding: 18,
+    gap: 16,
+    backgroundColor: "#060312"
   },
-  button: {
-    backgroundColor: "#1e293b",
-    borderColor: "#334155",
+  heroPanel: {
+    backgroundColor: "#130a25",
+    borderRadius: 30,
+    padding: 22,
+    gap: 10,
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    alignItems: "center"
+    borderColor: "rgba(255, 191, 173, 0.16)"
   },
-  buttonText: { color: "#f8fafc", fontWeight: "700" },
-  statusCard: {
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#334155",
-    backgroundColor: "#0f172a",
-    padding: 12,
+  heroEyebrow: {
+    color: "#ff9ab2",
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1.2
+  },
+  heroTitle: {
+    color: "#fff3ea",
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: "800"
+  },
+  heroCopy: {
+    color: "#d8c7df",
+    lineHeight: 21
+  },
+  panel: {
+    backgroundColor: "#120a22"
+  },
+  label: {
+    color: "#fff0e4",
+    fontSize: 18,
+    fontWeight: "800"
+  },
+  choiceWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8
   },
-  card: {
-    borderRadius: 10,
+  choiceChip: {
+    backgroundColor: "#1f1233",
+    borderColor: "rgba(255,255,255,0.08)",
     borderWidth: 1,
-    borderColor: "#334155",
-    backgroundColor: "#0f172a",
-    padding: 12,
-    gap: 4
+    color: "#cab6d2",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    fontWeight: "700",
+    overflow: "hidden"
   },
-  label: { color: "#f59e0b", fontWeight: "700" },
-  stopLabel: { color: "#86efac", fontWeight: "700" },
-  value: { color: "#cbd5e1" }
+  choiceChipActive: {
+    backgroundColor: "#ff8ca8",
+    borderColor: "#ff8ca8"
+  },
+  choiceChipTextActive: {
+    color: "#2b1021"
+  },
+  featureCard: {
+    backgroundColor: "#2b1530",
+    borderColor: "rgba(255, 176, 132, 0.2)",
+    gap: 10
+  },
+  featureEyebrow: {
+    color: "#ffbc8a",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.9
+  },
+  featureTitle: {
+    color: "#fff8f3",
+    fontSize: 28,
+    lineHeight: 32,
+    fontWeight: "800"
+  },
+  featureBody: {
+    color: "#f3e8ef",
+    lineHeight: 22
+  },
+  chips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  specLabel: {
+    color: "#ffcfb5",
+    fontWeight: "700"
+  },
+  specCopy: {
+    color: "#d8c7df",
+    lineHeight: 21
+  },
+  actionStack: {
+    gap: 8
+  },
+  meta: {
+    color: "#b69fbe"
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+    borderRadius: 16,
+    color: "#fff3ea",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: "#1b102d"
+  },
+  error: {
+    color: "#ffadb7",
+    fontWeight: "600"
+  }
 });

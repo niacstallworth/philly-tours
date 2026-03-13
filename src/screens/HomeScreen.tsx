@@ -1,80 +1,253 @@
-﻿import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 
-export function HomeScreen() {
-  const tour = tours[0];
+type Props = {
+  displayName?: string;
+};
+
+export function HomeScreen({ displayName = "Founder" }: Props) {
+  const [selectedTourId, setSelectedTourId] = React.useState<string>(tours[0]?.id || "");
+  const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
+  const heroStop = selectedTour?.stops[0];
+  const plannedCount = selectedTour?.stops.filter((stop) => typeof stop.arPriority === "number").length ?? 0;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Philly AR Tours</Text>
-      <Text style={styles.subtitle}>Mobile-first app for iOS/Android launch</Text>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{tour.title}</Text>
-        <Text style={styles.meta}>Rating {tour.rating} | {tour.durationMin} min | {tour.distanceMiles} mi</Text>
-        <Text style={styles.copy}>Start here, then walk to each stop for geofenced AR experiences.</Text>
+      <View style={styles.heroPanel}>
+        <Text style={styles.heroEyebrow}>Philly tours by founders</Text>
+        <Text style={styles.heroTitle}>Historic city walks with elegant AR moments.</Text>
+        <Text style={styles.heroCopy}>
+          Start with one tour pack, follow the map, and launch spatial moments only where they matter.
+        </Text>
+        <View style={styles.heroChips}>
+          <Chip label={`${tours.length} tour packs`} tone="default" />
+          <Chip label={`${plannedCount} AR moments in this pack`} tone="success" />
+        </View>
       </View>
 
-      {tour.stops.map((stop, idx) => (
-        <View key={stop.id} style={styles.listItem}>
-          <Text style={styles.stopIndex}>Stop {idx + 1}</Text>
-          <Text style={styles.stopTitle}>{stop.title}</Text>
-          <Text style={styles.stopDesc}>{stop.description}</Text>
-        </View>
-      ))}
+      <Card style={styles.welcomeCard}>
+        <Text style={styles.welcomeTitle}>Good evening, {displayName}</Text>
+        <Text style={styles.welcomeCopy}>
+          Pick a tour pack below. Keep the experience light, focused, and story-first.
+        </Text>
+      </Card>
+
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Tour Packs</Text>
+        <Text style={styles.sectionMeta}>Curated for walkable discovery</Text>
+      </View>
+      <View style={styles.packList}>
+        {tours.map((tour) => {
+          const isActive = tour.id === selectedTourId;
+          const arMoments = tour.stops.filter((stop) => typeof stop.arPriority === "number").length;
+          return (
+            <Pressable
+              key={tour.id}
+              onPress={() => setSelectedTourId(tour.id)}
+              style={[styles.packCard, isActive && styles.packCardActive]}
+            >
+              <Text style={[styles.packTitle, isActive && styles.packTitleActive]}>{tour.title}</Text>
+              <Text style={styles.packMeta}>
+                {tour.durationMin} min | {tour.distanceMiles} mi | {tour.rating} rating
+              </Text>
+              <Text style={styles.packBody} numberOfLines={2}>
+                {tour.heroPlanningNote || "Audio-led city storytelling with selective AR reveals."}
+              </Text>
+              <View style={styles.heroChips}>
+                <Chip label={`${tour.stops.length} stops`} tone="default" />
+                <Chip label={`${arMoments} AR moments`} tone={arMoments > 0 ? "success" : "default"} />
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {selectedTour && heroStop ? (
+        <Card style={styles.featureCard}>
+          <Text style={styles.featureEyebrow}>Featured Stop</Text>
+          <Text style={styles.featureTitle}>{heroStop.title}</Text>
+          <Text style={styles.featureMeta}>
+            {selectedTour.title} | {selectedTour.durationMin} min walk | {selectedTour.distanceMiles} mi
+          </Text>
+          <Text style={styles.featureBody}>{heroStop.description}</Text>
+          <View style={styles.heroChips}>
+            <Chip label={heroStop.arType ? heroStop.arType.replaceAll("_", " ") : "story stop"} tone="warn" />
+            <Chip label={`${heroStop.triggerRadiusM}m reveal radius`} tone="default" />
+          </View>
+          <PrimaryButton label="Begin With This Stop" onPress={() => undefined} />
+        </Card>
+      ) : null}
+
+      {selectedTour ? (
+        <Card style={styles.routeCard}>
+          <Text style={styles.sectionTitle}>On This Route</Text>
+          {selectedTour.stops.slice(0, 5).map((stop, index) => (
+            <View key={stop.id} style={styles.routeRow}>
+              <View style={styles.routeIndex}><Text style={styles.routeIndexText}>{index + 1}</Text></View>
+              <View style={styles.routeContent}>
+                <Text style={styles.routeTitle}>{stop.title}</Text>
+                <Text style={styles.routeMeta} numberOfLines={2}>{stop.description}</Text>
+              </View>
+            </View>
+          ))}
+        </Card>
+      ) : null}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    gap: 12
+    padding: 18,
+    gap: 16,
+    backgroundColor: "#060312"
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: "#f8fafc"
+  heroPanel: {
+    borderRadius: 30,
+    padding: 22,
+    gap: 12,
+    backgroundColor: "#130a25",
+    borderWidth: 1,
+    borderColor: "rgba(255, 191, 173, 0.16)"
   },
-  subtitle: {
-    color: "#cbd5e1"
+  heroEyebrow: {
+    color: "#ff9ab2",
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1.2
   },
-  card: {
-    backgroundColor: "#1e293b",
-    borderRadius: 12,
-    padding: 16,
+  heroTitle: {
+    color: "#fff3ea",
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: "800"
+  },
+  heroCopy: {
+    color: "#d8c7df",
+    fontSize: 15,
+    lineHeight: 22
+  },
+  heroChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8
   },
-  cardTitle: {
-    color: "#f8fafc",
-    fontSize: 20,
-    fontWeight: "700"
+  welcomeCard: {
+    backgroundColor: "#1a102e",
+    borderColor: "rgba(255,255,255,0.06)"
   },
-  meta: {
-    color: "#cbd5e1"
+  welcomeTitle: {
+    color: "#fff7f1",
+    fontSize: 22,
+    fontWeight: "800"
   },
-  copy: {
-    color: "#94a3b8"
+  welcomeCopy: {
+    color: "#cdbed5",
+    lineHeight: 21
   },
-  listItem: {
-    backgroundColor: "#0f172a",
-    borderColor: "#334155",
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
+  sectionHeader: {
     gap: 4
   },
-  stopIndex: {
-    color: "#f59e0b",
-    fontWeight: "700"
+  sectionTitle: {
+    color: "#fff0e4",
+    fontSize: 22,
+    fontWeight: "800"
   },
-  stopTitle: {
-    color: "#f8fafc",
+  sectionMeta: {
+    color: "#b69fbe",
+    fontSize: 13
+  },
+  packList: {
+    gap: 12
+  },
+  packCard: {
+    borderRadius: 24,
+    padding: 18,
+    gap: 8,
+    backgroundColor: "#120a22",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)"
+  },
+  packCardActive: {
+    borderColor: "rgba(255, 140, 168, 0.65)",
+    backgroundColor: "#1b0f31"
+  },
+  packTitle: {
+    color: "#f4e6f0",
+    fontSize: 19,
+    fontWeight: "800"
+  },
+  packTitleActive: {
+    color: "#fff7f1"
+  },
+  packMeta: {
+    color: "#d2bfca",
+    fontSize: 13
+  },
+  packBody: {
+    color: "#bdaec7",
+    lineHeight: 20
+  },
+  featureCard: {
+    backgroundColor: "#2b1530",
+    borderColor: "rgba(255, 176, 132, 0.2)",
+    gap: 10
+  },
+  featureEyebrow: {
+    color: "#ffbc8a",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.9
+  },
+  featureTitle: {
+    color: "#fff8f3",
+    fontSize: 28,
+    lineHeight: 32,
+    fontWeight: "800"
+  },
+  featureMeta: {
+    color: "#dbc3cf"
+  },
+  featureBody: {
+    color: "#f3e8ef",
+    lineHeight: 22
+  },
+  routeCard: {
+    backgroundColor: "#120a22"
+  },
+  routeRow: {
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "flex-start",
+    paddingVertical: 8
+  },
+  routeIndex: {
+    width: 28,
+    height: 28,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ff8ca8"
+  },
+  routeIndexText: {
+    color: "#220b16",
+    fontWeight: "800",
+    fontSize: 12
+  },
+  routeContent: {
+    flex: 1,
+    gap: 4
+  },
+  routeTitle: {
+    color: "#fff1e8",
     fontWeight: "700",
     fontSize: 16
   },
-  stopDesc: {
-    color: "#cbd5e1"
+  routeMeta: {
+    color: "#c6b3c5",
+    lineHeight: 20
   }
 });

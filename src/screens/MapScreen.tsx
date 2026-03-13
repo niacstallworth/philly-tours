@@ -1,6 +1,7 @@
-﻿import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker, Region } from "react-native-maps";
+import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { getTriggeredStops, haversineDistanceM } from "../services/geofence";
 import {
@@ -10,16 +11,43 @@ import {
   UserPosition
 } from "../services/location";
 
+type StopWithTour = (typeof tours)[number]["stops"][number] & {
+  tourId: string;
+  tourTitle: string;
+  color: string;
+};
+
+const TOUR_COLORS = ["#ff8ca8", "#ffbc8a", "#ffd36b", "#8fd7c3", "#7dc9ff", "#b79cff"];
+
 export function MapScreen() {
-  const stops = tours[0].stops;
+  const mapRef = useRef<MapView | null>(null);
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
   const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
   const [watching, setWatching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [autoTriggers, setAutoTriggers] = useState<string[]>([]);
-
+  const [visibleTourIds, setVisibleTourIds] = useState<Set<string>>(() => new Set([tours[0]?.id || ""]));
+  const [focusedTourId, setFocusedTourId] = useState<string>(tours[0]?.id || "");
+  const [mapRegion, setMapRegion] = useState<Region | null>(null);
   const watchRef = useRef<{ remove: () => void } | null>(null);
-  const enteredRef = useRef<Set<string>>(new Set());
+
+  const tourColorById = useMemo(() => {
+    const map = new Map<string, string>();
+    tours.forEach((tour, index) => map.set(tour.id, TOUR_COLORS[index % TOUR_COLORS.length]));
+    return map;
+  }, []);
+
+  const visibleTours = useMemo(() => tours.filter((tour) => visibleTourIds.has(tour.id)), [visibleTourIds]);
+  const focusedTour = useMemo(() => tours.find((tour) => tour.id === focusedTourId) || tours[0], [focusedTourId]);
+  const visibleStops = useMemo<StopWithTour[]>(() => {
+    return visibleTours.flatMap((tour) =>
+      tour.stops.map((stop) => ({
+        ...stop,
+        tourId: tour.id,
+        tourTitle: tour.title,
+        color: tourColorById.get(tour.id) || "#7dc9ff"
+      }))
+    );
+  }, [tourColorById, visibleTours]);
 
   useEffect(() => {
     return () => {
@@ -32,100 +60,55 @@ export function MapScreen() {
     if (!userPosition) {
       return new Set<string>();
     }
-
-    return new Set(
-      getTriggeredStops(userPosition.latitude, userPosition.longitude, stops).map((s) => s.id)
-    );
-  }, [stops, userPosition]);
-
-  useEffect(() => {
-    if (!userPosition) {
-      return;
-    }
-
-    const newlyEntered: string[] = [];
-    for (const stop of stops) {
-      const inRange =
-        haversineDistanceM(userPosition.latitude, userPosition.longitude, stop.lat, stop.lng) <=
-        stop.triggerRadiusM;
-
-      if (inRange && !enteredRef.current.has(stop.id)) {
-        enteredRef.current.add(stop.id);
-        newlyEntered.push(stop.title);
-      }
-
-      if (!inRange && enteredRef.current.has(stop.id)) {
-        enteredRef.current.delete(stop.id);
-      }
-    }
-
-    if (newlyEntered.length > 0) {
-      setAutoTriggers((prev) => [...newlyEntered, ...prev].slice(0, 8));
-    }
-  }, [stops, userPosition]);
+    return new Set(getTriggeredStops(userPosition.latitude, userPosition.longitude, visibleStops).map((stop) => stop.id));
+  }, [userPosition, visibleStops]);
 
   const nearest = useMemo(() => {
-    if (!userPosition) {
+    if (!userPosition || visibleStops.length === 0) {
       return null;
     }
+    return visibleStops
+      .map((stop) => ({ stop, distance: haversineDistanceM(userPosition.latitude, userPosition.longitude, stop.lat, stop.lng) }))
+      .sort((left, right) => left.distance - right.distance)[0] || null;
+  }, [userPosition, visibleStops]);
 
-    return stops
-      .map((stop) => ({
-        stop,
-        distance: haversineDistanceM(
-          userPosition.latitude,
-          userPosition.longitude,
-          stop.lat,
-          stop.lng
-        )
-      }))
-      .sort((a, b) => a.distance - b.distance)[0] ?? null;
-  }, [stops, userPosition]);
-
-  const region = useMemo(() => {
-    if (userPosition) {
-      return {
-        latitude: userPosition.latitude,
-        longitude: userPosition.longitude,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02
-      };
-    }
-
+  const seedRegion = useMemo<Region>(() => {
+    const seedStop = focusedTour?.stops[0] || { lat: 39.9526, lng: -75.1652 };
     return {
-      latitude: stops[0].lat,
-      longitude: stops[0].lng,
-      latitudeDelta: 0.03,
-      longitudeDelta: 0.03
+      latitude: userPosition?.latitude || seedStop.lat,
+      longitude: userPosition?.longitude || seedStop.lng,
+      latitudeDelta: 0.07,
+      longitudeDelta: 0.07
     };
-  }, [stops, userPosition]);
+  }, [focusedTour, userPosition]);
+
+  useEffect(() => {
+    if (!mapRegion) {
+      setMapRegion(seedRegion);
+    }
+  }, [mapRegion, seedRegion]);
 
   async function onEnableLocation() {
     setError(null);
-
     try {
       const granted = await requestForegroundLocationPermission();
       setPermissionGranted(granted);
-
       if (!granted) {
         setError("Location permission denied.");
         return;
       }
-
       const current = await getCurrentPosition();
       setUserPosition(current);
-
+      setMapRegion({ latitude: current.latitude, longitude: current.longitude, latitudeDelta: 0.04, longitudeDelta: 0.04 });
       if (!watchRef.current) {
         watchRef.current = await startLocationWatch(
-          (position) => {
-            setUserPosition(position);
-          },
+          (position) => setUserPosition(position),
           (message) => setError(message)
         );
         setWatching(true);
       }
-    } catch (_e) {
-      setError("Could not fetch location. Check device location settings.");
+    } catch {
+      setError("Could not fetch location.");
     }
   }
 
@@ -135,128 +118,144 @@ export function MapScreen() {
     setWatching(false);
   }
 
+  function chooseTour(tourId: string) {
+    setFocusedTourId(tourId);
+    setVisibleTourIds(new Set([tourId]));
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Map and Geofence Zones</Text>
-      <Text style={styles.helper}>Step 2 complete: continuous location watch + automatic stop entry triggers.</Text>
-
-      <View style={styles.row}>
-        <Pressable style={styles.button} onPress={onEnableLocation}>
-          <Text style={styles.buttonText}>{watching ? "Refresh Location" : "Enable Location + Start Watch"}</Text>
-        </Pressable>
-        <Pressable style={styles.buttonSecondary} onPress={onStopWatch}>
-          <Text style={styles.buttonText}>Stop Watch</Text>
-        </Pressable>
+      <View style={styles.heroPanel}>
+        <Text style={styles.heroEyebrow}>Map</Text>
+        <Text style={styles.heroTitle}>Clean routes. Clear stops. One tour pack in focus.</Text>
+        <Text style={styles.heroCopy}>
+          This map should feel like a stylish guide, not a GIS console. Keep one pack active and let the city do the rest.
+        </Text>
       </View>
 
-      <Text style={styles.meta}>
-        Permission: {permissionGranted === null ? "not requested" : permissionGranted ? "granted" : "denied"}
-      </Text>
-      <Text style={styles.meta}>Watch: {watching ? "active" : "inactive"}</Text>
-      <Text style={styles.meta}>
-        User: {userPosition ? `${userPosition.latitude.toFixed(5)}, ${userPosition.longitude.toFixed(5)}` : "unknown"}
-      </Text>
-      <Text style={styles.meta}>
-        Nearest: {nearest ? `${nearest.stop.title} (${Math.round(nearest.distance)}m)` : "n/a"}
-      </Text>
-      {!!error && <Text style={styles.error}>{error}</Text>}
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Tour packs</Text>
+        <View style={styles.packWrap}>
+          {tours.map((tour) => (
+            <Pressable
+              key={tour.id}
+              onPress={() => chooseTour(tour.id)}
+              style={[styles.packChip, focusedTourId === tour.id && styles.packChipActive]}
+            >
+              <View style={[styles.colorDot, { backgroundColor: tourColorById.get(tour.id) || "#7dc9ff" }]} />
+              <Text style={[styles.packText, focusedTourId === tour.id && styles.packTextActive]}>{tour.title}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </Card>
 
-      <MapView style={styles.map} initialRegion={region} region={region}>
-        {userPosition && (
-          <Marker
-            coordinate={{ latitude: userPosition.latitude, longitude: userPosition.longitude }}
-            title="You"
-            pinColor="#22c55e"
-          />
-        )}
+      <Card style={styles.panel}>
+        <View style={styles.actionsRow}>
+          <PrimaryButton label={watching ? "Refresh Location" : "Enable Location"} onPress={onEnableLocation} />
+          <PrimaryButton label="Stop" onPress={onStopWatch} />
+        </View>
+        <View style={styles.chips}>
+          <Chip label={permissionGranted ? "Location on" : permissionGranted === false ? "Location denied" : "Location off"} tone={permissionGranted ? "success" : permissionGranted === false ? "danger" : "default"} />
+          <Chip label={watching ? "Live tracking" : "Static view"} tone={watching ? "success" : "default"} />
+          {nearest ? <Chip label={`Nearest ${nearest.stop.title}`} tone="warn" /> : null}
+        </View>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+      </Card>
 
-        {stops.map((stop) => (
+      <MapView
+        ref={(ref) => {
+          mapRef.current = ref;
+        }}
+        style={styles.map}
+        initialRegion={seedRegion}
+        onRegionChangeComplete={(next) => setMapRegion(next)}
+      >
+        {userPosition ? (
+          <Marker coordinate={{ latitude: userPosition.latitude, longitude: userPosition.longitude }} title="You" pinColor="#8fd7c3" />
+        ) : null}
+        {visibleStops.map((stop) => (
           <React.Fragment key={stop.id}>
             <Marker
               coordinate={{ latitude: stop.lat, longitude: stop.lng }}
               title={stop.title}
-              description={stop.description}
-              pinColor={triggeredIds.has(stop.id) ? "#f59e0b" : "#60a5fa"}
+              description={stop.tourTitle}
+              pinColor={stop.color}
             />
             <Circle
               center={{ latitude: stop.lat, longitude: stop.lng }}
               radius={stop.triggerRadiusM}
               strokeWidth={1}
-              strokeColor={triggeredIds.has(stop.id) ? "rgba(245,158,11,0.9)" : "rgba(96,165,250,0.9)"}
-              fillColor={triggeredIds.has(stop.id) ? "rgba(245,158,11,0.2)" : "rgba(96,165,250,0.14)"}
+              strokeColor={triggeredIds.has(stop.id) ? "rgba(255, 140, 168, 0.9)" : `${stop.color}99`}
+              fillColor={triggeredIds.has(stop.id) ? "rgba(255, 140, 168, 0.18)" : `${stop.color}20`}
             />
           </React.Fragment>
         ))}
       </MapView>
 
-      <View style={styles.stopCard}>
-        <Text style={styles.name}>Auto-trigger log</Text>
-        {autoTriggers.length === 0 ? (
-          <Text style={styles.latLng}>No stop entries yet.</Text>
-        ) : (
-          autoTriggers.map((name, idx) => (
-            <Text key={`${name}-${idx}`} style={styles.status}>
-              Entered: {name}
-            </Text>
-          ))
-        )}
-      </View>
-
-      {stops.map((stop) => (
-        <View style={styles.stopCard} key={stop.id}>
-          <Text style={styles.name}>{stop.title}</Text>
-          <Text style={styles.latLng}>Lat {stop.lat} | Lng {stop.lng}</Text>
-          <Text style={styles.radius}>Auto-trigger radius: {stop.triggerRadiusM}m</Text>
-          <Text style={styles.status}>
-            Status: {triggeredIds.has(stop.id) ? "In range - trigger now" : "Out of range"}
-          </Text>
-        </View>
-      ))}
+      <Card style={styles.panel}>
+        <Text style={styles.label}>{focusedTour.title}</Text>
+        <Text style={styles.copy}>{focusedTour.durationMin} min | {focusedTour.distanceMiles} mi | {focusedTour.stops.length} stops</Text>
+        {focusedTour.stops.slice(0, 6).map((stop, index) => (
+          <View key={stop.id} style={styles.stopRow}>
+            <Text style={styles.stopIndex}>{index + 1}</Text>
+            <View style={styles.stopCopyWrap}>
+              <Text style={styles.stopTitle}>{stop.title}</Text>
+              <Text style={styles.copy}>{triggeredIds.has(stop.id) ? "In range now" : stop.description}</Text>
+            </View>
+          </View>
+        ))}
+      </Card>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12 },
-  title: { color: "#f8fafc", fontSize: 24, fontWeight: "800" },
-  helper: { color: "#94a3b8" },
-  row: { flexDirection: "row", gap: 8 },
-  button: {
-    flex: 1,
-    backgroundColor: "#1e293b",
-    borderColor: "#334155",
+  container: { padding: 18, gap: 16, backgroundColor: "#060312" },
+  heroPanel: {
+    backgroundColor: "#130a25",
+    borderRadius: 30,
+    padding: 22,
+    gap: 10,
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    alignItems: "center"
+    borderColor: "rgba(255, 191, 173, 0.16)"
   },
-  buttonSecondary: {
-    backgroundColor: "#0f172a",
-    borderColor: "#334155",
+  heroEyebrow: { color: "#ff9ab2", fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 1.2 },
+  heroTitle: { color: "#fff3ea", fontSize: 30, lineHeight: 36, fontWeight: "800" },
+  heroCopy: { color: "#d8c7df", lineHeight: 21 },
+  panel: { backgroundColor: "#120a22" },
+  label: { color: "#fff0e4", fontSize: 18, fontWeight: "800" },
+  packWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  packChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "#1f1233",
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    alignItems: "center"
+    borderColor: "rgba(255,255,255,0.08)"
   },
-  buttonText: { color: "#f8fafc", fontWeight: "700" },
-  meta: { color: "#cbd5e1" },
-  error: { color: "#f87171" },
-  map: {
-    height: 320,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#334155"
+  packChipActive: { backgroundColor: "#ff8ca8", borderColor: "#ff8ca8" },
+  colorDot: { width: 10, height: 10, borderRadius: 999 },
+  packText: { color: "#cab6d2", fontWeight: "700" },
+  packTextActive: { color: "#2b1021" },
+  actionsRow: { gap: 8 },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  error: { color: "#ffadb7", fontWeight: "600" },
+  map: { height: 420, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
+  copy: { color: "#d8c7df", lineHeight: 21 },
+  stopRow: { flexDirection: "row", gap: 12, paddingVertical: 8, alignItems: "flex-start" },
+  stopIndex: {
+    width: 28,
+    height: 28,
+    borderRadius: 999,
+    backgroundColor: "#ffbc8a",
+    color: "#2b1021",
+    textAlign: "center",
+    lineHeight: 28,
+    fontWeight: "800"
   },
-  stopCard: {
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#334155",
-    backgroundColor: "#0f172a",
-    padding: 12,
-    gap: 4
-  },
-  name: { color: "#f8fafc", fontWeight: "700" },
-  latLng: { color: "#cbd5e1" },
-  radius: { color: "#f59e0b" },
-  status: { color: "#86efac", fontWeight: "600" }
+  stopCopyWrap: { flex: 1, gap: 4 },
+  stopTitle: { color: "#fff3ea", fontWeight: "700", fontSize: 16 }
 });
