@@ -119,11 +119,48 @@ export function resolveVisualPriority(record) {
   return (record.visualPriority || "").trim() || inferVisualPriority(record.arType);
 }
 
+export function normalizePromptBase(value) {
+  const raw = (value || "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  const markers = [
+    "Historical era focus:",
+    "Production notes:",
+    "Avoid:",
+    "Historically grounded. Strong composition for an AR tour app.",
+    "Use atmospheric lighting, layered depth, strong focal composition, and dramatic but historically respectful staging.",
+    "Prioritize architectural fidelity, straight lines, facade detail, masonry, windows, signage, and historically believable materials.",
+    "Use clean editorial composition, readable foreground subject placement, and uncluttered negative space suitable for mobile AR cards.",
+    "Use clear iconographic composition, restrained palette, and legible educational framing suitable for interpretive overlays.",
+    "Use documentary realism with accurate environmental context and restrained stylization.",
+    "Emphasize exact building frontage, proportions, street-facing detail, and before/after alignment potential.",
+    "Emphasize historically grounded objects, clothing, signage, and environment details over fantasy styling.",
+    "Emphasize mood, depth, period atmosphere, and immersive scene presence.",
+    "Emphasize clarity, readable composition, simple silhouettes, and reduced background clutter.",
+    "Emphasize strong human silhouette, respectful figure staging, and recognizable pose over facial close-up detail.",
+    "Optimize for high-detail environment rendering, facade structure, and crisp surface detail.",
+    "Optimize for atmospheric storytelling, cinematic scene composition, and emotionally strong historical reconstruction.",
+    "Optimize for speed, simplicity, clean composition, and lightweight concept coverage."
+  ];
+
+  let cutoff = raw.length;
+  for (const marker of markers) {
+    const markerIndex = raw.indexOf(marker);
+    if (markerIndex !== -1 && markerIndex < cutoff) {
+      cutoff = markerIndex;
+    }
+  }
+
+  return raw.slice(0, cutoff).trim().replace(/\s+$/, "");
+}
+
 export function buildProviderPrompt(record, provider, explicitPrompt) {
   const arTypeLabel = (record.arType || "ar scene").replaceAll("_", " ");
   const assetBrief = (record.assetNeeded || "historic Philadelphia storytelling scene").trim();
   const basePrompt =
-    (explicitPrompt || "").trim() ||
+    normalizePromptBase(explicitPrompt) ||
     `Concept art for a mobile augmented reality ${arTypeLabel} experience at ${record.stopTitle} in Philadelphia. Show ${assetBrief}.`;
   const era = (record.historicalEra || "").trim() || defaultEra(record);
   const stylePreset = resolveStylePreset(record);
