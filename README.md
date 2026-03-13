@@ -181,6 +181,10 @@ Catalog fields used by the generator:
 - `falModel`
 - `falPrompt`
 - `falImageSize`
+- `replicateModel`
+- `replicatePrompt`
+- `replicateAspectRatio`
+- `replicateOutputFormat`
 - `stabilityEndpoint`
 - `stabilityPrompt`
 - `stabilityAspectRatio`
@@ -221,6 +225,7 @@ npm run ar:images:generate
 Useful options:
 - `npm run ar:images:generate -- --limit 5`
 - `npm run ar:images:generate -- --provider stability`
+- `npm run ar:images:generate -- --provider replicate`
 - `npm run ar:images:generate -- --provider fal`
 - `npm run ar:images:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
 - `npm run ar:images:generate -- --force`
@@ -232,7 +237,6 @@ Routing defaults:
 
 Notes:
 - Explicit `imageProvider` on a catalog row overrides type-based routing.
-- `replicate` routing is defined but not wired yet. Routed rows are reported and skipped for now.
 
 ### Generate AR concept images with Stability
 ```bash
@@ -249,6 +253,24 @@ Useful options:
 Notes:
 - `STABILITY_API_KEY` must be present in `.env` or the shell environment.
 - Current implementation uses the official Stability `v2beta/stable-image/generate/{core|ultra}` API.
+- Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
+
+### Generate AR concept images with Replicate
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:replicate:generate
+```
+
+Useful options:
+- `npm run ar:replicate:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
+- `npm run ar:replicate:generate -- --limit 3`
+- `npm run ar:replicate:generate -- --force`
+
+Notes:
+- `REPLICATE_API_TOKEN` must be present in `.env` or the shell environment.
+- Current implementation uses the official Replicate model prediction API with `Prefer: wait`.
+- Default model is `black-forest-labs/flux-pro`.
 - Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
 
 ## Files To Review First

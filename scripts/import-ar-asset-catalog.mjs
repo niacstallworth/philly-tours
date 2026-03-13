@@ -16,6 +16,8 @@ const FAL_IMAGE_SIZE_VALUES = new Set(["square_hd", "square", "portrait_4_3", "p
 const STABILITY_ENDPOINT_VALUES = new Set(["core", "ultra"]);
 const STABILITY_ASPECT_RATIO_VALUES = new Set(["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21"]);
 const STABILITY_OUTPUT_FORMAT_VALUES = new Set(["png", "jpeg", "webp"]);
+const REPLICATE_ASPECT_RATIO_VALUES = new Set(["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21"]);
+const REPLICATE_OUTPUT_FORMAT_VALUES = new Set(["png", "jpeg", "webp"]);
 
 function normalizeRepoPath(assetPath) {
   return assetPath.replace(/^\/+/, "");
@@ -98,6 +100,10 @@ function readCatalogRows() {
       stabilityPrompt: record.stabilityPrompt?.trim() || "",
       stabilityAspectRatio: asOptionalEnum(record.stabilityAspectRatio, STABILITY_ASPECT_RATIO_VALUES, "stabilityAspectRatio", rowNumber),
       stabilityOutputFormat: asOptionalEnum(record.stabilityOutputFormat, STABILITY_OUTPUT_FORMAT_VALUES, "stabilityOutputFormat", rowNumber),
+      replicateModel: record.replicateModel?.trim() || "",
+      replicatePrompt: record.replicatePrompt?.trim() || "",
+      replicateAspectRatio: asOptionalEnum(record.replicateAspectRatio, REPLICATE_ASPECT_RATIO_VALUES, "replicateAspectRatio", rowNumber),
+      replicateOutputFormat: asOptionalEnum(record.replicateOutputFormat, REPLICATE_OUTPUT_FORMAT_VALUES, "replicateOutputFormat", rowNumber),
       generatedImagePath: record.generatedImagePath?.trim() || "",
       generatedImageExistsLocal: record.generatedImagePath?.trim() ? assetExistsInRepo(record.generatedImagePath.trim()) : false
     };
@@ -136,6 +142,10 @@ function writeCatalogModule(rows) {
   stabilityPrompt: string;
   stabilityAspectRatio: "" | "21:9" | "16:9" | "3:2" | "5:4" | "1:1" | "4:5" | "2:3" | "9:16" | "9:21";
   stabilityOutputFormat: "" | "png" | "jpeg" | "webp";
+  replicateModel: string;
+  replicatePrompt: string;
+  replicateAspectRatio: "" | "21:9" | "16:9" | "3:2" | "5:4" | "1:1" | "4:5" | "2:3" | "9:16" | "9:21";
+  replicateOutputFormat: "" | "png" | "jpeg" | "webp";
   generatedImagePath: string;
   generatedImageExistsLocal: boolean;
 };

@@ -105,8 +105,6 @@ function main() {
     return;
   }
 
-  const skippedReplicate = [];
-
   for (const record of selected) {
     if (record.resolvedProvider === "fal") {
       const scriptArgs = ["--stop-id", record.stopId];
@@ -127,19 +125,16 @@ function main() {
     }
 
     if (record.resolvedProvider === "replicate") {
-      skippedReplicate.push(`${record.stopTitle} (${record.stopId})`);
+      const scriptArgs = ["--stop-id", record.stopId];
+      if (args.force) {
+        scriptArgs.push("--force");
+      }
+      runNodeScript("generate-replicate-ar-images.mjs", scriptArgs);
       continue;
     }
   }
 
   runNodeScript("import-ar-asset-catalog.mjs", []);
-
-  if (skippedReplicate.length > 0) {
-    console.log("Replicate routing selected for these stops, but Replicate is not wired yet:");
-    for (const line of skippedReplicate) {
-      console.log(`- ${line}`);
-    }
-  }
 }
 
 try {

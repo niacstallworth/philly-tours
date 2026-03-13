@@ -29,6 +29,10 @@ export type ARAssetCatalogEntry = {
   stabilityPrompt: string;
   stabilityAspectRatio: "" | "21:9" | "16:9" | "3:2" | "5:4" | "1:1" | "4:5" | "2:3" | "9:16" | "9:21";
   stabilityOutputFormat: "" | "png" | "jpeg" | "webp";
+  replicateModel: string;
+  replicatePrompt: string;
+  replicateAspectRatio: "" | "21:9" | "16:9" | "3:2" | "5:4" | "1:1" | "4:5" | "2:3" | "9:16" | "9:21";
+  replicateOutputFormat: "" | "png" | "jpeg" | "webp";
   generatedImagePath: string;
   generatedImageExistsLocal: boolean;
 };
@@ -65,6 +69,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at Mother Bethel AME Church in Philadelphia. Show exterior reconstruction scene; site card; archival textures. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality portal reconstruction experience at Mother Bethel AME Church in Philadelphia. Show exterior reconstruction scene; site card; archival textures. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-mother-bethel-ame-church.png",
     "generatedImageExistsLocal": true
   },
@@ -99,6 +107,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at President's House / Liberty Bell Center in Philadelphia. Show household reconstruction; figure markers; timeline overlays. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality portal reconstruction experience at President's House / Liberty Bell Center in Philadelphia. Show household reconstruction; figure markers; timeline overlays. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center.png",
     "generatedImageExistsLocal": true
   },
@@ -133,6 +145,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality historical figure presence experience at Johnson House in Philadelphia. Show Underground Railroad scene; host figure silhouette; route overlay. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality historical figure presence experience at Johnson House in Philadelphia. Show Underground Railroad scene; host figure silhouette; route overlay. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-johnson-house.png",
     "generatedImageExistsLocal": true
   },
@@ -167,6 +183,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality before after overlay experience at The Woodlands in Philadelphia. Show mansion overlay; cemetery context cards. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-the-woodlands.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -201,6 +221,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality object on plinth experience at Masonic Temple in Philadelphia. Show Rainbow jewels; ceremonial symbols; spatial story cards. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/rainbow-girls-philadelphia-masonic-temple.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -235,6 +259,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality floating story card experience at Please Touch Museum in Philadelphia. Show animated story cards; photo frames. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/rainbow-girls-philadelphia-please-touch-museum.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -269,6 +297,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at Shofuso Japanese House & Garden in Philadelphia. Show garden scene extension; cultural context overlay. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality portal reconstruction experience at Shofuso Japanese House & Garden in Philadelphia. Show garden scene extension; cultural context overlay. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/rainbow-girls-philadelphia-shofuso-japanese-house-and-garden.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -303,6 +335,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality object on plinth experience at Alpha Phi Alpha - 42nd & Chestnut in Philadelphia. Show crest; chapter marker; founding timeline objects. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -337,6 +373,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality floating story card experience at Delta Sigma Theta - 40th & Market in Philadelphia. Show public act timeline; archival photos; chapter card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/divine-9-legacy-tour-delta-sigma-theta-40th-and-market.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -371,6 +411,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality historical figure presence experience at Iota Phi Theta - Temple Greek Row in Philadelphia. Show legacy scene; organization timeline; marker overlay. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality historical figure presence experience at Iota Phi Theta - Temple Greek Row in Philadelphia. Show legacy scene; organization timeline; marker overlay. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/divine-9-legacy-tour-iota-phi-theta-temple-greek-row.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -405,6 +449,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at The Palestra in Philadelphia. Show historic game scene; score overlay; court reconstruction. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality portal reconstruction experience at The Palestra in Philadelphia. Show historic game scene; score overlay; court reconstruction. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/black-american-sports-the-palestra.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -439,6 +487,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality historical figure presence experience at Joe Frazier's Gym (Cloverlay) in Philadelphia. Show training scene; gloves and belt object set; archival card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality historical figure presence experience at Joe Frazier's Gym (Cloverlay) in Philadelphia. Show training scene; gloves and belt object set; archival card. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/black-american-sports-joe-frazier-s-gym-cloverlay.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -473,6 +525,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality floating story card experience at Overbrook High School in Philadelphia. Show Wilt and Kobe legacy cards; stats overlays. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/black-american-sports-overbrook-high-school.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -507,6 +563,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality animated diagram experience at Lewis Latimer Light Bulb Exhibit in Philadelphia. Show filament model; patent diagram animation; inventor card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/black-inventors-tour-lewis-latimer-light-bulb-exhibit.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -541,6 +601,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality animated diagram experience at Garrett Morgan Traffic Signal in Philadelphia. Show signal mechanism; intersection overlay; patent timeline. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/black-inventors-tour-garrett-morgan-traffic-signal.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -575,6 +639,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality animated diagram experience at Dr. Charles Drew Blood Bank in Philadelphia. Show blood plasma storage explainer; medical card set. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/black-inventors-tour-dr-charles-drew-blood-bank.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -609,6 +677,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality floating story card experience at Rosenbach Museum & Library in Philadelphia. Show manuscript cards; toy and book reveal; collection overlay. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/library-story-hop-tour-rosenbach-museum-and-library.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -643,6 +715,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality floating story card experience at Free Library - Central Parkway in Philadelphia. Show literary quote cards; raven and book overlays; facade card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/library-story-hop-tour-free-library-central-parkway.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -677,6 +753,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality object on plinth experience at Charles L. Blockson Collection in Philadelphia. Show hymnbook or archival object model; collection card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/library-story-hop-tour-charles-l-blockson-collection.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -711,6 +791,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at Ogontz Theatre Site in Philadelphia. Show theatre facade reconstruction; performance poster overlays. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality portal reconstruction experience at Ogontz Theatre Site in Philadelphia. Show theatre facade reconstruction; performance poster overlays. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/old-york-road-corridor-ogontz-theatre-site.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -745,6 +829,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality historical figure presence experience at Cecil B. Moore Law Office in Philadelphia. Show speech and activism overlay; office card; archival layer. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality historical figure presence experience at Cecil B. Moore Law Office in Philadelphia. Show speech and activism overlay; office card; archival layer. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/old-york-road-corridor-cecil-b-moore-law-office.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -779,6 +867,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality before after overlay experience at Happy Hollow Rec Center in Philadelphia. Show riot and community timeline; neighborhood memory overlay. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/old-york-road-corridor-happy-hollow-rec-center.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -813,6 +905,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality route ghost experience at Old York Road & North Broad in Philadelphia. Show corridor route arrows; milestone reveal; wayfinding card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/old-york-road-corridor-old-york-road-and-north-broad.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -847,6 +943,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality object on plinth experience at Sweetbriar Mansion in Philadelphia. Show ceremonial symbol set; closing ritual object; chapter story card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "",
+    "replicatePrompt": "",
+    "replicateAspectRatio": "",
+    "replicateOutputFormat": "",
     "generatedImagePath": "assets/generated/ar-references/eastern-star-weekend-sweetbriar-mansion.jpeg",
     "generatedImageExistsLocal": false
   },
@@ -881,6 +981,10 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "stabilityPrompt": "Concept art for a mobile augmented reality historical figure presence experience at Original Bethel No. 1 Hall in Philadelphia. Show legacy hall overlay; youth lineage cards; memory scene. Historically grounded. Rich visual detail. Strong composition for an AR tour app.",
     "stabilityAspectRatio": "3:2",
     "stabilityOutputFormat": "png",
+    "replicateModel": "black-forest-labs/flux-pro",
+    "replicatePrompt": "Atmospheric concept art for a mobile augmented reality historical figure presence experience at Original Bethel No. 1 Hall in Philadelphia. Show legacy hall overlay; youth lineage cards; memory scene. Historically grounded. Strong cinematic composition for an AR tour app.",
+    "replicateAspectRatio": "3:2",
+    "replicateOutputFormat": "png",
     "generatedImagePath": "assets/generated/ar-references/job-s-daughters-original-bethel-no-1-hall.jpeg",
     "generatedImageExistsLocal": false
   }
