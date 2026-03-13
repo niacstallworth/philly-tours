@@ -171,6 +171,7 @@ Active build focus:
 - AR production plan: `docs/ar-production-sheet.md`
 - AR build tracker: `docs/ar-build-tracker.csv`
 - AR asset catalog source: `docs/ar-asset-catalog.csv`
+- AR production briefs: `docs/ar-briefs/README.md`
 
 ## AR Asset Generation
 
@@ -203,6 +204,17 @@ cd /Users/nia/Documents/GitHub/philly-tours
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
 npm run ar:catalog:import
 ```
+
+### Generate AR production briefs
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:briefs:generate
+```
+
+Useful options:
+- `npm run ar:briefs:generate -- --limit 10`
+- `npm run ar:briefs:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
 
 ### Generate AR concept images with fal
 ```bash
