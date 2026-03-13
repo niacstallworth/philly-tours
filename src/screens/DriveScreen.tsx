@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { getDriveStops, getDriveTourSummaries } from "../services/driveMode";
 
@@ -24,6 +24,17 @@ export function DriveScreen({ initialTourId }: Props) {
   );
   const driveStops = React.useMemo(() => getDriveStops(selectedTour?.id || ""), [selectedTour?.id]);
   const nextStop = driveStops[0];
+
+  async function previewArrivalHandoff() {
+    if (!nextStop) {
+      return;
+    }
+    try {
+      await Linking.openURL(nextStop.handoffDeepLink);
+    } catch (error) {
+      Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
+    }
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -77,7 +88,7 @@ export function DriveScreen({ initialTourId }: Props) {
           <Text style={styles.handoffLink}>{nextStop.handoffDeepLink}</Text>
           <View style={styles.actions}>
             <PrimaryButton label="Start Drive Session" onPress={() => undefined} />
-            <PrimaryButton label="Preview Arrival Handoff" onPress={() => undefined} />
+            <PrimaryButton label="Preview Arrival Handoff" onPress={previewArrivalHandoff} />
           </View>
         </Card>
       ) : null}
