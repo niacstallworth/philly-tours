@@ -1,6 +1,6 @@
 import React from "react";
-import { useFocusEffect } from "@react-navigation/native";
-import { loadDriveSession, type DriveSession } from "../services/driveMode";
+import { AppState } from "react-native";
+import { loadDriveSession, subscribeToDriveSession, type DriveSession } from "../services/driveMode";
 
 export function useDriveSession() {
   const [driveSession, setDriveSession] = React.useState<DriveSession | null>(null);
@@ -17,11 +17,23 @@ export function useDriveSession() {
     refreshDriveSession().catch(() => setLoading(false));
   }, [refreshDriveSession]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      refreshDriveSession().catch(() => undefined);
-    }, [refreshDriveSession])
-  );
+  React.useEffect(() => {
+    const unsubscribe = subscribeToDriveSession((session) => {
+      setDriveSession(session);
+      setLoading(false);
+    });
+
+    const appStateSubscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        refreshDriveSession().catch(() => undefined);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      appStateSubscription.remove();
+    };
+  }, [refreshDriveSession]);
 
   return {
     driveSession,
