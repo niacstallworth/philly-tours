@@ -292,110 +292,136 @@ final class PhillyARViewController: UIViewController {
     contentLayers: [String],
     productionChecklist: [String]
   ) -> ModelEntity? {
-    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1200, height: 760))
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1180, height: 720))
     let image = renderer.image { context in
-      let bounds = CGRect(x: 0, y: 0, width: 1200, height: 760)
-      UIColor(red: 8/255, green: 15/255, blue: 33/255, alpha: 0.96).setFill()
-      UIBezierPath(roundedRect: bounds, cornerRadius: 34).fill()
+      let bounds = CGRect(x: 0, y: 0, width: 1180, height: 720)
+      let cgContext = context.cgContext
 
-      UIColor(red: 59/255, green: 130/255, blue: 246/255, alpha: 1).setFill()
-      UIBezierPath(roundedRect: CGRect(x: 28, y: 28, width: 236, height: 56), cornerRadius: 20).fill()
+      let backgroundColors = [
+        UIColor(red: 6/255, green: 3/255, blue: 18/255, alpha: 0.98).cgColor,
+        UIColor(red: 19/255, green: 10/255, blue: 37/255, alpha: 0.96).cgColor,
+        UIColor(red: 27/255, green: 16/255, blue: 45/255, alpha: 0.98).cgColor
+      ] as CFArray
+      let colorSpace = CGColorSpaceCreateDeviceRGB()
+      if let gradient = CGGradient(colorsSpace: colorSpace, colors: backgroundColors, locations: [0, 0.45, 1]) {
+        cgContext.drawLinearGradient(gradient, start: CGPoint(x: 0, y: 0), end: CGPoint(x: 1180, y: 720), options: [])
+      }
 
-      let badgeText = NSString(string: "AR STORY CARD")
+      UIColor(red: 255/255, green: 140/255, blue: 168/255, alpha: 0.14).setFill()
+      UIBezierPath(ovalIn: CGRect(x: 794, y: 94, width: 286, height: 286)).fill()
+      UIColor(red: 255/255, green: 188/255, blue: 138/255, alpha: 0.20).setStroke()
+      let halo = UIBezierPath(ovalIn: CGRect(x: 744, y: 54, width: 386, height: 386))
+      halo.lineWidth = 2
+      halo.stroke()
+
+      UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 0.08).setStroke()
+      UIBezierPath(roundedRect: CGRect(x: 26, y: 24, width: 1128, height: 672), cornerRadius: 34).stroke()
+
+      UIColor(red: 255/255, green: 140/255, blue: 168/255, alpha: 0.92).setFill()
+      UIBezierPath(roundedRect: CGRect(x: 42, y: 42, width: 156, height: 42), cornerRadius: 18).fill()
+
+      let badgeText = NSString(string: "LIVE AR")
       badgeText.draw(
-        in: CGRect(x: 52, y: 42, width: 190, height: 24),
+        in: CGRect(x: 72, y: 51, width: 110, height: 22),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 24, weight: .bold),
-          .foregroundColor: UIColor.white
+          .font: UIFont.systemFont(ofSize: 20, weight: .bold),
+          .foregroundColor: UIColor(red: 43/255, green: 16/255, blue: 33/255, alpha: 1)
         ]
       )
 
       let titleText = NSString(string: headline)
       titleText.draw(
-        in: CGRect(x: 44, y: 114, width: 660, height: 110),
+        in: CGRect(x: 44, y: 118, width: 620, height: 112),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 46, weight: .heavy),
-          .foregroundColor: UIColor.white
+          .font: UIFont.systemFont(ofSize: 44, weight: .heavy),
+          .foregroundColor: UIColor(red: 1, green: 0.95, blue: 0.92, alpha: 1)
         ]
       )
 
       let stopTitleText = NSString(string: title)
       stopTitleText.draw(
-        in: CGRect(x: 44, y: 212, width: 660, height: 48),
+        in: CGRect(x: 46, y: 214, width: 520, height: 42),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 30, weight: .bold),
-          .foregroundColor: UIColor(red: 147/255, green: 197/255, blue: 253/255, alpha: 1)
-        ]
-      )
-
-      let subtitleText = NSString(string: subtitle)
-      subtitleText.draw(
-        in: CGRect(x: 44, y: 258, width: 660, height: 74),
-        withAttributes: [
-          .font: UIFont.systemFont(ofSize: 28, weight: .medium),
-          .foregroundColor: UIColor(white: 0.88, alpha: 1)
+          .font: UIFont.systemFont(ofSize: 28, weight: .bold),
+          .foregroundColor: UIColor(red: 255/255, green: 188/255, blue: 138/255, alpha: 1)
         ]
       )
 
       let summaryText = NSString(string: summary)
       summaryText.draw(
-        in: CGRect(x: 44, y: 346, width: 660, height: 144),
+        in: CGRect(x: 46, y: 274, width: 552, height: 146),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 24, weight: .regular),
-          .foregroundColor: UIColor.white
+          .font: UIFont.systemFont(ofSize: 25, weight: .regular),
+          .foregroundColor: UIColor(red: 230/255, green: 216/255, blue: 232/255, alpha: 1)
         ]
       )
 
-      let placementText = NSString(string: placementNote.isEmpty ? "Placement note unavailable." : placementNote)
+      UIColor(red: 255/255, green: 188/255, blue: 138/255, alpha: 0.18).setFill()
+      UIBezierPath(roundedRect: CGRect(x: 44, y: 450, width: 548, height: 100), cornerRadius: 24).fill()
+
+      let placementTitle = NSString(string: "Stand + view")
+      placementTitle.draw(
+        in: CGRect(x: 68, y: 470, width: 180, height: 26),
+        withAttributes: [
+          .font: UIFont.systemFont(ofSize: 20, weight: .bold),
+          .foregroundColor: UIColor(red: 1, green: 0.95, blue: 0.92, alpha: 1)
+        ]
+      )
+
+      let placementText = NSString(string: placementNote.isEmpty ? subtitle : placementNote)
       placementText.draw(
-        in: CGRect(x: 44, y: 512, width: 660, height: 126),
+        in: CGRect(x: 68, y: 504, width: 488, height: 38),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 22, weight: .regular),
-          .foregroundColor: UIColor(red: 226/255, green: 232/255, blue: 240/255, alpha: 1)
+          .font: UIFont.systemFont(ofSize: 18, weight: .regular),
+          .foregroundColor: UIColor(red: 230/255, green: 216/255, blue: 232/255, alpha: 1)
         ]
       )
 
-      UIColor(red: 15/255, green: 23/255, blue: 42/255, alpha: 0.94).setFill()
-      UIBezierPath(roundedRect: CGRect(x: 736, y: 110, width: 420, height: 584), cornerRadius: 28).fill()
+      UIColor(red: 18/255, green: 10/255, blue: 34/255, alpha: 0.94).setFill()
+      UIBezierPath(roundedRect: CGRect(x: 724, y: 92, width: 386, height: 536), cornerRadius: 34).fill()
 
-      UIColor(red: 30/255, green: 41/255, blue: 59/255, alpha: 1).setFill()
-      UIBezierPath(roundedRect: CGRect(x: 764, y: 188, width: 364, height: 204), cornerRadius: 18).fill()
+      UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 0.08).setStroke()
+      let frame = UIBezierPath(roundedRect: CGRect(x: 748, y: 116, width: 338, height: 214), cornerRadius: 24)
+      frame.lineWidth = 2
+      frame.stroke()
 
-      let metadataHeader = NSString(string: "Scene runtime")
-      metadataHeader.draw(
-        in: CGRect(x: 764, y: 140, width: 240, height: 32),
+      let previewTitle = NSString(string: "Spatial preview")
+      previewTitle.draw(
+        in: CGRect(x: 778, y: 374, width: 220, height: 24),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 28, weight: .bold),
-          .foregroundColor: UIColor.white
+          .font: UIFont.systemFont(ofSize: 22, weight: .bold),
+          .foregroundColor: UIColor(red: 1, green: 0.95, blue: 0.92, alpha: 1)
         ]
       )
 
-      let providerLine = NSString(string: "Planned: \(plannedProvider)\nGenerated: \(generatedProvider)")
-      providerLine.draw(
-        in: CGRect(x: 764, y: 412, width: 320, height: 60),
+      let firstLayer = contentLayers.first ?? "Hero object"
+      let secondLayer = contentLayers.dropFirst().first ?? "Guided audio cue"
+      let microCopy = NSString(string: "• \(firstLayer)\n• \(secondLayer)\n• Small-display optimized overlay")
+      microCopy.draw(
+        in: CGRect(x: 778, y: 414, width: 260, height: 120),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 20, weight: .medium),
-          .foregroundColor: UIColor(red: 253/255, green: 224/255, blue: 71/255, alpha: 1)
+          .font: UIFont.systemFont(ofSize: 18, weight: .regular),
+          .foregroundColor: UIColor(red: 230/255, green: 216/255, blue: 232/255, alpha: 1)
         ]
       )
 
-      let layersBody = contentLayers.prefix(4).isEmpty ? "Scene layers pending" : contentLayers.prefix(4).joined(separator: "\n• ")
-      let layersText = NSString(string: "Layers\n• \(layersBody)")
-      layersText.draw(
-        in: CGRect(x: 764, y: 492, width: 336, height: 124),
+      UIColor(red: 143/255, green: 215/255, blue: 195/255, alpha: 0.82).setFill()
+      UIBezierPath(roundedRect: CGRect(x: 778, y: 562, width: 152, height: 34), cornerRadius: 17).fill()
+      let modeText = NSString(string: "3D moment")
+      modeText.draw(
+        in: CGRect(x: 814, y: 570, width: 100, height: 18),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 22, weight: .regular),
-          .foregroundColor: UIColor.white
+          .font: UIFont.systemFont(ofSize: 16, weight: .bold),
+          .foregroundColor: UIColor(red: 20/255, green: 26/255, blue: 25/255, alpha: 1)
         ]
       )
 
-      let checklistBody = productionChecklist.prefix(4).isEmpty ? "Production checklist pending" : productionChecklist.prefix(4).joined(separator: "\n• ")
-      let checklistText = NSString(string: "Checklist\n• \(checklistBody)")
-      checklistText.draw(
-        in: CGRect(x: 764, y: 620, width: 336, height: 108),
+      let footerText = NSString(string: productionChecklist.first ?? "Premium scene in progress")
+      footerText.draw(
+        in: CGRect(x: 44, y: 620, width: 540, height: 28),
         withAttributes: [
-          .font: UIFont.systemFont(ofSize: 22, weight: .regular),
-          .foregroundColor: UIColor(red: 191/255, green: 219/255, blue: 254/255, alpha: 1)
+          .font: UIFont.systemFont(ofSize: 18, weight: .medium),
+          .foregroundColor: UIColor(red: 182/255, green: 159/255, blue: 190/255, alpha: 1)
         ]
       )
     }
@@ -408,7 +434,7 @@ final class PhillyARViewController: UIViewController {
     var material = UnlitMaterial()
     material.color = .init(texture: .init(texture))
 
-    let mesh = MeshResource.generatePlane(width: 0.62, height: 0.39)
+    let mesh = MeshResource.generatePlane(width: 0.58, height: 0.355)
     let entity = ModelEntity(mesh: mesh, materials: [material])
     entity.position = SIMD3<Float>(0, 0.08, 0)
     return entity
