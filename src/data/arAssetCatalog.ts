@@ -56,7 +56,7 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "falPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at Mother Bethel AME Church in Philadelphia. Show exterior reconstruction scene; site card; archival textures. Historically grounded. Strong composition for an AR tour app.",
     "falImageSize": "landscape_4_3",
     "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-mother-bethel-ame-church.jpeg",
-    "generatedImageExistsLocal": false
+    "generatedImageExistsLocal": true
   },
   {
     "tourId": "black-american-legacy-and-quaker-heritage",
@@ -85,7 +85,7 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "falPrompt": "Concept art for a mobile augmented reality portal reconstruction experience at President's House / Liberty Bell Center in Philadelphia. Show household reconstruction; figure markers; timeline overlays. Historically grounded. Strong composition for an AR tour app.",
     "falImageSize": "landscape_4_3",
     "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center.jpeg",
-    "generatedImageExistsLocal": false
+    "generatedImageExistsLocal": true
   },
   {
     "tourId": "black-american-legacy-and-quaker-heritage",
@@ -114,7 +114,7 @@ export const arAssetCatalog: ARAssetCatalogEntry[] = [
     "falPrompt": "Concept art for a mobile augmented reality historical figure presence experience at Johnson House in Philadelphia. Show Underground Railroad scene; host figure silhouette; route overlay. Historically grounded. Strong composition for an AR tour app.",
     "falImageSize": "landscape_4_3",
     "generatedImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-johnson-house.jpeg",
-    "generatedImageExistsLocal": false
+    "generatedImageExistsLocal": true
   },
   {
     "tourId": "black-american-legacy-and-quaker-heritage",
