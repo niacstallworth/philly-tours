@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { getCurrentDriveStop, getNextDriveStop, loadDriveSession, type DriveSession } from "../services/driveMode";
@@ -52,6 +52,17 @@ export function HomeScreen({
   const heroStop = selectedTour?.stops[0];
   const plannedCount = selectedTour?.stops.filter((stop) => typeof stop.arPriority === "number").length ?? 0;
 
+  async function onPreviewDriveHandoff() {
+    if (!currentDriveStop || driveSession?.mode !== "arrived") {
+      return;
+    }
+    try {
+      await Linking.openURL(currentDriveStop.handoffDeepLink);
+    } catch (error) {
+      Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -83,8 +94,11 @@ export function HomeScreen({
           </Text>
           <View style={styles.heroChips}>
             <Chip label={`Mode ${driveSession.mode}`} tone="success" />
-            <Chip label={nextDriveStop ? "Open Drive tab to continue" : "Route complete"} tone="warn" />
+            <Chip label={driveSession.mode === "arrived" ? "Ready to continue on foot" : nextDriveStop ? "Open Drive tab to continue" : "Route complete"} tone="warn" />
           </View>
+          {driveSession.mode === "arrived" ? (
+            <PrimaryButton label="Continue On Foot" onPress={onPreviewDriveHandoff} />
+          ) : null}
         </Card>
       ) : null}
 
