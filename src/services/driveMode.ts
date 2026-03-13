@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { tours } from "../data/tours";
 
 const DRIVE_SESSION_KEY = "philly_tours_drive_session_v1";
+const driveSessionListeners = new Set<(session: DriveSession | null) => void>();
 
 export type DriveTourSummary = {
   id: string;
@@ -30,6 +31,10 @@ export type DriveSession = {
   startedAt: number;
   mode: "drive" | "arrived" | "handoff";
 };
+
+function notifyDriveSessionListeners(session: DriveSession | null) {
+  driveSessionListeners.forEach((listener) => listener(session));
+}
 
 function summarizeStopDescription(description: string) {
   return description.split("|")[0]?.trim() || "Arrive and continue on foot.";
@@ -119,10 +124,19 @@ export async function loadDriveSession(): Promise<DriveSession | null> {
 
 export async function saveDriveSession(session: DriveSession): Promise<void> {
   await AsyncStorage.setItem(DRIVE_SESSION_KEY, JSON.stringify(session));
+  notifyDriveSessionListeners(session);
 }
 
 export async function clearDriveSession(): Promise<void> {
   await AsyncStorage.removeItem(DRIVE_SESSION_KEY);
+  notifyDriveSessionListeners(null);
+}
+
+export function subscribeToDriveSession(listener: (session: DriveSession | null) => void) {
+  driveSessionListeners.add(listener);
+  return () => {
+    driveSessionListeners.delete(listener);
+  };
 }
 
 export async function startDriveSession(tourId: string) {
