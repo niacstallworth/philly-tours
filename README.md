@@ -65,6 +65,9 @@ This README is a current project-status document so reviewers can quickly see wh
   - `src/services/native-ar/nativeBridge.ts`
   - `src/services/native-ar/iosArkitAdapter.ts`
   - `src/services/native-ar/androidArcoreAdapter.ts`
+- Manifest/runtime scene prep:
+  - `src/services/ar.ts`
+  - `src/services/arManifest.ts`
 - Native templates:
   - `native-bridge-templates/ios`
   - `native-bridge-templates/android`
