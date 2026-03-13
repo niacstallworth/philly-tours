@@ -176,6 +176,7 @@ Active build focus:
 - AR asset catalog source: `docs/ar-asset-catalog.csv`
 - AR production briefs: `docs/ar-briefs/README.md`
 - AR scene manifests: `docs/ar-scene-manifests/README.md`
+- Product direction: `docs/product-direction.md`
 
 ## AR Asset Generation
 

@@ -1,482 +1,329 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { Card, Chip, PrimaryButton, SectionTitle } from "../components/ui/Primitives";
-import { arGeneratedImageMap } from "../data/arGeneratedImageMap";
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
-import { useBuildQueueProgress } from "../hooks/useBuildQueueProgress";
-import { toARProductionBrief } from "../services/arBrief";
 import { toARSceneManifest } from "../services/arManifest";
 import { toARScenePayload } from "../services/ar";
-import { getARReadiness } from "../services/arPlanning";
 import { getNativeARAdapter } from "../services/native-ar";
 import { NativeARStatus } from "../services/native-ar/types";
-import { createRealtimeSyncFromEnv, SyncEvent } from "../services/realtime";
+import { createRealtimeSyncFromEnv } from "../services/realtime";
 
 const adapter = getNativeARAdapter();
 const sync = createRealtimeSyncFromEnv();
 
 export function ARScreen() {
   const [selectedTourId, setSelectedTourId] = useState<string>(tours[0]?.id || "");
-  const selectedTour = useMemo(() => tours.find((t) => t.id === selectedTourId) || tours[0], [selectedTourId]);
-  const [showPlannedOnly, setShowPlannedOnly] = useState(true);
-  const prioritizedStops = useMemo(() => {
-    const sorted = [...selectedTour.stops].sort((left, right) => {
-      const leftPriority = left.arPriority ?? Number.MAX_SAFE_INTEGER;
-      const rightPriority = right.arPriority ?? Number.MAX_SAFE_INTEGER;
-      if (leftPriority !== rightPriority) {
-        return leftPriority - rightPriority;
-      }
-      return left.title.localeCompare(right.title);
-    });
-
-    if (!showPlannedOnly) {
-      return sorted;
-    }
-
-    const planned = sorted.filter((stop) => typeof stop.arPriority === "number");
-    return planned.length ? planned : sorted;
-  }, [selectedTour, showPlannedOnly]);
-  const payloads = useMemo(() => prioritizedStops.map(toARScenePayload), [prioritizedStops]);
   const [selectedStopId, setSelectedStopId] = useState<string>("");
-  const selectedPayload = useMemo(
-    () => payloads.find((payload) => payload.stopId === selectedStopId) || payloads[0],
-    [payloads, selectedStopId]
-  );
-  const selectedStop = useMemo(
-    () => prioritizedStops.find((stop) => stop.id === selectedStopId) || prioritizedStops[0],
-    [prioritizedStops, selectedStopId]
-  );
-  const selectedReadiness = useMemo(
-    () => (selectedStop ? getARReadiness(selectedStop) : null),
-    [selectedStop]
-  );
-  const selectedManifest = useMemo(
-    () => (selectedStop ? toARSceneManifest(selectedStop) : null),
-    [selectedStop]
-  );
-  const selectedBrief = useMemo(
-    () => (selectedStop ? toARProductionBrief(selectedStop, selectedTour.title) : null),
-    [selectedStop, selectedTour.title]
-  );
-  const selectedQuality = useMemo(() => {
-    const verified = selectedTour.stops.filter((s) => s.coordQuality === "verified").length;
-    const approximate = selectedTour.stops.length - verified;
-    return { verified, approximate };
-  }, [selectedTour]);
-  const plannedCount = useMemo(
-    () => selectedTour.stops.filter((stop) => typeof stop.arPriority === "number").length,
-    [selectedTour]
-  );
-  const buildQueue = useBuildQueueProgress();
-  const [arStatus, setArStatus] = useState<NativeARStatus | null>(null);
-  const [events, setEvents] = useState<SyncEvent[]>([]);
-  const [joined, setJoined] = useState(false);
   const [roomName, setRoomName] = useState("historic-philly-main");
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [roomMembers, setRoomMembers] = useState<string[]>([]);
   const [actionStatus, setActionStatus] = useState<string>("idle");
   const [actionError, setActionError] = useState<string | null>(null);
+  const [arStatus, setArStatus] = useState<NativeARStatus | null>(null);
+  const [joined, setJoined] = useState(false);
+
+  const selectedTour = useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
+  const arStops = useMemo(() => {
+    const planned = selectedTour.stops.filter((stop) => typeof stop.arPriority === "number");
+    return (planned.length ? planned : selectedTour.stops).sort((left, right) => {
+      const leftPriority = left.arPriority ?? Number.MAX_SAFE_INTEGER;
+      const rightPriority = right.arPriority ?? Number.MAX_SAFE_INTEGER;
+      return leftPriority - rightPriority;
+    });
+  }, [selectedTour]);
+  const selectedStop = useMemo(
+    () => arStops.find((stop) => stop.id === selectedStopId) || arStops[0],
+    [arStops, selectedStopId]
+  );
+  const manifest = useMemo(() => (selectedStop ? toARSceneManifest(selectedStop) : null), [selectedStop]);
+  const payload = useMemo(() => (selectedStop ? toARScenePayload(selectedStop) : null), [selectedStop]);
 
   useEffect(() => {
-    if (!payloads.length) {
+    if (!arStops.length) {
       setSelectedStopId("");
       return;
     }
-    setSelectedStopId((prev) => (prev && payloads.some((p) => p.stopId === prev) ? prev : payloads[0].stopId));
-  }, [payloads]);
-
-  useEffect(() => {
-    const offEvent = sync.onEvent((event) => {
-      setEvents((prev) => [...prev, event]);
-    });
-
-    const offMembers = sync.onRoomMembers((sessionId, members) => {
-      if (sessionId === activeSessionId) {
-        setRoomMembers(members);
-      }
-    });
-
-    return () => {
-      offEvent?.();
-      offMembers?.();
-    };
-  }, [activeSessionId]);
-
-  const eventsText = useMemo(
-    () => events.slice(-5).map((e) => `${e.type} ${e.objectId}`).join(" | "),
-    [events]
-  );
+    setSelectedStopId((prev) => (prev && arStops.some((stop) => stop.id === prev) ? prev : arStops[0].id));
+  }, [arStops]);
 
   async function refreshStatus() {
     try {
       const status = await adapter.getStatus();
       setArStatus(status);
     } catch {
-      // Ignore status refresh failures; action handlers already surface failures.
+      // no-op
     }
   }
 
-  async function onCheckAR() {
-    setActionStatus("checking_provider");
+  async function launchStop(shared: boolean) {
+    setActionStatus(shared ? "launching_shared" : "launching");
     setActionError(null);
     try {
-      const status = await adapter.getStatus();
-      setArStatus(status);
-      setActionStatus("ready");
-    } catch (error) {
-      setActionStatus("error");
-      setActionError((error as Error).message || "Could not check AR provider.");
-    }
-  }
-
-  async function onStartARSession() {
-    setActionStatus("starting_session");
-    setActionError(null);
-    try {
-      await adapter.startSession();
-      setActionStatus("session_started");
-      await refreshStatus();
-    } catch (error) {
-      setActionStatus("error");
-      setActionError((error as Error).message || "Could not start AR session.");
-    }
-  }
-
-  async function onPlaceFirstModel() {
-    setActionStatus("placing_model");
-    setActionError(null);
-    try {
-      if (!selectedPayload) {
-        throw new Error("No AR model available for this tour.");
+      if (!payload) {
+        throw new Error("No AR stop is selected.");
       }
-
+      await adapter.startSession();
       await adapter.placeModel({
-        id: selectedPayload.stopId,
-        modelUrl: selectedPayload.modelUrl,
-        scale: selectedPayload.scale,
-        rotationYDeg: selectedPayload.rotationYDeg,
-        fallbackType: selectedPayload.fallbackType,
-        title: selectedPayload.title,
-        subtitle: selectedPayload.subtitle,
-        headline: selectedPayload.headline,
-        summary: selectedPayload.summary,
-        placementNote: selectedPayload.placementNote,
-        conceptImagePath: selectedPayload.conceptImagePath,
-        conceptImageUri: selectedPayload.conceptImageUri,
-        plannedProvider: selectedPayload.plannedProvider,
-        generatedProvider: selectedPayload.generatedProvider,
-        contentLayers: selectedPayload.contentLayers,
-        productionChecklist: selectedPayload.productionChecklist
+        id: payload.stopId,
+        modelUrl: payload.modelUrl,
+        scale: payload.scale,
+        rotationYDeg: payload.rotationYDeg,
+        fallbackType: payload.fallbackType,
+        title: payload.title,
+        subtitle: payload.subtitle,
+        headline: payload.headline,
+        summary: payload.summary,
+        placementNote: payload.placementNote,
+        conceptImagePath: payload.conceptImagePath,
+        plannedProvider: payload.plannedProvider,
+        generatedProvider: payload.generatedProvider,
+        contentLayers: payload.contentLayers,
+        productionChecklist: payload.productionChecklist
       });
       await refreshStatus();
 
-      if (!activeSessionId) {
-        setActionStatus("model_placed_local");
-        Alert.alert("Placed locally", "Model was placed, but no shared room is active.");
-        return;
+      if (shared) {
+        const room = roomName.trim();
+        if (!joined && room) {
+          sync.joinSession(room);
+          setJoined(true);
+        }
+        if (room) {
+          sync.send({
+            type: "spawn",
+            sessionId: room,
+            objectId: payload.stopId,
+            modelUrl: payload.modelUrl
+          });
+        }
       }
-
-      sync.send({
-        type: "spawn",
-        sessionId: activeSessionId,
-        objectId: selectedPayload.stopId,
-        modelUrl: selectedPayload.modelUrl
-      });
-      setActionStatus("model_synced");
+      setActionStatus(shared ? "shared_live" : "live");
     } catch (error) {
       setActionStatus("error");
-      setActionError((error as Error).message || "Could not place AR model.");
+      setActionError((error as Error).message || "Could not launch this AR scene.");
     }
   }
 
-  async function onStartAndPlaceSelected() {
-    setActionStatus("starting_and_placing");
-    setActionError(null);
-    try {
-      await adapter.startSession();
-      await refreshStatus();
-      await onPlaceFirstModel();
-    } catch (error) {
-      setActionStatus("error");
-      setActionError((error as Error).message || "Could not start and place AR model.");
-    }
-  }
-
-  function onJoinSession() {
-    const room = roomName.trim();
-    if (!room) {
-      return;
-    }
-
-    if (joined) {
-      sync.leaveSession();
-      setJoined(false);
-      setActiveSessionId(null);
-      setRoomMembers([]);
-      return;
-    }
-
-    sync.joinSession(room);
-    setJoined(true);
-    setActiveSessionId(room);
-  }
-
-  async function onStopARSession() {
-    setActionStatus("stopping_session");
+  async function closeAR() {
+    setActionStatus("closing");
     setActionError(null);
     try {
       await adapter.stopSession();
-      setActionStatus("session_stopped");
       await refreshStatus();
+      setActionStatus("idle");
     } catch (error) {
       setActionStatus("error");
-      setActionError((error as Error).message || "Could not stop AR session.");
+      setActionError((error as Error).message || "Could not close AR.");
     }
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <SectionTitle>AR Session and Realtime Sync</SectionTitle>
-      <Text style={styles.helper}>Realtime co-tour mode with shared room state and AR placement sync.</Text>
-      <Text style={styles.value}>Selected tour: {selectedTour.title}</Text>
-      <Text style={styles.value}>AR-planned stops: {plannedCount} / {selectedTour.stops.length}</Text>
-      <View style={styles.chips}>
-        <Chip label={`Status: ${actionStatus}`} tone={actionStatus.includes("error") ? "danger" : "default"} />
-        <Chip label={joined ? "Room joined" : "Room not joined"} tone={joined ? "success" : "warn"} />
-        <Chip label={`Verified coords: ${selectedQuality.verified}`} tone={selectedQuality.verified > 0 ? "success" : "warn"} />
-        <Chip label={`Approx coords: ${selectedQuality.approximate}`} tone={selectedQuality.approximate > 0 ? "warn" : "default"} />
-        <Chip label={showPlannedOnly ? "Showing planned AR only" : "Showing all stops"} tone={showPlannedOnly ? "success" : "default"} />
-      </View>
-      {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
-
-      <Card style={styles.statusCard}>
-        <Text style={styles.label}>Choose Tour</Text>
-        <View style={styles.tourList}>
-          {tours.map((tour) => (
-            <View key={tour.id} style={styles.tourRow}>
-              <Pressable
-                onPress={() => setSelectedTourId(tour.id)}
-                style={[styles.tourChip, selectedTourId === tour.id && styles.tourChipActive]}
-              >
-                <Text style={[styles.tourChipText, selectedTourId === tour.id && styles.tourChipTextActive]}>
-                  {tour.title}
-                </Text>
-              </Pressable>
-              <Chip
-                label={`${tour.stops.filter((s) => s.coordQuality === "verified").length}/${tour.stops.length} verified`}
-                tone={tour.stops.some((s) => s.coordQuality === "verified") ? "success" : "warn"}
-              />
-            </View>
-          ))}
-        </View>
-      </Card>
-
-      <Card style={styles.statusCard}>
-        <Text style={styles.label}>Choose Stop To Place</Text>
-        <PrimaryButton
-          label={showPlannedOnly ? "Show All Stops" : "Show Planned AR Stops"}
-          onPress={() => setShowPlannedOnly((prev) => !prev)}
-        />
-        <View style={styles.tourList}>
-          {prioritizedStops.map((stop, index) => (
-            <Pressable
-              key={stop.id}
-              onPress={() => setSelectedStopId(stop.id)}
-              style={[styles.tourChip, selectedStopId === stop.id && styles.tourChipActive]}
-            >
-              <Text style={[styles.tourChipText, selectedStopId === stop.id && styles.tourChipTextActive]}>
-                {typeof stop.arPriority === "number" ? `P${stop.arPriority}` : `Stop ${index + 1}`} {stop.title}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-        <Text style={styles.value}>Selected stop: {selectedStop?.title || "none"}</Text>
-        <Text style={styles.value}>AR type: {selectedStop?.arType || "not assigned"}</Text>
-        <Text style={styles.value}>Readiness: {selectedReadiness?.label || "not assigned"}</Text>
-        <Text style={styles.value}>
-          Pipeline: {selectedStop && typeof selectedStop.arPriority === "number" && buildQueue.loaded ? buildQueue.getStage(selectedStop.id).label : "not tracked"}
+      <View style={styles.heroPanel}>
+        <Text style={styles.heroEyebrow}>AR moments</Text>
+        <Text style={styles.heroTitle}>A small-screen AR experience should feel precise, not crowded.</Text>
+        <Text style={styles.heroCopy}>
+          Launch one clean spatial object or story moment at a time. Keep the user’s eye focused on the site itself.
         </Text>
-        <Text style={styles.value}>Asset needed: {selectedStop?.assetNeeded || "not assigned"}</Text>
-        <Text style={styles.value}>Effort: {selectedStop?.estimatedEffort || "not assigned"}</Text>
-        {selectedManifest ? (
-          <>
-            <Text style={styles.label}>Scene Manifest</Text>
-            {arGeneratedImageMap[selectedManifest.stopId] ? (
-              <Image
-                source={arGeneratedImageMap[selectedManifest.stopId]}
-                style={styles.heroPreview}
-                resizeMode="cover"
-              />
-            ) : null}
-            <Text style={styles.value}>Headline: {selectedManifest.headline}</Text>
-            <Text style={styles.value}>Era: {selectedManifest.historicalEra}</Text>
-            <Text style={styles.value}>Style: {selectedManifest.stylePreset}</Text>
-            <Text style={styles.value}>Visual priority: {selectedManifest.visualPriority}</Text>
-            <Text style={styles.value}>Placement: {selectedManifest.placementNote}</Text>
-            <Text style={styles.value}>
-              Providers: plan {selectedManifest.plannedProvider} | fallback {selectedManifest.fallbackProvider} | generated {selectedManifest.generatedProvider}
-            </Text>
-            <Text style={styles.value}>Concept image: {selectedManifest.conceptImagePath || "none yet"}</Text>
-          </>
-        ) : null}
-        {selectedBrief ? (
-          <>
-            <Text style={styles.label}>Open Brief</Text>
-            <View style={styles.chips}>
-              <Chip label={`Brief ${selectedBrief.briefPath}`} tone="default" />
-              <Chip label={`Manifest ${selectedBrief.manifestPath}`} tone="default" />
-            </View>
-            <Text style={styles.value}>Intent: {selectedBrief.headline}</Text>
-            <Text style={styles.value}>Summary: {selectedBrief.summary}</Text>
-            <Text style={styles.value}>Assets: {selectedBrief.assetNeeded}</Text>
-            <Text style={styles.value}>Checklist: {selectedBrief.productionChecklist.join(" | ")}</Text>
-          </>
-        ) : null}
+      </View>
+
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Choose tour</Text>
+        <View style={styles.choiceWrap}>
+          {tours.map((tour) => (
+            <PrimaryChoice
+              key={tour.id}
+              active={selectedTourId === tour.id}
+              label={tour.title}
+              onPress={() => setSelectedTourId(tour.id)}
+            />
+          ))}
+        </View>
       </Card>
 
-      <Card style={styles.statusCard}>
-        <Text style={styles.label}>Lobby</Text>
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Choose AR stop</Text>
+        <View style={styles.choiceWrap}>
+          {arStops.map((stop, index) => (
+            <PrimaryChoice
+              key={stop.id}
+              active={selectedStopId === stop.id}
+              label={`${typeof stop.arPriority === "number" ? `P${stop.arPriority}` : `Stop ${index + 1}`} ${stop.title}`}
+              onPress={() => setSelectedStopId(stop.id)}
+            />
+          ))}
+        </View>
+      </Card>
+
+      {selectedStop && manifest ? (
+        <Card style={styles.featureCard}>
+          <Text style={styles.featureEyebrow}>{selectedTour.title}</Text>
+          <Text style={styles.featureTitle}>{selectedStop.title}</Text>
+          <Text style={styles.featureBody}>{manifest.summary}</Text>
+          <View style={styles.chips}>
+            <Chip label={manifest.arType.replaceAll("_", " ")} tone="warn" />
+            <Chip label={`${selectedStop.triggerRadiusM}m reveal radius`} tone="default" />
+          </View>
+          <Text style={styles.specLabel}>Placement</Text>
+          <Text style={styles.specCopy}>{manifest.placementNote}</Text>
+          <Text style={styles.specLabel}>Scene layers</Text>
+          <Text style={styles.specCopy}>{manifest.contentLayers.slice(0, 3).join(" | ")}</Text>
+        </Card>
+      ) : null}
+
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Launch</Text>
+        <View style={styles.actionStack}>
+          <PrimaryButton label="Launch AR Moment" onPress={() => launchStop(false)} />
+          <PrimaryButton label="Launch Shared AR Moment" onPress={() => launchStop(true)} />
+          <PrimaryButton label="Close AR" onPress={closeAR} />
+        </View>
+        <Text style={styles.meta}>State: {actionStatus}</Text>
+        <Text style={styles.meta}>Provider: {arStatus?.provider || "unknown"}</Text>
+        {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
+      </Card>
+
+      <Card style={styles.panel}>
+        <Text style={styles.label}>Shared room</Text>
         <TextInput
           value={roomName}
           onChangeText={setRoomName}
           style={styles.input}
-          placeholder="Enter room name"
-          placeholderTextColor="#64748b"
+          placeholder="historic-philly-main"
+          placeholderTextColor="#8e7d99"
           autoCapitalize="none"
         />
-        <PrimaryButton label={joined ? "Leave Room" : "Join Room"} onPress={onJoinSession} />
-        <Text style={styles.value}>Active room: {activeSessionId || "none"}</Text>
-        <Text style={styles.value}>You: {sync.getClientId()}</Text>
-        <Text style={styles.value}>Members ({roomMembers.length}): {roomMembers.join(", ") || "none"}</Text>
+        <Text style={styles.meta}>Only use shared mode if you’re co-viewing the same stop.</Text>
       </Card>
-
-      <View style={styles.controls}>
-        <PrimaryButton label="Check AR Provider" onPress={onCheckAR} />
-        <PrimaryButton label="Start AR Session" onPress={onStartARSession} />
-        <PrimaryButton label="Start + Place Selected Stop" onPress={onStartAndPlaceSelected} />
-        <PrimaryButton label="Place and Sync Selected Stop" onPress={onPlaceFirstModel} />
-        <PrimaryButton label="Stop AR Session" onPress={onStopARSession} />
-      </View>
-
-      <Card style={styles.statusCard}>
-        <Text style={styles.label}>AR Provider:</Text>
-        <Text style={styles.value}>{arStatus ? arStatus.provider : "unknown"}</Text>
-        <Text style={styles.label}>Available:</Text>
-        <Text style={styles.value}>{arStatus ? String(arStatus.available) : "unknown"}</Text>
-        <Text style={styles.label}>Reason:</Text>
-        <Text style={styles.value}>{arStatus?.reason || "n/a"}</Text>
-        <Text style={styles.label}>Session Running:</Text>
-        <Text style={styles.value}>{arStatus ? String(!!arStatus.sessionRunning) : "unknown"}</Text>
-        <Text style={styles.label}>Placed Models:</Text>
-        <Text style={styles.value}>{arStatus?.placedModelCount ?? 0}</Text>
-        <Text style={styles.label}>Realtime events:</Text>
-        <Text style={styles.value}>{eventsText || "none yet"}</Text>
-      </Card>
-
-      {payloads.map((payload) => (
-        <Card key={payload.stopId} style={styles.card}>
-          {(() => {
-            const stop = prioritizedStops.find((candidate) => candidate.id === payload.stopId);
-            const manifest = stop ? toARSceneManifest(stop) : null;
-            return (
-              <>
-                <Text style={styles.stopLabel}>
-                  Stop: {stop?.title || payload.stopId}
-                </Text>
-                <Text style={styles.value}>Model: {payload.modelUrl}</Text>
-                <Text style={styles.value}>Scale: {payload.scale}</Text>
-                <Text style={styles.value}>RotationY: {payload.rotationYDeg}</Text>
-                <Text style={styles.value}>
-                  Priority: {stop?.arPriority ?? "unranked"}
-                </Text>
-                <Text style={styles.value}>Readiness: {stop ? getARReadiness(stop).label : "not assigned"}</Text>
-                <Text style={styles.value}>
-                  Pipeline: {stop && typeof stop.arPriority === "number" && buildQueue.loaded ? buildQueue.getStage(stop.id).label : "not tracked"}
-                </Text>
-                {manifest ? (
-                  <>
-                    {arGeneratedImageMap[manifest.stopId] ? (
-                      <Image
-                        source={arGeneratedImageMap[manifest.stopId]}
-                        style={styles.cardPreview}
-                        resizeMode="cover"
-                      />
-                    ) : null}
-                    <View style={styles.chips}>
-                      <Chip label={manifest.headline} tone="success" />
-                      <Chip label={`Provider ${manifest.generatedProvider}`} tone="default" />
-                      <Chip label={`Style ${manifest.stylePreset}`} tone="default" />
-                    </View>
-                    <Text style={styles.value}>Summary: {manifest.summary}</Text>
-                    <Text style={styles.value}>Placement: {manifest.placementNote}</Text>
-                    <Text style={styles.value}>Layers: {manifest.contentLayers.join(" | ")}</Text>
-                    <Text style={styles.value}>Checklist: {manifest.productionChecklist.join(" | ")}</Text>
-                    <Text style={styles.value}>Concept: {manifest.conceptImagePath || "none yet"}</Text>
-                    {stop ? (
-                      <Text style={styles.value}>Brief: {toARProductionBrief(stop, selectedTour.title).briefPath}</Text>
-                    ) : null}
-                  </>
-                ) : null}
-              </>
-            );
-          })()}
-        </Card>
-      ))}
     </ScrollView>
   );
 }
 
+type PrimaryChoiceProps = {
+  active: boolean;
+  label: string;
+  onPress: () => void;
+};
+
+function PrimaryChoice({ active, label, onPress }: PrimaryChoiceProps) {
+  return (
+    <Text onPress={onPress} style={[styles.choiceChip, active && styles.choiceChipActive, active && styles.choiceChipTextActive]}>
+      {label}
+    </Text>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12 },
-  helper: { color: "#dbeafe", fontSize: 14, lineHeight: 20 },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  controls: { gap: 8 },
+  container: {
+    padding: 18,
+    gap: 16,
+    backgroundColor: "#060312"
+  },
+  heroPanel: {
+    backgroundColor: "#130a25",
+    borderRadius: 30,
+    padding: 22,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255, 191, 173, 0.16)"
+  },
+  heroEyebrow: {
+    color: "#ff9ab2",
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1.2
+  },
+  heroTitle: {
+    color: "#fff3ea",
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: "800"
+  },
+  heroCopy: {
+    color: "#d8c7df",
+    lineHeight: 21
+  },
+  panel: {
+    backgroundColor: "#120a22"
+  },
+  label: {
+    color: "#fff0e4",
+    fontSize: 18,
+    fontWeight: "800"
+  },
+  choiceWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  choiceChip: {
+    backgroundColor: "#1f1233",
+    borderColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    color: "#cab6d2",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    fontWeight: "700",
+    overflow: "hidden"
+  },
+  choiceChipActive: {
+    backgroundColor: "#ff8ca8",
+    borderColor: "#ff8ca8"
+  },
+  choiceChipTextActive: {
+    color: "#2b1021"
+  },
+  featureCard: {
+    backgroundColor: "#2b1530",
+    borderColor: "rgba(255, 176, 132, 0.2)",
+    gap: 10
+  },
+  featureEyebrow: {
+    color: "#ffbc8a",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.9
+  },
+  featureTitle: {
+    color: "#fff8f3",
+    fontSize: 28,
+    lineHeight: 32,
+    fontWeight: "800"
+  },
+  featureBody: {
+    color: "#f3e8ef",
+    lineHeight: 22
+  },
+  chips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  specLabel: {
+    color: "#ffcfb5",
+    fontWeight: "700"
+  },
+  specCopy: {
+    color: "#d8c7df",
+    lineHeight: 21
+  },
+  actionStack: {
+    gap: 8
+  },
+  meta: {
+    color: "#b69fbe"
+  },
   input: {
     borderWidth: 1,
-    borderColor: "#334155",
-    borderRadius: 10,
-    color: "#f8fafc",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: "#020617"
+    borderColor: "rgba(255,255,255,0.08)",
+    borderRadius: 16,
+    color: "#fff3ea",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: "#1b102d"
   },
-  statusCard: { gap: 8 },
-  card: { gap: 4 },
-  heroPreview: {
-    width: "100%",
-    height: 220,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#334155",
-    backgroundColor: "#020617"
-  },
-  cardPreview: {
-    width: "100%",
-    height: 180,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#334155",
-    backgroundColor: "#020617",
-    marginBottom: 6
-  },
-  tourList: { gap: 8 },
-  tourRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
-  tourChip: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#334155",
-    backgroundColor: "#0b1220",
-    paddingHorizontal: 10,
-    paddingVertical: 6
-  },
-  tourChipActive: {
-    backgroundColor: "#1d4ed8",
-    borderColor: "#3b82f6"
-  },
-  tourChipText: { color: "#cbd5e1", fontSize: 12, fontWeight: "700" },
-  tourChipTextActive: { color: "#f8fafc" },
-  label: { color: "#fbbf24", fontWeight: "800" },
-  stopLabel: { color: "#86efac", fontWeight: "700" },
-  value: { color: "#f1f5f9", fontWeight: "500" },
-  error: { color: "#fca5a5", fontWeight: "600" }
+  error: {
+    color: "#ffadb7",
+    fontWeight: "600"
+  }
 });
