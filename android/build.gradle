@@ -20,16 +20,35 @@ def reactNativeAndroidDir = new File(
   "../android"
 )
 
+def asyncStorageAndroidLocalRepo = new File(
+  providers.exec {
+    workingDir(rootDir)
+    commandLine("node", "--print", "require.resolve('@react-native-async-storage/async-storage/package.json', { paths: [require.resolve('react-native/package.json')] })")
+  }.standardOutput.asText.get().trim(),
+  "../android/local_repo"
+)
+
 allprojects {
   repositories {
     maven {
       // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
       url(reactNativeAndroidDir)
     }
+    maven {
+      // AsyncStorage 3.x publishes its Android artifact into a local Maven repo inside node_modules.
+      url(asyncStorageAndroidLocalRepo)
+    }
 
     google()
     mavenCentral()
     maven { url 'https://www.jitpack.io' }
+  }
+
+  configurations.all {
+    resolutionStrategy {
+      force "androidx.core:core:1.15.0"
+      force "androidx.core:core-ktx:1.15.0"
+    }
   }
 }
 
