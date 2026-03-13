@@ -11,3 +11,13 @@ android/.gradle/
 android/app/build/
 android/build/
 ios/build/
+.DS_Store
+*.swp
+*.swo
+
+.env
+.env.*
+!.env.example
+server/payments.db
+server/payments.db-shm
+server/payments.db-wal
