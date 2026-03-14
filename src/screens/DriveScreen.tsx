@@ -2,6 +2,7 @@ import React from "react";
 import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useDriveSession } from "../hooks/useDriveSession";
+import { getHandoffModeMeta } from "../services/deepLinks";
 import {
   advanceDriveSession,
   clearDriveSession,
@@ -45,6 +46,14 @@ export function DriveScreen({ initialTourId }: Props) {
   const nextStop = React.useMemo(
     () => (activeSession ? getNextDriveStop(activeSession) : driveStops[0] || null),
     [activeSession, driveStops]
+  );
+  const currentHandoffMeta = React.useMemo(
+    () => (currentStop ? getHandoffModeMeta(currentStop.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive") : null),
+    [currentStop]
+  );
+  const nextHandoffMeta = React.useMemo(
+    () => (nextStop ? getHandoffModeMeta(nextStop.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive") : null),
+    [nextStop]
   );
 
   async function previewArrivalHandoff() {
@@ -155,8 +164,9 @@ export function DriveScreen({ initialTourId }: Props) {
               <Text style={styles.copy}>{currentStop.arrivalSummary}</Text>
               <View style={styles.chips}>
                 <Chip label={activeSession?.mode === "arrived" ? "Arrived" : "Driving now"} tone="success" />
-                <Chip label={currentStop.handoffDeepLink.endsWith("/ar") ? "AR handoff" : "On-foot handoff"} tone="warn" />
+                <Chip label={currentHandoffMeta?.chipLabel || "On-foot handoff"} tone="warn" />
               </View>
+              {activeSession?.mode === "arrived" && currentHandoffMeta ? <Text style={styles.arrivalCallout}>{currentHandoffMeta.summary}</Text> : null}
               <Text style={styles.specLabel}>Handoff link</Text>
               <Text style={styles.handoffLink}>{currentStop.handoffDeepLink}</Text>
             </>
@@ -169,7 +179,7 @@ export function DriveScreen({ initialTourId }: Props) {
               <Text style={styles.copy}>{nextStop.arrivalSummary}</Text>
               <View style={styles.chips}>
                 <Chip label={`${nextStop.triggerRadiusM}m arrival radius`} tone="default" />
-                <Chip label={nextStop.handoffDeepLink.endsWith("/ar") ? "Continue to AR" : "Continue on foot"} tone="success" />
+                <Chip label={nextHandoffMeta?.chipLabel || "Continue on foot"} tone="success" />
               </View>
             </>
           ) : null}
@@ -179,8 +189,8 @@ export function DriveScreen({ initialTourId }: Props) {
             {activeSession && activeSession.mode !== "arrived" ? (
               <PrimaryButton label="Mark Arrived" onPress={onMarkArrived} />
             ) : null}
-            {activeSession?.mode === "arrived" ? (
-              <PrimaryButton label="Preview Arrival Handoff" onPress={previewArrivalHandoff} />
+            {activeSession?.mode === "arrived" && currentHandoffMeta ? (
+              <PrimaryButton label={currentHandoffMeta.ctaLabel} onPress={previewArrivalHandoff} />
             ) : null}
             {activeSession ? <PrimaryButton label="Advance To Next Stop" onPress={onAdvanceStop} /> : null}
             {activeSession ? <PrimaryButton label="Clear Drive Session" onPress={onClearSession} /> : null}
@@ -312,6 +322,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 28,
     fontWeight: "800"
+  },
+  arrivalCallout: {
+    color: "#f5e1ea",
+    lineHeight: 21
   },
   specLabel: {
     color: "#ffcfb5",

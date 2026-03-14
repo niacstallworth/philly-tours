@@ -6,6 +6,28 @@ export type HandoffTarget = {
   mode: HandoffMode;
 };
 
+export function getHandoffModeMeta(mode: HandoffMode) {
+  if (mode === "ar") {
+    return {
+      ctaLabel: "Open AR Moment",
+      chipLabel: "Ready for AR",
+      summary: "Step out and open the spatial moment for this stop."
+    };
+  }
+  if (mode === "map") {
+    return {
+      ctaLabel: "Open Map Context",
+      chipLabel: "Map context",
+      summary: "Open the stop in map view and continue the route on foot."
+    };
+  }
+  return {
+    ctaLabel: "Continue On Foot",
+    chipLabel: "On-foot handoff",
+    summary: "Step out and continue the story on foot."
+  };
+}
+
 export function parseHandoffUrl(url: string): HandoffTarget | null {
   const trimmed = url.trim();
   if (!trimmed) {

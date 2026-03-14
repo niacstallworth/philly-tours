@@ -4,6 +4,7 @@ import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useDriveSession } from "../hooks/useDriveSession";
+import { getHandoffModeMeta } from "../services/deepLinks";
 import { advanceDriveSession, getCurrentDriveStop, markDriveArrived } from "../services/driveMode";
 import { getTriggeredStops, haversineDistanceM } from "../services/geofence";
 import {
@@ -99,6 +100,10 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     }
     return triggeredIds.has(currentDriveStop.id);
   }, [currentDriveStop, triggeredIds]);
+  const currentDriveHandoffMeta = useMemo(
+    () => (currentDriveStop ? getHandoffModeMeta(currentDriveStop.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive") : null),
+    [currentDriveStop]
+  );
 
   useEffect(() => {
     if (!driveSession || driveSession.mode !== "drive" || !currentDriveStop || !currentDriveStopInRange) {
@@ -267,9 +272,12 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
         <Card style={styles.panel}>
           <Text style={styles.label}>Active route stop</Text>
           <Text style={styles.copy}>{currentDriveStop.title}</Text>
+          {driveSession?.mode === "arrived" && currentDriveHandoffMeta ? (
+            <Text style={styles.arrivalCopy}>{currentDriveHandoffMeta.summary}</Text>
+          ) : null}
           <View style={styles.chips}>
             <Chip label={driveSession?.mode === "arrived" ? "Arrived" : currentDriveStopInRange ? "In range now" : "Not in range"} tone={currentDriveStopInRange || driveSession?.mode === "arrived" ? "success" : "default"} />
-            <Chip label={`${currentDriveStop.triggerRadiusM}m trigger`} tone="warn" />
+            <Chip label={driveSession?.mode === "arrived" && currentDriveHandoffMeta ? currentDriveHandoffMeta.chipLabel : `${currentDriveStop.triggerRadiusM}m trigger`} tone="warn" />
           </View>
           <View style={styles.actionsRow}>
             <PrimaryButton
@@ -277,8 +285,8 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
               onPress={driveSession?.mode === "arrived" ? onAdvanceDriveStop : onMarkDriveArrived}
               disabled={!currentDriveStopInRange && driveSession?.mode !== "arrived"}
             />
-            {driveSession?.mode === "arrived" ? (
-              <PrimaryButton label="Preview Arrival Handoff" onPress={onPreviewArrivalHandoff} />
+            {driveSession?.mode === "arrived" && currentDriveHandoffMeta ? (
+              <PrimaryButton label={currentDriveHandoffMeta.ctaLabel} onPress={onPreviewArrivalHandoff} />
             ) : null}
           </View>
         </Card>
@@ -367,6 +375,7 @@ const styles = StyleSheet.create({
   error: { color: "#ffadb7", fontWeight: "600" },
   map: { height: 420, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
   copy: { color: "#d8c7df", lineHeight: 21 },
+  arrivalCopy: { color: "#f0dde7", lineHeight: 21 },
   stopRow: { flexDirection: "row", gap: 12, paddingVertical: 8, alignItems: "flex-start" },
   stopIndex: {
     width: 28,
