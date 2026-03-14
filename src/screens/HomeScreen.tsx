@@ -3,6 +3,7 @@ import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "r
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useDriveSession } from "../hooks/useDriveSession";
+import { getHandoffModeMeta, type HandoffMode } from "../services/deepLinks";
 import { getCurrentDriveStop, getNextDriveStop } from "../services/driveMode";
 
 type Props = {
@@ -37,6 +38,8 @@ export function HomeScreen({
   );
   const currentDriveStop = React.useMemo(() => getCurrentDriveStop(driveSession), [driveSession]);
   const nextDriveStop = React.useMemo(() => getNextDriveStop(driveSession), [driveSession]);
+  const activeHandoffMode: HandoffMode = handoffMode || (currentDriveStop?.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive");
+  const activeHandoffMeta = React.useMemo(() => getHandoffModeMeta(activeHandoffMode), [activeHandoffMode]);
   const highlightedStop = React.useMemo(
     () => {
       const preferredStopId = highlightedStopId || currentDriveStop?.id;
@@ -89,27 +92,31 @@ export function HomeScreen({
           </Text>
           <View style={styles.heroChips}>
             <Chip label={`Mode ${driveSession.mode}`} tone="success" />
-            <Chip label={driveSession.mode === "arrived" ? "Ready to continue on foot" : nextDriveStop ? "Open Drive tab to continue" : "Route complete"} tone="warn" />
+            <Chip
+              label={
+                driveSession.mode === "arrived"
+                  ? activeHandoffMeta.chipLabel
+                  : nextDriveStop
+                    ? "Open Drive tab to continue"
+                    : "Route complete"
+              }
+              tone="warn"
+            />
           </View>
-          {driveSession.mode === "arrived" ? (
-            <PrimaryButton label="Continue On Foot" onPress={onPreviewDriveHandoff} />
-          ) : null}
+          {driveSession.mode === "arrived" ? <PrimaryButton label={activeHandoffMeta.ctaLabel} onPress={onPreviewDriveHandoff} /> : null}
         </Card>
       ) : null}
 
       {selectedTour && highlightedStop ? (
         <Card style={styles.handoffCard}>
-          <Text style={styles.featureEyebrow}>Vehicle handoff</Text>
-          <Text style={styles.handoffTitle}>
-            Continue at {highlightedStop.title}
-          </Text>
-          <Text style={styles.handoffCopy}>
-            {highlightedStop.description.split("|")[0]?.trim() || "Arrive and continue on foot."}
-          </Text>
+          <Text style={styles.featureEyebrow}>{driveSession?.mode === "arrived" ? "Arrived" : "Vehicle handoff"}</Text>
+          <Text style={styles.handoffTitle}>{driveSession?.mode === "arrived" ? `Now continue at ${highlightedStop.title}` : `Continue at ${highlightedStop.title}`}</Text>
+          <Text style={styles.handoffCopy}>{driveSession?.mode === "arrived" ? activeHandoffMeta.summary : highlightedStop.description.split("|")[0]?.trim() || "Arrive and continue on foot."}</Text>
           <View style={styles.heroChips}>
             <Chip label={selectedTour.title} tone="default" />
-            <Chip label={handoffMode === "ar" ? "Ready for AR" : handoffMode === "map" ? "Open map context" : "Arrive on foot"} tone="success" />
+            <Chip label={activeHandoffMeta.chipLabel} tone="success" />
           </View>
+          {driveSession?.mode === "arrived" ? <PrimaryButton label={activeHandoffMeta.ctaLabel} onPress={onPreviewDriveHandoff} /> : null}
         </Card>
       ) : null}
 
