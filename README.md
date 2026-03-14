@@ -39,12 +39,14 @@ This README is the current build-status document for the repo.
   - route-aware narration controls
   - auto narration on arrival
   - speech fallback when recorded files are missing
+  - bundled audio files can now be dropped into `assets/audio/`
 
 ### Partially working
 - Native AR on iPhone requires a real ARKit-capable device for live tuning.
 - Android AR bridge/runtime exists as a native bridge layer, but full AR runtime parity is not validated yet.
 - Stripe checkout and webhook testing work locally, but production purchase validation is still incomplete.
 - Narration currently falls back to device speech because final recorded audio files are not yet bundled/hosted.
+- Local bundled narration assets require regenerating [src/data/narrationAudioMap.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationAudioMap.ts) with `npm run narration:map`.
 
 ### Not complete yet
 - Final recorded narration library and voice pipeline.
@@ -164,6 +166,7 @@ Important values include:
 - Apple IAP fields
 - Google Play fields
 - provider keys for AR asset generation
+- `ADMIN_API_KEY`
 
 ### Run backend
 ```bash
@@ -201,6 +204,13 @@ export ANDROID_SDK_ROOT=/opt/homebrew/share/android-commandlinetools
 ```bash
 cd /Users/nia/Documents/GitHub/philly-tours
 npm run stripe:listen
+```
+
+### Regenerate bundled narration map
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run narration:map
 ```
 
 ## Current Focus
