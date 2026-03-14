@@ -1,5 +1,6 @@
 import { Audio, InterruptionModeIOS, type AVPlaybackStatus } from "expo-av";
 import * as Speech from "expo-speech";
+import { narrationAudioMap } from "../data/narrationAudioMap";
 import type { DriveStop } from "./driveMode";
 
 type NarrationSource = "audio" | "speech" | "none";
@@ -43,6 +44,13 @@ function resolveAudioUri(audioUrl: string) {
     return audioUrl;
   }
   return null;
+}
+
+function resolveAudioAsset(audioUrl: string) {
+  if (!audioUrl) {
+    return null;
+  }
+  return narrationAudioMap[audioUrl as keyof typeof narrationAudioMap] || null;
 }
 
 async function configureAudioMode() {
@@ -112,11 +120,16 @@ export async function startNarration(stop: DriveStop) {
   });
 
   const audioUri = resolveAudioUri(stop.audioUrl);
-  if (audioUri) {
+  const audioAsset = resolveAudioAsset(stop.audioUrl);
+  if (audioUri || audioAsset) {
     try {
       await configureAudioMode();
+      const playbackSource = audioUri ? { uri: audioUri } : audioAsset;
+      if (!playbackSource) {
+        throw new Error("No playback source available.");
+      }
       const { sound: nextSound } = await Audio.Sound.createAsync(
-        { uri: audioUri },
+        playbackSource,
         { shouldPlay: true },
         (status) => onPlaybackStatus(stop, status)
       );

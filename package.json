@@ -15,6 +15,7 @@
     "ar:fal:generate": "node scripts/generate-fal-ar-images.mjs",
     "ar:replicate:generate": "node scripts/generate-replicate-ar-images.mjs",
     "ar:stability:generate": "node scripts/generate-stability-ar-images.mjs",
+    "narration:map": "node scripts/generate-narration-audio-map.mjs",
     "sync-server": "node server/sync-server.js",
     "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook"
   },
