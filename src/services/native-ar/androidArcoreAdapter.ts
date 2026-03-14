@@ -14,7 +14,9 @@ export class AndroidARCoreAdapter implements NativeARAdapter {
     return {
       provider: "arcore",
       available: status.available,
-      reason: status.reason || (hasNativeARBridge() ? "ARCore bridge ready." : "ARCore bridge missing.")
+      reason: status.reason || (hasNativeARBridge() ? "ARCore bridge ready." : "ARCore bridge missing."),
+      sessionRunning: status.sessionRunning,
+      placedModelCount: status.placedModelCount
     };
   }
 
