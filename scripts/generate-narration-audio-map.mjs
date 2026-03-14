@@ -30,7 +30,7 @@ const lines = [
 for (const fileName of files) {
   const assetPath = `/audio/${fileName}`;
   const requirePath = toPosix(path.relative(path.join(rootDir, "src", "data"), path.join(audioDir, fileName)));
-  lines.push(`  ${JSON.stringify(assetPath)}: require(${JSON.stringify(`../../${requirePath}`)}),`);
+  lines.push(`  ${JSON.stringify(assetPath)}: require(${JSON.stringify(requirePath)}),`);
 }
 
 lines.push("} as const;");
