@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { createCheckoutSession, getEntitlements, getSyncServerUrl } from "../services/payments";
+import { createCheckoutSession, getEntitlements, getSyncServerUrl, requestBackendDeletion } from "../services/payments";
 
 type Props = {
   displayName?: string;
@@ -23,6 +23,8 @@ export function ProfileScreen({
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [entitlementStatus, setEntitlementStatus] = useState<string>("not_loaded");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [deletionReason, setDeletionReason] = useState("");
+  const [deletionRequestedAt, setDeletionRequestedAt] = useState<number | null>(null);
 
   React.useEffect(() => {
     refreshEntitlements(false).catch(() => undefined);
@@ -92,6 +94,29 @@ export function ProfileScreen({
     ]);
   }
 
+  async function submitDeletionRequest() {
+    if (entitlementStatus === "offline") {
+      setStatusMessage(`Sync server unreachable at ${getSyncServerUrl()}. Start the backend to submit a deletion request.`);
+      return;
+    }
+    setLoadingAction("deletion-request");
+    setStatusMessage(null);
+    try {
+      const result = await requestBackendDeletion({
+        email,
+        displayName,
+        reason: deletionReason.trim() || undefined
+      });
+      setDeletionRequestedAt(result.requestedAt);
+      setDeletionReason("");
+      setStatusMessage("Deletion request recorded. An admin still needs to purge your backend records.");
+    } catch (error) {
+      setStatusMessage((error as Error).message || "Could not submit deletion request.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -152,6 +177,31 @@ export function ProfileScreen({
         <Text style={styles.copy}>Delete the local profile on this phone and return to onboarding. This does not cancel purchases already recorded on the backend.</Text>
         <PrimaryButton onPress={confirmDeleteProfile} label="Delete Profile On This Device" />
       </Card>
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Privacy Request</Text>
+        <Text style={styles.copy}>Request backend deletion of your membership, purchase, and receipt records. An admin must fulfill the request before backend data is purged.</Text>
+        <TextInput
+          value={deletionReason}
+          onChangeText={setDeletionReason}
+          placeholder="Reason for deletion request (optional)"
+          placeholderTextColor="#8e7d99"
+          style={[styles.input, styles.multilineInput]}
+          multiline
+        />
+        {deletionRequestedAt ? <Text style={styles.meta}>Latest request: {new Date(deletionRequestedAt).toLocaleString()}</Text> : null}
+        <PrimaryButton
+          disabled={loadingAction !== null || entitlementStatus === "offline"}
+          onPress={submitDeletionRequest}
+          label={
+            entitlementStatus === "offline"
+              ? "Backend Offline"
+              : loadingAction === "deletion-request"
+                ? "Submitting..."
+                : "Request Backend Data Deletion"
+          }
+        />
+      </Card>
     </ScrollView>
   );
 }
@@ -209,5 +259,18 @@ const styles = StyleSheet.create({
   warning: {
     color: "#ffc2d0",
     lineHeight: 22
+  },
+  input: {
+    backgroundColor: "#1b102d",
+    borderColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderRadius: 16,
+    color: "#fff3ea",
+    paddingHorizontal: 12,
+    paddingVertical: 13
+  },
+  multilineInput: {
+    minHeight: 92,
+    textAlignVertical: "top"
   }
 });

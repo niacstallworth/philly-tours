@@ -31,6 +31,7 @@ This README is the current build-status document for the repo.
 - Local backend is implemented in [server/sync-server.js](/Users/nia/Documents/GitHub/philly-tours/server/sync-server.js).
 - Local Stripe checkout session creation works.
 - Local entitlements/orders/provider-event persistence works.
+- User deletion requests can be recorded in the backend.
 - Native iOS AR bridge is present and builds.
 - First bundled iOS `.usdz` asset pipeline is in place.
 - AR scene manifest / planning / asset catalog infrastructure exists.
@@ -102,6 +103,9 @@ The route flow is now:
   - `GET /api/entitlements`
   - `GET /api/orders`
   - `GET /api/provider-events`
+  - `POST /api/privacy/delete-request`
+  - `GET /api/admin/delete-requests`
+  - `POST /api/admin/delete-requests/:id/fulfill`
   - `POST /api/payments/checkout-session`
   - `POST /api/payments/intent`
   - `POST /api/iap/verify`
@@ -156,6 +160,7 @@ Important values include:
 - `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
+- `ADMIN_API_KEY`
 - Apple IAP fields
 - Google Play fields
 - provider keys for AR asset generation
