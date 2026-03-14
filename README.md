@@ -1,58 +1,102 @@
 # Philly AR Tours
 
-Philly AR Tours is an Expo/React Native mobile app for location-based Philadelphia tours with a native AR bridge, local payment/IAP testing, and shared tour/session infrastructure.
+Philly AR Tours is a React Native / Expo mobile app for Philadelphia tour experiences with on-foot AR moments, a phone-side drive companion, and a local payments + sync backend.
 
-This README is a current project-status document so reviewers can quickly see what is real, what is being built now, and what is still ahead.
+This README is the current build-status document for the repo.
 
-## Current Status
+## Build Status
 
 ### Working now
-- Expo/React Native TypeScript app structure is in place and runs on iOS and Android dev builds.
-- `ios/` and `android/` native projects exist in this repo.
-- App icon, onboarding flow, session persistence, and tabbed app shell are implemented.
-- Local tour dataset exists in `src/data/tours.ts`.
-- Home, Map, AR, Progress, and Profile screens exist and render live app state.
-- Local payments/sync backend exists in `server/sync-server.js`.
-- SQLite-backed orders, entitlements, receipts, idempotency, and provider event tables exist.
-- Stripe checkout session creation works in local development.
-- Apple and Google IAP credential plumbing exists in backend config/status checks.
-- Socket.IO sync server and room presence tracking exist.
-- Geofence/location watch patterns exist and are wired into the app flow.
+- iPhone dev build runs from the native `ios/` project.
+- Android native project exists and compiles successfully.
+- App shell is live with:
+  - Onboarding
+  - Home
+  - Map
+  - AR
+  - Drive
+  - Profile
+- Tour dataset is present in [src/data/tours.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/tours.ts).
+- Drive session flow is implemented:
+  - start route
+  - persist session
+  - mark arrived
+  - advance to next stop
+  - hand off to on-foot flow
+- Home, Map, and Drive stay in sync with the active route.
+- Deep-link handoff works across:
+  - Home
+  - Map
+  - AR
+- Local backend is implemented in [server/sync-server.js](/Users/nia/Documents/GitHub/philly-tours/server/sync-server.js).
+- Local Stripe checkout session creation works.
+- Local entitlements/orders/provider-event persistence works.
+- Native iOS AR bridge is present and builds.
+- First bundled iOS `.usdz` asset pipeline is in place.
+- AR scene manifest / planning / asset catalog infrastructure exists.
+- Narration flow now exists in app:
+  - route-aware narration controls
+  - auto narration on arrival
+  - speech fallback when recorded files are missing
 
-### In progress
-- Stripe checkout return-to-app flow on iOS dev build.
-- Stripe webhook testing flow for local status transitions.
-- AR tab integration with real native session behavior.
-- Better in-app debug visibility for checkout/webhook results.
+### Partially working
+- Native AR on iPhone requires a real ARKit-capable device for live tuning.
+- Android AR bridge/runtime exists as a native bridge layer, but full AR runtime parity is not validated yet.
+- Stripe checkout and webhook testing work locally, but production purchase validation is still incomplete.
+- Narration currently falls back to device speech because final recorded audio files are not yet bundled/hosted.
 
 ### Not complete yet
-- Real AR rendering with placed 3D content at stops.
-- Production-grade tour content management/CMS workflow.
-- Audio narration pipeline and player experience.
-- Production authentication, badges, and cross-device progress sync.
-- Full release validation for Apple/Google purchase flows.
-- Web app parity with the mobile experience.
+- Final recorded narration library and voice pipeline.
+- Production-grade AR content for hero stops.
+- Full Android runtime/device verification.
+- Production auth, badges, and cross-device progress sync.
+- Production content management workflow / CMS.
+- CarPlay / Android Auto app targets.
+- visionOS target.
+
+## Product Shape
+
+### Consumer app
+Current user-facing experience is built around:
+- one tour pack at a time
+- elegant map flow
+- selective AR moments instead of AR at every stop
+- route-to-arrival-to-on-foot handoff
+- lightweight premium UI rather than debug/admin surfaces
+
+### Route model
+The route flow is now:
+1. Start a drive session
+2. Navigate to the current stop
+3. Arrive or auto-arrive inside trigger radius
+4. Trigger narration
+5. Continue on foot into map/AR context
+6. Advance to next stop
 
 ## Architecture
 
 ### Mobile app
-- Entry: `App.tsx`
-- Navigation shell: `src/navigation/MainTabs.tsx`
-- Vehicle handoff helpers:
-  - `src/services/driveMode.ts`
-  - `src/services/deepLinks.ts`
+- Entry: [App.tsx](/Users/nia/Documents/GitHub/philly-tours/App.tsx)
+- Tabs: [src/navigation/MainTabs.tsx](/Users/nia/Documents/GitHub/philly-tours/src/navigation/MainTabs.tsx)
 - Screens:
-  - `src/screens/HomeScreen.tsx`
-  - `src/screens/MapScreen.tsx`
-  - `src/screens/ARScreen.tsx`
-  - `src/screens/DriveScreen.tsx`
-  - `src/screens/ProfileScreen.tsx`
-  - `src/screens/OnboardingScreen.tsx`
+  - [src/screens/OnboardingScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/OnboardingScreen.tsx)
+  - [src/screens/HomeScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/HomeScreen.tsx)
+  - [src/screens/MapScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/MapScreen.tsx)
+  - [src/screens/ARScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/ARScreen.tsx)
+  - [src/screens/DriveScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/DriveScreen.tsx)
+  - [src/screens/ProfileScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/ProfileScreen.tsx)
 
-### Payments and sync backend
-- Local server: `server/sync-server.js`
-- Storage: SQLite database at `server/payments.db`
-- Key endpoints:
+### Route / handoff / narration services
+- Drive session model: [src/services/driveMode.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/driveMode.ts)
+- Deep links: [src/services/deepLinks.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/deepLinks.ts)
+- Narration controller: [src/services/narration.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/narration.ts)
+- Shared route hook: [src/hooks/useDriveSession.ts](/Users/nia/Documents/GitHub/philly-tours/src/hooks/useDriveSession.ts)
+- Shared narration hook: [src/hooks/useNarration.ts](/Users/nia/Documents/GitHub/philly-tours/src/hooks/useNarration.ts)
+
+### Backend
+- Local server: [server/sync-server.js](/Users/nia/Documents/GitHub/philly-tours/server/sync-server.js)
+- SQLite DB: `server/payments.db`
+- Main endpoints:
   - `GET /health`
   - `GET /api/config/status`
   - `GET /api/entitlements`
@@ -63,49 +107,36 @@ This README is a current project-status document so reviewers can quickly see wh
   - `POST /api/iap/verify`
   - `POST /api/stripe/webhook`
 
-### Native AR bridge
-- JS/native bridge access:
-  - `src/services/native-ar/nativeBridge.ts`
-  - `src/services/native-ar/iosArkitAdapter.ts`
-  - `src/services/native-ar/androidArcoreAdapter.ts`
-- Manifest/runtime scene prep:
-  - `src/services/ar.ts`
-  - `src/services/arManifest.ts`
-- Native templates:
-  - `native-bridge-templates/ios`
-  - `native-bridge-templates/android`
+### Native AR
+- JS bridge:
+  - [src/services/native-ar/nativeBridge.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/native-ar/nativeBridge.ts)
+  - [src/services/native-ar/iosArkitAdapter.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/native-ar/iosArkitAdapter.ts)
+  - [src/services/native-ar/androidArcoreAdapter.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/native-ar/androidArcoreAdapter.ts)
+- AR runtime helpers:
+  - [src/services/ar.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/ar.ts)
+  - [src/services/arManifest.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/arManifest.ts)
+- Native iOS files:
+  - [ios/PhillyARTours/PhillyNativeAR.swift](/Users/nia/Documents/GitHub/philly-tours/ios/PhillyARTours/PhillyNativeAR.swift)
+  - [ios/PhillyARTours/PhillyNativeAR.m](/Users/nia/Documents/GitHub/philly-tours/ios/PhillyARTours/PhillyNativeAR.m)
 
-## Honest Status By Layer
+## Honest Layer Status
 
 | Layer | Status |
 | --- | --- |
-| Project structure and native projects | Real and usable |
-| Local tour data and app shell | Real and usable |
-| Socket.IO sync server | Real and usable |
-| SQLite payment/entitlement backend | Real and usable |
-| Stripe checkout session creation | Real and usable in local dev |
-| Stripe webhook/status transition testing | In progress |
-| Geofence/location watch logic | Partially implemented |
-| Map experience with production tour content | In progress |
-| Native AR rendering | Stub/partial |
-| Audio narration system | Not built |
-| Authentication and badges | Partial/local only |
-| Web app | Placeholder only |
-
-## What Reviewers Should Know
-
-- This is no longer just a raw scaffold.
-- The repo now contains a real iOS project, a real Android project, and a functioning local backend with persistent payment/order data.
-- The strongest production-adjacent pieces today are:
-  - app structure
-  - local backend
-  - payments/IAP credential plumbing
-  - sync/session infrastructure
-- The hardest remaining product work is still ahead:
-  - real AR experience
-  - tour content system
-  - audio
-  - polished production purchase flows
+| iPhone native dev build | Working |
+| Android native compile | Working |
+| Home / Map / Drive / AR / Profile shell | Working |
+| Drive session + handoff flow | Working |
+| Narration controls | Working with speech fallback |
+| Local Stripe/backend stack | Working in local dev |
+| Native iOS AR bridge | Working build path |
+| Real on-device AR tuning | Requires physical ARKit device |
+| Final 3D AR content library | In progress |
+| Recorded narration library | Not complete |
+| Production auth / badges | Not complete |
+| CMS / content operations | Not complete |
+| Car dashboard targets | Not started |
+| visionOS target | Not started |
 
 ## Local Development
 
@@ -113,27 +144,21 @@ This README is a current project-status document so reviewers can quickly see wh
 - Node via `nvm`
 - Xcode + iOS Simulator
 - CocoaPods available in PATH
-- Stripe CLI for webhook testing
+- Java 21 for Android builds
+- Android SDK / emulator for Android runtime verification
+- Stripe CLI for local webhook testing
 
 ### Environment
-Use `.env` in the repo root. Example values are in `.env.example`.
+Use [`.env.example`](/Users/nia/Documents/GitHub/philly-tours/.env.example) as the variable reference.
 
-Important variables:
+Important values include:
 - `EXPO_PUBLIC_SYNC_SERVER_URL`
 - `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-- `EXPO_PUBLIC_IAP_PLUS_IOS`
-- `EXPO_PUBLIC_IAP_PRO_IOS`
-- `EXPO_PUBLIC_IAP_PLUS_ANDROID`
-- `EXPO_PUBLIC_IAP_PRO_ANDROID`
-- `APPLE_IAP_BUNDLE_ID`
-- `APPLE_IAP_ISSUER_ID`
-- `APPLE_IAP_KEY_ID`
-- `APPLE_IAP_PRIVATE_KEY`
-- `APPLE_IAP_ENV`
-- `GOOGLE_PLAY_PACKAGE_NAME`
-- `GOOGLE_SERVICE_ACCOUNT_JSON` or `GOOGLE_SERVICE_ACCOUNT_FILE`
+- Apple IAP fields
+- Google Play fields
+- provider keys for AR asset generation
 
 ### Run backend
 ```bash
@@ -158,6 +183,15 @@ export RUBYOPT='-rlogger'
 npx expo run:ios --port 8081
 ```
 
+### Run Android build
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+export ANDROID_SDK_ROOT=/opt/homebrew/share/android-commandlinetools
+./android/gradlew :app:assembleDebug
+```
+
 ### Run Stripe webhook forwarding
 ```bash
 cd /Users/nia/Documents/GitHub/philly-tours
@@ -166,177 +200,19 @@ npm run stripe:listen
 
 ## Current Focus
 
-Active build focus:
-- reliable iOS checkout return flow
-- webhook-driven Stripe status updates
-- improving AR tab from scaffold to working native behavior
-- moving from local/static tour data toward a real content layer
-- proving phone-side drive companion and handoff flows before native CarPlay / Android Auto targets
+The current product priority is:
+1. finish the iPhone product
+2. finish real narration/audio assets
+3. finish top hero AR stops with real 3D assets
+4. complete Android runtime verification
+5. return to vehicle targets and future platforms later
 
 ## Planning Docs
 
-- AR production plan: `docs/ar-production-sheet.md`
-- AR build tracker: `docs/ar-build-tracker.csv`
-- AR asset catalog source: `docs/ar-asset-catalog.csv`
-- AR production briefs: `docs/ar-briefs/README.md`
-- AR scene manifests: `docs/ar-scene-manifests/README.md`
-- Product direction: `docs/product-direction.md`
-- Vehicle platform plan: `docs/vehicle-platform-plan.md`
-
-## AR Asset Generation
-
-The AR asset catalog now supports `fal`-driven concept image generation for planned AR stops.
-
-Catalog fields used by the generator:
-- `imageProvider`
-- `fallbackImageProvider`
-- `generatedImageProvider`
-- `stylePreset`
-- `visualPriority`
-- `historicalEra`
-- `negativePrompt`
-- `falModel`
-- `falPrompt`
-- `falImageSize`
-- `replicateModel`
-- `replicatePrompt`
-- `replicateAspectRatio`
-- `replicateOutputFormat`
-- `stabilityEndpoint`
-- `stabilityPrompt`
-- `stabilityAspectRatio`
-- `stabilityOutputFormat`
-- `generatedImagePath`
-
-### Import catalog changes
-```bash
-cd /Users/nia/Documents/GitHub/philly-tours
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run ar:catalog:import
-```
-
-### Generate AR production briefs
-```bash
-cd /Users/nia/Documents/GitHub/philly-tours
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run ar:briefs:generate
-```
-
-Useful options:
-- `npm run ar:briefs:generate -- --limit 10`
-- `npm run ar:briefs:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
-
-### Generate AR scene manifests
-```bash
-cd /Users/nia/Documents/GitHub/philly-tours
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run ar:manifests:generate
-```
-
-Useful options:
-- `npm run ar:manifests:generate -- --limit 10`
-- `npm run ar:manifests:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
-
-### Generate AR concept images with fal
-```bash
-cd /Users/nia/Documents/GitHub/philly-tours
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run ar:fal:generate
-```
-
-Useful options:
-- `npm run ar:fal:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
-- `npm run ar:fal:generate -- --limit 3`
-- `npm run ar:fal:generate -- --force`
-
-Notes:
-- `FAL_KEY` must be present in `.env` or the shell environment.
-- This generator is local/server-side only. Do not expose `FAL_KEY` in mobile client code.
-- Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
-
-### Generate routed AR concept images
-```bash
-cd /Users/nia/Documents/GitHub/philly-tours
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run ar:images:generate
-```
-
-Useful options:
-- `npm run ar:images:generate -- --limit 5`
-- `npm run ar:images:generate -- --provider stability`
-- `npm run ar:images:generate -- --provider replicate`
-- `npm run ar:images:generate -- --provider fal`
-- `npm run ar:images:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
-- `npm run ar:images:generate -- --force`
-
-Routing defaults:
-- `stability`: `before_after_overlay`, `object_on_plinth`, `animated_diagram`
-- `replicate`: `portal_reconstruction`, `historical_figure_presence`
-- `fal`: `floating_story_card`, `route_ghost`
-
-Notes:
-- Explicit `imageProvider` on a catalog row overrides type-based routing.
-- Explicit `fallbackImageProvider` overrides provider-fallback defaults.
-- `generatedImageProvider` records which provider actually produced the current concept image.
-
-### Generate AR concept images with Stability
-```bash
-cd /Users/nia/Documents/GitHub/philly-tours
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run ar:stability:generate
-```
-
-Useful options:
-- `npm run ar:stability:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
-- `npm run ar:stability:generate -- --limit 3`
-- `npm run ar:stability:generate -- --force`
-
-Notes:
-- `STABILITY_API_KEY` must be present in `.env` or the shell environment.
-- Current implementation uses the official Stability `v2beta/stable-image/generate/{core|ultra}` API.
-- Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
-
-### Generate AR concept images with Replicate
-```bash
-cd /Users/nia/Documents/GitHub/philly-tours
-export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run ar:replicate:generate
-```
-
-Useful options:
-- `npm run ar:replicate:generate -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church`
-- `npm run ar:replicate:generate -- --limit 3`
-- `npm run ar:replicate:generate -- --force`
-
-Notes:
-- `REPLICATE_API_TOKEN` must be present in `.env` or the shell environment.
-- Current implementation uses the official Replicate model prediction API with `Prefer: wait`.
-- Default model is `black-forest-labs/flux-pro`.
-- Generated files are written into `assets/generated/ar-references/` and written back into the catalog CSV.
-
-### First real `.usdz` intake
-The iOS runtime now supports a stable bundled asset intake path for hero-stop models.
-
-Contract:
-- keep catalog/runtime paths as `/models/<slug>.usdz`
-- drop the actual iOS file into `ios/PhillyARTours/ARAssets/models/<slug>.usdz`
-- rebuild iOS after adding or replacing the asset
-
-First stop wired for this flow:
-- `Mother Bethel AME Church` -> `/models/mother-bethel-ame-church.usdz`
-
-Docs:
-- `ios/PhillyARTours/ARAssets/README.md`
-- `docs/ar-assets/mother-bethel-ame-church.md`
-- `docs/ar-assets/mother-bethel-ame-church-device-checklist.md`
-
-## Files To Review First
-
-- `App.tsx`
-- `server/sync-server.js`
-- `src/data/tours.ts`
-- `src/screens/ProfileScreen.tsx`
-- `src/screens/MapScreen.tsx`
-- `src/screens/ARScreen.tsx`
-- `src/services/payments.ts`
-- `src/services/native-ar/nativeBridge.ts`
+- AR production plan: [docs/ar-production-sheet.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-production-sheet.md)
+- AR build tracker: [docs/ar-build-tracker.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-build-tracker.csv)
+- AR asset catalog: [docs/ar-asset-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-asset-catalog.csv)
+- AR briefs: [docs/ar-briefs/README.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-briefs/README.md)
+- AR scene manifests: [docs/ar-scene-manifests/README.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-scene-manifests/README.md)
+- Product direction: [docs/product-direction.md](/Users/nia/Documents/GitHub/philly-tours/docs/product-direction.md)
+- Vehicle platform plan: [docs/vehicle-platform-plan.md](/Users/nia/Documents/GitHub/philly-tours/docs/vehicle-platform-plan.md)
