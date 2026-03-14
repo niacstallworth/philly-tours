@@ -17,9 +17,10 @@ type SessionInfo = {
 type Props = {
   session: SessionInfo;
   handoffTarget?: HandoffTarget | null;
+  onDeleteProfile: () => void;
 };
 
-export function MainTabs({ session, handoffTarget }: Props) {
+export function MainTabs({ session, handoffTarget, onDeleteProfile }: Props) {
   const [tab, setTab] = React.useState<"Home" | "Map" | "AR" | "Drive" | "Profile">("Home");
 
   React.useEffect(() => {
@@ -57,7 +58,7 @@ export function MainTabs({ session, handoffTarget }: Props) {
     if (tab === "Drive") {
       return <DriveScreen initialTourId={handoffTarget?.tourId} />;
     }
-    return <ProfileScreen displayName={session.displayName} mode={session.mode} email={session.email} />;
+    return <ProfileScreen displayName={session.displayName} mode={session.mode} email={session.email} onDeleteProfile={onDeleteProfile} />;
   }
 
   const tabs: Array<{ key: "Home" | "Map" | "AR" | "Drive" | "Profile"; label: string }> = [

@@ -7,6 +7,7 @@ import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/Onbo
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
 import { subscribeToHandoffTarget } from "./src/services/handoffBus";
 import { setApiUserId } from "./src/services/payments";
+import { clearDriveSession } from "./src/services/driveMode";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
 
 type AppSession = {
@@ -85,6 +86,13 @@ export default function App() {
     clearSession().catch(() => undefined);
   }
 
+  function deleteProfile() {
+    setSession(null);
+    setHandoffTarget(null);
+    setApiUserId("demo-user");
+    Promise.all([clearSession(), clearDriveSession()]).catch(() => undefined);
+  }
+
   const appBody = (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" />
@@ -109,7 +117,7 @@ export default function App() {
           {!session ? (
             <OnboardingScreen onComplete={completeOnboarding} />
           ) : (
-            <MainTabs session={session} handoffTarget={handoffTarget} />
+            <MainTabs session={session} handoffTarget={handoffTarget} onDeleteProfile={deleteProfile} />
           )}
         </View>
       )}

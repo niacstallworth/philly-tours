@@ -8,11 +8,17 @@ type Props = {
   displayName?: string;
   email?: string;
   mode?: "tourist" | "builder";
+  onDeleteProfile?: () => void;
 };
 
 WebBrowser.maybeCompleteAuthSession();
 
-export function ProfileScreen({ displayName = "Founder Demo", email = "demo@local.app", mode = "builder" }: Props) {
+export function ProfileScreen({
+  displayName = "Founder Demo",
+  email = "demo@local.app",
+  mode = "builder",
+  onDeleteProfile
+}: Props) {
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [entitlementStatus, setEntitlementStatus] = useState<string>("not_loaded");
@@ -75,6 +81,17 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
     }
   }
 
+  function confirmDeleteProfile() {
+    Alert.alert("Delete profile?", "This clears your local profile and active drive session on this device.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => onDeleteProfile?.()
+      }
+    ]);
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -128,6 +145,12 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Coming Soon</Text>
         <Text style={styles.copy}>Saved badges, completed tours, and personalized collections will live here once the public experience is locked.</Text>
+      </Card>
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Device Profile</Text>
+        <Text style={styles.copy}>Delete the local profile on this phone and return to onboarding. This does not cancel purchases already recorded on the backend.</Text>
+        <PrimaryButton onPress={confirmDeleteProfile} label="Delete Profile On This Device" />
       </Card>
     </ScrollView>
   );
