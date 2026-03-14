@@ -56,6 +56,7 @@ const GOOGLE_PLAY_PACKAGE_NAME =
   process.env.GOOGLE_PLAY_PACKAGE_NAME || process.env.ANDROID_PACKAGE_NAME || "";
 const GOOGLE_SERVICE_ACCOUNT_JSON = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || "";
 const GOOGLE_SERVICE_ACCOUNT_FILE = process.env.GOOGLE_SERVICE_ACCOUNT_FILE || "";
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "";
 const APPLE_IAP_ENABLED =
   !!APPLE_IAP_BUNDLE_ID && !!APPLE_IAP_ISSUER_ID && !!APPLE_IAP_KEY_ID && !!APPLE_IAP_PRIVATE_KEY;
 const GOOGLE_IAP_ENABLED =
@@ -142,6 +143,19 @@ CREATE TABLE IF NOT EXISTS provider_events (
   payload_json TEXT NOT NULL,
   created_at INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS deletion_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  email TEXT,
+  display_name TEXT,
+  reason TEXT,
+  status TEXT NOT NULL,
+  requested_at INTEGER NOT NULL,
+  resolved_at INTEGER,
+  resolved_by TEXT,
+  resolution_note TEXT
+);
 `);
 
 const insertUserStmt = db.prepare(`
@@ -215,6 +229,47 @@ const listProviderEventsStmt = db.prepare(`
   LIMIT ?
 `);
 
+const insertDeletionRequestStmt = db.prepare(`
+  INSERT INTO deletion_requests(
+    user_id, email, display_name, reason, status, requested_at
+  ) VALUES (?, ?, ?, ?, ?, ?)
+`);
+
+const listDeletionRequestsStmt = db.prepare(`
+  SELECT id, user_id, email, display_name, reason, status, requested_at, resolved_at, resolved_by, resolution_note
+  FROM deletion_requests
+  ORDER BY id DESC
+  LIMIT ?
+`);
+
+const getDeletionRequestStmt = db.prepare(`
+  SELECT id, user_id, email, display_name, reason, status, requested_at, resolved_at, resolved_by, resolution_note
+  FROM deletion_requests
+  WHERE id = ?
+`);
+
+const updateDeletionRequestStmt = db.prepare(`
+  UPDATE deletion_requests
+  SET status = ?, resolved_at = ?, resolved_by = ?, resolution_note = ?
+  WHERE id = ?
+`);
+
+const deleteUserOrdersStmt = db.prepare(`
+  DELETE FROM payment_orders WHERE user_id = ?
+`);
+
+const deleteUserEntitlementsStmt = db.prepare(`
+  DELETE FROM entitlements WHERE user_id = ?
+`);
+
+const deleteUserReceiptsStmt = db.prepare(`
+  DELETE FROM iap_receipts WHERE user_id = ?
+`);
+
+const deleteUserRecordStmt = db.prepare(`
+  DELETE FROM users WHERE id = ?
+`);
+
 const getIdempotencyStmt = db.prepare(`
   SELECT request_hash, response_json, status_code FROM idempotency WHERE id = ? AND endpoint = ?
 `);
@@ -275,6 +330,12 @@ const iapVerifySchema = z.object({
   }
 });
 
+const deletionRequestSchema = z.object({
+  email: z.string().email().optional(),
+  displayName: z.string().min(1).max(120).optional(),
+  reason: z.string().min(1).max(500).optional()
+});
+
 const roomMembers = new Map();
 
 let googleAuthClientPromise = null;
@@ -293,6 +354,29 @@ function getUserId(req) {
     return headerUserId.trim();
   }
   return "demo-user";
+}
+
+function requireAdmin(req, res) {
+  if (!ADMIN_API_KEY) {
+    res.status(503).json({ error: "Admin deletion API is not configured." });
+    return null;
+  }
+  const providedKey = req.header("x-admin-key");
+  if (!providedKey || providedKey !== ADMIN_API_KEY) {
+    res.status(403).json({ error: "Admin access denied." });
+    return null;
+  }
+  return req.header("x-admin-user") || "admin";
+}
+
+function purgeUserData(userId) {
+  const transaction = db.transaction((id) => {
+    deleteUserOrdersStmt.run(id);
+    deleteUserEntitlementsStmt.run(id);
+    deleteUserReceiptsStmt.run(id);
+    deleteUserRecordStmt.run(id);
+  });
+  transaction(userId);
 }
 
 function toEpochMs(input) {
@@ -1002,6 +1086,82 @@ app.get("/api/provider-events", (req, res) => {
   const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
   const events = listProviderEventsStmt.all(limit);
   res.json({ events });
+});
+
+app.post("/api/privacy/delete-request", express.json(), (req, res) => {
+  const parseResult = deletionRequestSchema.safeParse(req.body || {});
+  if (!parseResult.success) {
+    res.status(400).json({ error: parseResult.error.issues[0]?.message || "Invalid deletion request." });
+    return;
+  }
+
+  const userId = getUserId(req);
+  const body = parseResult.data;
+  ensureUser(userId);
+  const requestedAt = now();
+  const result = insertDeletionRequestStmt.run(
+    userId,
+    body.email || null,
+    body.displayName || null,
+    body.reason || null,
+    "requested",
+    requestedAt
+  );
+
+  res.status(201).json({
+    ok: true,
+    requestId: result.lastInsertRowid,
+    userId,
+    status: "requested",
+    requestedAt
+  });
+});
+
+app.get("/api/admin/delete-requests", (req, res) => {
+  const adminUser = requireAdmin(req, res);
+  if (!adminUser) {
+    return;
+  }
+  const limit = Math.min(Math.max(Number(req.query.limit || 50), 1), 200);
+  const requests = listDeletionRequestsStmt.all(limit);
+  res.json({ ok: true, adminUser, requests });
+});
+
+app.post("/api/admin/delete-requests/:id/fulfill", express.json(), (req, res) => {
+  const adminUser = requireAdmin(req, res);
+  if (!adminUser) {
+    return;
+  }
+
+  const requestId = Number(req.params.id);
+  if (!Number.isInteger(requestId) || requestId <= 0) {
+    res.status(400).json({ error: "Invalid deletion request id." });
+    return;
+  }
+
+  const requestRecord = getDeletionRequestStmt.get(requestId);
+  if (!requestRecord) {
+    res.status(404).json({ error: "Deletion request not found." });
+    return;
+  }
+
+  if (requestRecord.status === "fulfilled") {
+    res.json({ ok: true, requestId, userId: requestRecord.user_id, status: "fulfilled" });
+    return;
+  }
+
+  const resolvedAt = now();
+  purgeUserData(requestRecord.user_id);
+  updateDeletionRequestStmt.run("fulfilled", resolvedAt, adminUser, "User data purged", requestId);
+
+  res.json({
+    ok: true,
+    requestId,
+    userId: requestRecord.user_id,
+    status: "fulfilled",
+    resolvedAt,
+    resolvedBy: adminUser
+  });
 });
 
 function broadcastRoomMembers(sessionId) {

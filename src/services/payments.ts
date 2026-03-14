@@ -39,6 +39,14 @@ export type ProviderEventRecord = {
   created_at: number;
 };
 
+export type DeletionRequestResult = {
+  ok: boolean;
+  requestId: number;
+  userId: string;
+  status: string;
+  requestedAt: number;
+};
+
 let apiUserId = "demo-user";
 
 export function setApiUserId(userId: string) {
@@ -185,4 +193,8 @@ export async function getBackendConfigStatus() {
     throw new Error(data.error || "Unable to load backend status.");
   }
   return data;
+}
+
+export async function requestBackendDeletion(payload: { email?: string; displayName?: string; reason?: string }) {
+  return postJson<DeletionRequestResult>("/api/privacy/delete-request", payload);
 }
