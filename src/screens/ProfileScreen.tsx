@@ -16,6 +16,7 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [entitlementStatus, setEntitlementStatus] = useState<string>("not_loaded");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   React.useEffect(() => {
     refreshEntitlements(false).catch(() => undefined);
@@ -32,6 +33,7 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
 
   async function refreshEntitlements(showAlert = true) {
     setLoadingAction("entitlements");
+    setStatusMessage(null);
     try {
       const entitlements = await getEntitlements();
       const active = entitlements.find((entry) => entry.status === "active");
@@ -41,8 +43,9 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
       setEntitlementStatus(active ? `active:${active.plan_id}` : "none");
     } catch (error) {
       setEntitlementStatus("offline");
+      setStatusMessage((error as Error).message || "Could not load membership status.");
       if (showAlert) {
-        Alert.alert("Membership unavailable", (error as Error).message || "Could not load membership status.");
+        return;
       }
     } finally {
       setLoadingAction(null);
@@ -50,7 +53,12 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
   }
 
   async function startHostedCheckout(amount = 999, title = "Philly Tours Day Pass") {
+    if (entitlementStatus === "offline") {
+      setStatusMessage(`Sync server unreachable at ${getSyncServerUrl()}. Start the backend to use checkout.`);
+      return;
+    }
     setLoadingAction("hosted");
+    setStatusMessage(null);
     try {
       const session = await createCheckoutSession(amount, title);
       if (!session.url) {
@@ -61,7 +69,7 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
         refreshEntitlements(false).catch(() => undefined);
       }
     } catch (error) {
-      Alert.alert("Checkout failed", (error as Error).message || "Please try again.");
+      setStatusMessage((error as Error).message || "Please try again.");
     } finally {
       setLoadingAction(null);
     }
@@ -98,10 +106,11 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
           />
         </View>
         <Text style={styles.meta}>Status: {entitlementStatus}</Text>
+        {statusMessage ? <Text style={styles.warning}>{statusMessage}</Text> : null}
         <PrimaryButton
-          disabled={loadingAction !== null}
+          disabled={loadingAction !== null || entitlementStatus === "offline"}
           onPress={() => startHostedCheckout(999, "Philly Tours Day Pass")}
-          label={loadingAction === "hosted" ? "Preparing..." : "Open Hosted Checkout ($9.99)"}
+          label={entitlementStatus === "offline" ? "Backend Offline" : loadingAction === "hosted" ? "Preparing..." : "Open Hosted Checkout ($9.99)"}
         />
         <PrimaryButton
           disabled={loadingAction !== null}
@@ -173,5 +182,9 @@ const styles = StyleSheet.create({
   meta: {
     color: "#b69fbe",
     lineHeight: 20
+  },
+  warning: {
+    color: "#ffc2d0",
+    lineHeight: 22
   }
 });

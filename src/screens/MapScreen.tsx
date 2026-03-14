@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useDriveSession } from "../hooks/useDriveSession";
-import { getHandoffModeMeta } from "../services/deepLinks";
+import { getHandoffModeMeta, parseHandoffUrl } from "../services/deepLinks";
+import { triggerHandoffTarget } from "../services/handoffBus";
 import { advanceDriveSession, getCurrentDriveStop, markDriveArrived } from "../services/driveMode";
 import { getTriggeredStops, haversineDistanceM } from "../services/geofence";
 import {
@@ -214,11 +215,12 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     if (!currentDriveStop || driveSession?.mode !== "arrived") {
       return;
     }
-    try {
-      await Linking.openURL(currentDriveStop.handoffDeepLink);
-    } catch (error) {
-      Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
+    const parsed = parseHandoffUrl(currentDriveStop.handoffDeepLink);
+    if (!parsed) {
+      Alert.alert("Handoff unavailable", "Could not resolve the handoff target.");
+      return;
     }
+    triggerHandoffTarget(parsed);
   }
 
   return (

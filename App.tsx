@@ -5,6 +5,7 @@ import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
 import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
+import { subscribeToHandoffTarget } from "./src/services/handoffBus";
 import { setApiUserId } from "./src/services/payments";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
 
@@ -53,13 +54,21 @@ export default function App() {
     }
 
     hydrateInitialLink().catch(() => undefined);
-    const subscription = Linking.addEventListener("url", ({ url }) => {
+    const linkSubscription = Linking.addEventListener("url", ({ url }) => {
       const parsed = parseHandoffUrl(url);
       if (parsed) {
         setHandoffTarget(parsed);
       }
     });
-    return () => subscription.remove();
+    const handoffSubscription = subscribeToHandoffTarget((target) => {
+      if (target) {
+        setHandoffTarget(target);
+      }
+    });
+    return () => {
+      linkSubscription.remove();
+      handoffSubscription();
+    };
   }, []);
 
   function completeOnboarding(payload: OnboardingPayload) {

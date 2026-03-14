@@ -1,11 +1,12 @@
 import React from "react";
 import { useNarration } from "../hooks/useNarration";
 import { startNarration, stopNarration } from "../services/narration";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useDriveSession } from "../hooks/useDriveSession";
-import { getHandoffModeMeta, type HandoffMode } from "../services/deepLinks";
+import { getHandoffModeMeta, parseHandoffUrl, type HandoffMode } from "../services/deepLinks";
+import { triggerHandoffTarget } from "../services/handoffBus";
 import { getCurrentDriveStop, getNextDriveStop } from "../services/driveMode";
 
 type Props = {
@@ -57,11 +58,12 @@ export function HomeScreen({
     if (!currentDriveStop || driveSession?.mode !== "arrived") {
       return;
     }
-    try {
-      await Linking.openURL(currentDriveStop.handoffDeepLink);
-    } catch (error) {
-      Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
+    const parsed = parseHandoffUrl(currentDriveStop.handoffDeepLink);
+    if (!parsed) {
+      Alert.alert("Handoff unavailable", "Could not resolve the handoff target.");
+      return;
     }
+    triggerHandoffTarget(parsed);
   }
 
   async function onPlayHighlightedNarration() {
