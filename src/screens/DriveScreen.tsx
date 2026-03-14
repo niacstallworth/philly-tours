@@ -1,4 +1,6 @@
 import React from "react";
+import { useNarration } from "../hooks/useNarration";
+import { startNarration, stopNarration } from "../services/narration";
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useDriveSession } from "../hooks/useDriveSession";
@@ -23,6 +25,8 @@ const driveTours = getDriveTourSummaries();
 export function DriveScreen({ initialTourId }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialTourId || driveTours[0]?.id || "");
   const { driveSession, setDriveSession, loading } = useDriveSession();
+  const narration = useNarration();
+  const autoNarratedStopIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     if (initialTourId && driveTours.some((tour) => tour.id === initialTourId)) {
@@ -55,6 +59,24 @@ export function DriveScreen({ initialTourId }: Props) {
     () => (nextStop ? getHandoffModeMeta(nextStop.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive") : null),
     [nextStop]
   );
+  const activeNarrationStop = (narration.stopId ? [currentStop, nextStop].find((stop) => stop?.id === narration.stopId) : null) || null;
+
+  React.useEffect(() => {
+    if (!currentStop || activeSession?.mode !== "arrived") {
+      return;
+    }
+    if (autoNarratedStopIdRef.current === currentStop.id) {
+      return;
+    }
+    autoNarratedStopIdRef.current = currentStop.id;
+    startNarration(currentStop).catch(() => undefined);
+  }, [activeSession?.mode, currentStop]);
+
+  React.useEffect(() => {
+    if (activeSession?.mode !== "arrived") {
+      autoNarratedStopIdRef.current = null;
+    }
+  }, [activeSession?.mode]);
 
   async function previewArrivalHandoff() {
     const targetStop = activeSession ? currentStop : nextStop;
@@ -92,11 +114,28 @@ export function DriveScreen({ initialTourId }: Props) {
     }
   }
 
+  async function onPlayNarration() {
+    const targetStop = currentStop || nextStop;
+    if (!targetStop) {
+      return;
+    }
+    try {
+      await startNarration(targetStop);
+    } catch (error) {
+      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
+    }
+  }
+
+  async function onStopNarration() {
+    await stopNarration();
+  }
+
   async function onAdvanceStop() {
     if (!activeSession) {
       return;
     }
     try {
+      await stopNarration();
       const nextSession = await advanceDriveSession(activeSession);
       setDriveSession(nextSession);
       if (!nextSession) {
@@ -186,6 +225,22 @@ export function DriveScreen({ initialTourId }: Props) {
             </>
           ) : null}
 
+          <Card style={styles.narrationCard}>
+            <Text style={styles.label}>Narration</Text>
+            <Text style={styles.copy}>
+              {narration.message}
+              {activeNarrationStop ? ` ${activeNarrationStop.title}.` : ""}
+            </Text>
+            <View style={styles.chips}>
+              <Chip label={`State ${narration.status}`} tone={narration.status === "playing" ? "success" : narration.status === "error" ? "danger" : "default"} />
+              <Chip label={narration.source === "audio" ? "Recorded audio" : narration.source === "speech" ? "Live voice preview" : "No source yet"} tone="warn" />
+            </View>
+            <View style={styles.actions}>
+              <PrimaryButton label={narration.status === "playing" ? "Replay Narration" : "Play Narration"} onPress={onPlayNarration} />
+              {(narration.status === "playing" || narration.status === "loading") ? <PrimaryButton label="Stop Narration" onPress={onStopNarration} /> : null}
+            </View>
+          </Card>
+
           <View style={styles.actions}>
             {!activeSession ? <PrimaryButton label="Start Drive Session" onPress={onStartDriveSession} /> : null}
             {activeSession && activeSession.mode !== "arrived" ? (
@@ -264,6 +319,11 @@ const styles = StyleSheet.create({
   panel: {
     backgroundColor: "#120a22",
     gap: 12
+  },
+  narrationCard: {
+    marginTop: 8,
+    backgroundColor: "#150d22",
+    borderColor: "rgba(255,255,255,0.06)"
   },
   featureCard: {
     backgroundColor: "#2b1530",
