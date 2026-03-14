@@ -70,7 +70,7 @@ export function DriveScreen({ initialTourId }: Props) {
       return;
     }
     autoNarratedStopIdRef.current = currentStop.id;
-    startNarration(currentStop).catch(() => undefined);
+    startNarration(currentStop, "drive").catch(() => undefined);
   }, [activeSession?.mode, currentStop]);
 
   React.useEffect(() => {
@@ -122,7 +122,7 @@ export function DriveScreen({ initialTourId }: Props) {
       return;
     }
     try {
-      await startNarration(targetStop);
+      await startNarration(targetStop, "drive");
     } catch (error) {
       Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
     }

@@ -1,6 +1,7 @@
 import { Audio, InterruptionModeIOS, type AVPlaybackStatus } from "expo-av";
 import * as Speech from "expo-speech";
 import { narrationAudioMap } from "../data/narrationAudioMap";
+import { narrationCatalogByStopId, type NarrationVariant } from "../data/narrationCatalog";
 import type { DriveStop } from "./driveMode";
 
 type NarrationSource = "audio" | "speech" | "none";
@@ -32,7 +33,10 @@ function emit(next: Partial<NarrationState>) {
   listeners.forEach((listener) => listener(currentState));
 }
 
-function getSpeechScript(stop: DriveStop) {
+function getSpeechScript(stop: DriveStop, variant: NarrationVariant) {
+  if (variant === "drive") {
+    return `${stop.title}. ${stop.arrivalSummary}. Slow down as you approach and prepare to continue on foot when it is safe.`;
+  }
   return `${stop.title}. ${stop.arrivalSummary}. Continue on foot when you are ready.`;
 }
 
@@ -51,6 +55,11 @@ function resolveAudioAsset(audioUrl: string) {
     return null;
   }
   return narrationAudioMap[audioUrl as keyof typeof narrationAudioMap] || null;
+}
+
+function resolveNarrationPath(stop: DriveStop, variant: NarrationVariant) {
+  const fromCatalog = narrationCatalogByStopId[stop.id]?.[variant];
+  return fromCatalog || stop.audioUrl;
 }
 
 async function configureAudioMode() {
@@ -110,7 +119,7 @@ function onPlaybackStatus(stop: DriveStop, status: AVPlaybackStatus) {
   });
 }
 
-export async function startNarration(stop: DriveStop) {
+export async function startNarration(stop: DriveStop, variant: NarrationVariant = "walk") {
   await stopNarration();
   emit({
     status: "loading",
@@ -119,8 +128,9 @@ export async function startNarration(stop: DriveStop) {
     message: "Preparing narration..."
   });
 
-  const audioUri = resolveAudioUri(stop.audioUrl);
-  const audioAsset = resolveAudioAsset(stop.audioUrl);
+  const preferredPath = resolveNarrationPath(stop, variant);
+  const audioUri = resolveAudioUri(preferredPath);
+  const audioAsset = resolveAudioAsset(preferredPath);
   if (audioUri || audioAsset) {
     try {
       await configureAudioMode();
@@ -149,7 +159,7 @@ export async function startNarration(stop: DriveStop) {
 
   try {
     Speech.stop();
-    const speechScript = getSpeechScript(stop);
+    const speechScript = getSpeechScript(stop, variant);
     emit({
       status: "playing",
       source: "speech",
