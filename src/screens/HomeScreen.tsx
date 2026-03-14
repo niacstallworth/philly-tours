@@ -81,7 +81,7 @@ export function HomeScreen({
         audioUrl: highlightedStop.audioUrl,
         arrivalSummary: highlightedStop.description.split("|")[0]?.trim() || highlightedStop.description,
         handoffDeepLink: `phillyartours://tour/${selectedTour.id}/stop/${highlightedStop.id}/arrive`
-      });
+      }, "walk");
     } catch (error) {
       Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
     }
@@ -163,32 +163,7 @@ export function HomeScreen({
         {tours.map((tour) => {
           const isActive = tour.id === selectedTourId;
           const arMoments = tour.stops.filter((stop) => typeof stop.arPriority === "number").length;
-          async function onPlayHighlightedNarration() {
-    if (!highlightedStop || !selectedTour) {
-      return;
-    }
-    try {
-      await startNarration({
-        id: highlightedStop.id,
-        tourId: selectedTour.id,
-        title: highlightedStop.title,
-        lat: highlightedStop.lat,
-        lng: highlightedStop.lng,
-        triggerRadiusM: highlightedStop.triggerRadiusM,
-        audioUrl: highlightedStop.audioUrl,
-        arrivalSummary: highlightedStop.description.split("|")[0]?.trim() || highlightedStop.description,
-        handoffDeepLink: `phillyartours://tour/${selectedTour.id}/stop/${highlightedStop.id}/arrive`
-      });
-    } catch (error) {
-      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
-    }
-  }
-
-  async function onStopHighlightedNarration() {
-    await stopNarration();
-  }
-
-  return (
+          return (
             <Pressable
               key={tour.id}
               onPress={() => setSelectedTourId(tour.id)}
