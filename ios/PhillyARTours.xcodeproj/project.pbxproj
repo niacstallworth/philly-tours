@@ -26,8 +26,8 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PhillyARTours/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PhillyARTours/Info.plist; sourceTree = "<group>"; };
 		1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PhillyNativeAR.m; path = PhillyARTours/PhillyNativeAR.m; sourceTree = "<group>"; };
-		4F62A77C09B640B7A3DB1001 /* ARAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PhillyARTours/ARAssets; sourceTree = "<group>"; };
 		465585F82E1E3BAF2554DE0B /* Pods-PhillyARTours.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.release.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.release.xcconfig"; sourceTree = "<group>"; };
+		4F62A77C09B640B7A3DB1001 /* ARAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PhillyARTours/ARAssets; sourceTree = "<group>"; };
 		5B9641E3C10325E7974FA90C /* Pods-PhillyARTours.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.debug.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.debug.xcconfig"; sourceTree = "<group>"; };
 		7BDDF101B2AE11840D415836 /* libPods-PhillyARTours.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PhillyARTours.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhillyNativeAR.swift; path = PhillyARTours/PhillyNativeAR.swift; sourceTree = "<group>"; };
@@ -278,10 +278,10 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/AsyncStorage/AsyncStorage_resources.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly/RCT-Folly_privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/RNCAsyncStorage/RNCAsyncStorage_resources.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/Stripe/StripeBundle.bundle",
@@ -298,10 +298,10 @@
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AsyncStorage_resources.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoConstants_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RCT-Folly_privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNCAsyncStorage_resources.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/StripeBundle.bundle",
