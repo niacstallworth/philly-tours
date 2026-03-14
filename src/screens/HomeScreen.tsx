@@ -1,4 +1,6 @@
 import React from "react";
+import { useNarration } from "../hooks/useNarration";
+import { startNarration, stopNarration } from "../services/narration";
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
@@ -21,6 +23,7 @@ export function HomeScreen({
 }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
   const { driveSession } = useDriveSession();
+  const narration = useNarration();
   React.useEffect(() => {
     if (initialSelectedTourId && tours.some((tour) => tour.id === initialSelectedTourId)) {
       setSelectedTourId(initialSelectedTourId);
@@ -59,6 +62,31 @@ export function HomeScreen({
     } catch (error) {
       Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
     }
+  }
+
+  async function onPlayHighlightedNarration() {
+    if (!highlightedStop || !selectedTour) {
+      return;
+    }
+    try {
+      await startNarration({
+        id: highlightedStop.id,
+        tourId: selectedTour.id,
+        title: highlightedStop.title,
+        lat: highlightedStop.lat,
+        lng: highlightedStop.lng,
+        triggerRadiusM: highlightedStop.triggerRadiusM,
+        audioUrl: highlightedStop.audioUrl,
+        arrivalSummary: highlightedStop.description.split("|")[0]?.trim() || highlightedStop.description,
+        handoffDeepLink: `phillyartours://tour/${selectedTour.id}/stop/${highlightedStop.id}/arrive`
+      });
+    } catch (error) {
+      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
+    }
+  }
+
+  async function onStopHighlightedNarration() {
+    await stopNarration();
   }
 
   return (
@@ -115,8 +143,13 @@ export function HomeScreen({
           <View style={styles.heroChips}>
             <Chip label={selectedTour.title} tone="default" />
             <Chip label={activeHandoffMeta.chipLabel} tone="success" />
+            <Chip label={narration.stopId === highlightedStop.id && narration.status === "playing" ? "Narration live" : "Tap for narration"} tone="warn" />
           </View>
-          {driveSession?.mode === "arrived" ? <PrimaryButton label={activeHandoffMeta.ctaLabel} onPress={onPreviewDriveHandoff} /> : null}
+          <View style={styles.handoffActions}>
+            <PrimaryButton label={narration.stopId === highlightedStop.id && narration.status === "playing" ? "Replay Stop Audio" : "Play Stop Audio"} onPress={onPlayHighlightedNarration} />
+            {narration.stopId === highlightedStop.id && (narration.status === "playing" || narration.status === "loading") ? <PrimaryButton label="Stop Audio" onPress={onStopHighlightedNarration} /> : null}
+            {driveSession?.mode === "arrived" ? <PrimaryButton label={activeHandoffMeta.ctaLabel} onPress={onPreviewDriveHandoff} /> : null}
+          </View>
         </Card>
       ) : null}
 
@@ -128,7 +161,32 @@ export function HomeScreen({
         {tours.map((tour) => {
           const isActive = tour.id === selectedTourId;
           const arMoments = tour.stops.filter((stop) => typeof stop.arPriority === "number").length;
-          return (
+          async function onPlayHighlightedNarration() {
+    if (!highlightedStop || !selectedTour) {
+      return;
+    }
+    try {
+      await startNarration({
+        id: highlightedStop.id,
+        tourId: selectedTour.id,
+        title: highlightedStop.title,
+        lat: highlightedStop.lat,
+        lng: highlightedStop.lng,
+        triggerRadiusM: highlightedStop.triggerRadiusM,
+        audioUrl: highlightedStop.audioUrl,
+        arrivalSummary: highlightedStop.description.split("|")[0]?.trim() || highlightedStop.description,
+        handoffDeepLink: `phillyartours://tour/${selectedTour.id}/stop/${highlightedStop.id}/arrive`
+      });
+    } catch (error) {
+      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
+    }
+  }
+
+  async function onStopHighlightedNarration() {
+    await stopNarration();
+  }
+
+  return (
             <Pressable
               key={tour.id}
               onPress={() => setSelectedTourId(tour.id)}
@@ -243,6 +301,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#201228",
     borderColor: "rgba(143, 215, 195, 0.24)",
     gap: 12
+  },
+  handoffActions: {
+    gap: 10
   },
   driveTitle: {
     color: "#fff8f3",
