@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Alert, Linking, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { createCheckoutSession, getEntitlements } from "../services/payments";
+import { createCheckoutSession, getEntitlements, getSyncServerUrl } from "../services/payments";
 
 type Props = {
   displayName?: string;
@@ -68,7 +68,7 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
         <Text style={styles.heroEyebrow}>Profile</Text>
         <Text style={styles.heroTitle}>{displayName}</Text>
@@ -84,6 +84,19 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
         <Text style={styles.copy}>
           Unlock premium tours and future spatial upgrades with a simple pass instead of cluttering the app with store mechanics.
         </Text>
+        <View style={styles.chips}>
+          <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
+          <Chip
+            label={
+              entitlementStatus === "offline"
+                ? "Backend offline"
+                : entitlementStatus.startsWith("active:")
+                  ? "Membership active"
+                  : "No active membership"
+            }
+            tone={entitlementStatus === "offline" ? "danger" : entitlementStatus.startsWith("active:") ? "success" : "default"}
+          />
+        </View>
         <Text style={styles.meta}>Status: {entitlementStatus}</Text>
         <PrimaryButton
           disabled={loadingAction !== null}
@@ -98,18 +111,24 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
       </Card>
 
       <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Billing Surface</Text>
+        <Text style={styles.copy}>Hosted checkout keeps the phone app cleaner than embedding a heavy storefront in the touring flow.</Text>
+        <Text style={styles.meta}>Sync server: {getSyncServerUrl()}</Text>
+      </Card>
+
+      <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Coming Soon</Text>
         <Text style={styles.copy}>Saved badges, completed tours, and personalized collections will live here once the public experience is locked.</Text>
       </Card>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 18,
-    gap: 16,
+    gap: 18,
     backgroundColor: "#060312"
   },
   heroPanel: {
@@ -130,14 +149,17 @@ const styles = StyleSheet.create({
   heroTitle: {
     color: "#fff3ea",
     fontSize: 30,
+    lineHeight: 36,
     fontWeight: "800"
   },
   heroCopy: {
-    color: "#d8c7df"
+    color: "#d8c7df",
+    lineHeight: 21
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   card: {
-    backgroundColor: "#120a22"
+    backgroundColor: "#120a22",
+    gap: 12
   },
   sectionTitle: {
     color: "#fff0e4",
@@ -149,6 +171,7 @@ const styles = StyleSheet.create({
     lineHeight: 21
   },
   meta: {
-    color: "#b69fbe"
+    color: "#b69fbe",
+    lineHeight: 20
   }
 });
