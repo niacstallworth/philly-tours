@@ -47,6 +47,19 @@ export type DeletionRequestResult = {
   requestedAt: number;
 };
 
+export type DeletionRequestRecord = {
+  id: number;
+  user_id: string;
+  email?: string | null;
+  display_name?: string | null;
+  reason?: string | null;
+  status: string;
+  requested_at: number;
+  resolved_at?: number | null;
+  resolved_by?: string | null;
+  resolution_note?: string | null;
+};
+
 let apiUserId = "demo-user";
 
 export function setApiUserId(userId: string) {
@@ -197,4 +210,48 @@ export async function getBackendConfigStatus() {
 
 export async function requestBackendDeletion(payload: { email?: string; displayName?: string; reason?: string }) {
   return postJson<DeletionRequestResult>("/api/privacy/delete-request", payload);
+}
+
+async function adminJson<T>(path: string, init: RequestInit & { adminKey: string; adminUser?: string }) {
+  const { adminKey, adminUser, ...requestInit } = init;
+  let response: Response;
+  try {
+    response = await fetch(`${getServerUrl()}${path}`, {
+      ...requestInit,
+      headers: {
+        ...(requestInit.headers || {}),
+        "x-admin-key": adminKey,
+        ...(adminUser ? { "x-admin-user": adminUser } : {})
+      }
+    });
+  } catch (error) {
+    throw toApiError(error, "Unable to reach admin endpoint.");
+  }
+
+  const data = (await response.json().catch(() => ({}))) as T & { error?: string };
+  if (!response.ok) {
+    throw new Error(data.error || "Admin request failed.");
+  }
+  return data;
+}
+
+export async function listDeletionRequests(adminKey: string, adminUser?: string, limit = 50) {
+  const data = await adminJson<{ requests?: DeletionRequestRecord[] }>(
+    `/api/admin/delete-requests?limit=${Math.max(1, Math.min(limit, 200))}`,
+    { method: "GET", adminKey, adminUser }
+  );
+  return data.requests || [];
+}
+
+export async function fulfillDeletionRequest(requestId: number, adminKey: string, adminUser?: string) {
+  return adminJson<{ ok: boolean; requestId: number; userId: string; status: string }>(
+    `/api/admin/delete-requests/${requestId}/fulfill`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+      adminKey,
+      adminUser
+    }
+  );
 }

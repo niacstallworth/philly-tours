@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { Alert, Linking, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { createCheckoutSession, getEntitlements, getSyncServerUrl, requestBackendDeletion } from "../services/payments";
+import {
+  createCheckoutSession,
+  DeletionRequestRecord,
+  fulfillDeletionRequest,
+  getEntitlements,
+  getSyncServerUrl,
+  listDeletionRequests,
+  requestBackendDeletion
+} from "../services/payments";
 
 type Props = {
   displayName?: string;
@@ -25,6 +33,8 @@ export function ProfileScreen({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [deletionReason, setDeletionReason] = useState("");
   const [deletionRequestedAt, setDeletionRequestedAt] = useState<number | null>(null);
+  const [adminKey, setAdminKey] = useState("");
+  const [adminRequests, setAdminRequests] = useState<DeletionRequestRecord[]>([]);
 
   React.useEffect(() => {
     refreshEntitlements(false).catch(() => undefined);
@@ -117,6 +127,42 @@ export function ProfileScreen({
     }
   }
 
+  async function refreshAdminDeletionRequests() {
+    if (!adminKey.trim()) {
+      setStatusMessage("Enter ADMIN_API_KEY to review deletion requests.");
+      return;
+    }
+    setLoadingAction("admin-requests");
+    setStatusMessage(null);
+    try {
+      const requests = await listDeletionRequests(adminKey.trim(), email || displayName || "builder");
+      setAdminRequests(requests);
+    } catch (error) {
+      setStatusMessage((error as Error).message || "Could not load deletion requests.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function fulfillDeletionRequestFromQueue(requestId: number) {
+    if (!adminKey.trim()) {
+      setStatusMessage("Enter ADMIN_API_KEY before fulfilling deletion requests.");
+      return;
+    }
+    setLoadingAction(`fulfill:${requestId}`);
+    setStatusMessage(null);
+    try {
+      await fulfillDeletionRequest(requestId, adminKey.trim(), email || displayName || "builder");
+      setStatusMessage(`Deletion request ${requestId} fulfilled. Backend records were purged.`);
+      const requests = await listDeletionRequests(adminKey.trim(), email || displayName || "builder");
+      setAdminRequests(requests);
+    } catch (error) {
+      setStatusMessage((error as Error).message || "Could not fulfill deletion request.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -202,6 +248,55 @@ export function ProfileScreen({
           }
         />
       </Card>
+
+      {mode === "builder" ? (
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Admin Deletion Queue</Text>
+          <Text style={styles.copy}>Internal only. Review requested deletions and purge backend records after user confirmation.</Text>
+          <TextInput
+            value={adminKey}
+            onChangeText={setAdminKey}
+            placeholder="ADMIN_API_KEY"
+            placeholderTextColor="#8e7d99"
+            secureTextEntry
+            style={styles.input}
+            autoCapitalize="none"
+          />
+          <PrimaryButton
+            disabled={loadingAction !== null}
+            onPress={refreshAdminDeletionRequests}
+            label={loadingAction === "admin-requests" ? "Loading..." : "Load Deletion Requests"}
+          />
+          {adminRequests.length === 0 ? (
+            <Text style={styles.meta}>No loaded deletion requests yet.</Text>
+          ) : (
+            <View style={styles.adminQueue}>
+              {adminRequests.map((request) => (
+                <View key={request.id} style={styles.adminRequestRow}>
+                  <Text style={styles.adminRequestTitle}>
+                    {request.display_name || request.email || request.user_id}
+                  </Text>
+                  <Text style={styles.meta}>User: {request.user_id}</Text>
+                  <Text style={styles.meta}>Status: {request.status}</Text>
+                  {request.reason ? <Text style={styles.copy}>Reason: {request.reason}</Text> : null}
+                  <Text style={styles.meta}>Requested: {new Date(request.requested_at).toLocaleString()}</Text>
+                  {request.status === "fulfilled" ? (
+                    <Text style={styles.meta}>
+                      Fulfilled by {request.resolved_by || "admin"}{request.resolved_at ? ` on ${new Date(request.resolved_at).toLocaleString()}` : ""}
+                    </Text>
+                  ) : (
+                    <PrimaryButton
+                      disabled={loadingAction !== null}
+                      onPress={() => fulfillDeletionRequestFromQueue(request.id)}
+                      label={loadingAction === `fulfill:${request.id}` ? "Purging..." : "Fulfill & Purge User Data"}
+                    />
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        </Card>
+      ) : null}
     </ScrollView>
   );
 }
@@ -272,5 +367,21 @@ const styles = StyleSheet.create({
   multilineInput: {
     minHeight: 92,
     textAlignVertical: "top"
+  },
+  adminQueue: {
+    gap: 12
+  },
+  adminRequestRow: {
+    gap: 8,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: "#1a102e",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)"
+  },
+  adminRequestTitle: {
+    color: "#fff0e4",
+    fontSize: 16,
+    fontWeight: "800"
   }
 });
