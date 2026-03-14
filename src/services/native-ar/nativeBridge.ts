@@ -1,8 +1,15 @@
-﻿import { NativeModules } from "react-native";
+import { NativeModules } from "react-native";
 import { ARModelPlacement } from "./types";
 
+type NativeGetStatusResponse = {
+  available: boolean;
+  reason?: string;
+  sessionRunning?: boolean;
+  placedModelCount?: number;
+};
+
 type NativeARModule = {
-  getStatus: () => Promise<{ available: boolean; reason?: string }>;
+  getStatus: () => Promise<NativeGetStatusResponse>;
   startSession: () => Promise<void>;
   placeModel: (placement: ARModelPlacement) => Promise<void>;
   stopSession: () => Promise<void>;
@@ -17,10 +24,15 @@ export function hasNativeARBridge() {
   return !!getModule();
 }
 
-export async function nativeGetStatus() {
+export async function nativeGetStatus(): Promise<NativeGetStatusResponse> {
   const mod = getModule();
   if (!mod) {
-    return { available: false, reason: "PhillyNativeAR bridge not linked yet." };
+    return {
+      available: false,
+      reason: "PhillyNativeAR bridge not linked yet.",
+      sessionRunning: false,
+      placedModelCount: 0
+    };
   }
 
   return mod.getStatus();

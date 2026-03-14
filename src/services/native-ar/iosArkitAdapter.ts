@@ -14,7 +14,9 @@ export class IOSARKitAdapter implements NativeARAdapter {
     return {
       provider: "arkit",
       available: status.available,
-      reason: status.reason || (hasNativeARBridge() ? "ARKit bridge ready." : "ARKit bridge missing.")
+      reason: status.reason || (hasNativeARBridge() ? "ARKit bridge ready." : "ARKit bridge missing."),
+      sessionRunning: status.sessionRunning,
+      placedModelCount: status.placedModelCount
     };
   }
 
