@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   heroEyebrow: { color: "#ff9ab2", fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 1.2 },
   heroTitle: { color: "#fff3ea", fontSize: 30, lineHeight: 36, fontWeight: "800" },
   heroCopy: { color: "#d8c7df", lineHeight: 21 },
-  panel: { backgroundColor: "#120a22" },
+  panel: { backgroundColor: "#120a22", gap: 12 },
   label: { color: "#fff0e4", fontSize: 18, fontWeight: "800" },
   packWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   packChip: {
@@ -370,11 +370,11 @@ const styles = StyleSheet.create({
   colorDot: { width: 10, height: 10, borderRadius: 999 },
   packText: { color: "#cab6d2", fontWeight: "700" },
   packTextActive: { color: "#2b1021" },
-  actionsRow: { gap: 8 },
+  actionsRow: { gap: 10 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   error: { color: "#ffadb7", fontWeight: "600" },
   map: { height: 420, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
-  copy: { color: "#d8c7df", lineHeight: 21 },
+  copy: { color: "#d8c7df", lineHeight: 22 },
   arrivalCopy: { color: "#f0dde7", lineHeight: 21 },
   stopRow: { flexDirection: "row", gap: 12, paddingVertical: 8, alignItems: "flex-start" },
   stopIndex: {

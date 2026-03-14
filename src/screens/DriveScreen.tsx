@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useDriveSession } from "../hooks/useDriveSession";
 import { getHandoffModeMeta } from "../services/deepLinks";
@@ -129,13 +129,15 @@ export function DriveScreen({ initialTourId }: Props) {
             const isActive = selectedTourId === tour.id;
             const hasSession = driveSession?.tourId === tour.id;
             return (
-              <Text
+              <Pressable
                 key={tour.id}
                 onPress={() => setSelectedTourId(tour.id)}
-                style={[styles.tourChip, isActive && styles.tourChipActive, isActive && styles.tourChipTextActive]}
+                style={[styles.tourChip, isActive && styles.tourChipActive]}
               >
-                {tour.title}{hasSession ? " • live" : ""}
-              </Text>
+                <Text style={[styles.tourChipText, isActive && styles.tourChipTextActive]}>
+                  {tour.title}{hasSession ? " • live" : ""}
+                </Text>
+              </Pressable>
             );
           })}
         </View>
@@ -231,7 +233,7 @@ export function DriveScreen({ initialTourId }: Props) {
 const styles = StyleSheet.create({
   container: {
     padding: 18,
-    gap: 16,
+    gap: 18,
     backgroundColor: "#060312"
   },
   heroPanel: {
@@ -261,12 +263,12 @@ const styles = StyleSheet.create({
   },
   panel: {
     backgroundColor: "#120a22",
-    gap: 10
+    gap: 12
   },
   featureCard: {
     backgroundColor: "#2b1530",
     borderColor: "rgba(255, 176, 132, 0.2)",
-    gap: 10
+    gap: 12
   },
   featureEyebrow: {
     color: "#ffbc8a",
@@ -292,22 +294,24 @@ const styles = StyleSheet.create({
   tourWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 10
   },
   tourChip: {
     backgroundColor: "#1f1233",
     borderColor: "rgba(255,255,255,0.08)",
     borderWidth: 1,
-    color: "#cab6d2",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 999,
-    fontWeight: "700",
     overflow: "hidden"
   },
   tourChipActive: {
     backgroundColor: "#ff8ca8",
     borderColor: "#ff8ca8"
+  },
+  tourChipText: {
+    color: "#cab6d2",
+    fontWeight: "700"
   },
   tourChipTextActive: {
     color: "#2b1021"
@@ -336,7 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: "700"
   },
   actions: {
-    gap: 8
+    gap: 10
   },
   stopRow: {
     flexDirection: "row",

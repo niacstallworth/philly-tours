@@ -162,7 +162,6 @@ export function HomeScreen({
             <Chip label={heroStop.arType ? heroStop.arType.replaceAll("_", " ") : "story stop"} tone="warn" />
             <Chip label={`${heroStop.triggerRadiusM}m reveal radius`} tone="default" />
           </View>
-          <PrimaryButton label="Begin With This Stop" onPress={() => undefined} />
         </Card>
       ) : null}
 
@@ -187,7 +186,7 @@ export function HomeScreen({
 const styles = StyleSheet.create({
   container: {
     padding: 18,
-    gap: 16,
+    gap: 18,
     backgroundColor: "#060312"
   },
   heroPanel: {
@@ -223,7 +222,8 @@ const styles = StyleSheet.create({
   },
   welcomeCard: {
     backgroundColor: "#1a102e",
-    borderColor: "rgba(255,255,255,0.06)"
+    borderColor: "rgba(255,255,255,0.06)",
+    gap: 6
   },
   welcomeTitle: {
     color: "#fff7f1",
@@ -237,12 +237,12 @@ const styles = StyleSheet.create({
   handoffCard: {
     backgroundColor: "#24112c",
     borderColor: "rgba(255, 140, 168, 0.28)",
-    gap: 10
+    gap: 12
   },
   driveCard: {
     backgroundColor: "#201228",
     borderColor: "rgba(143, 215, 195, 0.24)",
-    gap: 10
+    gap: 12
   },
   driveTitle: {
     color: "#fff8f3",
@@ -256,13 +256,13 @@ const styles = StyleSheet.create({
   },
   handoffTitle: {
     color: "#fff8f3",
-    fontSize: 24,
-    lineHeight: 29,
+    fontSize: 26,
+    lineHeight: 31,
     fontWeight: "800"
   },
   handoffCopy: {
     color: "#ead7e2",
-    lineHeight: 21
+    lineHeight: 22
   },
   sectionHeader: {
     gap: 4
@@ -277,12 +277,12 @@ const styles = StyleSheet.create({
     fontSize: 13
   },
   packList: {
-    gap: 12
+    gap: 14
   },
   packCard: {
     borderRadius: 24,
-    padding: 18,
-    gap: 8,
+    padding: 20,
+    gap: 10,
     backgroundColor: "#120a22",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.06)"
@@ -301,16 +301,17 @@ const styles = StyleSheet.create({
   },
   packMeta: {
     color: "#d2bfca",
-    fontSize: 13
+    fontSize: 13,
+    lineHeight: 18
   },
   packBody: {
     color: "#bdaec7",
-    lineHeight: 20
+    lineHeight: 21
   },
   featureCard: {
     backgroundColor: "#2b1530",
     borderColor: "rgba(255, 176, 132, 0.2)",
-    gap: 10
+    gap: 12
   },
   featureEyebrow: {
     color: "#ffbc8a",
@@ -325,14 +326,16 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   featureMeta: {
-    color: "#dbc3cf"
+    color: "#dbc3cf",
+    lineHeight: 19
   },
   featureBody: {
     color: "#f3e8ef",
-    lineHeight: 22
+    lineHeight: 23
   },
   routeCard: {
-    backgroundColor: "#120a22"
+    backgroundColor: "#120a22",
+    gap: 4
   },
   routeRow: {
     flexDirection: "row",

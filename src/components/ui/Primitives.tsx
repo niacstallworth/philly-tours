@@ -48,17 +48,23 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: radius.xl,
-    padding: 16,
-    gap: 8
+    padding: 18,
+    gap: 10,
+    shadowColor: "#000000",
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4
   },
   chip: {
     backgroundColor: colors.panelSoft,
     color: colors.textSoft,
     borderRadius: radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    fontSize: 12,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    fontSize: 11,
     fontWeight: "700",
+    letterSpacing: 0.2,
     overflow: "hidden"
   },
   success: {
@@ -76,16 +82,24 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#ff8ca8",
     borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    alignItems: "center"
+    minHeight: 50,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#ff8ca8",
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3
   },
   buttonDisabled: {
     opacity: 0.5
   },
   buttonText: {
     color: "#2b1021",
-    fontWeight: "800"
+    fontWeight: "800",
+    letterSpacing: 0.2
   },
   sectionTitle: {
     color: colors.text,
