@@ -1,10 +1,11 @@
 import React from "react";
 import { useNarration } from "../hooks/useNarration";
 import { startNarration, stopNarration } from "../services/narration";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useDriveSession } from "../hooks/useDriveSession";
-import { getHandoffModeMeta } from "../services/deepLinks";
+import { getHandoffModeMeta, parseHandoffUrl } from "../services/deepLinks";
+import { triggerHandoffTarget } from "../services/handoffBus";
 import {
   advanceDriveSession,
   clearDriveSession,
@@ -83,11 +84,12 @@ export function DriveScreen({ initialTourId }: Props) {
     if (!targetStop) {
       return;
     }
-    try {
-      await Linking.openURL(targetStop.handoffDeepLink);
-    } catch (error) {
-      Alert.alert("Handoff unavailable", (error as Error).message || "Could not open the handoff link.");
+    const parsed = parseHandoffUrl(targetStop.handoffDeepLink);
+    if (!parsed) {
+      Alert.alert("Handoff unavailable", "Could not resolve the handoff target.");
+      return;
     }
+    triggerHandoffTarget(parsed);
   }
 
   async function onStartDriveSession() {
