@@ -11,6 +11,10 @@ android/.gradle/
 android/app/build/
 android/build/
 ios/build/
+ios/Pods/
+ios/.xcode.env.local
+ios/*.xcworkspace/
+ios/**/*.xcuserdata/
 .DS_Store
 *.swp
 *.swo
