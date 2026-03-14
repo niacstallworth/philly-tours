@@ -257,8 +257,7 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
                   <Text style={styles.meta}>Requested: {new Date(request.requested_at).toLocaleString()}</Text>
                   {request.status === "fulfilled" ? (
                     <Text style={styles.meta}>
-                      Fulfilled by {request.resolved_by || "admin"}
-                      {request.resolved_at ? ` on ${new Date(request.resolved_at).toLocaleString()}` : ""}
+                      Fulfilled by {request.resolved_by || "admin"}{request.resolved_at ? ` on ${new Date(request.resolved_at).toLocaleString()}` : ""}
                     </Text>
                   ) : (
                     <PrimaryButton
