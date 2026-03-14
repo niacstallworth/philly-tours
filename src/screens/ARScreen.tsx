@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { toARSceneManifest } from "../services/arManifest";
@@ -24,6 +24,7 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
   const [actionError, setActionError] = useState<string | null>(null);
   const [arStatus, setArStatus] = useState<NativeARStatus | null>(null);
   const [joined, setJoined] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const selectedTour = useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
   const arStops = useMemo(() => {
@@ -185,11 +186,6 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
           </View>
           <Text style={styles.specLabel}>Placement</Text>
           <Text style={styles.specCopy}>{manifest.placementNote}</Text>
-          <Text style={styles.specLabel}>Tuning</Text>
-          <Text style={styles.specCopy}>
-            Scale {payload?.scale ?? 1} | Rotation {payload?.rotationYDeg ?? 180}deg | Vertical offset{" "}
-            {payload?.verticalOffsetM ?? 0}m
-          </Text>
           <Text style={styles.specLabel}>Scene layers</Text>
           <Text style={styles.specCopy}>{manifest.contentLayers.slice(0, 3).join(" | ")}</Text>
         </Card>
@@ -199,13 +195,14 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
         <Text style={styles.label}>Launch</Text>
         <View style={styles.actionStack}>
           <PrimaryButton label="Launch AR Moment" onPress={() => launchStop(false)} />
-          <PrimaryButton label="Launch Shared AR Moment" onPress={() => launchStop(true)} />
           <PrimaryButton label="Close AR" onPress={closeAR} />
         </View>
-        <Text style={styles.meta}>State: {actionStatus}</Text>
-        <Text style={styles.meta}>Provider: {arStatus?.provider || "unknown"}</Text>
+        <View style={styles.chips}>
+          <Chip label={`State ${actionStatus.replaceAll("_", " ")}`} tone={actionStatus === "error" ? "danger" : actionStatus.includes("live") ? "success" : "default"} />
+          <Chip label={`Provider ${arStatus?.provider || "unknown"}`} tone="default" />
+        </View>
         {unsupportedSimulator ? (
-          <Text style={styles.meta}>
+          <Text style={styles.metaCallout}>
             This simulator cannot run ARKit. Use an ARKit-capable iPhone or iPad to validate the real 3D scene.
           </Text>
         ) : null}
@@ -213,16 +210,32 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
       </Card>
 
       <Card style={styles.panel}>
-        <Text style={styles.label}>Shared room</Text>
-        <TextInput
-          value={roomName}
-          onChangeText={setRoomName}
-          style={styles.input}
-          placeholder="historic-philly-main"
-          placeholderTextColor="#8e7d99"
-          autoCapitalize="none"
-        />
-        <Text style={styles.meta}>Only use shared mode if you’re co-viewing the same stop.</Text>
+        <Pressable onPress={() => setShowAdvanced((value) => !value)} style={styles.advancedToggle}>
+          <Text style={styles.label}>Advanced</Text>
+          <Text style={styles.advancedToggleText}>{showAdvanced ? "Hide" : "Show"}</Text>
+        </Pressable>
+        {showAdvanced ? (
+          <View style={styles.advancedStack}>
+            <Text style={styles.specLabel}>Scene tuning</Text>
+            <Text style={styles.specCopy}>
+              Scale {payload?.scale ?? 1} | Rotation {payload?.rotationYDeg ?? 180}deg | Vertical offset{" "}
+              {payload?.verticalOffsetM ?? 0}m
+            </Text>
+            <Text style={styles.specLabel}>Shared room</Text>
+            <TextInput
+              value={roomName}
+              onChangeText={setRoomName}
+              style={styles.input}
+              placeholder="historic-philly-main"
+              placeholderTextColor="#8e7d99"
+              autoCapitalize="none"
+            />
+            <PrimaryButton label="Launch Shared AR Moment" onPress={() => launchStop(true)} />
+            <Text style={styles.meta}>Only use shared mode if you’re co-viewing the same stop.</Text>
+          </View>
+        ) : (
+          <Text style={styles.meta}>Shared mode and tuning live here when you need them.</Text>
+        )}
       </Card>
     </ScrollView>
   );
@@ -236,16 +249,16 @@ type PrimaryChoiceProps = {
 
 function PrimaryChoice({ active, label, onPress }: PrimaryChoiceProps) {
   return (
-    <Text onPress={onPress} style={[styles.choiceChip, active && styles.choiceChipActive, active && styles.choiceChipTextActive]}>
-      {label}
-    </Text>
+    <Pressable onPress={onPress} style={[styles.choiceChip, active && styles.choiceChipActive]}>
+      <Text style={[styles.choiceChipText, active && styles.choiceChipTextActive]}>{label}</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     padding: 18,
-    gap: 16,
+    gap: 18,
     backgroundColor: "#060312"
   },
   heroPanel: {
@@ -274,7 +287,8 @@ const styles = StyleSheet.create({
     lineHeight: 21
   },
   panel: {
-    backgroundColor: "#120a22"
+    backgroundColor: "#120a22",
+    gap: 12
   },
   label: {
     color: "#fff0e4",
@@ -284,22 +298,24 @@ const styles = StyleSheet.create({
   choiceWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 10
   },
   choiceChip: {
     backgroundColor: "#1f1233",
     borderColor: "rgba(255,255,255,0.08)",
     borderWidth: 1,
-    color: "#cab6d2",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 999,
-    fontWeight: "700",
     overflow: "hidden"
   },
   choiceChipActive: {
     backgroundColor: "#ff8ca8",
     borderColor: "#ff8ca8"
+  },
+  choiceChipText: {
+    color: "#cab6d2",
+    fontWeight: "700"
   },
   choiceChipTextActive: {
     color: "#2b1021"
@@ -307,7 +323,7 @@ const styles = StyleSheet.create({
   featureCard: {
     backgroundColor: "#2b1530",
     borderColor: "rgba(255, 176, 132, 0.2)",
-    gap: 10
+    gap: 12
   },
   featureEyebrow: {
     color: "#ffbc8a",
@@ -323,7 +339,7 @@ const styles = StyleSheet.create({
   },
   featureBody: {
     color: "#f3e8ef",
-    lineHeight: 22
+    lineHeight: 23
   },
   chips: {
     flexDirection: "row",
@@ -339,10 +355,15 @@ const styles = StyleSheet.create({
     lineHeight: 21
   },
   actionStack: {
-    gap: 8
+    gap: 10
   },
   meta: {
-    color: "#b69fbe"
+    color: "#b69fbe",
+    lineHeight: 20
+  },
+  metaCallout: {
+    color: "#f0dde7",
+    lineHeight: 21
   },
   input: {
     borderWidth: 1,
@@ -356,5 +377,18 @@ const styles = StyleSheet.create({
   error: {
     color: "#ffadb7",
     fontWeight: "600"
+  },
+  advancedToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12
+  },
+  advancedToggleText: {
+    color: "#ffbc8a",
+    fontWeight: "700"
+  },
+  advancedStack: {
+    gap: 10
   }
 });
