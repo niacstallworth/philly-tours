@@ -115,6 +115,11 @@ async function audioStreamToBuffer(stream) {
 loadDotEnv(path.join(rootDir, ".env"));
 
 const region = process.env.AWS_REGION || process.env.POLLY_AWS_REGION || "us-east-1";
+const profile = process.env.AWS_PROFILE || process.env.POLLY_AWS_PROFILE || null;
+if (profile) {
+  process.env.AWS_PROFILE = profile;
+  process.env.AWS_SDK_LOAD_CONFIG = process.env.AWS_SDK_LOAD_CONFIG || "1";
+}
 const client = new PollyClient({ region });
 const args = parseArgs(process.argv.slice(2));
 const { records } = readCatalogCsv(csvPath);

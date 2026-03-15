@@ -229,6 +229,16 @@ npm run narration:polly -- --limit 5
 npm run narration:map
 ```
 
+Authentication options in `.env`:
+```env
+AWS_REGION=us-east-1
+AWS_PROFILE=founders-threads
+POLLY_DEFAULT_VOICE_ID=Amy
+POLLY_DEFAULT_ENGINE=neural
+```
+
+Or use raw AWS keys instead of `AWS_PROFILE`.
+
 Useful options:
 ```bash
 npm run narration:polly -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church
