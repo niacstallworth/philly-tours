@@ -50,7 +50,10 @@ This README is the current build-status document for the repo.
 - Android AR bridge/runtime exists as a native bridge layer, but full AR runtime parity is not validated yet.
 - Stripe checkout and webhook testing work locally, but production purchase validation is still incomplete.
 - Narration still falls back to device speech for stops that do not yet have recorded or generated audio files.
-- Local bundled narration assets require regenerating [src/data/narrationAudioMap.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationAudioMap.ts) with `npm run narration:map`.
+- Local bundled narration assets require regenerating:
+  - [src/data/narrationAudioMap.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationAudioMap.ts)
+  - [src/data/narrationCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationCatalog.ts)
+  with `npm run narration:map`.
 
 ### Not complete yet
 - Final recorded narration library and voice pipeline.
