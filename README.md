@@ -246,6 +246,31 @@ npm run narration:polly -- --variant drive
 npm run narration:polly -- --force
 ```
 
+### Generate narration scripts with Claude
+Claude writes or updates rows in [docs/narration-script-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/narration-script-catalog.csv). By default it skips rows that already exist, so it will not overwrite your hand-written or recorded hero-stop scripts unless you pass `--force`.
+
+Required `.env` values:
+```env
+ANTHROPIC_API_KEY=sk-ant-xxx
+ANTHROPIC_MODEL=claude-sonnet-4-5
+POLLY_DEFAULT_VOICE_ID=Amy
+POLLY_DEFAULT_ENGINE=neural
+```
+
+Command:
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run narration:claude -- --limit 10
+```
+
+Useful options:
+```bash
+npm run narration:claude -- --stop-id black-american-legacy-and-quaker-heritage-arch-street-friends-meeting-house
+npm run narration:claude -- --variant drive
+npm run narration:claude -- --force
+```
+
 ## Current Focus
 
 The current product priority is:
