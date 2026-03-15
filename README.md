@@ -166,6 +166,7 @@ Important values include:
 - Apple IAP fields
 - Google Play fields
 - provider keys for AR asset generation
+- AWS Polly / AWS credentials if generating narration through Polly
 - `ADMIN_API_KEY`
 
 ### Run backend
@@ -211,6 +212,28 @@ npm run stripe:listen
 cd /Users/nia/Documents/GitHub/philly-tours
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
 npm run narration:map
+```
+
+### Generate narration with AWS Polly
+Input catalog:
+- [docs/narration-script-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/narration-script-catalog.csv)
+
+Output folder:
+- [assets/audio](/Users/nia/Documents/GitHub/philly-tours/assets/audio)
+
+Command:
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run narration:polly -- --limit 5
+npm run narration:map
+```
+
+Useful options:
+```bash
+npm run narration:polly -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church
+npm run narration:polly -- --variant drive
+npm run narration:polly -- --force
 ```
 
 ## Current Focus
