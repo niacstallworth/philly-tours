@@ -20,6 +20,7 @@ type NarrationListener = (state: NarrationState) => void;
 const listeners = new Set<NarrationListener>();
 
 let sound: Audio.Sound | null = null;
+let preferredSpeechVoiceId: string | null | undefined;
 let currentState: NarrationState = {
   status: "idle",
   source: "none",
@@ -60,6 +61,34 @@ function resolveAudioAsset(audioUrl: string) {
 function resolveNarrationPath(stop: DriveStop, variant: NarrationVariant) {
   const fromCatalog = narrationCatalogByStopId[stop.id]?.[variant];
   return fromCatalog || stop.audioUrl;
+}
+
+async function resolvePreferredSpeechVoiceId() {
+  if (preferredSpeechVoiceId !== undefined) {
+    return preferredSpeechVoiceId;
+  }
+
+  try {
+    const voices = await Speech.getAvailableVoicesAsync();
+    const amyVoice =
+      voices.find((voice) => /(^|[^a-z])amy([^a-z]|$)/i.test(voice.name || "")) ||
+      voices.find((voice) => /(^|[^a-z])amy([^a-z]|$)/i.test(voice.identifier || ""));
+
+    if (amyVoice?.identifier) {
+      preferredSpeechVoiceId = amyVoice.identifier;
+      return preferredSpeechVoiceId;
+    }
+
+    const britishVoice =
+      voices.find((voice) => voice.language?.toLowerCase() === "en-gb") ||
+      voices.find((voice) => voice.language?.toLowerCase().startsWith("en-gb"));
+
+    preferredSpeechVoiceId = britishVoice?.identifier || null;
+    return preferredSpeechVoiceId;
+  } catch {
+    preferredSpeechVoiceId = null;
+    return preferredSpeechVoiceId;
+  }
 }
 
 async function configureAudioMode() {
@@ -160,6 +189,7 @@ export async function startNarration(stop: DriveStop, variant: NarrationVariant 
   try {
     Speech.stop();
     const speechScript = getSpeechScript(stop, variant);
+    const voice = await resolvePreferredSpeechVoiceId();
     emit({
       status: "playing",
       source: "speech",
@@ -170,6 +200,8 @@ export async function startNarration(stop: DriveStop, variant: NarrationVariant 
     Speech.speak(speechScript, {
       rate: 0.95,
       pitch: 1.0,
+      language: "en-GB",
+      voice: voice || undefined,
       onDone: () => {
         emit({
           status: "stopped",
