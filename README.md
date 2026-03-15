@@ -240,14 +240,12 @@ npm run narration:map
 Authentication options in `.env`:
 ```env
 AWS_REGION=us-east-1
-AWS_PROFILE=founders-threads
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_SESSION_TOKEN=... # only if using temporary STS credentials
 POLLY_DEFAULT_VOICE_ID=Amy
 POLLY_DEFAULT_ENGINE=neural
 ```
-
-Or use raw AWS keys instead of `AWS_PROFILE`.
-
-If the credentials come from a temporary AWS session, also set `AWS_SESSION_TOKEN` or include `aws_session_token` in the selected AWS profile.
 
 Useful options:
 ```bash
