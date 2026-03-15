@@ -2,6 +2,7 @@ import { Audio, InterruptionModeIOS, type AVPlaybackStatus } from "expo-av";
 import * as Speech from "expo-speech";
 import { narrationAudioMap } from "../data/narrationAudioMap";
 import { narrationCatalogByStopId, type NarrationVariant } from "../data/narrationCatalog";
+import { narrationScriptMapByStopId } from "../data/narrationScriptMap";
 import type { DriveStop } from "./driveMode";
 
 type NarrationSource = "audio" | "speech" | "none";
@@ -35,6 +36,10 @@ function emit(next: Partial<NarrationState>) {
 }
 
 function getSpeechScript(stop: DriveStop, variant: NarrationVariant) {
+  const fromCatalog = narrationScriptMapByStopId[stop.id]?.[variant];
+  if (fromCatalog) {
+    return fromCatalog;
+  }
   if (variant === "drive") {
     return `${stop.title}. ${stop.arrivalSummary}. Slow down as you approach and prepare to continue on foot when it is safe.`;
   }
