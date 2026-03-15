@@ -247,6 +247,8 @@ POLLY_DEFAULT_ENGINE=neural
 
 Or use raw AWS keys instead of `AWS_PROFILE`.
 
+If the credentials come from a temporary AWS session, also set `AWS_SESSION_TOKEN` or include `aws_session_token` in the selected AWS profile.
+
 Useful options:
 ```bash
 npm run narration:polly -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church

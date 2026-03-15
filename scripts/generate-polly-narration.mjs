@@ -119,6 +119,7 @@ const region = process.env.AWS_REGION || process.env.POLLY_AWS_REGION || "us-eas
 const profile = process.env.AWS_PROFILE || process.env.POLLY_AWS_PROFILE || null;
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID || "";
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || "";
+const sessionToken = process.env.AWS_SESSION_TOKEN || "";
 const awsCredentialsPath = homeDir ? path.join(homeDir, ".aws", "credentials") : "";
 const awsConfigPath = homeDir ? path.join(homeDir, ".aws", "config") : "";
 
@@ -138,6 +139,30 @@ if (profile) {
   process.env.AWS_PROFILE = profile;
   process.env.AWS_SDK_LOAD_CONFIG = process.env.AWS_SDK_LOAD_CONFIG || "1";
 }
+
+if (accessKeyId && secretAccessKey && sessionToken) {
+  process.env.AWS_SESSION_TOKEN = sessionToken;
+}
+
+function rethrowAwsError(error) {
+  if (!error || typeof error !== "object") {
+    throw error;
+  }
+
+  const name = String(error.name || "");
+  if (name === "UnrecognizedClientException" || name === "InvalidSignatureException") {
+    throw new Error(
+      "AWS rejected the Polly credentials. Check that the access key and secret are valid. If you are using temporary STS credentials, also set AWS_SESSION_TOKEN or add aws_session_token to the selected profile in ~/.aws/credentials."
+    );
+  }
+
+  if (name === "AccessDeniedException") {
+    throw new Error("AWS credentials loaded successfully, but they do not have permission to call Polly. Grant polly:SynthesizeSpeech.");
+  }
+
+  throw error;
+}
+
 const client = new PollyClient({ region });
 const args = parseArgs(process.argv.slice(2));
 const { records } = readCatalogCsv(csvPath);
@@ -169,7 +194,12 @@ for (const row of limitedRows) {
     Text: row.text
   });
 
-  const response = await client.send(command);
+  let response;
+  try {
+    response = await client.send(command);
+  } catch (error) {
+    rethrowAwsError(error);
+  }
   const buffer = await audioStreamToBuffer(response.AudioStream);
   fs.writeFileSync(outputPath, buffer);
   generatedCount += 1;
