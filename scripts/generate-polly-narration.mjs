@@ -9,6 +9,7 @@ const csvPath = path.join(rootDir, "docs", "narration-script-catalog.csv");
 const outputDir = path.join(rootDir, "assets", "audio");
 const allowedEngines = new Set(["standard", "neural", "long-form", "generative"]);
 const allowedTextTypes = new Set(["text", "ssml"]);
+const homeDir = process.env.HOME || "";
 
 function loadDotEnv(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -116,6 +117,23 @@ loadDotEnv(path.join(rootDir, ".env"));
 
 const region = process.env.AWS_REGION || process.env.POLLY_AWS_REGION || "us-east-1";
 const profile = process.env.AWS_PROFILE || process.env.POLLY_AWS_PROFILE || null;
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID || "";
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || "";
+const awsCredentialsPath = homeDir ? path.join(homeDir, ".aws", "credentials") : "";
+const awsConfigPath = homeDir ? path.join(homeDir, ".aws", "config") : "";
+
+if (!profile && !(accessKeyId && secretAccessKey)) {
+  throw new Error(
+    "AWS Polly credentials are not configured. Set AWS_PROFILE in .env and ensure ~/.aws/credentials exists, or set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in .env."
+  );
+}
+
+if (profile && !fs.existsSync(awsCredentialsPath) && !fs.existsSync(awsConfigPath) && !(accessKeyId && secretAccessKey)) {
+  throw new Error(
+    `AWS_PROFILE is set to ${profile}, but no AWS profile files were found at ~/.aws/config or ~/.aws/credentials. Create that profile or add AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to .env.`
+  );
+}
+
 if (profile) {
   process.env.AWS_PROFILE = profile;
   process.env.AWS_SDK_LOAD_CONFIG = process.env.AWS_SDK_LOAD_CONFIG || "1";
