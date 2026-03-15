@@ -66,7 +66,7 @@ function toRow(record) {
     variant: String(record.variant || "").trim(),
     title: String(record.title || "").trim(),
     outputFile: String(record.outputFile || "").trim(),
-    voiceId: String(record.voiceId || process.env.POLLY_DEFAULT_VOICE_ID || "Joanna").trim(),
+    voiceId: String(record.voiceId || process.env.POLLY_DEFAULT_VOICE_ID || "Amy").trim(),
     engine: String(record.engine || process.env.POLLY_DEFAULT_ENGINE || "neural").trim(),
     textType: String(record.textType || "text").trim(),
     text: String(record.text || "").trim()
