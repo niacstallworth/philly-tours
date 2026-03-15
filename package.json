@@ -17,6 +17,7 @@
     "ar:stability:generate": "node scripts/generate-stability-ar-images.mjs",
     "narration:map": "node scripts/generate-narration-audio-map.mjs",
     "narration:claude": "node scripts/generate-claude-narration-catalog.mjs",
+    "narration:import": "node scripts/import-narration-catalog-parts.mjs",
     "narration:polly": "node scripts/generate-polly-narration.mjs",
     "sync-server": "node server/sync-server.js",
     "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook"
