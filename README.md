@@ -40,12 +40,16 @@ This README is the current build-status document for the repo.
   - auto narration on arrival
   - speech fallback when recorded files are missing
   - bundled audio files can now be dropped into `assets/audio/`
+  - first recorded hero-stop audio batch is bundled
+  - narration script catalog now contains 180 rows (`90` drive, `90` walk)
+  - AWS Polly generation pipeline is wired
+  - Claude-based script generation pipeline is wired
 
 ### Partially working
 - Native AR on iPhone requires a real ARKit-capable device for live tuning.
 - Android AR bridge/runtime exists as a native bridge layer, but full AR runtime parity is not validated yet.
 - Stripe checkout and webhook testing work locally, but production purchase validation is still incomplete.
-- Narration currently falls back to device speech because final recorded audio files are not yet bundled/hosted.
+- Narration still falls back to device speech for stops that do not yet have recorded or generated audio files.
 - Local bundled narration assets require regenerating [src/data/narrationAudioMap.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationAudioMap.ts) with `npm run narration:map`.
 
 ### Not complete yet
@@ -133,7 +137,8 @@ The route flow is now:
 | Android native compile | Working |
 | Home / Map / Drive / AR / Profile shell | Working |
 | Drive session + handoff flow | Working |
-| Narration controls | Working with speech fallback |
+| Narration controls | Working with recorded audio + speech fallback |
+| Narration script catalog | Working (`180` rows imported) |
 | Local Stripe/backend stack | Working in local dev |
 | Native iOS AR bridge | Working build path |
 | Real on-device AR tuning | Requires physical ARKit device |
@@ -271,11 +276,26 @@ npm run narration:claude -- --variant drive
 npm run narration:claude -- --force
 ```
 
+### Import narration CSV parts
+If you receive narration CSV batches from another tool, import only the rows that safely map onto real app stop IDs:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run narration:import -- /absolute/path/to/part1.csv /absolute/path/to/part2.csv
+```
+
+Notes:
+- exact `stopId` matches are imported directly
+- unique title matches are mapped onto the real app stop ID
+- ambiguous rows are skipped instead of guessing
+- existing catalog rows are preserved unless you explicitly extend the importer behavior
+
 ## Current Focus
 
 The current product priority is:
 1. finish the iPhone product
-2. finish real narration/audio assets
+2. expand real narration/audio assets
 3. finish top hero AR stops with real 3D assets
 4. complete Android runtime verification
 5. return to vehicle targets and future platforms later
