@@ -211,7 +211,7 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
     if (!selectedStop || !tunedPayload) {
       return;
     }
-    const snapshot = `${selectedStop.title}: scale ${tunedPayload.scale}, rotationYDeg ${tunedPayload.rotationYDeg}, verticalOffsetM ${tunedPayload.verticalOffsetM}`;
+    const snapshot = `${selectedStop.title} [${selectedStop.id}]: scale ${tunedPayload.scale}, rotationYDeg ${tunedPayload.rotationYDeg}, verticalOffsetM ${tunedPayload.verticalOffsetM}`;
     await Clipboard.setStringAsync(snapshot);
     Alert.alert("Tuning copied", snapshot);
   }
