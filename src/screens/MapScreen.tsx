@@ -15,7 +15,7 @@ import {
   startLocationWatch,
   UserPosition
 } from "../services/location";
-import { startNarration, stopNarration } from "../services/narration";
+import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 
 type StopWithTour = (typeof tours)[number]["stops"][number] & {
   tourId: string;
@@ -262,6 +262,19 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     await stopNarration();
   }
 
+  function getCoverageMeta(coverage: NarrationCoverage) {
+    switch (coverage) {
+      case "full_audio":
+        return { label: "Full audio", tone: "success" as const };
+      case "partial_audio":
+        return { label: "Partial audio", tone: "warn" as const };
+      case "script_only":
+        return { label: "Script voice", tone: "default" as const };
+      default:
+        return { label: "Basic voice", tone: "default" as const };
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -407,6 +420,9 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
             <Text style={styles.stopIndex}>{index + 1}</Text>
             <View style={styles.stopCopyWrap}>
               <Text style={styles.stopTitle}>{stop.title}</Text>
+              <View style={styles.stopChips}>
+                <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
+              </View>
               <Text style={styles.copy}>{triggeredIds.has(stop.id) ? "In range now" : stop.description}</Text>
             </View>
           </View>
@@ -465,5 +481,6 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   stopCopyWrap: { flex: 1, gap: 4 },
+  stopChips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   stopTitle: { color: "#fff3ea", fontWeight: "700", fontSize: 16 }
 });

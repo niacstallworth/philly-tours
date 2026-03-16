@@ -1,6 +1,6 @@
 import React from "react";
 import { useNarration } from "../hooks/useNarration";
-import { startNarration, stopNarration } from "../services/narration";
+import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
@@ -91,6 +91,19 @@ export function HomeScreen({
     await stopNarration();
   }
 
+  function getCoverageMeta(coverage: NarrationCoverage) {
+    switch (coverage) {
+      case "full_audio":
+        return { label: "Full audio", tone: "success" as const };
+      case "partial_audio":
+        return { label: "Partial audio", tone: "warn" as const };
+      case "script_only":
+        return { label: "Script voice", tone: "default" as const };
+      default:
+        return { label: "Basic voice", tone: "default" as const };
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -179,6 +192,7 @@ export function HomeScreen({
               <View style={styles.heroChips}>
                 <Chip label={`${tour.stops.length} stops`} tone="default" />
                 <Chip label={`${arMoments} AR moments`} tone={arMoments > 0 ? "success" : "default"} />
+                <Chip label={`${tour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length} full audio`} tone="warn" />
               </View>
             </Pressable>
           );
@@ -196,6 +210,7 @@ export function HomeScreen({
           <View style={styles.heroChips}>
             <Chip label={heroStop.arType ? heroStop.arType.replaceAll("_", " ") : "story stop"} tone="warn" />
             <Chip label={`${heroStop.triggerRadiusM}m reveal radius`} tone="default" />
+            <Chip {...getCoverageMeta(getNarrationCoverage(heroStop.id))} />
           </View>
         </Card>
       ) : null}
@@ -208,6 +223,9 @@ export function HomeScreen({
               <View style={styles.routeIndex}><Text style={styles.routeIndexText}>{index + 1}</Text></View>
               <View style={styles.routeContent}>
                 <Text style={styles.routeTitle}>{stop.title}</Text>
+                <View style={styles.routeChips}>
+                  <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
+                </View>
                 <Text style={styles.routeMeta} numberOfLines={2}>{stop.description}</Text>
               </View>
             </View>
@@ -397,6 +415,11 @@ const styles = StyleSheet.create({
   routeContent: {
     flex: 1,
     gap: 4
+  },
+  routeChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
   },
   routeTitle: {
     color: "#fff1e8",
