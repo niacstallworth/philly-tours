@@ -19,7 +19,15 @@ const audioFiles = new Set(
     : []
 );
 
-function loadStopIds() {
+function normalize(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function loadStopIndex() {
   const raw = fs.readFileSync(toursPath, "utf8");
   const match = raw.match(/export const tours: Tour\[\] = ([\s\S]*);\s*$/);
   if (!match) {
@@ -27,24 +35,45 @@ function loadStopIds() {
   }
   const context = vm.createContext({});
   new vm.Script(`const tours = ${match[1]}; this.__tours = tours;`).runInContext(context);
-  return new Set(context.__tours.flatMap((tour) => tour.stops.map((stop) => stop.id)));
+  const byId = new Set();
+  const byTitle = new Map();
+
+  for (const tour of context.__tours) {
+    for (const stop of tour.stops) {
+      byId.add(stop.id);
+      const key = normalize(stop.title);
+      if (!byTitle.has(key)) {
+        byTitle.set(key, []);
+      }
+      byTitle.get(key).push(stop.id);
+    }
+  }
+
+  return { byId, byTitle };
 }
 
-const validStopIds = loadStopIds();
+const stopIndex = loadStopIndex();
 
 const byStopId = new Map();
 
 for (const record of records) {
-  const stopId = String(record.stopId || "").trim();
+  const rawStopId = String(record.stopId || "").trim();
   const variant = String(record.variant || "").trim();
+  const title = String(record.title || "").trim();
   const outputFile = String(record.outputFile || "").trim();
 
-  if (!stopId || !outputFile || (variant !== "drive" && variant !== "walk")) {
+  if (!rawStopId || !outputFile || (variant !== "drive" && variant !== "walk")) {
     continue;
   }
 
-  if (!validStopIds.has(stopId)) {
-    continue;
+  let stopId = rawStopId;
+  if (!stopIndex.byId.has(stopId)) {
+    const titleMatches = stopIndex.byTitle.get(normalize(title)) || [];
+    if (titleMatches.length === 1) {
+      stopId = titleMatches[0];
+    } else {
+      continue;
+    }
   }
 
   if (!audioFiles.has(outputFile)) {
