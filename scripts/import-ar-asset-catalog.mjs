@@ -49,6 +49,18 @@ function asEnum(value, allowed, fieldName, rowNumber) {
   return value;
 }
 
+function optionalNumber(value, fieldName, rowNumber) {
+  const normalized = String(value || "").trim();
+  if (!normalized) {
+    return undefined;
+  }
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Row ${rowNumber}: ${fieldName} must be a number when provided`);
+  }
+  return parsed;
+}
+
 function readCatalogRows() {
   const { records } = readCatalogCsv(csvPath);
 
@@ -71,6 +83,7 @@ function readCatalogRows() {
       webAssetExistsLocal: assetExistsInRepo(required(record.webAsset, "webAsset", rowNumber)),
       scale: asNumber(required(record.scale, "scale", rowNumber), "scale", rowNumber),
       rotationYDeg: asNumber(required(record.rotationYDeg, "rotationYDeg", rowNumber), "rotationYDeg", rowNumber),
+      verticalOffsetM: optionalNumber(record.verticalOffsetM, "verticalOffsetM", rowNumber),
       anchorStyle: asEnum(required(record.anchorStyle, "anchorStyle", rowNumber), ANCHOR_STYLE_VALUES, "anchorStyle", rowNumber),
       fallbackType: asEnum(required(record.fallbackType, "fallbackType", rowNumber), FALLBACK_TYPE_VALUES, "fallbackType", rowNumber),
       coordQuality: asEnum(required(record.coordQuality, "coordQuality", rowNumber), COORD_QUALITY_VALUES, "coordQuality", rowNumber),

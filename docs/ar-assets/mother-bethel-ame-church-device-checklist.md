@@ -63,7 +63,15 @@ Use this checklist on a real ARKit-capable iPhone or iPad. The simulator cannot 
 Send back one line in this format:
 
 ```text
-Mother Bethel: model loads, scale too small, faces backward, needs +0.15m vertical offset
+Mother Bethel AME Church [black-american-legacy-and-quaker-heritage-mother-bethel-ame-church]: scale 1.2, rotationYDeg 135, verticalOffsetM 0.15
 ```
 
-That gives enough signal to patch the next build quickly.
+Then apply it with:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:tuning:apply
+```
+
+The script reads the copied snapshot from the macOS clipboard, updates `docs/ar-asset-catalog.csv`, and regenerates the runtime catalog.

@@ -11,6 +11,7 @@
     "ar:catalog:import": "node scripts/import-ar-asset-catalog.mjs",
     "ar:briefs:generate": "node scripts/generate-ar-briefs.mjs",
     "ar:manifests:generate": "node scripts/generate-ar-scene-manifests.mjs",
+    "ar:tuning:apply": "node scripts/apply-ar-tuning-snapshot.mjs",
     "narration:map": "node scripts/generate-narration-audio-map.mjs && node scripts/generate-narration-runtime-catalog.mjs",
     "narration:catalog:runtime": "node scripts/generate-narration-runtime-catalog.mjs",
     "narration:scripts:map": "node scripts/generate-narration-script-map.mjs",

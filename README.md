@@ -35,6 +35,7 @@ This README is the current build-status document for the repo.
 - Native iOS AR bridge is present and builds.
 - First bundled iOS `.usdz` asset pipeline is in place.
 - AR asset catalog, scene manifest, and production brief infrastructure exists.
+- AR tuning snapshots can now be written back into the asset catalog with `npm run ar:tuning:apply`.
 - Narration flow now exists in app:
   - route-aware narration controls
   - auto narration on arrival
@@ -217,6 +218,17 @@ export PATH="$HOME/.gem/ruby/2.6.0/bin:$PATH"
 export RUBYOPT='-rlogger'
 npx expo run:ios --port 8081
 ```
+
+### Apply AR tuning snapshot
+Copy the snapshot from the AR screen, then run:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:tuning:apply
+```
+
+This updates [docs/ar-asset-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-asset-catalog.csv) and regenerates [src/data/arAssetCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/arAssetCatalog.ts).
 
 ### Run Android build
 ```bash
