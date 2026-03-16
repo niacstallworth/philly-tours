@@ -95,8 +95,6 @@ class PhillyNativeAR: NSObject {
     let headline = (placement["headline"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? title
     let summary = (placement["summary"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? subtitle
     let placementNote = (placement["placementNote"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-    let plannedProvider = (placement["plannedProvider"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "unassigned"
-    let generatedProvider = (placement["generatedProvider"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "not generated"
     let contentLayers = (placement["contentLayers"] as? [String]) ?? []
     let productionChecklist = (placement["productionChecklist"] as? [String]) ?? []
 
@@ -119,8 +117,6 @@ class PhillyNativeAR: NSObject {
           headline: headline,
           summary: summary,
           placementNote: placementNote,
-          plannedProvider: plannedProvider,
-          generatedProvider: generatedProvider,
           contentLayers: contentLayers,
           productionChecklist: productionChecklist
         )
@@ -202,8 +198,6 @@ final class PhillyARViewController: UIViewController {
     headline: String,
     summary: String,
     placementNote: String,
-    plannedProvider: String,
-    generatedProvider: String,
     contentLayers: [String],
     productionChecklist: [String]
   ) throws {
@@ -224,8 +218,6 @@ final class PhillyARViewController: UIViewController {
       headline: headline,
       summary: summary,
       placementNote: placementNote,
-      plannedProvider: plannedProvider,
-      generatedProvider: generatedProvider,
       contentLayers: contentLayers,
       productionChecklist: productionChecklist
     )
@@ -247,8 +239,6 @@ final class PhillyARViewController: UIViewController {
     headline: String,
     summary: String,
     placementNote: String,
-    plannedProvider: String,
-    generatedProvider: String,
     contentLayers: [String],
     productionChecklist: [String]
   ) throws -> ModelEntity {
@@ -272,8 +262,6 @@ final class PhillyARViewController: UIViewController {
         headline: headline,
         summary: summary,
         placementNote: placementNote,
-        plannedProvider: plannedProvider,
-        generatedProvider: generatedProvider,
         contentLayers: contentLayers,
         productionChecklist: productionChecklist
        ) {
@@ -291,8 +279,6 @@ final class PhillyARViewController: UIViewController {
     headline: String,
     summary: String,
     placementNote: String,
-    plannedProvider: String,
-    generatedProvider: String,
     contentLayers: [String],
     productionChecklist: [String]
   ) -> ModelEntity? {

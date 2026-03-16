@@ -1,0 +1,33 @@
+{
+  "stopId": "rainbow-girls-philadelphia-masonic-temple",
+  "stopTitle": "Masonic Temple",
+  "tourId": "rainbow-girls-philadelphia",
+  "tourTitle": "Rainbow Girls Philadelphia",
+  "arPriority": 5,
+  "arType": "object_on_plinth",
+  "headline": "Museum-style object scene",
+  "summary": "Rainbow jewels; ceremonial symbols; spatial story cards",
+  "historicalEra": "late 19th to 20th century Philadelphia",
+  "stylePreset": "architectural",
+  "visualPriority": "historical_accuracy",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/masonic-temple.usdz",
+    "android": "/models/masonic-temple.glb",
+    "web": "/models/masonic-temple.glb"
+  },
+  "contentLayers": [
+    "Rainbow jewels",
+    "ceremonial symbols",
+    "spatial story cards",
+    "hero object",
+    "plinth/base",
+    "annotation card"
+  ],
+  "productionChecklist": [
+    "Approve hero object shape",
+    "Approve plinth scale",
+    "Check annotation clarity"
+  ],
+  "negativePrompt": "floating fragments, broken anatomy, abstract sculptures, futuristic materials"
+}

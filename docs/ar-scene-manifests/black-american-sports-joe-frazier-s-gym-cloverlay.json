@@ -1,0 +1,34 @@
+{
+  "stopId": "black-american-sports-joe-frazier-s-gym-cloverlay",
+  "stopTitle": "Joe Frazier's Gym (Cloverlay)",
+  "tourId": "black-american-sports",
+  "tourTitle": "Black American Sports",
+  "arPriority": 12,
+  "arType": "historical_figure_presence",
+  "headline": "Figure-led historic scene",
+  "summary": "training scene; gloves and belt object set; archival card",
+  "historicalEra": "20th century Philadelphia",
+  "stylePreset": "cinematic",
+  "visualPriority": "silhouette",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/joe-frazier-s-gym-cloverlay.usdz",
+    "android": "/models/joe-frazier-s-gym-cloverlay.glb",
+    "web": "/models/joe-frazier-s-gym-cloverlay.glb"
+  },
+  "contentLayers": [
+    "training scene",
+    "gloves and belt object set",
+    "archival card",
+    "hero figure silhouette",
+    "staging marker",
+    "supporting context card"
+  ],
+  "productionChecklist": [
+    "Confirm respectful figure staging",
+    "Lock silhouette readability",
+    "Check period wardrobe cues",
+    "Validate context card copy"
+  ],
+  "negativePrompt": "uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter"
+}

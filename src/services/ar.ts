@@ -15,9 +15,6 @@ export type ARScenePayload = {
   headline: string;
   summary: string;
   placementNote: string;
-  conceptImagePath: string;
-  plannedProvider: string;
-  generatedProvider: string;
   contentLayers: string[];
   productionChecklist: string[];
 };
@@ -75,9 +72,6 @@ export function toARScenePayload(stop: Stop): ARScenePayload {
     headline: manifest.headline,
     summary: manifest.summary,
     placementNote: manifest.placementNote,
-    conceptImagePath: manifest.conceptImagePath,
-    plannedProvider: manifest.plannedProvider,
-    generatedProvider: manifest.generatedProvider,
     contentLayers: manifest.contentLayers,
     productionChecklist: manifest.productionChecklist
   };

@@ -1,0 +1,33 @@
+{
+  "stopId": "rainbow-girls-philadelphia-shofuso-japanese-house-and-garden",
+  "stopTitle": "Shofuso Japanese House & Garden",
+  "tourId": "rainbow-girls-philadelphia",
+  "tourTitle": "Rainbow Girls Philadelphia",
+  "arPriority": 7,
+  "arType": "portal_reconstruction",
+  "headline": "Hero portal reconstruction",
+  "summary": "garden scene extension; cultural context overlay",
+  "historicalEra": "historic Philadelphia",
+  "stylePreset": "cinematic",
+  "visualPriority": "atmosphere",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/shofuso-japanese-house-and-garden.usdz",
+    "android": "/models/shofuso-japanese-house-and-garden.glb",
+    "web": "/models/shofuso-japanese-house-and-garden.glb"
+  },
+  "contentLayers": [
+    "garden scene extension",
+    "cultural context overlay",
+    "portal frame",
+    "foreground occlusion pass",
+    "historic depth backdrop"
+  ],
+  "productionChecklist": [
+    "Confirm portal framing",
+    "Define foreground props",
+    "Validate scene depth",
+    "Check occlusion and sightlines"
+  ],
+  "negativePrompt": "science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins"
+}

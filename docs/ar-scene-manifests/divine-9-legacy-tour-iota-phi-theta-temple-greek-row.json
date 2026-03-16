@@ -1,0 +1,34 @@
+{
+  "stopId": "divine-9-legacy-tour-iota-phi-theta-temple-greek-row",
+  "stopTitle": "Iota Phi Theta - Temple Greek Row",
+  "tourId": "divine-9-legacy-tour",
+  "tourTitle": "Divine 9 Legacy Tour",
+  "arPriority": 10,
+  "arType": "historical_figure_presence",
+  "headline": "Figure-led historic scene",
+  "summary": "legacy scene; organization timeline; marker overlay",
+  "historicalEra": "late 19th to 20th century Philadelphia",
+  "stylePreset": "cinematic",
+  "visualPriority": "silhouette",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/iota-phi-theta-temple-greek-row.usdz",
+    "android": "/models/iota-phi-theta-temple-greek-row.glb",
+    "web": "/models/iota-phi-theta-temple-greek-row.glb"
+  },
+  "contentLayers": [
+    "legacy scene",
+    "organization timeline",
+    "marker overlay",
+    "hero figure silhouette",
+    "staging marker",
+    "supporting context card"
+  ],
+  "productionChecklist": [
+    "Confirm respectful figure staging",
+    "Lock silhouette readability",
+    "Check period wardrobe cues",
+    "Validate context card copy"
+  ],
+  "negativePrompt": "uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter"
+}
