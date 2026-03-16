@@ -41,7 +41,10 @@ This README is the current build-status document for the repo.
   - speech fallback when recorded files are missing
   - bundled audio files can now be dropped into `assets/audio/`
   - first recorded hero-stop audio batch is bundled
-  - narration script catalog now contains 180 rows (`90` drive, `90` walk)
+  - AWS Polly batch now adds broad secondary-stop coverage
+  - `178` bundled narration audio assets are present in `assets/audio/`
+  - runtime audio coverage now resolves for `89` stops
+  - narration script catalog now contains `178` canonical rows (`89` drive, `89` walk)
   - AWS Polly generation pipeline is wired
   - Claude-based script generation pipeline is wired
 
@@ -54,6 +57,10 @@ This README is the current build-status document for the repo.
   - [src/data/narrationAudioMap.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationAudioMap.ts)
   - [src/data/narrationCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationCatalog.ts)
   with `npm run narration:map`.
+- Narration coverage cues are now visible in:
+  - Home
+  - Map
+  - AR
 
 ### Not complete yet
 - Final recorded narration library and voice pipeline.
@@ -140,8 +147,9 @@ The route flow is now:
 | Android native compile | Working |
 | Home / Map / Drive / AR / Profile shell | Working |
 | Drive session + handoff flow | Working |
-| Narration controls | Working with recorded audio + speech fallback |
-| Narration script catalog | Working (`180` rows imported) |
+| Narration controls | Working with bundled audio + speech fallback |
+| Narration script catalog | Working (`178` canonical rows) |
+| Bundled narration audio | Working (`178` files, `89` stop entries wired) |
 | Local Stripe/backend stack | Working in local dev |
 | Native iOS AR bridge | Working build path |
 | Real on-device AR tuning | Requires physical ARKit device |
@@ -222,6 +230,10 @@ export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
 npm run narration:map
 ```
 
+This regenerates:
+- [src/data/narrationAudioMap.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationAudioMap.ts)
+- [src/data/narrationCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationCatalog.ts)
+
 ### Generate narration with AWS Polly
 Input catalog:
 - [docs/narration-script-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/narration-script-catalog.csv)
@@ -236,6 +248,10 @@ export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
 npm run narration:polly -- --limit 5
 npm run narration:map
 ```
+
+Current observed result in this repo:
+- `178` audio files generated
+- `89` stop entries wired to runtime bundled audio
 
 Authentication options in `.env`:
 ```env
@@ -286,6 +302,14 @@ If you receive narration CSV batches from another tool, import only the rows tha
 cd /Users/nia/Documents/GitHub/philly-tours
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
 npm run narration:import -- /absolute/path/to/part1.csv /absolute/path/to/part2.csv
+```
+
+### Normalize narration catalog stop IDs
+Use this after imports or external edits if the CSV may contain stale stop IDs:
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run narration:normalize
 ```
 
 Notes:
