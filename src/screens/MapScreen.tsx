@@ -36,6 +36,7 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
   const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
   const [watching, setWatching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fullAudioOnly, setFullAudioOnly] = useState(false);
   const [visibleTourIds, setVisibleTourIds] = useState<Set<string>>(() => new Set([initialFocusedTourId || tours[0]?.id || ""]));
   const [focusedTourId, setFocusedTourId] = useState<string>(initialFocusedTourId || tours[0]?.id || "");
   const { driveSession, setDriveSession } = useDriveSession();
@@ -53,7 +54,7 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
   const visibleTours = useMemo(() => tours.filter((tour) => visibleTourIds.has(tour.id)), [visibleTourIds]);
   const focusedTour = useMemo(() => tours.find((tour) => tour.id === focusedTourId) || tours[0], [focusedTourId]);
   const visibleStops = useMemo<StopWithTour[]>(() => {
-    return visibleTours.flatMap((tour) =>
+    const allStops = visibleTours.flatMap((tour) =>
       tour.stops.map((stop) => ({
         ...stop,
         tourId: tour.id,
@@ -61,7 +62,8 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
         color: tourColorById.get(tour.id) || "#7dc9ff"
       }))
     );
-  }, [tourColorById, visibleTours]);
+    return fullAudioOnly ? allStops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio") : allStops;
+  }, [fullAudioOnly, tourColorById, visibleTours]);
   const currentDriveStop = useMemo(() => getCurrentDriveStop(driveSession), [driveSession]);
   const highlightedStop = useMemo(
     () => {
@@ -299,6 +301,9 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
             </Pressable>
           ))}
         </View>
+        <View style={styles.actionsRow}>
+          <PrimaryButton label={fullAudioOnly ? "Showing Full Audio" : "Showing All Stops"} onPress={() => setFullAudioOnly((value) => !value)} />
+        </View>
       </Card>
 
       <Card style={styles.panel}>
@@ -414,8 +419,8 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
 
       <Card style={styles.panel}>
         <Text style={styles.label}>{focusedTour.title}</Text>
-        <Text style={styles.copy}>{focusedTour.durationMin} min | {focusedTour.distanceMiles} mi | {focusedTour.stops.length} stops</Text>
-        {focusedTour.stops.slice(0, 6).map((stop, index) => (
+        <Text style={styles.copy}>{focusedTour.durationMin} min | {focusedTour.distanceMiles} mi | {fullAudioOnly ? visibleStops.filter((stop) => stop.tourId === focusedTour.id).length : focusedTour.stops.length} stops</Text>
+        {(fullAudioOnly ? visibleStops.filter((stop) => stop.tourId === focusedTour.id) : focusedTour.stops).slice(0, 6).map((stop, index) => (
           <View key={stop.id} style={styles.stopRow}>
             <Text style={styles.stopIndex}>{index + 1}</Text>
             <View style={styles.stopCopyWrap}>
@@ -427,6 +432,7 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
             </View>
           </View>
         ))}
+        {fullAudioOnly && visibleStops.filter((stop) => stop.tourId === focusedTour.id).length === 0 ? <Text style={styles.copy}>No full-audio stops in this pack yet.</Text> : null}
       </Card>
     </ScrollView>
   );

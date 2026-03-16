@@ -23,6 +23,7 @@ export function HomeScreen({
   handoffMode
 }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
+  const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
   const { driveSession } = useDriveSession();
   const narration = useNarration();
   React.useEffect(() => {
@@ -44,15 +45,20 @@ export function HomeScreen({
   const nextDriveStop = React.useMemo(() => getNextDriveStop(driveSession), [driveSession]);
   const activeHandoffMode: HandoffMode = handoffMode || (currentDriveStop?.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive");
   const activeHandoffMeta = React.useMemo(() => getHandoffModeMeta(activeHandoffMode), [activeHandoffMode]);
+  const visibleStops = React.useMemo(
+    () => (fullAudioOnly ? (selectedTour?.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio") || []) : selectedTour?.stops || []),
+    [fullAudioOnly, selectedTour]
+  );
   const highlightedStop = React.useMemo(
     () => {
       const preferredStopId = highlightedStopId || currentDriveStop?.id;
-      return selectedTour?.stops.find((stop) => stop.id === preferredStopId) || null;
+      return visibleStops.find((stop) => stop.id === preferredStopId) || visibleStops[0] || null;
     },
-    [currentDriveStop?.id, highlightedStopId, selectedTour]
+    [currentDriveStop?.id, highlightedStopId, visibleStops]
   );
-  const heroStop = selectedTour?.stops[0];
+  const heroStop = visibleStops[0];
   const plannedCount = selectedTour?.stops.filter((stop) => typeof stop.arPriority === "number").length ?? 0;
+  const fullAudioCount = selectedTour?.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length ?? 0;
 
   async function onPreviewDriveHandoff() {
     if (!currentDriveStop || driveSession?.mode !== "arrived") {
@@ -123,6 +129,9 @@ export function HomeScreen({
         <Text style={styles.welcomeCopy}>
           Pick a tour pack below. Keep the experience light, focused, and story-first.
         </Text>
+        <View style={styles.heroChips}>
+          <PrimaryButton label={fullAudioOnly ? "Showing Full Audio" : "Showing All Stops"} onPress={() => setFullAudioOnly((value) => !value)} />
+        </View>
       </Card>
 
       {driveSession && activeDriveTour && currentDriveStop ? (
@@ -211,6 +220,7 @@ export function HomeScreen({
             <Chip label={heroStop.arType ? heroStop.arType.replaceAll("_", " ") : "story stop"} tone="warn" />
             <Chip label={`${heroStop.triggerRadiusM}m reveal radius`} tone="default" />
             <Chip {...getCoverageMeta(getNarrationCoverage(heroStop.id))} />
+            <Chip label={fullAudioOnly ? `${fullAudioCount} full-audio stops in this pack` : `${visibleStops.length} visible stops`} tone="default" />
           </View>
         </Card>
       ) : null}
@@ -218,7 +228,7 @@ export function HomeScreen({
       {selectedTour ? (
         <Card style={styles.routeCard}>
           <Text style={styles.sectionTitle}>On This Route</Text>
-          {selectedTour.stops.slice(0, 5).map((stop, index) => (
+          {visibleStops.slice(0, 5).map((stop, index) => (
             <View key={stop.id} style={styles.routeRow}>
               <View style={styles.routeIndex}><Text style={styles.routeIndexText}>{index + 1}</Text></View>
               <View style={styles.routeContent}>
@@ -230,6 +240,7 @@ export function HomeScreen({
               </View>
             </View>
           ))}
+          {visibleStops.length === 0 ? <Text style={styles.routeMeta}>No full-audio stops in this pack yet.</Text> : null}
         </Card>
       ) : null}
     </ScrollView>
