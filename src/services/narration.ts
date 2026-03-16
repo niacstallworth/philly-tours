@@ -7,6 +7,7 @@ import type { DriveStop } from "./driveMode";
 
 type NarrationSource = "audio" | "speech" | "none";
 export type NarrationStatus = "idle" | "loading" | "playing" | "stopped" | "error";
+export type NarrationCoverage = "full_audio" | "partial_audio" | "script_only" | "basic";
 
 export type NarrationState = {
   status: NarrationStatus;
@@ -33,6 +34,22 @@ let currentState: NarrationState = {
 function emit(next: Partial<NarrationState>) {
   currentState = { ...currentState, ...next };
   listeners.forEach((listener) => listener(currentState));
+}
+
+export function getNarrationCoverage(stopId: string): NarrationCoverage {
+  const audioEntry = narrationCatalogByStopId[stopId];
+  const scriptEntry = narrationScriptMapByStopId[stopId];
+
+  if (audioEntry?.drive && audioEntry?.walk) {
+    return "full_audio";
+  }
+  if (audioEntry?.drive || audioEntry?.walk) {
+    return "partial_audio";
+  }
+  if (scriptEntry?.drive || scriptEntry?.walk) {
+    return "script_only";
+  }
+  return "basic";
 }
 
 function getSpeechScript(stop: DriveStop, variant: NarrationVariant) {
