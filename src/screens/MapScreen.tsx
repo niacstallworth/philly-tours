@@ -4,6 +4,7 @@ import MapView, { Circle, Marker, Region } from "react-native-maps";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useDriveSession } from "../hooks/useDriveSession";
+import { useNarration } from "../hooks/useNarration";
 import { getHandoffModeMeta, parseHandoffUrl } from "../services/deepLinks";
 import { triggerHandoffTarget } from "../services/handoffBus";
 import { advanceDriveSession, getCurrentDriveStop, markDriveArrived } from "../services/driveMode";
@@ -14,6 +15,7 @@ import {
   startLocationWatch,
   UserPosition
 } from "../services/location";
+import { startNarration, stopNarration } from "../services/narration";
 
 type StopWithTour = (typeof tours)[number]["stops"][number] & {
   tourId: string;
@@ -37,6 +39,7 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
   const [visibleTourIds, setVisibleTourIds] = useState<Set<string>>(() => new Set([initialFocusedTourId || tours[0]?.id || ""]));
   const [focusedTourId, setFocusedTourId] = useState<string>(initialFocusedTourId || tours[0]?.id || "");
   const { driveSession, setDriveSession } = useDriveSession();
+  const narration = useNarration();
   const [mapRegion, setMapRegion] = useState<Region | null>(null);
   const watchRef = useRef<{ remove: () => void } | null>(null);
   const autoArrivedStopIdRef = useRef<string | null>(null);
@@ -223,6 +226,42 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
     triggerHandoffTarget(parsed);
   }
 
+  async function onPlayHighlightedNarration() {
+    if (!highlightedStop) {
+      return;
+    }
+    try {
+      await startNarration({
+        id: highlightedStop.id,
+        tourId: highlightedStop.tourId,
+        title: highlightedStop.title,
+        lat: highlightedStop.lat,
+        lng: highlightedStop.lng,
+        triggerRadiusM: highlightedStop.triggerRadiusM,
+        audioUrl: highlightedStop.audioUrl,
+        arrivalSummary: highlightedStop.description.split("|")[0]?.trim() || highlightedStop.description,
+        handoffDeepLink: `phillyartours://tour/${highlightedStop.tourId}/stop/${highlightedStop.id}/arrive`
+      }, "walk");
+    } catch (error) {
+      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
+    }
+  }
+
+  async function onPlayCurrentDriveNarration() {
+    if (!currentDriveStop) {
+      return;
+    }
+    try {
+      await startNarration(currentDriveStop, driveSession?.mode === "arrived" ? "walk" : "drive");
+    } catch (error) {
+      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
+    }
+  }
+
+  async function onStopNarration() {
+    await stopNarration();
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -267,6 +306,25 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
           <Text style={styles.label}>Vehicle handoff target</Text>
           <Text style={styles.copy}>{highlightedStop.title}</Text>
           <Text style={styles.copy}>{highlightedStop.description.split("|")[0]?.trim()}</Text>
+          <View style={styles.chips}>
+            <Chip
+              label={
+                narration.stopId === highlightedStop.id && narration.status === "playing"
+                  ? "Audio live"
+                  : "Walk narration"
+              }
+              tone="warn"
+            />
+          </View>
+          <View style={styles.actionsRow}>
+            <PrimaryButton
+              label={narration.stopId === highlightedStop.id && narration.status === "playing" ? "Replay Stop Audio" : "Play Stop Audio"}
+              onPress={onPlayHighlightedNarration}
+            />
+            {narration.stopId === highlightedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
+              <PrimaryButton label="Stop Audio" onPress={onStopNarration} />
+            ) : null}
+          </View>
         </Card>
       ) : null}
 
@@ -280,6 +338,16 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
           <View style={styles.chips}>
             <Chip label={driveSession?.mode === "arrived" ? "Arrived" : currentDriveStopInRange ? "In range now" : "Not in range"} tone={currentDriveStopInRange || driveSession?.mode === "arrived" ? "success" : "default"} />
             <Chip label={driveSession?.mode === "arrived" && currentDriveHandoffMeta ? currentDriveHandoffMeta.chipLabel : `${currentDriveStop.triggerRadiusM}m trigger`} tone="warn" />
+            <Chip
+              label={
+                narration.stopId === currentDriveStop.id && narration.status === "playing"
+                  ? "Audio live"
+                  : driveSession?.mode === "arrived"
+                    ? "Walk narration"
+                    : "Drive narration"
+              }
+              tone="warn"
+            />
           </View>
           <View style={styles.actionsRow}>
             <PrimaryButton
@@ -287,6 +355,13 @@ export function MapScreen({ initialFocusedTourId, highlightedStopId }: Props) {
               onPress={driveSession?.mode === "arrived" ? onAdvanceDriveStop : onMarkDriveArrived}
               disabled={!currentDriveStopInRange && driveSession?.mode !== "arrived"}
             />
+            <PrimaryButton
+              label={narration.stopId === currentDriveStop.id && narration.status === "playing" ? "Replay Audio" : "Play Audio"}
+              onPress={onPlayCurrentDriveNarration}
+            />
+            {narration.stopId === currentDriveStop.id && (narration.status === "playing" || narration.status === "loading") ? (
+              <PrimaryButton label="Stop Audio" onPress={onStopNarration} />
+            ) : null}
             {driveSession?.mode === "arrived" && currentDriveHandoffMeta ? (
               <PrimaryButton label={currentDriveHandoffMeta.ctaLabel} onPress={onPreviewArrivalHandoff} />
             ) : null}
