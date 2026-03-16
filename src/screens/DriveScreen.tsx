@@ -1,6 +1,6 @@
 import React from "react";
 import { useNarration } from "../hooks/useNarration";
-import { startNarration, stopNarration } from "../services/narration";
+import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useDriveSession } from "../hooks/useDriveSession";
@@ -132,6 +132,19 @@ export function DriveScreen({ initialTourId }: Props) {
     await stopNarration();
   }
 
+  function getCoverageMeta(coverage: NarrationCoverage) {
+    switch (coverage) {
+      case "full_audio":
+        return { label: "Full audio", tone: "success" as const };
+      case "partial_audio":
+        return { label: "Partial audio", tone: "warn" as const };
+      case "script_only":
+        return { label: "Script voice", tone: "default" as const };
+      default:
+        return { label: "Basic voice", tone: "default" as const };
+    }
+  }
+
   async function onAdvanceStop() {
     if (!activeSession) {
       return;
@@ -208,6 +221,7 @@ export function DriveScreen({ initialTourId }: Props) {
               <View style={styles.chips}>
                 <Chip label={activeSession?.mode === "arrived" ? "Arrived" : "Driving now"} tone="success" />
                 <Chip label={currentHandoffMeta?.chipLabel || "On-foot handoff"} tone="warn" />
+                <Chip {...getCoverageMeta(getNarrationCoverage(currentStop.id))} />
               </View>
               {activeSession?.mode === "arrived" && currentHandoffMeta ? <Text style={styles.arrivalCallout}>{currentHandoffMeta.summary}</Text> : null}
               <Text style={styles.specLabel}>Handoff link</Text>
@@ -223,6 +237,7 @@ export function DriveScreen({ initialTourId }: Props) {
               <View style={styles.chips}>
                 <Chip label={`${nextStop.triggerRadiusM}m arrival radius`} tone="default" />
                 <Chip label={nextHandoffMeta?.chipLabel || "Continue on foot"} tone="success" />
+                <Chip {...getCoverageMeta(getNarrationCoverage(nextStop.id))} />
               </View>
             </>
           ) : null}
@@ -272,6 +287,9 @@ export function DriveScreen({ initialTourId }: Props) {
                   {stop.title}
                   {isCurrent ? " • current" : isNext ? " • next" : ""}
                 </Text>
+                <View style={styles.chips}>
+                  <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
+                </View>
                 <Text style={styles.copy}>{stop.arrivalSummary}</Text>
               </View>
             </View>
