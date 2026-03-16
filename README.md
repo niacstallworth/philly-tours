@@ -47,6 +47,9 @@ This README is the current build-status document for the repo.
   - narration script catalog now contains `178` canonical rows (`89` drive, `89` walk)
   - AWS Polly generation pipeline is wired
   - Claude-based script generation pipeline is wired
+  - narration coverage cues are visible in Home, Drive, Map, and AR
+  - Home, Map, and AR can filter stops to `Full audio`
+  - Drive can filter routes to `Full audio` only
 
 ### Partially working
 - Native AR on iPhone requires a real ARKit-capable device for live tuning.
@@ -59,8 +62,14 @@ This README is the current build-status document for the repo.
   with `npm run narration:map`.
 - Narration coverage cues are now visible in:
   - Home
+  - Drive
   - Map
   - AR
+- Audio-first browse filters now exist in:
+  - Home
+  - Map
+  - AR
+  - Drive (route-level)
 
 ### Not complete yet
 - Final recorded narration library and voice pipeline.
@@ -150,6 +159,8 @@ The route flow is now:
 | Narration controls | Working with bundled audio + speech fallback |
 | Narration script catalog | Working (`178` canonical rows) |
 | Bundled narration audio | Working (`178` files, `89` stop entries wired) |
+| Narration coverage cues | Working across Home / Drive / Map / AR |
+| Full-audio browse filters | Working across Home / Map / AR / Drive |
 | Local Stripe/backend stack | Working in local dev |
 | Native iOS AR bridge | Working build path |
 | Real on-device AR tuning | Requires physical ARKit device |
