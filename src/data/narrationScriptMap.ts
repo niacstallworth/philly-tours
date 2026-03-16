@@ -6,25 +6,81 @@ export type NarrationScriptEntry = {
 };
 
 export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = {
+  "black-american-legacy-and-quaker-heritage-3200-3400-blocks-diamond-and-susquehan": {
+    drive: "3200-3400 blocks Diamond & Susquehanna is ahead. Historic Doctor's Row townhouses. This stop is at Diamond St & Susquehanna Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at 3200-3400 blocks Diamond & Susquehanna. Historic Doctor's Row townhouses. You are at Diamond St & Susquehanna Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-3911-delancey-street": {
+    drive: "3911 Delancey Street is ahead. Childhood home of Marian Anderson. This stop is at 3911 Delancey St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at 3911 Delancey Street. Childhood home of Marian Anderson. You are at 3911 Delancey St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-4600-spruce-street": {
+    drive: "4600 Spruce Street is ahead. Former home of Dr. Nathan F. Mossell. This stop is at 4600 Spruce St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at 4600 Spruce Street. Former home of Dr. Nathan F. Mossell. You are at 4600 Spruce St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-4700-4800-blocks-of-walnut-street": {
+    drive: "4700-4800 blocks of Walnut Street is ahead. Twin Victorian mansions. This stop is at Walnut St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at 4700-4800 blocks of Walnut Street. Twin Victorian mansions. You are at Walnut St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "black-american-legacy-and-quaker-heritage-arch-street-friends-meeting-house": {
     drive: "The Arch Street Friends Meeting House is ahead on Arch Street. Built in 1804 on land that William Penn granted to the Quakers in 1693, this is the largest Quaker meetinghouse in the world and one of the oldest continuously used religious buildings in the United States.",
     walk: "The Arch Street Friends Meeting House is built on land conveyed to the Philadelphia Monthly Meeting by William Penn's original land grant, and the current building dates to 1804 — making it among the oldest surviving religious structures in the city. Quakers have met on this ground since 1693, which means continuous religious gathering here predates the United States by nearly a century. The Quaker tradition of silent meeting — no clergy, no liturgy, no music, just gathered individuals waiting in expectant silence for the movement of the Spirit — was radical in the seventeenth century and remains unusual today. It also produced, over time, a community of unusual moral seriousness: Quakers were among the first religious communities in the English-speaking world to formally condemn slavery, first in the 1688 Germantown protest and then through increasingly stringent discipline within the Philadelphia Yearly Meeting that eventually expelled members who held enslaved people. The meeting house you're looking at was used as a recruiting station during the Civil War and as a refuge during multiple crises in the city's history. Lucretia Mott, the abolitionist and suffragist, was a prominent member of this meeting. It is still in active use every Sunday.",
+  },
+  "black-american-legacy-and-quaker-heritage-belfield-mansion": {
+    drive: "Belfield Mansion is ahead. 1711 Quaker summer estate, abolitionist ties. This stop is at La Salle University campus, Olney, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Belfield Mansion. 1711 Quaker summer estate, abolitionist ties. You are at La Salle University campus, Olney, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-belmont-mansion": {
+    drive: "Belmont Mansion is ahead. Underground Railroad stop. This stop is at 2000 Belmont Mansion Dr, Fairmount Park, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Belmont Mansion. Underground Railroad stop. You are at 2000 Belmont Mansion Dr, Fairmount Park, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-cecil-b-moore-avenue": {
+    drive: "Cecil B. Moore Avenue is ahead. Center of 1960s-70s Black Power era. This stop is at Cecil B. Moore Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Cecil B. Moore Avenue. Center of 1960s-70s Black Power era. You are at Cecil B. Moore Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-cedar-grove-and-laurel-hill-mansions": {
+    drive: "Cedar Grove & Laurel Hill mansions is ahead. Quaker summer estates. This stop is at Fairmount Park, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Cedar Grove & Laurel Hill mansions. Quaker summer estates. You are at Fairmount Park, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-christian-street-ymca": {
+    drive: "Christian Street YMCA is ahead. Pivotal site for Black intellectual life. This stop is at 1724 Christian St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Christian Street YMCA. Pivotal site for Black intellectual life. You are at 1724 Christian St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "black-american-legacy-and-quaker-heritage-cliveden": {
     drive: "Cliveden is ahead at 6401 Germantown Avenue — a 1767 stone mansion that was the site of one of the bloodiest engagements of the American Revolution and has been continuously preserved as a historic site, now operating with an expanded mission that confronts the full history of the people who lived and worked there.",
     walk: "Cliveden was built between 1763 and 1767 by Benjamin Chew, Chief Justice of Pennsylvania, as a summer retreat, and on October 4, 1777, it became the pivot point of the Battle of Germantown. Washington's Continental Army attacked the British forces occupying Philadelphia in a complex multi-column assault that nearly succeeded. The British soldiers who took refuge in Cliveden's stone walls held off repeated American attacks, and the time spent reducing the building cost Washington the momentum of his assault. The battle ended in American retreat, though Washington's tactical sophistication impressed European observers and contributed to the French decision to enter the war on the American side. What Cliveden has done since the 1970s is more important than what happened here in 1777: the National Trust for Historic Preservation site has committed to telling the full history of the property, including the lives of the enslaved people who built it, maintained it, and served the Chew family through multiple generations. The Cliveden Conversations — an annual event staged on the grounds — has become one of the most discussed programs in the public history field for its willingness to put conflicting historical perspectives in direct dialogue.",
   },
+  "black-american-legacy-and-quaker-heritage-deshler-morris-house": {
+    drive: "Deshler-Morris House is ahead. Washington's Germantown White House 1793-94. This stop is at 5442 Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Deshler-Morris House. Washington's Germantown White House 1793-94. You are at 5442 Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "black-american-legacy-and-quaker-heritage-free-quaker-meeting-house": {
     drive: "The Free Quaker Meeting House is at 5th and Arch Streets, directly across from Independence Hall. This small brick building was constructed in 1783 by Quakers who had been disowned by their meetings for taking up arms during the American Revolution — people who chose country over creed and built their own house of worship.",
     walk: "The Free Quakers were a small group of Friends who supported the American Revolution despite the pacifist principles of mainstream Quaker practice. When the Philadelphia Yearly Meeting disowned members for military service, some of those disowned members organized themselves as the Society of Free Quakers in 1781 and constructed this meeting house in 1783. Among the most prominent Free Quakers was Betsy Ross, who sewed flags for the Continental Army and attended this meeting. Timothy Matlack, who engrossed the Declaration of Independence in his formal handwriting, was a Free Quaker. The congregation was never large and dissolved entirely by the mid-nineteenth century, but the building survived and stands today as one of the few remaining examples of Georgian religious architecture from the revolutionary period in its original location. Its placement directly across from Independence Hall is historically ironic: the building that housed the people who chose revolution over religious principle stands within sight of the building where that revolution was legally constituted.",
+  },
+  "black-american-legacy-and-quaker-heritage-freedom-theatre": {
+    drive: "Freedom Theatre is ahead. Key cultural landmark. This stop is at North Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Freedom Theatre. Key cultural landmark. You are at North Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "black-american-legacy-and-quaker-heritage-germantown-mennonite-meetinghouse": {
     drive: "The Germantown Mennonite Meetinghouse is ahead at 6119 Germantown Avenue — the site where, in 1688, four German immigrants wrote the first formal protest against slavery in British North America. That document, produced in this building 88 years before the United States existed, is considered the founding text of American abolitionism.",
     walk: "On February 18, 1688, Francis Daniel Pastorius, Garret Hendericks, Derick op den Graeff, and Abraham op den Graeff gathered in this meetinghouse and composed a petition to the Philadelphia Yearly Meeting of Friends protesting the practice of slavery. Their argument was direct: they had come to Pennsylvania to escape persecution, and they could not reconcile the Christian principles they professed with the buying and selling of human beings. The Philadelphia Yearly Meeting received the petition, deliberated, and decided it was too controversial to act on. It was passed up through the meeting structure and eventually set aside. It was ignored for nearly seventy years, until the Quaker abolitionist movement of the 1750s began the process of purging slaveholders from the meeting. The 1688 petition was rediscovered in the nineteenth century and recognized as the founding document of organized anti-slavery thought in America. It predates all other formal abolitionist texts in English. The meetinghouse itself is one of the oldest surviving religious buildings in Pennsylvania. The document it produced is in the Quaker collection. The street outside — Germantown Avenue — is the same street where Johnson House stands three blocks north, where the Underground Railroad operated a century and a half after this meeting.",
   },
+  "black-american-legacy-and-quaker-heritage-grumblethorpe": {
+    drive: "Grumblethorpe is ahead. 1744 summer home of Wister family. This stop is at 5267 Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Grumblethorpe. 1744 summer home of Wister family. You are at 5267 Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-john-coltrane-house": {
+    drive: "John Coltrane House is ahead. Home of legendary jazz musician. This stop is at 1511 N. 33rd St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at John Coltrane House. Home of legendary jazz musician. You are at 1511 N. 33rd St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "black-american-legacy-and-quaker-heritage-johnson-house": {
     drive: "Johnson House is ahead. This Germantown stop is tied to the Underground Railroad and to generations of antislavery work in Philadelphia. As you arrive, prepare to park safely and continue on foot.",
     walk: "You are now at Johnson House, one of Philadelphia's most important Underground Railroad sites. The Johnson family helped freedom seekers move toward safety while sustaining a long tradition of abolitionist action. Look closely at the house and consider how ordinary domestic spaces could become part of an extraordinary network of resistance.",
+  },
+  "black-american-legacy-and-quaker-heritage-lemon-hill-mansion": {
+    drive: "Lemon Hill Mansion is ahead. 1799 Federal mansion, owned by Quaker Henry Pratt. This stop is at Fairmount Park, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Lemon Hill Mansion. 1799 Federal mansion, owned by Quaker Henry Pratt. You are at Fairmount Park, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "black-american-legacy-and-quaker-heritage-lombard-street-free-african-society-ho": {
     drive: "We're on the 600 to 700 block of Lombard Street — the blocks where Richard Allen, Absalom Jones, and Cyrus Bustill lived and where the Free African Society was founded in 1787. This is the physical center of gravity of Philadelphia's free Black community in the founding era.",
@@ -33,6 +89,14 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
   "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church": {
     drive: "Mother Bethel A.M.E. Church is ahead. Founded by Richard Allen in 1794, this is one of the most important Black sacred sites in the United States. Slow down as you approach and prepare to continue on foot for the full story.",
     walk: "You are now at Mother Bethel A.M.E. Church. Richard Allen established this congregation in 1794 after breaking from segregated worship, making this site a cornerstone of Black religious independence in America. Take a moment to look at the church facade and imagine the generations of organizing, worship, and resistance rooted here.",
+  },
+  "black-american-legacy-and-quaker-heritage-mount-pleasant": {
+    drive: "Mount Pleasant is ahead. Georgian masterpiece. This stop is at Fairmount Park, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Mount Pleasant. Georgian masterpiece. You are at Fairmount Park, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-ormiston": {
+    drive: "Ormiston is ahead. Smallest Quaker-built Park mansion. This stop is at Fairmount Park, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Ormiston. Smallest Quaker-built Park mansion. You are at Fairmount Park, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "black-american-legacy-and-quaker-heritage-pennsylvania-abolition-society": {
     drive: "The Pennsylvania Abolition Society was headquartered near 6th and Chestnut Streets. Founded in 1775, it was the first anti-slavery organization in the world, and its records — meticulously kept for over two centuries — are among the most important documents of the abolitionist movement in American history.",
@@ -46,25 +110,105 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "Stenton is ahead at 4601 North 18th Street — a 1730 Georgian mansion built by James Logan, William Penn's secretary and one of the most powerful men in colonial Pennsylvania. The house has been preserved since 1899 and is now one of the few colonial-era mansions in Philadelphia committed to honestly confronting its history of slavery.",
     walk: "James Logan built Stenton between 1723 and 1730 as a country retreat from his Philadelphia townhouse, and it is one of the finest surviving examples of early Georgian architecture in America. Logan was William Penn's secretary, a scholar of unusual breadth who corresponded with Isaac Newton and Leibniz, amassed one of the largest private libraries in the colonies, and served as acting governor of Pennsylvania. He was also an enslaver. The people who built Stenton, maintained its grounds, cooked its food, and served its household were enslaved. Archaeological work at Stenton has uncovered the material evidence of their lives — the spaces where they lived, the objects they used, the small acts of personhood that survive in the archaeological record when the written record is silent. The current interpreters at Stenton have made a deliberate commitment to making those lives visible, not as footnotes to Logan's biography but as the essential human labor that made his scholarly leisure possible. In the summer of 1777, both Washington and British General Howe used Stenton as a headquarters during the Philadelphia campaign — a fact that makes the house a node in multiple historical networks simultaneously.",
   },
+  "black-american-legacy-and-quaker-heritage-strawberry-mansion": {
+    drive: "Strawberry Mansion is ahead. Largest Federal-era mansion in Fairmount Park. This stop is at 2450 Strawberry Mansion Dr, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Strawberry Mansion. Largest Federal-era mansion in Fairmount Park. You are at 2450 Strawberry Mansion Dr, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-the-woodlands": {
+    drive: "The Woodlands is ahead. 1770s neoclassical mansion and cemetery. This stop is at 40th & Woodland Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at The Woodlands. 1770s neoclassical mansion and cemetery. You are at 40th & Woodland Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-upsala": {
+    drive: "Upsala is ahead. 1798 Federal-style mansion. This stop is at 6430 Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Upsala. 1798 Federal-style mansion. You are at 6430 Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-w-e-b-du-bois-college-house": {
+    drive: "W.E.B. Du Bois College House is ahead. Exhibit on The Philadelphia Negro study. This stop is at University of Pennsylvania, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at W.E.B. Du Bois College House. Exhibit on The Philadelphia Negro study. You are at University of Pennsylvania, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-legacy-and-quaker-heritage-wyck": {
+    drive: "Wyck is ahead. One of Germantown's oldest houses, abolitionist ties. This stop is at 6026 Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Wyck. One of Germantown's oldest houses, abolitionist ties. You are at 6026 Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-sports-allen-iverson-s-hampton-park-courts": {
+    drive: "Allen Iverson's Hampton Park Courts is ahead. Where AI perfected his crossover, 2019 mural. This stop is at Hampton St & Master St, Strawberry Mansion, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Allen Iverson's Hampton Park Courts. Where AI perfected his crossover, 2019 mural. You are at Hampton St & Master St, Strawberry Mansion, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-sports-dell-music-center": {
+    drive: "Dell Music Center is ahead. Joe Louis Boxing Ring, 1940s-50s matches. This stop is at Ridge Ave & 33rd St, Fairmount Park, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Dell Music Center. Joe Louis Boxing Ring, 1940s-50s matches. You are at Ridge Ave & 33rd St, Fairmount Park, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-sports-joe-frazier-s-gym-cloverlay": {
+    drive: "Joe Frazier's Gym (Cloverlay) is ahead. Smokin' Joe's legendary training grounds. This stop is at 2909-2911 N Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Joe Frazier's Gym (Cloverlay). Smokin' Joe's legendary training grounds. You are at 2909-2911 N Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-sports-marian-anderson-rec-center": {
+    drive: "Marian Anderson Rec Center is ahead. Dawn Staley's training grounds. This stop is at 740 S 17th St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Marian Anderson Rec Center. Dawn Staley's training grounds. You are at 740 S 17th St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-american-sports-maxie-s-pizza": {
+    drive: "Maxie's Pizza is ahead. North Philly staple, Joe Frazier favorite. This stop is at Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Maxie's Pizza. North Philly staple, Joe Frazier favorite. You are at Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "black-american-sports-overbrook-high-school": {
     drive: "Overbrook High School is at 5898 Lancaster Avenue in West Philadelphia. This public high school produced two of the most consequential figures in basketball history — Wilt Chamberlain in the early 1950s and Kobe Bryant in the early 1990s — a concentration of talent without parallel in American public school history.",
     walk: "Overbrook opened in 1924 in a neighborhood that was, in the early twentieth century, at the western edge of Philadelphia's Black residential community. Wilt Chamberlain enrolled in the late 1940s, already seven feet tall, and scored 90 points in a single high school game — a record that stands. He led Overbrook to three city championships before going to Kansas, then the Harlem Globetrotters, then the NBA, where he put up statistical performances that have never been approached by any player in the sport's history. Kobe Bryant attended Overbrook in the early 1990s as the son of former 76er Joe Jellybean Bryant, who had moved the family back to Philadelphia after playing in Italy. Bryant led Overbrook to a state championship in 1996 and was selected 13th overall in the NBA Draft directly out of high school. Two players, the same high school gym, two generations apart, both among the five greatest basketball players who ever lived. The building is still a working public school.",
-  },
-  "black-american-sports-palestra": {
-    drive: "The Palestra is ahead. This arena is one of the most storied basketball venues in the country and a major site in Philadelphia sports culture. As you arrive, prepare to continue on foot for the full legacy.",
-    walk: "You are now at the Palestra, a legendary basketball arena woven into the history of Philadelphia sports. Generations of players, fans, and rivalries passed through this space, giving it an almost mythic status in the city. Look at the building and imagine the energy it has held for decades.",
   },
   "black-american-sports-sonny-hill-league-tustin": {
     drive: "The Sonny Hill Community Involvement Basketball League — based at Tustin Recreation Center at 5901 West Columbia Avenue — is the oldest continuously operating summer basketball league in the United States, founded in 1968 by Sonny Hill to keep young people off the streets in the summer after Martin Luther King's assassination.",
     walk: "Sonny Hill founded the league in 1968 in the immediate aftermath of the civil disturbances that followed Dr. King's assassination, in neighborhoods at risk of further violence with nothing structured for young people in the summer months. The league has operated every summer since, providing organized competition, mentorship, and structure for thousands of Philadelphia players over five decades. Allen Iverson played in the Sonny Hill League. Kobe Bryant played here. Every significant Philadelphia basketball player of the last fifty years has come through this circuit. Hill himself has been an advisor, mentor, and public advocate for young players throughout his career. The league's longevity and its record of developing players who went on to significant careers make it one of the most important institutions in American basketball — a community organization that has consistently produced national-level talent through the simple mechanism of well-organized summer competition.",
   },
+  "black-american-sports-south-kitchen-and-jazz-club": {
+    drive: "South Kitchen & Jazz Club is ahead. Soul food dinner with live music. This stop is at 600 N Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at South Kitchen & Jazz Club. Soul food dinner with live music. You are at 600 N Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "black-american-sports-the-palestra": {
-    drive: "The Palestra is at 240 South 33rd Street on the University of Pennsylvania campus. Opened in 1927, it is the oldest major college basketball arena still in active use in the United States and the building that Sports Illustrated once called the most exciting place to watch basketball in America.",
-    walk: "The Palestra opened in 1927 and became the physical center of Philadelphia basketball culture. The Big Five — the informal round-robin tournament among Penn, Temple, Villanova, La Salle, and Saint Joseph's — played on this floor for generations, filling the building for games that had no NCAA implications but carried the full weight of city pride. No neutral site, no corporate sponsorship, no distance from the action: the Palestra holds 8,722 people and every seat is close enough to hear the players talking. The student section sits directly behind the visiting team's bench — on purpose. Wilt Chamberlain played here as a visitor from Overbrook High School. Jerry West. Oscar Robertson. Kobe Bryant brought Lower Merion High School to this floor. LeBron James played here in high school. Every one of them remembered it. A February doubleheader in 1969 filled the house for two back-to-back games with standing room only. The Palestra didn't become the Cathedral of College Basketball through marketing. It became one because Philadelphia kept showing up.",
+    drive: "The Palestra is ahead. This arena is one of the most storied basketball venues in the country and a major site in Philadelphia sports culture. As you arrive, prepare to continue on foot for the full legacy.",
+    walk: "You are now at the Palestra, a legendary basketball arena woven into the history of Philadelphia sports. Generations of players, fans, and rivalries passed through this space, giving it an almost mythic status in the city. Look at the building and imagine the energy it has held for decades.",
+  },
+  "black-architects-tour-african-american-museum": {
+    drive: "African American Museum is ahead. Theodore Cam Jr. design (1976). This stop is at 701 Arch St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at African American Museum. Theodore Cam Jr. design (1976). You are at 701 Arch St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-berean-savings-and-loan": {
+    drive: "Berean Savings & Loan is ahead. Walter Livingston Jr. Brutalist design (1972). This stop is at 5419 W. Girard Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Berean Savings & Loan. Walter Livingston Jr. Brutalist design (1972). You are at 5419 W. Girard Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-free-library-central": {
+    drive: "Free Library Central is ahead. Abele's grand staircase and rotunda (1917-1927). This stop is at 1901 Vine St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Free Library Central. Abele's grand staircase and rotunda (1917-1927). You are at 1901 Vine St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-irvine-auditorium": {
+    drive: "Irvine Auditorium is ahead. Abele's neo-Gothic concert hall (1925-1931). This stop is at University of Pennsylvania, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Irvine Auditorium. Abele's neo-Gothic concert hall (1925-1931). You are at University of Pennsylvania, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-penn-campus-fisher-library": {
+    drive: "Penn Campus - Fisher Library is ahead. Abele's Gothic masterpiece (1891/1911). This stop is at University of Pennsylvania, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Penn Campus - Fisher Library. Abele's Gothic masterpiece (1891/1911). You are at University of Pennsylvania, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-philadanco-building": {
+    drive: "Philadanco Building is ahead. Joan Myers Brown, first Black woman major arts facility. This stop is at 1735 Market St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Philadanco Building. Joan Myers Brown, first Black woman major arts facility. You are at 1735 Market St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-philadelphia-museum-of-art": {
+    drive: "Philadelphia Museum of Art is ahead. Julian Abele design (1916-1928). This stop is at 2600 Benjamin Franklin Parkway, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Philadelphia Museum of Art. Julian Abele design (1916-1928). You are at 2600 Benjamin Franklin Parkway, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-progress-plaza": {
+    drive: "Progress Plaza is ahead. Louis de Moll, first Black-owned shopping center (1968). This stop is at 1501-1541 N. Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Progress Plaza. Louis de Moll, first Black-owned shopping center (1968). You are at 1501-1541 N. Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-architects-tour-union-league": {
+    drive: "Union League is ahead. Abele's Renaissance Revival additions (1909-1911). This stop is at 140 S. Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Union League. Abele's Renaissance Revival additions (1909-1911). You are at 140 S. Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "black-architects-tour-zion-baptist-church": {
     drive: "Zion Baptist Church is ahead at Broad and Venango. Under the leadership of Leon Sullivan beginning in 1950, this congregation became the launchpad for one of the most effective economic empowerment campaigns in American history — a selective patronage movement that opened hundreds of Philadelphia companies to Black workers and eventually shaped international corporate policy.",
     walk: "Leon Sullivan arrived at Zion Baptist in 1950 at age twenty-eight to a congregation of six hundred. What he built from this corner changed employment practices across an American city, then across the globe. In 1960, Sullivan organized a selective patronage campaign — a disciplined consumer boycott that targeted one Philadelphia employer at a time, sustained the pressure until that company agreed to hire Black workers in skilled positions, then moved to the next. Over four years, more than four hundred companies capitulated. Sullivan then founded the Opportunities Industrialization Center in 1964 — starting in an abandoned jailhouse one block from this church — to train workers for the jobs those companies were now required to offer. The OIC model spread to more than seventy American cities and sixteen countries. In 1977, Sullivan wrote the Sullivan Principles, a code of corporate conduct in apartheid South Africa that became the international standard for economic pressure against the apartheid regime. American companies that refused to comply faced divestment campaigns from shareholders and municipalities. The economic pressure Sullivan's principles generated contributed directly to the collapse of the apartheid government. All of it started on this corner, in this building, with a boycott.",
+  },
+  "black-inventors-tour-african-american-museum": {
+    drive: "African American Museum is ahead. Black Inventors Hall of Fame exhibit. This stop is at 701 Arch St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at African American Museum. Black Inventors Hall of Fame exhibit. You are at 701 Arch St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "black-inventors-tour-dr-charles-drew-blood-bank": {
     drive: "Pennsylvania Hospital at 8th and Spruce is the Dr. Charles Drew stop — recognizing the blood banking research Drew pioneered in the late 1930s that saved hundreds of thousands of lives during World War II and established the infrastructure of the modern blood supply.",
@@ -94,9 +238,17 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "The Sarah E. Goode House site is at 1724 South Street in South Philadelphia — near where Goode operated her furniture business in the 1880s and from which she filed the patent that made her the first African American woman to receive a United States patent, in 1885.",
     walk: "Sarah E. Goode was born around 1850 and in 1885 received a patent for a folding cabinet bed — a piece of furniture that converted from a writing desk into a full-size bed, designed for the small apartments that workers in industrial cities occupied. The invention was practical, elegant, and directly responsive to the conditions of urban working-class life. Her patent — granted August 14, 1885 — is a document of extraordinary significance: it records that an African American woman, in the same decade the Supreme Court gutted Reconstruction-era civil rights legislation, successfully navigated the patent system and received federal recognition of her intellectual contribution. The patent office did not consider her race. It evaluated the design, which worked. That distinction — federal intellectual property law as a space where Black women's ingenuity could receive formal recognition that other institutions refused — is part of what makes this address historically important.",
   },
+  "black-medical-legacy-barbara-bates-center": {
+    drive: "Barbara Bates Center is ahead. Archives on Black nurses. This stop is at 418 Curie Blvd, Penn Nursing School, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Barbara Bates Center. Archives on Black nurses. You are at 418 Curie Blvd, Penn Nursing School, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "black-medical-legacy-black-doctors-row": {
     drive: "Black Doctors Row is ahead along the 1500 to 2000 block of Christian Street in South Philadelphia — Philadelphia's first Black Historic District, designated in 2022. This corridor was the professional address of the Black physicians, dentists, and pharmacists who built an independent medical system when white institutions refused them entry.",
     walk: "The Christian Street corridor became the primary professional address for Black physicians beginning in the late nineteenth century, reaching its peak concentration in the 1920s through 1950s. The doctors who practiced here could not admit patients to mainstream Philadelphia hospitals, could not join the Philadelphia County Medical Society, and could not access the professional networks that white physicians used to build their careers. So they built their own. The row houses along Christian Street were converted into offices and small clinics, and the network of Black physicians who worked here referred patients to Frederick Douglass Hospital — founded in 1895 just blocks away — and to Mercy Hospital in West Philadelphia. The concentration extended beyond medicine: lawyers, dentists, pharmacists, and civil rights organizations occupied the same blocks, creating a professional district of unusual density. The 2022 designation as Philadelphia's first Black Historic District formalized what had been recognized informally for decades: this block is a document of what Black professional life looked like when the surrounding city was organized to prevent it.",
+  },
+  "black-medical-legacy-city-almshouse": {
+    drive: "City Almshouse is ahead. 1800s dissection without consent. This stop is at 34th & Saybrook, West Philly, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at City Almshouse. 1800s dissection without consent. You are at 34th & Saybrook, West Philly, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "black-medical-legacy-dr-virginia-alexander-clinic": {
     drive: "Dr. Virginia Alexander's Aspiranto Health Home operated near Broad and Ridge Avenue. Founded in the early 1930s, it was one of the first clinics in Philadelphia specifically designed to address the tuberculosis epidemic devastating Black North Philadelphia — run by a Black woman physician at a time when both race and gender excluded her from mainstream medical institutions.",
@@ -106,6 +258,10 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "Frederick Douglass Hospital was at 1522 Lombard Street. Founded in 1895 by Dr. Nathan F. Mossell — the first African American to graduate from the University of Pennsylvania School of Medicine — this was the first Black-staffed and Black-administered hospital in Philadelphia and one of the first in the United States.",
     walk: "Nathan Francis Mossell graduated from the University of Pennsylvania School of Medicine in 1882 — the first African American to do so — after being admitted over the objections of students who circulated a petition against his presence. He completed his training in London, returned to Philadelphia, and was refused staff privileges at every hospital in the city. In 1895 he founded Frederick Douglass Hospital at this address, naming it for the abolitionist whose life embodied the principle that Black Americans could achieve excellence in any field when given the opportunity. The hospital provided training for Black nurses and physicians excluded from white institutions and became a model for Black hospital development across the country. Mossell's niece by marriage was Paul Robeson. His sister-in-law Gertrude Bustill Mossell was a journalist and advocate for Black women's education. The family represented the interlocking professional network that Black Philadelphia built in the face of systematic exclusion — a network whose center of gravity was this hospital on this street.",
   },
+  "black-medical-legacy-free-african-society": {
+    drive: "Free African Society is ahead. Black nurses saved Philly in 1793 yellow fever epidemic. This stop is at 602-704 Lombard St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Free African Society. Black nurses saved Philly in 1793 yellow fever epidemic. You are at 602-704 Lombard St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "black-medical-legacy-holmesburg-prison": {
     drive: "Holmesburg Prison is at 4510 State Road in Northeast Philadelphia. This facility operated from 1896 to 1995. Between 1951 and 1974 it was the site of one of the most extensive programs of non-consensual medical experimentation in United States history — conducted primarily on Black prisoners by University of Pennsylvania dermatologist Dr. Albert Kligman.",
     walk: "Between 1951 and 1974, Dr. Albert Kligman of the University of Pennsylvania conducted hundreds of experiments on prisoners at Holmesburg without adequate informed consent. The experiments included testing of pharmaceutical compounds, cosmetics, radioactive isotopes, psychoactive drugs, and dioxin — the toxic component of Agent Orange — on prisoners who were paid small amounts and often not fully informed of the risks. The prisoner population was overwhelmingly Black and poor. The experiments served pharmaceutical companies including Johnson and Johnson, Dow Chemical, and the United States Army, which used Holmesburg prisoners to test chemical and biological warfare agents. Kligman is also credited with developing Retin-A — a discovery made possible by experimentation on a captive population with no meaningful ability to refuse. The city of Philadelphia formally apologized to survivors in 2022. Allen Hornblum's 1998 book Acres of Skin documented the experiments in detail. The prison closed in 1995. The building still stands.",
@@ -114,9 +270,41 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "The site of Mercy-Douglass Hospital is at 15th and Lombard Streets. When Frederick Douglass Hospital and Mercy Hospital merged in 1948, the combined institution became the largest Black hospital in the North — and its nursing school graduated more than a thousand Black nurses over four decades.",
     walk: "Mercy Hospital was founded in 1907 at 50th and Woodland Avenue in West Philadelphia by the Sisters of Mercy as a Catholic hospital serving Black patients excluded from other facilities. Its nursing school trained Black women for a profession that offered one of the few paths to skilled, well-compensated employment available to Black women in the early twentieth century. When Mercy and Frederick Douglass merged in 1948, the combined program became the most significant source of Black nursing graduates in the Philadelphia region. The nurses trained here entered a healthcare system that was nominally integrating but still deeply resistant to Black professional advancement — they carried credentials from a Black institution into white hospitals that had just been legally required to admit them. The hospital closed in 1973 as federal Medicare and Medicaid funding, combined with desegregation of previously white facilities, changed the economics of Black hospital operation in ways that made many such institutions financially unviable. The building is gone but the thousand-plus nurses it trained are its legacy.",
   },
+  "black-medical-legacy-mercy-douglass-nurse-training": {
+    drive: "Mercy-Douglass Nurse Training is ahead. Graduated 1,000+ Black nurses (1920s-1960s). This stop is at 15th & Lombard St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Mercy-Douglass Nurse Training. Graduated 1,000+ Black nurses (1920s-1960s). You are at 15th & Lombard St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-medical-legacy-mercy-hospital-site": {
+    drive: "Mercy Hospital Site is ahead. Pre-merger Black hospital (1907). This stop is at 50th & Woodland Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Mercy Hospital Site. Pre-merger Black hospital (1907). You are at 50th & Woodland Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-medical-legacy-mother-bethel-ame-church": {
+    drive: "Mother Bethel AME Church is ahead. Hub for Black nurses during epidemics. This stop is at 419 S. 6th St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Mother Bethel AME Church. Hub for Black nurses during epidemics. You are at 419 S. 6th St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-medical-legacy-move-bombing-sites": {
+    drive: "MOVE Bombing Sites is ahead. 1985 remains withheld and experimented on. This stop is at 6221 Osage Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at MOVE Bombing Sites. 1985 remains withheld and experimented on. You are at 6221 Osage Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-medical-legacy-pennsylvania-hospital": {
+    drive: "Pennsylvania Hospital is ahead. Used enslaved bodies for anatomy (1760s-1800s). This stop is at 8th & Spruce St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Pennsylvania Hospital. Used enslaved bodies for anatomy (1760s-1800s). You are at 8th & Spruce St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-medical-legacy-philadelphia-general-hospital": {
+    drive: "Philadelphia General Hospital is ahead. Old Blockley, Black nurses training. This stop is at 34th & Civic Center Blvd, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Philadelphia General Hospital. Old Blockley, Black nurses training. You are at 34th & Civic Center Blvd, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "black-medical-legacy-yellow-fever-sites": {
+    drive: "Yellow Fever Sites is ahead. 1793 epidemic exploitation. This stop is at Water St & Chestnut, Old City, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Yellow Fever Sites. 1793 epidemic exploitation. You are at Water St & Chestnut, Old City, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "college-hop-tour-chestnut-hill-college": {
     drive: "Chestnut Hill College is in the Chestnut Hill neighborhood of Northwest Philadelphia — a Catholic liberal arts college founded in 1924 by the Sisters of Saint Joseph, occupying a 1920s castle-like campus on a hill above the Wissahickon Valley. It was one of the first Catholic women's colleges in the Philadelphia region.",
     walk: "Chestnut Hill College was founded in 1924 by the Sisters of Saint Joseph of Philadelphia as a women's liberal arts college — the primary mode through which Catholic religious orders provided higher education for women in the early twentieth century. The campus, designed in Collegiate Gothic style, occupies a hilltop site with views of the Wissahickon Valley. The Sisters of Saint Joseph's commitment to women's education reflected their broader institutional identity — the order operates schools, hospitals, and social service organizations across the Philadelphia region focused on the margins: the poor, the immigrant, the excluded. Chestnut Hill College became coeducational in 2003, reflecting the broader transformation of Catholic women's colleges. The campus remains one of the most architecturally distinctive in the Philadelphia region, and the Subiaco Building is a genuine example of the Gothic Revival at its most ambitious.",
+  },
+  "college-hop-tour-community-college-of-philly": {
+    drive: "Community College of Philly is ahead. Rooftop garden, Career & Tech Center. This stop is at Mint Building, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Community College of Philly. Rooftop garden, Career & Tech Center. You are at Mint Building, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "college-hop-tour-curtis-institute-of-music": {
     drive: "The Curtis Institute of Music is ahead in the Rittenhouse Square neighborhood. Founded in 1924, Curtis has trained more of the world's leading classical musicians than any other institution of its size — and it does it entirely on full scholarship, admitting only the most exceptional students regardless of their ability to pay.",
@@ -129,6 +317,14 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
   "college-hop-tour-la-salle-university": {
     drive: "La Salle University is in the Olney neighborhood of Northwest Philadelphia — a Catholic university founded in 1863 by the De La Salle Christian Brothers, the religious order that has operated schools for poor and working-class students since the seventeenth century. Its 1930s Collegiate Gothic campus includes the De La Salle Chapel.",
     walk: "The Christian Brothers — formally the Brothers of the Christian Schools, founded by Saint John Baptist de La Salle in seventeenth century France — have operated La Salle University since its founding in 1863. Their educational tradition emphasizes practical formation alongside academic instruction, and La Salle has historically served first-generation college students and students from Philadelphia's Catholic school pipeline and working-class communities. The campus's Collegiate Gothic architecture gives it a visual coherence and dignity that reflects the Brothers' belief that the physical environment of education matters. The La Salle Art Museum holds a collection of over four thousand works accumulated over more than a century — including Old Master paintings, prints, and works from Africa and Asia. The collection is free and open to the public. It is one of the most undervisited museum collections in Philadelphia.",
+  },
+  "college-hop-tour-pa-academy-of-fine-arts": {
+    drive: "PA Academy of Fine Arts is ahead. Historic cast collection, student galleries. This stop is at Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at PA Academy of Fine Arts. Historic cast collection, student galleries. You are at Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "college-hop-tour-saint-joseph-s-university": {
+    drive: "Saint Joseph's University is ahead. Hawk Hill, Barbelin Tower. This stop is at City Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Saint Joseph's University. Hawk Hill, Barbelin Tower. You are at City Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "college-hop-tour-temple-university": {
     drive: "Temple University is in North Philadelphia at 13th and Berks Streets — a major research university founded in 1884 by Baptist minister Russell Conwell with the radical proposition that a quality higher education should be available to working people who could afford neither the time nor the money for traditional university study.",
@@ -145,6 +341,10 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
   "college-hop-tour-university-of-the-arts": {
     drive: "The University of the Arts on Broad Street in Center City was one of the oldest arts universities in the United States — founded in 1876 as the Pennsylvania Museum and School of Industrial Art. It closed in 2024 after 148 years of operation, in a sudden closure that shocked the Philadelphia arts community.",
     walk: "The University of the Arts was founded in 1876 to train artists in the decorative and applied arts that served Philadelphia's industrial economy. It grew through mergers into a comprehensive arts university offering degrees in fine art, design, film, music, dance, and theatre. Its South Broad Street campus made it a neighbor to the Kimmel Center, the Academy of Music, and the Wilma Theater. In May 2024, the university announced its sudden closure due to financial insolvency, and locked students out of the building with two weeks' notice. The closure devastated students who had to scramble for alternatives and shocked the Philadelphia arts community. The building remains on Broad Street. The institution that occupied it for nearly 150 years, that trained generations of designers, painters, musicians, and performers, no longer exists. What happened to the University of the Arts is a story about the economics of arts education in America, and Philadelphia's loss is not a small one.",
+  },
+  "divine-9-legacy-tour-alpha-kappa-alpha-ivy-legacy": {
+    drive: "Alpha Kappa Alpha - Ivy Legacy is ahead. First alumnae chapter (1918). This stop is at 1824 South St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Alpha Kappa Alpha - Ivy Legacy. First alumnae chapter (1918). You are at 1824 South St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut": {
     drive: "Alpha Phi Alpha at 42nd and Chestnut Street in West Philadelphia marks the site of the first graduate chapter house of the oldest African American intercollegiate fraternity in the United States — established here in 1922, a chapter that has been a center of Black professional and civic life in West Philadelphia for a century.",
@@ -174,17 +374,89 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "Zeta Phi Beta at 17th and Jefferson Street in North Philadelphia marks the site of the first graduate chapter of a sorority founded in 1920 at Howard University — the only Divine Nine organization founded with a constitutional mandate to work in partnership with its brother fraternity, Phi Beta Sigma, in service to the community.",
     walk: "Zeta Phi Beta was founded on January 16, 1920, at Howard University by five women who envisioned a sorority organized around scholarship, service, sisterly love, and finer womanhood. The constitutional partnership with Phi Beta Sigma was unusual in the Greek letter world and reflected a specific philosophy: that men's and women's organizations working in the same communities should coordinate their service rather than compete for resources and recognition. The Philadelphia chapter's presence on Jefferson Street in North Philadelphia placed it in the heart of a community that the Great Migration had transformed — a neighborhood of churches, lodges, schools, and professional organizations where Zeta's emphasis on service had an immediate application. The mural that now marks the chapter house site is part of the Mural Arts Program's documentation of the city's Greek letter organization history.",
   },
+  "eastern-star-weekend-masonic-temple": {
+    drive: "Masonic Temple is ahead. Private Eastern Star tour, jewels, robes. This stop is at 1 N. Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Masonic Temple. Private Eastern Star tour, jewels, robes. You are at 1 N. Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "eastern-star-weekend-most-worshipful-prince-hall-oes": {
     drive: "The Most Worshipful Prince Hall Order of the Eastern Star Grand Chapter in Pennsylvania maintains its operations through the Prince Hall Grand Lodge complex in North Philadelphia — an organizational network encompassing chapters across the state and representing one of the largest networks of Black women's fraternal organization in Pennsylvania.",
     walk: "The Prince Hall OES Grand Chapter of Pennsylvania represents a statewide network of local chapters that has operated continuously since the late nineteenth century. Membership is drawn from women who are relatives of Prince Hall Master Masons, maintaining the family-based membership structure the OES established at its founding. The chapters meet in lodge halls throughout Pennsylvania, many in the same buildings where the Prince Hall lodges meet, sharing physical space and organizational history with the fraternal structure that sponsors them. The women who have led and participated in these chapters over a century and a half have included teachers, nurses, social workers, educators, and civic leaders who brought the same organizational skills and service commitment to the Eastern Star that they brought to every other aspect of their professional and community lives.",
+  },
+  "eastern-star-weekend-mother-bethel-ame-church": {
+    drive: "Mother Bethel AME Church is ahead. Eastern Star Sunday worship. This stop is at 419 S. 6th St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Mother Bethel AME Church. Eastern Star Sunday worship. You are at 419 S. 6th St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "eastern-star-weekend-prince-hall-grand-lodge": {
+    drive: "Prince Hall Grand Lodge is ahead. 1929 Egyptian Revival building. This stop is at 4611 Lancaster Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Prince Hall Grand Lodge. 1929 Egyptian Revival building. You are at 4611 Lancaster Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "eastern-star-weekend-relish": {
+    drive: "Relish is ahead. Upscale soul food in mansion. This stop is at 7152 Ogontz Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Relish. Upscale soul food in mansion. You are at 7152 Ogontz Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "eastern-star-weekend-robert-h-johnson-chapter-no-5": {
+    drive: "Robert H. Johnson Chapter No. 5 is ahead. OES Memorial Marker. This stop is at Laurel Hill Cemetery, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Robert H. Johnson Chapter No. 5. OES Memorial Marker. You are at Laurel Hill Cemetery, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "eastern-star-weekend-south-kitchen-and-jazz-club": {
+    drive: "SOUTH Kitchen & Jazz Club is ahead. Award-winning jazz brunch. This stop is at 600 N. Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at SOUTH Kitchen & Jazz Club. Award-winning jazz brunch. You are at 600 N. Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "eastern-star-weekend-sweetbriar-mansion": {
+    drive: "Sweetbriar Mansion is ahead. Closing ceremony. This stop is at Fairmount Park, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Sweetbriar Mansion. Closing ceremony. You are at Fairmount Park, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "eastern-star-weekend-the-breakfast-den": {
+    drive: "The Breakfast Den is ahead. Black-woman owned brunch spot. This stop is at 1500 South St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at The Breakfast Den. Black-woman owned brunch spot. You are at 1500 South St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "eastern-star-weekend-widow-s-son-hall": {
+    drive: "Widow's Son Hall is ahead. Early Black OES chapters home. This stop is at 3427 Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Widow's Son Hall. Early Black OES chapters home. You are at 3427 Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "job-s-daughters-arch-street-united-methodist": {
+    drive: "Arch Street United Methodist is ahead. Historical installation site. This stop is at Arch St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Arch Street United Methodist. Historical installation site. You are at Arch St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "job-s-daughters-christ-church": {
+    drive: "Christ Church is ahead. Bethel Worship Service. This stop is at 2nd & Market St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Christ Church. Bethel Worship Service. You are at 2nd & Market St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "job-s-daughters-crystal-tea-room": {
+    drive: "Crystal Tea Room is ahead. Purple & White Gala Dinner. This stop is at Wanamaker Building 9th floor, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Crystal Tea Room. Purple & White Gala Dinner. You are at Wanamaker Building 9th floor, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "job-s-daughters-free-quaker-meeting-house": {
+    drive: "Free Quaker Meeting House is ahead. Job's daughters during Revolution lesson. This stop is at 5th & Arch St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Free Quaker Meeting House. Job's daughters during Revolution lesson. You are at 5th & Arch St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "job-s-daughters-green-eggs-caf": {
+    drive: "Green Eggs Café is ahead. Brunch with purple ube lattes. This stop is at 1306 Dickinson St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Green Eggs Café. Brunch with purple ube lattes. You are at 1306 Dickinson St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "job-s-daughters-masonic-temple": {
+    drive: "Masonic Temple is ahead. First Bethel tour - Egyptian Hall initiation site (1921). This stop is at 1 N. Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Masonic Temple. First Bethel tour - Egyptian Hall initiation site (1921). You are at 1 N. Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "job-s-daughters-original-bethel-no-1-hall": {
     drive: "The original Pennsylvania Bethel No. 1 meeting hall site is at 13th and Arch Streets — the location where Philadelphia's first Job's Daughters chapter held its meetings in the 1920s and 1930s, in the years when the organization was expanding rapidly across the country under Masonic sponsorship.",
     walk: "Pennsylvania Bethel No. 1 was chartered in 1921, just one year after the organization's founding in Omaha, reflecting the speed with which Job's Daughters spread through the Masonic network. Philadelphia's Masonic infrastructure in the 1920s was extensive: dozens of active lodges, the Grand Lodge at 1 North Broad, the Masonic Home in Elizabethtown, and a network of Masonic families whose daughters were immediately eligible for the new organization. The meeting hall at 13th and Arch was one of the upper-floor lodge rooms that characterized Philadelphia Masonic meeting spaces — functional, symbolically appointed, removed from street level and therefore from casual observation. The ritual work done in these rooms — the memorized parts, the ceremonies of admission and installation — was the work of forming young women into the kind of civic and moral adults the organization intended to produce. The room is gone. The formation it produced in a hundred years of members is not.",
   },
+  "job-s-daughters-reading-terminal-market": {
+    drive: "Reading Terminal Market is ahead. Lunch with purple lemonade. This stop is at 12th & Arch St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Reading Terminal Market. Lunch with purple lemonade. You are at 12th & Arch St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "job-s-daughters-sweetbriar-mansion": {
+    drive: "Sweetbriar Mansion is ahead. Closing ceremony with purple roses. This stop is at Fairmount Park, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Sweetbriar Mansion. Closing ceremony with purple roses. You are at Fairmount Park, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "library-story-hop-tour-athenaeum-of-philadelphia": {
     drive: "The Athenaeum of Philadelphia is at 219 South 6th Street, a short walk from Independence Hall. This 1847 Italianate building is one of the finest examples of nineteenth century institutional architecture in Philadelphia, and its collection includes evidence of Edgar Allan Poe's visits — including initials he carved into a wooden surface, authenticated by the library's archivists.",
     walk: "The Athenaeum was founded in 1814 and moved to its current building in 1847 — an Italianate structure designed by John Notman that was among the first buildings in the United States in that style and that influenced a generation of American institutional architecture. Edgar Allan Poe lived in Philadelphia from 1838 to 1844 — the most productive period of his career, during which he wrote The Fall of the House of Usher, The Murders in the Rue Morgue, and The Tell-Tale Heart. He used the Athenaeum's reading room, and the initials attributed to him are among the more charming pieces of literary evidence in the building's history. Poe's Philadelphia period is documented at his house at 532 North 7th Street, now a National Historic Site, but the Athenaeum was part of the intellectual landscape he worked within. The building is one of the finest surviving examples of Italian palazzo style applied to an American civic institution.",
+  },
+  "library-story-hop-tour-charles-l-blockson-collection": {
+    drive: "Charles L. Blockson Collection is ahead. Harriet Tubman's personal hymnbook. This stop is at Sullivan Hall, Temple University, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Charles L. Blockson Collection. Harriet Tubman's personal hymnbook. You are at Sullivan Hall, Temple University, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "library-story-hop-tour-free-library-central-parkway": {
     drive: "The Free Library of Philadelphia's Central Library is at 1901 Vine Street on the Benjamin Franklin Parkway. This 1927 Beaux Arts building contains in its rare book room a cast of Grip the raven — the bird owned by Charles Dickens that is widely believed to have inspired Edgar Allan Poe's poem, and that Dickens brought on his 1842 Philadelphia visit.",
@@ -198,9 +470,53 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "The Library Company of Philadelphia is at 1314 Locust Street — the oldest cultural institution in the United States, founded by Benjamin Franklin in 1731, and the home of one of the most remarkable stories in American library history: an enslaved boy named Othello who was granted reading privileges here in 1739.",
     walk: "Benjamin Franklin founded the Library Company in 1731 as a subscription library — members pooled resources to buy books any member could borrow. It was the first public library in the colonies and remained the de facto Library of Congress until the nineteenth century. The story of Othello — an enslaved young man whose master brought him here for reading lessons in 1739 — is documented in the library's records. His access to literacy through an institution founded on Enlightenment principles of open access represents one of the founding contradictions of American intellectual life: a library built on principles of universal human reason, operating in a society that denied the humanity of a significant portion of its population. The Library Company's collection today includes the personal papers of Frederick Douglass, the records of the Philadelphia Female Anti-Slavery Society, and materials documenting the free Black community of Philadelphia from the colonial era forward. It is a research library open to anyone with a legitimate research interest.",
   },
+  "library-story-hop-tour-parkway-central-children-s-dept": {
+    drive: "Parkway Central Children's Dept is ahead. Original Winnie-the-Pooh toys (40 years). This stop is at 1901 Vine St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Parkway Central Children's Dept. Original Winnie-the-Pooh toys (40 years). You are at 1901 Vine St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "library-story-hop-tour-rosenbach-museum-and-library": {
     drive: "The Rosenbach Museum and Library is at 2008 Delancey Place in Rittenhouse Square — a townhouse packed floor to ceiling with some of the most significant literary and artistic objects in the United States, including original Maurice Sendak drawings, the manuscript of James Joyce's Ulysses, and the original Winnie-the-Pooh stuffed animals.",
     walk: "Philip and Abraham Simon Wolf Rosenbach were Philadelphia brothers who assembled one of the great private collections of literary and artistic material in American history. A.S.W. Rosenbach was the most aggressive rare book dealer of his era, acquiring materials from estates across Britain and America. What he kept for himself was extraordinary: the manuscript of Ulysses in James Joyce's hand, the manuscript of Beowulf, first editions of virtually every canonical English and American literary work, and one of the largest collections of original children's book illustrations in the world — including hundreds of Maurice Sendak's original drawings for Where the Wild Things Are. The actual Winnie-the-Pooh stuffed animals owned by Christopher Robin Milne are in this building. The house itself is preserved as the brothers left it, which means it feels less like a museum than a very organized private home with an extraordinary library. It is one of the most quietly astonishing rooms in Philadelphia.",
+  },
+  "masonic-scavenger-hunt-city-hall": {
+    drive: "City Hall is ahead. Compass & Square on Penn's Hat. This stop is at Broad & Market St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at City Hall. Compass & Square on Penn's Hat. You are at Broad & Market St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "masonic-scavenger-hunt-masonic-temple": {
+    drive: "Masonic Temple is ahead. The Temple That Watched City Hall Rise. This stop is at 1 N. Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Masonic Temple. The Temple That Watched City Hall Rise. You are at 1 N. Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "masonic-scavenger-hunt-pennsylvania-hospital": {
+    drive: "Pennsylvania Hospital is ahead. Hospital Gate With Oldest Masonic Mark. This stop is at 8th & Spruce St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Pennsylvania Hospital. Hospital Gate With Oldest Masonic Mark. You are at 8th & Spruce St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "masonic-scavenger-hunt-prince-hall-grand-lodge": {
+    drive: "Prince Hall Grand Lodge is ahead. Prince Hall's 1920s Egyptian Fortress. This stop is at 4611 Lancaster Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Prince Hall Grand Lodge. Prince Hall's 1920s Egyptian Fortress. You are at 4611 Lancaster Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "move-bombing-memorial-african-american-museum": {
+    drive: "African American Museum is ahead. Medical Apartheid exhibit, healing panels. This stop is at 701 Arch St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at African American Museum. Medical Apartheid exhibit, healing panels. You are at 701 Arch St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "move-bombing-memorial-chef-curt-s-bbq": {
+    drive: "Chef Curt's BBQ is ahead. Community lunch, owner stories. This stop is at near 62nd & Market St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Chef Curt's BBQ. Community lunch, owner stories. You are at near 62nd & Market St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "move-bombing-memorial-cobbs-creek-park": {
+    drive: "Cobbs Creek Park is ahead. Where firefighters let it burn. This stop is at 63rd & Vine Sts, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Cobbs Creek Park. Where firefighters let it burn. You are at 63rd & Vine Sts, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "move-bombing-memorial-municipal-services-building": {
+    drive: "Municipal Services Building is ahead. Remembering MOVE exhibit, Commission testimonies. This stop is at 1401 JFK Blvd, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Municipal Services Building. Remembering MOVE exhibit, Commission testimonies. You are at 1401 JFK Blvd, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "move-bombing-memorial-osage-avenue": {
+    drive: "Osage Avenue is ahead. Bomb site, 11 victims memorial. This stop is at 6221 Osage Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Osage Avenue. Bomb site, 11 victims memorial. You are at 6221 Osage Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "move-bombing-memorial-powelton-village": {
+    drive: "Powelton Village is ahead. MOVE's first stronghold (1973-1978). This stop is at 311 N. 33rd St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Powelton Village. MOVE's first stronghold (1973-1978). You are at 311 N. 33rd St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "old-york-road-corridor-cecil-b-moore-law-office": {
     drive: "Cecil B. Moore's law office was at 7101 Ogontz Avenue. Moore was the most confrontational and effective civil rights attorney in Philadelphia history — the man who desegregated Girard College, forced the city's construction unions to accept Black workers, and ran the Philadelphia NAACP with a militancy that made him a hero to North Philadelphia and a problem for everyone else.",
@@ -214,6 +530,14 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "Germantown High School is ahead at 2950 West School House Lane. When it opened in 1914, it was the first racially integrated public high school in Philadelphia — a fact that places it at the beginning of a long and unfinished argument about what integrated education in this city actually means.",
     walk: "Germantown High School opened in 1914 at a time when Philadelphia's public schools were informally but effectively segregated by neighborhood boundary lines that reflected the residential segregation of the city. Germantown's mixed racial composition — a neighborhood where Black and white families lived in closer proximity than in most of the city — meant that the school drew from a more diverse population than most Philadelphia high schools of the era. The school produced an extraordinary concentration of notable alumni: Bill Cosby attended, as did Chubby Checker, whose real name is Ernest Evans and who graduated from South Philadelphia High but whose career was launched through the Philadelphia music scene that Germantown was part of. The school's athletic programs, academic departments, and student culture reflected the specific social dynamics of a neighborhood in transition through the mid-twentieth century — the Great Migration, the postwar suburban exodus, the Civil Rights era. The school closed in 2013 as part of a district restructuring that was controversial throughout Philadelphia. Its building, one of the finest examples of early twentieth century school architecture in the city, remains standing.",
   },
+  "old-york-road-corridor-happy-hollow-rec-center": {
+    drive: "Happy Hollow Rec Center is ahead. 1967 race riots site, now community hub. This stop is at 5091 West Haines Street, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Happy Hollow Rec Center. 1967 race riots site, now community hub. You are at 5091 West Haines Street, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "old-york-road-corridor-johnson-house-historic-site": {
+    drive: "Johnson House Historic Site is ahead. Active Underground Railroad station. This stop is at 6306 Germantown Avenue, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Johnson House Historic Site. Active Underground Railroad station. You are at 6306 Germantown Avenue, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "old-york-road-corridor-ogontz-theatre-site": {
     drive: "The Ogontz Theatre site is ahead at 6037 Ogontz Avenue. In the 1920s and 1930s, this was a vaudeville and performance venue that served Black artists during segregation — one of the stops on the circuit that allowed Black performers to work professionally in a country where most mainstream venues refused to book them.",
     walk: "The Ogontz Theatre operated during the era of the Chitlin Circuit — the network of Black-owned and Black-friendly venues across the South and North that sustained African American performance culture during the decades of legal and informal segregation. Philadelphia's Black entertainment venues were concentrated along Germantown Avenue, Columbia Avenue, and the corridor near the Uptown Theater on North Broad, and the Ogontz was part of that network. Performers who worked these venues were building careers without access to the mainstream vaudeville circuits, recording deals, or radio exposure that white performers took for granted. They were also, in many cases, developing the performance styles, the comedic vocabulary, and the musical innovations that would eventually cross over into mainstream American culture while the performers themselves remained excluded from it. The Chitlin Circuit produced Louis Armstrong, Billie Holiday, Ella Fitzgerald, and the comedians who became the first Black television performers. The Ogontz Theatre was one of the rooms where that work happened in Philadelphia.",
@@ -221,6 +545,10 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
   "old-york-road-corridor-old-york-road-and-north-broad": {
     drive: "We're at the intersection of Old York Road and North Broad Street — the northern gateway of one of the oldest roads in North America. This was the colonial highway that connected Philadelphia to New York, and free Black laborers were among the workers who built and maintained its milestones and road surface.",
     walk: "Old York Road is a Lenape trail that became a colonial post road, surveyed and improved in the 1710s and 1720s to create a reliable overland connection between Philadelphia and New York. The stone mile markers along the road were placed by surveyors hired by the colonial government, and the labor of building and maintaining the road surface fell largely on the people at the bottom of the colonial economy — indentured servants, free Black laborers, and the poor of multiple backgrounds who could be conscripted for road work under colonial law. The road runs through the heart of Germantown, through the Jewish communities of Elkins Park, through the old industrial towns of Willow Grove and Lansdale, and into Montgomery County — a geographic cross-section of Philadelphia's surrounding region that reflects three centuries of migration, settlement, and transformation. Standing at this intersection, you're at the point where the colonial artery meets Broad Street — the spine of Philadelphia's Black institutional life — and the history layered at that crossing runs deeper than it looks.",
+  },
+  "old-york-road-corridor-relish-restaurant": {
+    drive: "Relish Restaurant is ahead. Upscale soul food in historic mansion. This stop is at 7152 Ogontz Avenue, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Relish Restaurant. Upscale soul food in historic mansion. You are at 7152 Ogontz Avenue, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "old-york-road-corridor-the-nile-restaurant-and-lounge": {
     drive: "The Nile Restaurant and Lounge is at 6008 Germantown Avenue — a vegan soul food restaurant founded by members with connections to the Black Panther Party's free breakfast program, which fed thousands of Philadelphia children in the late 1960s and early 1970s before the FBI's COINTELPRO operation dismantled the local chapter.",
@@ -234,6 +562,10 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "Belmont Mansion is at 2000 Belmont Mansion Drive in Fairmount Park — a 1742 Palladian estate that served as an Underground Railroad sanctuary and is now operated as a museum where the Underground Railroad history is the primary interpretive focus, making it unusual among Philadelphia's many historic houses.",
     walk: "Belmont Mansion was built around 1742 and its location in what was then a rural stretch of Fairmount Park — at a distance from the dense urban grid where slavecatchers operated most effectively — made it useful as a place where freedom seekers could rest and shelter before continuing north. The mansion's current operators have developed an interpretive program specifically focused on that history, which makes Belmont unusual: most of Philadelphia's historic houses acknowledge slavery and the Underground Railroad as secondary to their primary narratives about architecture and wealthy white owners. Belmont makes the Underground Railroad history the center. The estate sits on high ground with views in multiple directions — a practical advantage for a sanctuary that needed to see who was coming. The landscape that made it beautiful also made it safe.",
   },
+  "philadelphia-foundations-cliveden": {
+    drive: "Cliveden is ahead. Underground Railroad role. This stop is at 6401 Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Cliveden. Underground Railroad role. You are at 6401 Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "philadelphia-foundations-ebenezer-maxwell-mansion": {
     drive: "The Ebenezer Maxwell Mansion is at 200 West Tulpehocken Street in Germantown — a High Victorian Gothic house built in 1859 that is the only authentically restored Victorian house museum in Philadelphia, and a site with connections to the abolitionist network that operated throughout the Germantown corridor.",
     walk: "The Ebenezer Maxwell Mansion is the only house in Philadelphia where the interior, exterior, and landscape have been restored to accurately represent the middle-class Victorian domestic environment of the 1860s and 1870s — the period of the Civil War and Reconstruction. Maxwell was a cloth merchant who built this elaborate house in 1859 as a demonstration of prosperity and taste, in a Germantown neighborhood that was one of the most active abolitionist corridors in the North. Johnson House was a known Underground Railroad station on the same avenue, and the network of antislavery families in the area was dense and well-organized. The Maxwell family's connections to that network are documented. A house this carefully appointed, built in 1859, was built by someone with opinions about what was happening in American politics. The mansion holds those opinions alongside the wallpaper samples.",
@@ -246,6 +578,18 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "The Harriet Tubman Mural is at 2900 Germantown Avenue — part of Philadelphia's Mural Arts Program, the largest public art program in the United States, which has produced over four thousand murals across the city. This mural depicts Tubman on a street she is believed to have traveled, encoding the quilt patterns some historians argue were used as navigational signals on the Underground Railroad.",
     walk: "Harriet Tubman was born into slavery around 1822 in Dorchester County, Maryland, escaped north in 1849, and then returned south nineteen times to lead others to freedom. Slaveholders offered rewards that eventually reached forty thousand dollars for her capture. She was never caught. The Germantown corridor is believed to have been part of her path on multiple runs. Tubman went on to serve as a Union Army spy and scout during the Civil War and was the only American woman to lead an armed military raid — the Combahee River Raid of June 2, 1863, which liberated more than seven hundred enslaved people in South Carolina. She spent her later years in Auburn, New York, where she died in 1913. She said, toward the end of her life, that she never lost a passenger. The Germantown Avenue she may have walked is the street this mural faces.",
   },
+  "philadelphia-foundations-johnson-house": {
+    drive: "Johnson House is ahead. Philly's only intact Underground Railroad station. This stop is at 6306 Germantown Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Johnson House. Philly's only intact Underground Railroad station. You are at 6306 Germantown Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "philly-black-art-odyssey-african-american-museum": {
+    drive: "African American Museum is ahead. CCH Pounder collection, African diaspora art. This stop is at 701 Arch St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at African American Museum. CCH Pounder collection, African diaspora art. You are at 701 Arch St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "philly-black-art-odyssey-barnes-foundation": {
+    drive: "Barnes Foundation is ahead. African masks, Mickalene Thomas exhibit. This stop is at 2025 Benjamin Franklin Pkwy, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Barnes Foundation. African masks, Mickalene Thomas exhibit. You are at 2025 Benjamin Franklin Pkwy, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "philly-black-art-odyssey-brandywine-workshop": {
     drive: "The Brandywine Workshop at 1520 Sansom Street is a printmaking atelier founded in 1972 that has produced prints by some of the most significant Black artists of the late twentieth and early twenty-first centuries and has built one of the largest collections of prints by African American artists in the world.",
     walk: "The Brandywine Workshop was founded by Allan Edmunds in 1972 to create a world-class printmaking facility genuinely accessible to artists of color, at a time when the major printmaking workshops were working primarily with white artists. Printmaking has particular significance in the history of Black American art: it is a democratic art form, capable of producing multiple affordable originals, used throughout the twentieth century to reach audiences that fine art markets excluded. The Brandywine's collection of prints by African American artists — including work by Elizabeth Catlett, Romare Bearden, and Jacob Lawrence — is one of the most comprehensive in the world. Catlett's lithographs, made across a career spanning Mexico, New York, and the American South, are among the most powerful social realist images in twentieth century printmaking. The workshop continues to operate as both a production facility and an educational institution, maintaining the connection between fine art printmaking and community outreach that was Edmunds's founding commitment.",
@@ -254,9 +598,45 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "The Moody Jones Gallery at 107B South Easton Road in Glenside is a commercial gallery focused on new and emerging Black artists — located just outside Philadelphia in Montgomery County, serving a suburban collector base that the city's gallery scene has not always reached.",
     walk: "The Moody Jones Gallery operates in a market that is geographically distinct from Center City Philadelphia but connected to it culturally and institutionally. Montgomery County's Black communities — concentrated in Cheltenham, Elkins Park, and the old-growth African American neighborhoods along the York Road corridor — represent a collector base with significant resources and strong interest in supporting Black artistic production. A gallery that serves this market builds relationships with collectors who may have different connections to the art and different expectations about what they want to live with. The emerging artists the gallery represents are in the earliest stages of building careers — the stage at which gallery support and collector relationships have the most impact. Committing to artists at this stage, in a market genuinely interested in their work, provides something the downtown gallery system has historically withheld from Black artists: the basic commercial infrastructure of a sustainable career.",
   },
+  "philly-black-art-odyssey-mural-arts-tour": {
+    drive: "Mural Arts Tour is ahead. Black Be Beautiful, Cecil B. Moore murals. This stop is at 1729 Mt Vernon St start, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Mural Arts Tour. Black Be Beautiful, Cecil B. Moore murals. You are at 1729 Mt Vernon St start, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "philly-black-art-odyssey-october-gallery": {
+    drive: "October Gallery is ahead. Emerging Black artists, mixed media. This stop is at 2101 N Front St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at October Gallery. Emerging Black artists, mixed media. You are at 2101 N Front St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "philly-black-art-odyssey-pa-academy-fine-arts": {
+    drive: "PA Academy Fine Arts is ahead. Kehinde Wiley, Nick Cave, Mickalene Thomas. This stop is at 118-128 N Broad St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at PA Academy Fine Arts. Kehinde Wiley, Nick Cave, Mickalene Thomas. You are at 118-128 N Broad St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "philly-black-art-odyssey-philadelphia-museum-of-art": {
+    drive: "Philadelphia Museum of Art is ahead. Time is Always Now - 60 works by 28 artists. This stop is at 2600 Benjamin Franklin Pkwy, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Philadelphia Museum of Art. Time is Always Now - 60 works by 28 artists. You are at 2600 Benjamin Franklin Pkwy, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "philly-black-art-odyssey-public-sculptures": {
+    drive: "Public Sculptures is ahead. Octavius Catto, Tuskegee Airmen, Keith Haring murals. This stop is at Various locations, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Public Sculptures. Octavius Catto, Tuskegee Airmen, Keith Haring murals. You are at Various locations, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "philly-black-art-odyssey-woodmere-art-museum": {
+    drive: "Woodmere Art Museum is ahead. We Speak exhibit - 70 works, 1920s-1970s. This stop is at 9201 Germantown Ave, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Woodmere Art Museum. We Speak exhibit - 70 works, 1920s-1970s. You are at 9201 Germantown Ave, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "rainbow-girls-philadelphia-arch-street-presbyterian-church": {
     drive: "Arch Street Presbyterian Church at 1724 Arch Street is one of the oldest continuously operating Presbyterian congregations in Philadelphia, founded in 1813, and the venue for the Rainbow Girls worship service. Its sanctuary is one of the finest examples of nineteenth century Gothic Revival ecclesiastical architecture in the city.",
     walk: "The Presbyterian Church has been present in Philadelphia since the seventeenth century, and the Arch Street congregation represents one of the primary expressions of Philadelphia's Protestant establishment — the Scots-Irish and English Presbyterian community that was, alongside the Quakers, one of the foundational religious communities of the city. The church building completed in 1855 in Gothic Revival style gives it the vertical emphasis that Gothic architecture uses to direct the eye and the mind upward. The Rainbow Girls worship service here connects the organization's founding in Masonic sponsorship to the broader Protestant tradition from which both Masonry and Rainbow draw their symbolism and moral vocabulary. The sanctuary is a room designed for the kind of contemplation and communal worship that Rainbow's ritual structure also seeks to cultivate.",
+  },
+  "rainbow-girls-philadelphia-covenant-house-pa": {
+    drive: "Covenant House PA is ahead. Service Project - Pack 150 hygiene kits. This stop is at Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Covenant House PA. Service Project - Pack 150 hygiene kits. You are at Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "rainbow-girls-philadelphia-green-eggs-caf": {
+    drive: "Green Eggs Café is ahead. Colorful Brunch with rainbow bagels. This stop is at 33 S. 18th St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Green Eggs Café. Colorful Brunch with rainbow bagels. You are at 33 S. 18th St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
+  "rainbow-girls-philadelphia-hard-rock-cafe": {
+    drive: "Hard Rock Cafe is ahead. Rainbow Friendship Dinner with karaoke. This stop is at 1119 Market St, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Hard Rock Cafe. Rainbow Friendship Dinner with karaoke. You are at 1119 Market St, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "rainbow-girls-philadelphia-masonic-temple": {
     drive: "The Masonic Temple is ahead. This landmark anchors ritual, memory, and civic identity in Philadelphia's ceremonial landscape. As you approach, prepare to continue on foot for the architectural and symbolic details.",
@@ -278,6 +658,10 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
     drive: "Smith Memorial Playground at Reservoir Drive in Fairmount Park is one of the oldest public playgrounds in the United States — established in 1899 by Richard and Sarah Smith as a free outdoor play space for Philadelphia children, with a giant wooden slide that has been in continuous operation for over a century.",
     walk: "Smith Memorial Playground was given to the City of Philadelphia in 1899 by Richard Smith, a typefounder who made his fortune in Philadelphia's printing industry, as a free public play space for children — a genuinely democratic institution at a time when organized play spaces for urban children were rare. The Ann Newman Giant Wooden Slide is the playground's most iconic feature: a massive indoor wooden sliding surface that children have been careening down since its installation in the early twentieth century. The playground's commitment to free admission has been maintained for over 125 years, making it one of the few public amenities in Philadelphia that has remained genuinely accessible across all economic levels throughout its history. For a Rainbow Girls group, the slide is an experience that crosses generational lines — every adult who visited Philadelphia as a child remembers it — and the playground's long history as a free, democratic outdoor play space reflects the values of service and accessibility that Rainbow promotes.",
   },
+  "rainbow-girls-philadelphia-sweetbriar-mansion-lawn": {
+    drive: "Sweetbriar Mansion lawn is ahead. Closing Rainbow Ceremony with Pot of Gold. This stop is at Fairmount Park, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Sweetbriar Mansion lawn. Closing Rainbow Ceremony with Pot of Gold. You are at Fairmount Park, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
+  },
   "septa-broad-street-line-aces-museum-black-wwii-veterans": {
     drive: "The Aces Museum near the NRG Station in South Philadelphia preserves artifacts and records documenting the service of Black Philadelphia veterans in World War II — men whose contributions were systematically documented less thoroughly than those of white veterans, and whose stories required dedicated institutional effort to recover.",
     walk: "The Black veterans of World War II returned to a country that had made them specific promises and broke virtually all of them. The GI Bill's college education benefit was largely inaccessible to Black veterans because Black colleges lacked capacity and white colleges refused admission. The housing loan benefit was administered through FHA guidelines that redlined Black neighborhoods. VA hospitals were segregated. Employment preference for veterans was exercised by employers who had no interest in hiring Black workers regardless of their service records. The specific history of Black Philadelphia's World War II veterans — their units, their service records, their postwar experiences — is exactly the kind of history that institutions like the Aces Museum exist to preserve, because mainstream military and civic history has consistently underrepresented it. The artifacts here are the material evidence of service that deserved better recognition than it received.",
@@ -285,6 +669,10 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
   "septa-broad-street-line-berks-street-arts-district": {
     drive: "The Berks Street area in North Philadelphia was, in the 1950s, a neighborhood where Black poets, painters, and musicians gathered in informal communities that constituted one of the most creatively fertile environments in postwar Philadelphia — a scene that influenced the Black Arts Movement of the 1960s without receiving the institutional recognition that movement eventually generated.",
     walk: "The Black Arts Movement of the 1960s and 1970s had roots in the informal creative communities that existed in Northern cities through the 1950s. Philadelphia's version was concentrated in North Philadelphia, where musicians working the club circuit, poets doing readings in church basements, and painters working in apartments and storefronts created a cultural ecosystem operating almost entirely outside mainstream Philadelphia's cultural institutions. These artists were not waiting for recognition from the Philadelphia Museum of Art. They were building their own institutions — small presses, galleries, performance spaces — developing a vocabulary for Black artistic experience that would inform the Black Arts Movement when it crystallized in the mid-1960s. The Berks Street area is one of the neighborhoods where that informal creative ferment happened. Its history is in the work that came out of it, not in the buildings that remain.",
+  },
+  "septa-broad-street-line-cecil-b-moore-mural": {
+    drive: "Cecil B. Moore Mural is ahead. NAACP leader, voting rights. This stop is at North Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Cecil B. Moore Mural. NAACP leader, voting rights. You are at North Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "septa-broad-street-line-divine-lorraine-hotel": {
     drive: "The Divine Lorraine Hotel is ahead on Broad Street — a building that was, under Father Divine's Peace Mission Movement in the 1940s, the first racially integrated hotel in the United States, where Black and white guests ate together in the dining room at a time when such integration was not only unusual but actively resisted.",
@@ -325,6 +713,10 @@ export const narrationScriptMapByStopId: Record<string, NarrationScriptEntry> = 
   "septa-broad-street-line-william-still-marker": {
     drive: "The William Still marker near City Hall honors the free Black Philadelphian who became the most important logistical organizer of the Underground Railroad in the United States, personally assisting more than eight hundred freedom seekers and keeping meticulous records that documented their stories for history.",
     walk: "William Still was born in 1821 in New Jersey, the youngest of eighteen children of a formerly enslaved man who had purchased his own freedom. Still moved to Philadelphia in 1844 and joined the Pennsylvania Anti-Slavery Society, eventually serving as its primary Black officer. Between 1850 and 1860 he was the primary contact point for freedom seekers arriving in Philadelphia — coordinating housing, food, clothing, transportation, and documenting their stories. His records were kept meticulously and hidden carefully during the Fugitive Slave Act era, when possessing them was a federal crime. After the Civil War, he published them as The Underground Railroad — a book containing the firsthand accounts of more than eight hundred people who escaped slavery, recorded by the man who helped them. Still also helped one freedom seeker who turned out to be his own brother Peter, left behind when their mother escaped decades earlier. The reunion is documented. It is among the most affecting passages in the book.",
+  },
+  "septa-broad-street-line-wyoming-ave-business-district": {
+    drive: "Wyoming Ave Business District is ahead. 1920s Black entrepreneurs corridor. This stop is at Wyoming Ave, Philadelphia, PA. Slow down as you approach and continue on foot when it is safe for the full story.",
+    walk: "You are now at Wyoming Ave Business District. 1920s Black entrepreneurs corridor. You are at Wyoming Ave, Philadelphia, PA. Take a moment to look around and connect this stop to the larger story of the tour.",
   },
   "speakeasy-tour-1-tippling-place": {
     drive: "1 Tippling Place is at 2007 Chestnut Street — a craft cocktail bar whose bartenders have received James Beard Award recognition, making it one of the few cocktail establishments in Philadelphia to receive recognition from the culinary world's most prestigious organization.",
