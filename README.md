@@ -340,8 +340,6 @@ The current product priority is:
 
 ## Planning Docs
 
-- AR production plan: [docs/ar-production-sheet.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-production-sheet.md)
-- AR build tracker: [docs/ar-build-tracker.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-build-tracker.csv)
 - AR asset catalog: [docs/ar-asset-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-asset-catalog.csv)
 - AR briefs: [docs/ar-briefs/README.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-briefs/README.md)
 - AR scene manifests: [docs/ar-scene-manifests/README.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-scene-manifests/README.md)
