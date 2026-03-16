@@ -16,6 +16,19 @@ type Props = {
   handoffMode?: "arrive" | "map" | "ar";
 };
 
+function getTourPackBlurb(durationMin: number, arMoments: number, fullAudioCount: number) {
+  if (arMoments > 0 && fullAudioCount > 0) {
+    return "Audio-led city storytelling with selective AR reveals and narrated stops ready to launch.";
+  }
+  if (arMoments > 0) {
+    return "A walk-first route with selective AR reveals placed where the site can carry a stronger spatial moment.";
+  }
+  if (durationMin >= 90) {
+    return "A longer city route built for deep historical context, steady pacing, and full-neighborhood discovery.";
+  }
+  return "A focused walking route built around clear storytelling, easy pacing, and elegant stop-by-stop discovery.";
+}
+
 export function HomeScreen({
   displayName = "Founder",
   initialSelectedTourId,
@@ -185,6 +198,7 @@ export function HomeScreen({
         {tours.map((tour) => {
           const isActive = tour.id === selectedTourId;
           const arMoments = tour.stops.filter((stop) => typeof stop.arPriority === "number").length;
+          const fullAudioStops = tour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length;
           return (
             <Pressable
               key={tour.id}
@@ -196,12 +210,12 @@ export function HomeScreen({
                 {tour.durationMin} min | {tour.distanceMiles} mi | {tour.rating} rating
               </Text>
               <Text style={styles.packBody} numberOfLines={2}>
-                {tour.heroPlanningNote || "Audio-led city storytelling with selective AR reveals."}
+                {getTourPackBlurb(tour.durationMin, arMoments, fullAudioStops)}
               </Text>
               <View style={styles.heroChips}>
                 <Chip label={`${tour.stops.length} stops`} tone="default" />
                 <Chip label={`${arMoments} AR moments`} tone={arMoments > 0 ? "success" : "default"} />
-                <Chip label={`${tour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length} full audio`} tone="warn" />
+                <Chip label={`${fullAudioStops} full audio`} tone="warn" />
               </View>
             </Pressable>
           );
