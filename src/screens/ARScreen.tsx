@@ -8,7 +8,7 @@ import { toARScenePayload } from "../services/ar";
 import { getNativeARAdapter } from "../services/native-ar";
 import { NativeARStatus } from "../services/native-ar/types";
 import { createRealtimeSyncFromEnv } from "../services/realtime";
-import { startNarration, stopNarration } from "../services/narration";
+import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 
 const adapter = getNativeARAdapter();
 const sync = createRealtimeSyncFromEnv();
@@ -165,6 +165,19 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
     await stopNarration();
   }
 
+  function getCoverageMeta(coverage: NarrationCoverage) {
+    switch (coverage) {
+      case "full_audio":
+        return { label: "Full audio", tone: "success" as const };
+      case "partial_audio":
+        return { label: "Partial audio", tone: "warn" as const };
+      case "script_only":
+        return { label: "Script voice", tone: "default" as const };
+      default:
+        return { label: "Basic voice", tone: "default" as const };
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -196,7 +209,7 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
             <PrimaryChoice
               key={stop.id}
               active={selectedStopId === stop.id}
-              label={`${typeof stop.arPriority === "number" ? `P${stop.arPriority}` : `Stop ${index + 1}`} ${stop.title}`}
+              label={`${typeof stop.arPriority === "number" ? `P${stop.arPriority}` : `Stop ${index + 1}`} ${stop.title} · ${getCoverageMeta(getNarrationCoverage(stop.id)).label}`}
               onPress={() => setSelectedStopId(stop.id)}
             />
           ))}
@@ -215,6 +228,7 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
               label={narration.stopId === selectedStop.id && narration.status === "playing" ? "Audio live" : "Walk narration"}
               tone="warn"
             />
+            <Chip {...getCoverageMeta(getNarrationCoverage(selectedStop.id))} />
           </View>
           <Text style={styles.specLabel}>Placement</Text>
           <Text style={styles.specCopy}>{manifest.placementNote}</Text>
