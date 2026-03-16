@@ -2,11 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
+import { useNarration } from "../hooks/useNarration";
 import { toARSceneManifest } from "../services/arManifest";
 import { toARScenePayload } from "../services/ar";
 import { getNativeARAdapter } from "../services/native-ar";
 import { NativeARStatus } from "../services/native-ar/types";
 import { createRealtimeSyncFromEnv } from "../services/realtime";
+import { startNarration, stopNarration } from "../services/narration";
 
 const adapter = getNativeARAdapter();
 const sync = createRealtimeSyncFromEnv();
@@ -23,6 +25,7 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
   const [actionStatus, setActionStatus] = useState<string>("idle");
   const [actionError, setActionError] = useState<string | null>(null);
   const [arStatus, setArStatus] = useState<NativeARStatus | null>(null);
+  const narration = useNarration();
   const [joined, setJoined] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -137,6 +140,31 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
     }
   }
 
+  async function onPlayNarration() {
+    if (!selectedStop) {
+      return;
+    }
+    try {
+      await startNarration({
+        id: selectedStop.id,
+        tourId: selectedTour.id,
+        title: selectedStop.title,
+        lat: selectedStop.lat,
+        lng: selectedStop.lng,
+        triggerRadiusM: selectedStop.triggerRadiusM,
+        audioUrl: selectedStop.audioUrl,
+        arrivalSummary: selectedStop.description.split("|")[0]?.trim() || selectedStop.description,
+        handoffDeepLink: `phillyartours://tour/${selectedTour.id}/stop/${selectedStop.id}/arrive`
+      }, "walk");
+    } catch (error) {
+      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
+    }
+  }
+
+  async function onStopNarration() {
+    await stopNarration();
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -183,11 +211,24 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
           <View style={styles.chips}>
             <Chip label={manifest.arType.replaceAll("_", " ")} tone="warn" />
             <Chip label={`${selectedStop.triggerRadiusM}m reveal radius`} tone="default" />
+            <Chip
+              label={narration.stopId === selectedStop.id && narration.status === "playing" ? "Audio live" : "Walk narration"}
+              tone="warn"
+            />
           </View>
           <Text style={styles.specLabel}>Placement</Text>
           <Text style={styles.specCopy}>{manifest.placementNote}</Text>
           <Text style={styles.specLabel}>Scene layers</Text>
           <Text style={styles.specCopy}>{manifest.contentLayers.slice(0, 3).join(" | ")}</Text>
+          <View style={styles.actionStack}>
+            <PrimaryButton
+              label={narration.stopId === selectedStop.id && narration.status === "playing" ? "Replay Stop Audio" : "Play Stop Audio"}
+              onPress={onPlayNarration}
+            />
+            {narration.stopId === selectedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
+              <PrimaryButton label="Stop Audio" onPress={onStopNarration} />
+            ) : null}
+          </View>
         </Card>
       ) : null}
 
