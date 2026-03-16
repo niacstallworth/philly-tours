@@ -23,6 +23,10 @@ type Props = {
 
 const driveTours = getDriveTourSummaries();
 
+function getFullAudioStopCount(tourId: string) {
+  return getDriveStops(tourId).filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length;
+}
+
 export function DriveScreen({ initialTourId }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialTourId || driveTours[0]?.id || "");
   const { driveSession, setDriveSession, loading } = useDriveSession();
@@ -46,6 +50,10 @@ export function DriveScreen({ initialTourId }: Props) {
     [selectedTourId]
   );
   const driveStops = React.useMemo(() => getDriveStops(selectedTour?.id || ""), [selectedTour?.id]);
+  const selectedTourFullAudioCount = React.useMemo(
+    () => (selectedTour ? driveStops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length : 0),
+    [driveStops, selectedTour]
+  );
   const activeSession = driveSession?.tourId === selectedTour?.id ? driveSession : null;
   const currentStop = React.useMemo(() => getCurrentDriveStop(activeSession), [activeSession]);
   const nextStop = React.useMemo(
@@ -182,6 +190,7 @@ export function DriveScreen({ initialTourId }: Props) {
           {driveTours.map((tour) => {
             const isActive = selectedTourId === tour.id;
             const hasSession = driveSession?.tourId === tour.id;
+            const fullAudioCount = getFullAudioStopCount(tour.id);
             return (
               <Pressable
                 key={tour.id}
@@ -190,6 +199,9 @@ export function DriveScreen({ initialTourId }: Props) {
               >
                 <Text style={[styles.tourChipText, isActive && styles.tourChipTextActive]}>
                   {tour.title}{hasSession ? " • live" : ""}
+                </Text>
+                <Text style={[styles.tourChipMeta, isActive && styles.tourChipMetaActive]}>
+                  {fullAudioCount}/{tour.stopCount} full audio
                 </Text>
               </Pressable>
             );
@@ -207,6 +219,7 @@ export function DriveScreen({ initialTourId }: Props) {
           <View style={styles.chips}>
             <Chip label={`Hero stop ${selectedTour.heroStopTitle || "selected"}`} tone="warn" />
             <Chip label={activeSession ? `Session ${activeSession.mode}` : loading ? "Loading session" : "Ready to start"} tone="success" />
+            <Chip label={`${selectedTourFullAudioCount}/${selectedTour.stopCount} full audio`} tone="default" />
           </View>
         </Card>
       ) : null}
@@ -395,6 +408,14 @@ const styles = StyleSheet.create({
   },
   tourChipTextActive: {
     color: "#2b1021"
+  },
+  tourChipMeta: {
+    color: "#9d8aa8",
+    fontSize: 12,
+    fontWeight: "600"
+  },
+  tourChipMetaActive: {
+    color: "#472034"
   },
   chips: {
     flexDirection: "row",
