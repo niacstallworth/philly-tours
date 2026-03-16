@@ -34,7 +34,7 @@ This README is the current build-status document for the repo.
 - User deletion requests can be recorded in the backend.
 - Native iOS AR bridge is present and builds.
 - First bundled iOS `.usdz` asset pipeline is in place.
-- AR scene manifest / planning / asset catalog infrastructure exists.
+- AR asset catalog, scene manifest, and production brief infrastructure exists.
 - Narration flow now exists in app:
   - route-aware narration controls
   - auto narration on arrival
@@ -74,6 +74,7 @@ This README is the current build-status document for the repo.
 ### Not complete yet
 - Final recorded narration library and voice pipeline.
 - Production-grade AR content for hero stops.
+- On-device tuning for the first real 3D hero stops.
 - Full Android runtime/device verification.
 - Production auth, badges, and cross-device progress sync.
 - Production content management workflow / CMS.
