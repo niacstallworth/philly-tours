@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useNarration } from "../hooks/useNarration";
@@ -29,6 +30,9 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
   const [joined, setJoined] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [fullAudioOnly, setFullAudioOnly] = useState(false);
+  const [scaleDraft, setScaleDraft] = useState("1");
+  const [rotationDraft, setRotationDraft] = useState("180");
+  const [verticalOffsetDraft, setVerticalOffsetDraft] = useState("0");
 
   const selectedTour = useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
   const arStops = useMemo(() => {
@@ -49,6 +53,23 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
   );
   const manifest = useMemo(() => (selectedStop ? toARSceneManifest(selectedStop) : null), [selectedStop]);
   const payload = useMemo(() => (selectedStop ? toARScenePayload(selectedStop) : null), [selectedStop]);
+  const tunedPayload = useMemo(() => {
+    if (!payload) {
+      return null;
+    }
+
+    function parseNumber(value: string, fallback: number) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    return {
+      ...payload,
+      scale: Math.max(0.01, parseNumber(scaleDraft, payload.scale)),
+      rotationYDeg: parseNumber(rotationDraft, payload.rotationYDeg),
+      verticalOffsetM: parseNumber(verticalOffsetDraft, payload.verticalOffsetM)
+    };
+  }, [payload, rotationDraft, scaleDraft, verticalOffsetDraft]);
   const unsupportedSimulator =
     arStatus?.provider === "arkit" &&
     arStatus?.available === false &&
@@ -73,6 +94,15 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
     });
   }, [initialStopId, visibleArStops]);
 
+  useEffect(() => {
+    if (!payload) {
+      return;
+    }
+    setScaleDraft(String(payload.scale));
+    setRotationDraft(String(payload.rotationYDeg));
+    setVerticalOffsetDraft(String(payload.verticalOffsetM ?? 0));
+  }, [payload?.stopId]);
+
   async function refreshStatus() {
     try {
       const status = await adapter.getStatus();
@@ -89,21 +119,22 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
       if (!payload) {
         throw new Error("No AR stop is selected.");
       }
+      const nextPayload = tunedPayload || payload;
       await adapter.startSession();
       await adapter.placeModel({
-        id: payload.stopId,
-        modelUrl: payload.modelUrl,
-        scale: payload.scale,
-        rotationYDeg: payload.rotationYDeg,
-        verticalOffsetM: payload.verticalOffsetM,
-        fallbackType: payload.fallbackType,
-        title: payload.title,
-        subtitle: payload.subtitle,
-        headline: payload.headline,
-        summary: payload.summary,
-        placementNote: payload.placementNote,
-        contentLayers: payload.contentLayers,
-        productionChecklist: payload.productionChecklist
+        id: nextPayload.stopId,
+        modelUrl: nextPayload.modelUrl,
+        scale: nextPayload.scale,
+        rotationYDeg: nextPayload.rotationYDeg,
+        verticalOffsetM: nextPayload.verticalOffsetM,
+        fallbackType: nextPayload.fallbackType,
+        title: nextPayload.title,
+        subtitle: nextPayload.subtitle,
+        headline: nextPayload.headline,
+        summary: nextPayload.summary,
+        placementNote: nextPayload.placementNote,
+        contentLayers: nextPayload.contentLayers,
+        productionChecklist: nextPayload.productionChecklist
       });
       await refreshStatus();
 
@@ -117,8 +148,8 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
           sync.send({
             type: "spawn",
             sessionId: room,
-            objectId: payload.stopId,
-            modelUrl: payload.modelUrl
+            objectId: nextPayload.stopId,
+            modelUrl: nextPayload.modelUrl
           });
         }
       }
@@ -165,6 +196,24 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
 
   async function onStopNarration() {
     await stopNarration();
+  }
+
+  function resetTuningDrafts() {
+    if (!payload) {
+      return;
+    }
+    setScaleDraft(String(payload.scale));
+    setRotationDraft(String(payload.rotationYDeg));
+    setVerticalOffsetDraft(String(payload.verticalOffsetM ?? 0));
+  }
+
+  async function copyTuningSnapshot() {
+    if (!selectedStop || !tunedPayload) {
+      return;
+    }
+    const snapshot = `${selectedStop.title}: scale ${tunedPayload.scale}, rotationYDeg ${tunedPayload.rotationYDeg}, verticalOffsetM ${tunedPayload.verticalOffsetM}`;
+    await Clipboard.setStringAsync(snapshot);
+    Alert.alert("Tuning copied", snapshot);
   }
 
   function getCoverageMeta(coverage: NarrationCoverage) {
@@ -279,9 +328,52 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
           <View style={styles.advancedStack}>
             <Text style={styles.specLabel}>Scene tuning</Text>
             <Text style={styles.specCopy}>
-              Scale {payload?.scale ?? 1} | Rotation {payload?.rotationYDeg ?? 180}deg | Vertical offset{" "}
+              Base: scale {payload?.scale ?? 1} | rotation {payload?.rotationYDeg ?? 180}deg | vertical offset{" "}
               {payload?.verticalOffsetM ?? 0}m
             </Text>
+            <Text style={styles.specCopy}>
+              Launching with: scale {tunedPayload?.scale ?? 1} | rotation {tunedPayload?.rotationYDeg ?? 180}deg |
+              vertical offset {tunedPayload?.verticalOffsetM ?? 0}m
+            </Text>
+            <View style={styles.tuningGrid}>
+              <View style={styles.tuningField}>
+                <Text style={styles.tuningLabel}>Scale</Text>
+                <TextInput
+                  value={scaleDraft}
+                  onChangeText={setScaleDraft}
+                  style={styles.input}
+                  placeholder="1"
+                  placeholderTextColor="#8e7d99"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+              <View style={styles.tuningField}>
+                <Text style={styles.tuningLabel}>Rotation Y</Text>
+                <TextInput
+                  value={rotationDraft}
+                  onChangeText={setRotationDraft}
+                  style={styles.input}
+                  placeholder="180"
+                  placeholderTextColor="#8e7d99"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+              <View style={styles.tuningField}>
+                <Text style={styles.tuningLabel}>Vertical Offset</Text>
+                <TextInput
+                  value={verticalOffsetDraft}
+                  onChangeText={setVerticalOffsetDraft}
+                  style={styles.input}
+                  placeholder="0"
+                  placeholderTextColor="#8e7d99"
+                  keyboardType="decimal-pad"
+                />
+              </View>
+            </View>
+            <View style={styles.actionStack}>
+              <PrimaryButton label="Reset Tuning" onPress={resetTuningDrafts} />
+              <PrimaryButton label="Copy Tuning Snapshot" onPress={copyTuningSnapshot} />
+            </View>
             <Text style={styles.specLabel}>Shared room</Text>
             <TextInput
               value={roomName}
@@ -457,5 +549,18 @@ const styles = StyleSheet.create({
   },
   advancedStack: {
     gap: 10
+  },
+  tuningGrid: {
+    gap: 12
+  },
+  tuningField: {
+    gap: 6
+  },
+  tuningLabel: {
+    color: "#d4c8d8",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.3,
+    textTransform: "uppercase"
   }
 });
