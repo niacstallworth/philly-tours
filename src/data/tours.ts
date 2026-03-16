@@ -1481,7 +1481,6 @@ export const tours: Tour[] = [
   {
     "id": "masonic-scavenger-hunt",
     "title": "Masonic Scavenger Hunt",
-    "heroPlanningNote": "See docs/ar-production-sheet.md for initial hero AR selection for this tour.",
     "durationMin": 45,
     "distanceMiles": 0.8,
     "rating": 4.8,
@@ -1535,7 +1534,6 @@ export const tours: Tour[] = [
   {
     "id": "black-architects-tour",
     "title": "Black Architects Tour",
-    "heroPlanningNote": "See docs/ar-production-sheet.md for initial hero AR selection for this tour.",
     "durationMin": 80,
     "distanceMiles": 1.8,
     "rating": 4.8,
@@ -1655,7 +1653,6 @@ export const tours: Tour[] = [
   {
     "id": "septa-broad-street-line",
     "title": "SEPTA Broad Street Line",
-    "heroPlanningNote": "See docs/ar-production-sheet.md for initial hero AR selection for this tour.",
     "durationMin": 112,
     "distanceMiles": 2.5,
     "rating": 4.8,
@@ -1894,7 +1891,6 @@ export const tours: Tour[] = [
   {
     "id": "move-bombing-memorial",
     "title": "MOVE Bombing Memorial",
-    "heroPlanningNote": "See docs/ar-production-sheet.md for initial hero AR selection for this tour.",
     "durationMin": 48,
     "distanceMiles": 1.1,
     "rating": 4.8,
@@ -1970,7 +1966,6 @@ export const tours: Tour[] = [
   {
     "id": "philly-black-art-odyssey",
     "title": "Philly Black Art Odyssey",
-    "heroPlanningNote": "See docs/ar-production-sheet.md for initial hero AR selection for this tour.",
     "durationMin": 80,
     "distanceMiles": 1.8,
     "rating": 4.8,
@@ -2090,7 +2085,6 @@ export const tours: Tour[] = [
   {
     "id": "college-hop-tour",
     "title": "College Hop Tour",
-    "heroPlanningNote": "See docs/ar-production-sheet.md for initial hero AR selection for this tour.",
     "durationMin": 88,
     "distanceMiles": 2,
     "rating": 4.8,
@@ -2221,7 +2215,6 @@ export const tours: Tour[] = [
   {
     "id": "speakeasy-tour",
     "title": "Speakeasy Tour",
-    "heroPlanningNote": "See docs/ar-production-sheet.md for initial hero AR selection for this tour.",
     "durationMin": 80,
     "distanceMiles": 1.8,
     "rating": 4.8,

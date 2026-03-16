@@ -32,6 +32,5 @@ export type Tour = {
   durationMin: number;
   distanceMiles: number;
   rating: number;
-  heroPlanningNote?: string;
   stops: Stop[];
 };
