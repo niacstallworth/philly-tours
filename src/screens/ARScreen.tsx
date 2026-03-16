@@ -28,6 +28,7 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
   const narration = useNarration();
   const [joined, setJoined] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [fullAudioOnly, setFullAudioOnly] = useState(false);
 
   const selectedTour = useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
   const arStops = useMemo(() => {
@@ -38,9 +39,13 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
       return leftPriority - rightPriority;
     });
   }, [selectedTour]);
+  const visibleArStops = useMemo(
+    () => (fullAudioOnly ? arStops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio") : arStops),
+    [arStops, fullAudioOnly]
+  );
   const selectedStop = useMemo(
-    () => arStops.find((stop) => stop.id === selectedStopId) || arStops[0],
-    [arStops, selectedStopId]
+    () => visibleArStops.find((stop) => stop.id === selectedStopId) || visibleArStops[0],
+    [selectedStopId, visibleArStops]
   );
   const manifest = useMemo(() => (selectedStop ? toARSceneManifest(selectedStop) : null), [selectedStop]);
   const payload = useMemo(() => (selectedStop ? toARScenePayload(selectedStop) : null), [selectedStop]);
@@ -56,17 +61,17 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
   }, [initialTourId]);
 
   useEffect(() => {
-    if (!arStops.length) {
+    if (!visibleArStops.length) {
       setSelectedStopId("");
       return;
     }
     setSelectedStopId((prev) => {
-      if (initialStopId && arStops.some((stop) => stop.id === initialStopId)) {
+      if (initialStopId && visibleArStops.some((stop) => stop.id === initialStopId)) {
         return initialStopId;
       }
-      return prev && arStops.some((stop) => stop.id === prev) ? prev : arStops[0].id;
+      return prev && visibleArStops.some((stop) => stop.id === prev) ? prev : visibleArStops[0].id;
     });
-  }, [arStops, initialStopId]);
+  }, [initialStopId, visibleArStops]);
 
   async function refreshStatus() {
     try {
@@ -203,9 +208,12 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
       </Card>
 
       <Card style={styles.panel}>
-        <Text style={styles.label}>Choose AR stop</Text>
+        <View style={styles.selectionHeader}>
+          <Text style={styles.label}>Choose AR stop</Text>
+          <PrimaryButton label={fullAudioOnly ? "Showing Full Audio" : "Showing All Stops"} onPress={() => setFullAudioOnly((value) => !value)} />
+        </View>
         <View style={styles.choiceWrap}>
-          {arStops.map((stop, index) => (
+          {visibleArStops.map((stop, index) => (
             <PrimaryChoice
               key={stop.id}
               active={selectedStopId === stop.id}
@@ -214,6 +222,7 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
             />
           ))}
         </View>
+        {fullAudioOnly && visibleArStops.length === 0 ? <Text style={styles.meta}>No full-audio AR stops in this pack yet.</Text> : null}
       </Card>
 
       {selectedStop && manifest ? (
@@ -349,6 +358,12 @@ const styles = StyleSheet.create({
     color: "#fff0e4",
     fontSize: 18,
     fontWeight: "800"
+  },
+  selectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12
   },
   choiceWrap: {
     flexDirection: "row",
