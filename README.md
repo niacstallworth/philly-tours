@@ -41,10 +41,10 @@ This README is the current build-status document for the repo.
   - speech fallback when recorded files are missing
   - bundled audio files can now be dropped into `assets/audio/`
   - first recorded hero-stop audio batch is bundled
-  - AWS Polly batch now adds broad secondary-stop coverage
-  - `178` bundled narration audio assets are present in `assets/audio/`
-  - runtime audio coverage now resolves for `89` stops
-  - narration script catalog now contains `178` canonical rows (`89` drive, `89` walk)
+  - AWS Polly batch now fills the remaining uncovered stops
+  - `336` bundled narration audio assets are present in `assets/audio/`
+  - runtime audio coverage now resolves for all `188` stops
+  - narration script catalog now contains `376` canonical rows (`188` drive, `188` walk)
   - AWS Polly generation pipeline is wired
   - Claude-based script generation pipeline is wired
   - narration coverage cues are visible in Home, Drive, Map, and AR
@@ -55,7 +55,6 @@ This README is the current build-status document for the repo.
 - Native AR on iPhone requires a real ARKit-capable device for live tuning.
 - Android AR bridge/runtime exists as a native bridge layer, but full AR runtime parity is not validated yet.
 - Stripe checkout and webhook testing work locally, but production purchase validation is still incomplete.
-- Narration still falls back to device speech for stops that do not yet have recorded or generated audio files.
 - Local bundled narration assets require regenerating:
   - [src/data/narrationAudioMap.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationAudioMap.ts)
   - [src/data/narrationCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/narrationCatalog.ts)
@@ -158,8 +157,8 @@ The route flow is now:
 | Home / Map / Drive / AR / Profile shell | Working |
 | Drive session + handoff flow | Working |
 | Narration controls | Working with bundled audio + speech fallback |
-| Narration script catalog | Working (`178` canonical rows) |
-| Bundled narration audio | Working (`178` files, `89` stop entries wired) |
+| Narration script catalog | Working (`376` canonical rows) |
+| Bundled narration audio | Working (`336` files, `188` stop entries wired) |
 | Narration coverage cues | Working across Home / Drive / Map / AR |
 | Full-audio browse filters | Working across Home / Map / AR / Drive |
 | Local Stripe/backend stack | Working in local dev |
@@ -261,8 +260,8 @@ npm run narration:map
 ```
 
 Current observed result in this repo:
-- `178` audio files generated
-- `89` stop entries wired to runtime bundled audio
+- `336` audio files generated
+- `188` stop entries wired to runtime bundled audio
 
 Authentication options in `.env`:
 ```env
