@@ -8,9 +8,6 @@ Build an explanatory 3D diagram scene focused on clear mechanism storytelling.
 - Stop ID: `black-inventors-tour-garrett-morgan-traffic-signal`
 - Priority: 15
 - AR Type: `animated_diagram`
-- Planned provider: `stability`
-- Fallback provider: `fal`
-- Current generated provider: `none`
 - Effort: `medium`
 - Coordinate quality: `approximate`
 - Trigger radius: 40m
@@ -43,29 +40,6 @@ signal mechanism; intersection overlay; patent timeline
 - iOS target asset: `/models/garrett-morgan-traffic-signal.usdz`
 - Android target asset: `/models/garrett-morgan-traffic-signal.glb`
 - Web target asset: `/models/garrett-morgan-traffic-signal.glb`
-- Current concept image path: `assets/generated/ar-references/black-inventors-tour-garrett-morgan-traffic-signal.jpeg`
-
-## Current Concept Image
-
-![Garrett Morgan Traffic Signal](../../assets/generated/ar-references/black-inventors-tour-garrett-morgan-traffic-signal.jpeg)
-
-
-## Prompt Inputs
-
-### Replicate
-```
-n/a
-```
-
-### Stability
-```
-Concept art for a mobile augmented reality animated diagram experience at Garrett Morgan Traffic Signal in Philadelphia. Show signal mechanism; intersection overlay; patent timeline. Historically grounded. Rich visual detail. Strong composition for an AR tour app.
-```
-
-### fal
-```
-Concept art for a mobile augmented reality animated diagram experience at Garrett Morgan Traffic Signal in Philadelphia. Show signal mechanism; intersection overlay; patent timeline.
-```
 
 ## Notes
 

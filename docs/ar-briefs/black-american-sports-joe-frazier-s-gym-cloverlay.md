@@ -8,9 +8,6 @@ Build a respectful figure-led scene with strong silhouette and historical contex
 - Stop ID: `black-american-sports-joe-frazier-s-gym-cloverlay`
 - Priority: 12
 - AR Type: `historical_figure_presence`
-- Planned provider: `replicate`
-- Fallback provider: `stability`
-- Current generated provider: `none`
 - Effort: `high`
 - Coordinate quality: `approximate`
 - Trigger radius: 40m
@@ -43,29 +40,6 @@ training scene; gloves and belt object set; archival card
 - iOS target asset: `/models/joe-frazier-s-gym-cloverlay.usdz`
 - Android target asset: `/models/joe-frazier-s-gym-cloverlay.glb`
 - Web target asset: `/models/joe-frazier-s-gym-cloverlay.glb`
-- Current concept image path: `assets/generated/ar-references/black-american-sports-joe-frazier-s-gym-cloverlay.jpeg`
-
-## Current Concept Image
-
-![Joe Frazier's Gym (Cloverlay)](../../assets/generated/ar-references/black-american-sports-joe-frazier-s-gym-cloverlay.jpeg)
-
-
-## Prompt Inputs
-
-### Replicate
-```
-Atmospheric concept art for a mobile augmented reality historical figure presence experience at Joe Frazier's Gym (Cloverlay) in Philadelphia. Show training scene; gloves and belt object set; archival card. Historically grounded. Strong cinematic composition for an AR tour app.
-```
-
-### Stability
-```
-Concept art for a mobile augmented reality historical figure presence experience at Joe Frazier's Gym (Cloverlay) in Philadelphia. Show training scene; gloves and belt object set; archival card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.
-```
-
-### fal
-```
-Concept art for a mobile augmented reality historical figure presence experience at Joe Frazier's Gym (Cloverlay) in Philadelphia. Show training scene; gloves and belt object set; archival card.
-```
 
 ## Notes
 

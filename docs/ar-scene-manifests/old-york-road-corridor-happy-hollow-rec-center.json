@@ -11,10 +11,6 @@
   "stylePreset": "architectural",
   "visualPriority": "facade_accuracy",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/old-york-road-corridor-happy-hollow-rec-center.jpeg",
-  "plannedProvider": "stability",
-  "fallbackProvider": "fal",
-  "generatedProvider": "not generated",
   "runtimeAssets": {
     "ios": "/models/happy-hollow-rec-center.usdz",
     "android": "/models/happy-hollow-rec-center.glb",

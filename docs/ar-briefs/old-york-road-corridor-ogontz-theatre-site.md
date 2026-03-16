@@ -8,9 +8,6 @@ Build a hero portal reconstruction scene with strong environmental depth.
 - Stop ID: `old-york-road-corridor-ogontz-theatre-site`
 - Priority: 20
 - AR Type: `portal_reconstruction`
-- Planned provider: `replicate`
-- Fallback provider: `stability`
-- Current generated provider: `none`
 - Effort: `high`
 - Coordinate quality: `verified`
 - Trigger radius: 40m
@@ -43,29 +40,6 @@ theatre facade reconstruction; performance poster overlays
 - iOS target asset: `/models/ogontz-theatre-site.usdz`
 - Android target asset: `/models/ogontz-theatre-site.glb`
 - Web target asset: `/models/ogontz-theatre-site.glb`
-- Current concept image path: `assets/generated/ar-references/old-york-road-corridor-ogontz-theatre-site.jpeg`
-
-## Current Concept Image
-
-![Ogontz Theatre Site](../../assets/generated/ar-references/old-york-road-corridor-ogontz-theatre-site.jpeg)
-
-
-## Prompt Inputs
-
-### Replicate
-```
-Atmospheric concept art for a mobile augmented reality portal reconstruction experience at Ogontz Theatre Site in Philadelphia. Show theatre facade reconstruction; performance poster overlays. Historically grounded. Strong cinematic composition for an AR tour app.
-```
-
-### Stability
-```
-Concept art for a mobile augmented reality portal reconstruction experience at Ogontz Theatre Site in Philadelphia. Show theatre facade reconstruction; performance poster overlays. Historically grounded. Rich visual detail. Strong composition for an AR tour app.
-```
-
-### fal
-```
-Concept art for a mobile augmented reality portal reconstruction experience at Ogontz Theatre Site in Philadelphia. Show theatre facade reconstruction; performance poster overlays.
-```
 
 ## Notes
 

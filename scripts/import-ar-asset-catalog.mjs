@@ -1,25 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
 import { readCatalogCsv } from "./lib/arAssetCatalogCsv.mjs";
-import { IMAGE_PROVIDER_VALUES, resolveFallbackImageProvider, resolveImageProvider } from "./lib/arImageRouting.mjs";
 import { STYLE_PRESET_VALUES, VISUAL_PRIORITY_VALUES, resolveStylePreset, resolveVisualPriority } from "./lib/arPromptBuilder.mjs";
 
 const rootDir = process.cwd();
 const csvPath = path.join(rootDir, "docs", "ar-asset-catalog.csv");
 const outputPath = path.join(rootDir, "src", "data", "arAssetCatalog.ts");
-const imageMapOutputPath = path.join(rootDir, "src", "data", "arGeneratedImageMap.ts");
 
 const ASSET_STATUS_VALUES = new Set(["planned", "in_production", "ready", "approved"]);
 const ANCHOR_STYLE_VALUES = new Set(["front_of_user", "ground", "image_target", "location_marker"]);
 const FALLBACK_TYPE_VALUES = new Set(["box", "card", "none"]);
 const COORD_QUALITY_VALUES = new Set(["verified", "approximate"]);
 const EFFORT_VALUES = new Set(["", "low", "medium", "high"]);
-const FAL_IMAGE_SIZE_VALUES = new Set(["square_hd", "square", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"]);
-const STABILITY_ENDPOINT_VALUES = new Set(["core", "ultra"]);
-const STABILITY_ASPECT_RATIO_VALUES = new Set(["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21"]);
-const STABILITY_OUTPUT_FORMAT_VALUES = new Set(["png", "jpeg", "webp"]);
-const REPLICATE_ASPECT_RATIO_VALUES = new Set(["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21"]);
-const REPLICATE_OUTPUT_FORMAT_VALUES = new Set(["png", "jpeg", "webp"]);
 
 function normalizeRepoPath(assetPath) {
   return assetPath.replace(/^\/+/, "");
@@ -57,14 +49,6 @@ function asEnum(value, allowed, fieldName, rowNumber) {
   return value;
 }
 
-function asOptionalEnum(value, allowed, fieldName, rowNumber) {
-  const trimmed = (value || "").trim();
-  if (!trimmed) {
-    return "";
-  }
-  return asEnum(trimmed, allowed, fieldName, rowNumber);
-}
-
 function readCatalogRows() {
   const { records } = readCatalogCsv(csvPath);
 
@@ -94,26 +78,10 @@ function readCatalogRows() {
       assetNeeded: record.assetNeeded?.trim() || "",
       estimatedEffort: asEnum((record.estimatedEffort || "").trim(), EFFORT_VALUES, "estimatedEffort", rowNumber),
       notes: record.notes?.trim() || "",
-      imageProvider: asEnum(resolveImageProvider(record), IMAGE_PROVIDER_VALUES, "imageProvider", rowNumber),
-      fallbackImageProvider: asEnum(resolveFallbackImageProvider(record), IMAGE_PROVIDER_VALUES, "fallbackImageProvider", rowNumber),
-      generatedImageProvider: asOptionalEnum(record.generatedImageProvider, IMAGE_PROVIDER_VALUES, "generatedImageProvider", rowNumber),
       stylePreset: asEnum(resolveStylePreset(record), STYLE_PRESET_VALUES, "stylePreset", rowNumber),
       visualPriority: asEnum(resolveVisualPriority(record), VISUAL_PRIORITY_VALUES, "visualPriority", rowNumber),
       historicalEra: record.historicalEra?.trim() || "",
-      negativePrompt: record.negativePrompt?.trim() || "",
-      falModel: record.falModel?.trim() || "",
-      falPrompt: record.falPrompt?.trim() || "",
-      falImageSize: asOptionalEnum(record.falImageSize, FAL_IMAGE_SIZE_VALUES, "falImageSize", rowNumber),
-      stabilityEndpoint: asOptionalEnum(record.stabilityEndpoint, STABILITY_ENDPOINT_VALUES, "stabilityEndpoint", rowNumber),
-      stabilityPrompt: record.stabilityPrompt?.trim() || "",
-      stabilityAspectRatio: asOptionalEnum(record.stabilityAspectRatio, STABILITY_ASPECT_RATIO_VALUES, "stabilityAspectRatio", rowNumber),
-      stabilityOutputFormat: asOptionalEnum(record.stabilityOutputFormat, STABILITY_OUTPUT_FORMAT_VALUES, "stabilityOutputFormat", rowNumber),
-      replicateModel: record.replicateModel?.trim() || "",
-      replicatePrompt: record.replicatePrompt?.trim() || "",
-      replicateAspectRatio: asOptionalEnum(record.replicateAspectRatio, REPLICATE_ASPECT_RATIO_VALUES, "replicateAspectRatio", rowNumber),
-      replicateOutputFormat: asOptionalEnum(record.replicateOutputFormat, REPLICATE_OUTPUT_FORMAT_VALUES, "replicateOutputFormat", rowNumber),
-      generatedImagePath: record.generatedImagePath?.trim() || "",
-      generatedImageExistsLocal: record.generatedImagePath?.trim() ? assetExistsInRepo(record.generatedImagePath.trim()) : false
+      negativePrompt: record.negativePrompt?.trim() || ""
     };
   });
 }
@@ -135,6 +103,7 @@ function writeCatalogModule(rows) {
   webAssetExistsLocal: boolean;
   scale: number;
   rotationYDeg: number;
+  verticalOffsetM?: number;
   anchorStyle: "front_of_user" | "ground" | "image_target" | "location_marker";
   fallbackType: "box" | "card" | "none";
   coordQuality: "verified" | "approximate";
@@ -142,26 +111,10 @@ function writeCatalogModule(rows) {
   assetNeeded: string;
   estimatedEffort: "low" | "medium" | "high" | "";
   notes: string;
-  imageProvider: "fal" | "stability" | "replicate";
-  fallbackImageProvider: "fal" | "stability" | "replicate";
-  generatedImageProvider: "" | "fal" | "stability" | "replicate";
   stylePreset: "" | "architectural" | "cinematic" | "editorial" | "museum_card" | "documentary";
   visualPriority: "" | "facade_accuracy" | "historical_accuracy" | "atmosphere" | "readability" | "silhouette";
   historicalEra: string;
   negativePrompt: string;
-  falModel: string;
-  falPrompt: string;
-  falImageSize: "" | "square_hd" | "square" | "portrait_4_3" | "portrait_16_9" | "landscape_4_3" | "landscape_16_9";
-  stabilityEndpoint: "" | "core" | "ultra";
-  stabilityPrompt: string;
-  stabilityAspectRatio: "" | "21:9" | "16:9" | "3:2" | "5:4" | "1:1" | "4:5" | "2:3" | "9:16" | "9:21";
-  stabilityOutputFormat: "" | "png" | "jpeg" | "webp";
-  replicateModel: string;
-  replicatePrompt: string;
-  replicateAspectRatio: "" | "21:9" | "16:9" | "3:2" | "5:4" | "1:1" | "4:5" | "2:3" | "9:16" | "9:21";
-  replicateOutputFormat: "" | "png" | "jpeg" | "webp";
-  generatedImagePath: string;
-  generatedImageExistsLocal: boolean;
 };
 
 export const arAssetCatalog: ARAssetCatalogEntry[] = ${JSON.stringify(rows, null, 2)};
@@ -172,26 +125,6 @@ export const arAssetCatalogByStopId = new Map(arAssetCatalog.map((entry) => [ent
   fs.writeFileSync(outputPath, fileContents);
 }
 
-function toModuleRelativeAssetPath(assetPath) {
-  const normalized = assetPath.replace(/^\/+/, "").split(path.sep).join("/");
-  return `../../${normalized}`;
-}
-
-function writeGeneratedImageMap(rows) {
-  const existingRows = rows.filter((row) => row.generatedImageExistsLocal && row.generatedImagePath);
-  const entries = existingRows
-    .map((row) => `  "${row.stopId}": require("${toModuleRelativeAssetPath(row.generatedImagePath)}"),`)
-    .join("\n");
-
-  const fileContents = `export const arGeneratedImageMap: Record<string, any> = {
-${entries}
-};
-`;
-
-  fs.writeFileSync(imageMapOutputPath, fileContents);
-}
-
 const rows = readCatalogRows().sort((left, right) => left.arPriority - right.arPriority || left.stopTitle.localeCompare(right.stopTitle));
 writeCatalogModule(rows);
-writeGeneratedImageMap(rows);
 console.log(`Imported ${rows.length} AR asset catalog rows.`);

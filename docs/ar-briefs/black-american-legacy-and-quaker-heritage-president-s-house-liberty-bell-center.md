@@ -8,9 +8,6 @@ Build a hero portal reconstruction scene with strong environmental depth.
 - Stop ID: `black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center`
 - Priority: 2
 - AR Type: `portal_reconstruction`
-- Planned provider: `replicate`
-- Fallback provider: `stability`
-- Current generated provider: `stability`
 - Effort: `high`
 - Coordinate quality: `approximate`
 - Trigger radius: 40m
@@ -43,29 +40,6 @@ household reconstruction; figure markers; timeline overlays
 - iOS target asset: `/models/president-s-house-liberty-bell-center.usdz`
 - Android target asset: `/models/president-s-house-liberty-bell-center.glb`
 - Web target asset: `/models/president-s-house-liberty-bell-center.glb`
-- Current concept image path: `assets/generated/ar-references/black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center.png`
-
-## Current Concept Image
-
-![President's House / Liberty Bell Center](../../assets/generated/ar-references/black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center.png)
-
-
-## Prompt Inputs
-
-### Replicate
-```
-Atmospheric concept art for a mobile augmented reality portal reconstruction experience at President's House / Liberty Bell Center in Philadelphia. Show household reconstruction; figure markers; timeline overlays. Historically grounded. Strong cinematic composition for an AR tour app.
-```
-
-### Stability
-```
-Concept art for a mobile augmented reality portal reconstruction experience at President's House / Liberty Bell Center in Philadelphia. Show household reconstruction; figure markers; timeline overlays. Historically grounded. Rich visual detail. Strong composition for an AR tour app. Historical era focus: 18th to 19th century Philadelphia. Use atmospheric lighting, layered depth, strong focal composition, and dramatic but historically respectful staging. Emphasize mood, depth, period atmosphere, and immersive scene presence. Optimize for high-detail environment rendering, facade structure, and crisp surface detail. Avoid: science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins. Historically grounded. Strong composition for an AR tour app.
-```
-
-### fal
-```
-Concept art for a mobile augmented reality portal reconstruction experience at President's House / Liberty Bell Center in Philadelphia. Show household reconstruction; figure markers; timeline overlays.
-```
 
 ## Notes
 

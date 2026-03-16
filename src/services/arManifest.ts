@@ -11,10 +11,6 @@ export type ARSceneManifest = {
   stylePreset: string;
   visualPriority: string;
   placementNote: string;
-  conceptImagePath: string;
-  plannedProvider: string;
-  fallbackProvider: string;
-  generatedProvider: string;
   runtimeAssets: {
     ios: string;
     android: string;
@@ -51,11 +47,11 @@ function placementNoteForAnchor(anchorStyle: string, stop: Stop) {
     case "front_of_user":
       return `Place the scene directly in front of the visitor at a safe standing distance within the ${stop.triggerRadiusM}m trigger zone.`;
     case "ground":
-      return `Anchor the scene to ground level near the stop footprint and preserve walkable clearance around the user.`;
+      return "Anchor the scene to ground level near the stop footprint and preserve walkable clearance around the user.";
     case "image_target":
       return "Anchor this scene to a recognized visual target and preserve orientation fidelity against the source image.";
     case "location_marker":
-      return `Anchor this scene to the verified location marker and bias for outdoor GPS drift tolerance.`;
+      return "Anchor this scene to the verified location marker and bias for outdoor GPS drift tolerance.";
     default:
       return "Use a front-facing mobile AR placement that preserves readability and safe standing room.";
   }
@@ -104,7 +100,7 @@ function checklistForType(arType: string) {
     case "route_ghost":
       return ["Check directional clarity", "Reduce clutter", "Validate path sequence"];
     default:
-      return ["Confirm concept image", "Define asset scope", "Validate runtime placement"];
+      return ["Define asset scope", "Validate runtime placement"];
   }
 }
 
@@ -122,10 +118,6 @@ export function toARSceneManifest(stop: Stop): ARSceneManifest {
     stylePreset: catalogEntry?.stylePreset || "documentary",
     visualPriority: catalogEntry?.visualPriority || "historical_accuracy",
     placementNote: placementNoteForAnchor(catalogEntry?.anchorStyle || "front_of_user", stop),
-    conceptImagePath: catalogEntry?.generatedImagePath || "",
-    plannedProvider: catalogEntry?.imageProvider || "unassigned",
-    fallbackProvider: catalogEntry?.fallbackImageProvider || "unassigned",
-    generatedProvider: catalogEntry?.generatedImageProvider || "not generated",
     runtimeAssets: {
       ios: catalogEntry?.iosAsset || stop.modelUrl,
       android: catalogEntry?.androidAsset || stop.modelUrl,

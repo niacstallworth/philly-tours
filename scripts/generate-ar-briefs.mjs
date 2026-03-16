@@ -36,11 +36,6 @@ function slugFileName(value) {
   return `${value}.md`;
 }
 
-function relativeImagePathFromBrief(imagePath) {
-  const absoluteImagePath = path.join(rootDir, imagePath);
-  return path.relative(outputDir, absoluteImagePath).split(path.sep).join("/");
-}
-
 function briefHeadline(record) {
   switch ((record.arType || "").trim()) {
     case "portal_reconstruction":
@@ -114,11 +109,6 @@ function recommendedDeliverables(record) {
 }
 
 function buildBrief(record) {
-  const imageSection =
-    record.generatedImagePath && record.generatedImagePath.trim()
-      ? `## Current Concept Image\n\n![${record.stopTitle}](${relativeImagePathFromBrief(record.generatedImagePath.trim())})\n`
-      : "## Current Concept Image\n\nNo generated concept image linked yet.\n";
-
   const deliverables = recommendedDeliverables(record).map((item) => `- ${item}`).join("\n");
 
   return `# ${record.stopTitle}
@@ -131,9 +121,6 @@ ${briefHeadline(record)}
 - Stop ID: \`${record.stopId}\`
 - Priority: ${record.arPriority}
 - AR Type: \`${record.arType}\`
-- Planned provider: \`${record.imageProvider}\`
-- Fallback provider: \`${record.fallbackImageProvider}\`
-- Current generated provider: \`${record.generatedImageProvider || "none"}\`
 - Effort: \`${record.estimatedEffort || "n/a"}\`
 - Coordinate quality: \`${record.coordQuality}\`
 - Trigger radius: ${record.triggerRadiusM}m
@@ -162,26 +149,6 @@ ${deliverables}
 - iOS target asset: \`${record.iosAsset}\`
 - Android target asset: \`${record.androidAsset}\`
 - Web target asset: \`${record.webAsset}\`
-- Current concept image path: \`${record.generatedImagePath || "n/a"}\`
-
-${imageSection}
-
-## Prompt Inputs
-
-### Replicate
-\`\`\`
-${record.replicatePrompt || "n/a"}
-\`\`\`
-
-### Stability
-\`\`\`
-${record.stabilityPrompt || "n/a"}
-\`\`\`
-
-### fal
-\`\`\`
-${record.falPrompt || "n/a"}
-\`\`\`
 
 ## Notes
 
@@ -193,13 +160,13 @@ function buildIndex(records) {
   const lines = [
     "# AR Production Briefs",
     "",
-    `Generated from \`docs/ar-asset-catalog.csv\`. Total briefs: ${records.length}`,
+    "Generated from `docs/ar-asset-catalog.csv`. Total briefs: " + records.length,
     ""
   ];
 
   for (const record of records) {
     lines.push(
-      `- P${record.arPriority} [${record.stopTitle}](./${slugFileName(record.stopId)}) - ${record.tourTitle} - provider ${record.imageProvider} - generated ${record.generatedImageProvider || "none"}`
+      `- P${record.arPriority} [${record.stopTitle}](./${slugFileName(record.stopId)}) - ${record.tourTitle}`
     );
   }
 

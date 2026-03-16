@@ -11,10 +11,6 @@
   "stylePreset": "cinematic",
   "visualPriority": "atmosphere",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/black-american-legacy-and-quaker-heritage-mother-bethel-ame-church.png",
-  "plannedProvider": "replicate",
-  "fallbackProvider": "stability",
-  "generatedProvider": "replicate",
   "runtimeAssets": {
     "ios": "/models/mother-bethel-ame-church.usdz",
     "android": "/models/mother-bethel-ame-church.glb",

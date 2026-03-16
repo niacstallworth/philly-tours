@@ -11,10 +11,6 @@
   "stylePreset": "architectural",
   "visualPriority": "historical_accuracy",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut.png",
-  "plannedProvider": "stability",
-  "fallbackProvider": "fal",
-  "generatedProvider": "stability",
   "runtimeAssets": {
     "ios": "/models/alpha-phi-alpha-42nd-and-chestnut.usdz",
     "android": "/models/alpha-phi-alpha-42nd-and-chestnut.glb",

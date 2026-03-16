@@ -192,7 +192,6 @@ Important values include:
 - `ADMIN_API_KEY`
 - Apple IAP fields
 - Google Play fields
-- provider keys for AR asset generation
 - AWS Polly / AWS credentials if generating narration through Polly
 - `ADMIN_API_KEY`
 

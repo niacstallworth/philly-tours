@@ -8,9 +8,6 @@ Build a lightweight editorial AR card experience optimized for readability.
 - Stop ID: `library-story-hop-tour-rosenbach-museum-and-library`
 - Priority: 17
 - AR Type: `floating_story_card`
-- Planned provider: `fal`
-- Fallback provider: `stability`
-- Current generated provider: `none`
 - Effort: `low`
 - Coordinate quality: `verified`
 - Trigger radius: 40m
@@ -41,29 +38,6 @@ manuscript cards; toy and book reveal; collection overlay
 - iOS target asset: `/models/rosenbach-museum-and-library.usdz`
 - Android target asset: `/models/rosenbach-museum-and-library.glb`
 - Web target asset: `/models/rosenbach-museum-and-library.glb`
-- Current concept image path: `assets/generated/ar-references/library-story-hop-tour-rosenbach-museum-and-library.jpeg`
-
-## Current Concept Image
-
-![Rosenbach Museum & Library](../../assets/generated/ar-references/library-story-hop-tour-rosenbach-museum-and-library.jpeg)
-
-
-## Prompt Inputs
-
-### Replicate
-```
-n/a
-```
-
-### Stability
-```
-Concept art for a mobile augmented reality floating story card experience at Rosenbach Museum & Library in Philadelphia. Show manuscript cards; toy and book reveal; collection overlay. Historically grounded. Rich visual detail. Strong composition for an AR tour app.
-```
-
-### fal
-```
-Concept art for a mobile augmented reality floating story card experience at Rosenbach Museum & Library in Philadelphia. Show manuscript cards; toy and book reveal; collection overlay.
-```
 
 ## Notes
 

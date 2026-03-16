@@ -8,9 +8,6 @@ Build a museum-style hero object scene with clean educational framing.
 - Stop ID: `library-story-hop-tour-charles-l-blockson-collection`
 - Priority: 19
 - AR Type: `object_on_plinth`
-- Planned provider: `stability`
-- Fallback provider: `fal`
-- Current generated provider: `none`
 - Effort: `medium`
 - Coordinate quality: `verified`
 - Trigger radius: 40m
@@ -43,29 +40,6 @@ hymnbook or archival object model; collection card
 - iOS target asset: `/models/charles-l-blockson-collection.usdz`
 - Android target asset: `/models/charles-l-blockson-collection.glb`
 - Web target asset: `/models/charles-l-blockson-collection.glb`
-- Current concept image path: `assets/generated/ar-references/library-story-hop-tour-charles-l-blockson-collection.jpeg`
-
-## Current Concept Image
-
-![Charles L. Blockson Collection](../../assets/generated/ar-references/library-story-hop-tour-charles-l-blockson-collection.jpeg)
-
-
-## Prompt Inputs
-
-### Replicate
-```
-n/a
-```
-
-### Stability
-```
-Concept art for a mobile augmented reality object on plinth experience at Charles L. Blockson Collection in Philadelphia. Show hymnbook or archival object model; collection card. Historically grounded. Rich visual detail. Strong composition for an AR tour app.
-```
-
-### fal
-```
-Concept art for a mobile augmented reality object on plinth experience at Charles L. Blockson Collection in Philadelphia. Show hymnbook or archival object model; collection card.
-```
 
 ## Notes
 

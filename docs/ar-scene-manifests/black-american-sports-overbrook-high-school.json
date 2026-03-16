@@ -11,10 +11,6 @@
   "stylePreset": "editorial",
   "visualPriority": "readability",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/black-american-sports-overbrook-high-school.jpeg",
-  "plannedProvider": "fal",
-  "fallbackProvider": "stability",
-  "generatedProvider": "not generated",
   "runtimeAssets": {
     "ios": "/models/overbrook-high-school.usdz",
     "android": "/models/overbrook-high-school.glb",

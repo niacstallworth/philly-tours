@@ -11,10 +11,6 @@
   "stylePreset": "cinematic",
   "visualPriority": "atmosphere",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/old-york-road-corridor-ogontz-theatre-site.jpeg",
-  "plannedProvider": "replicate",
-  "fallbackProvider": "stability",
-  "generatedProvider": "not generated",
   "runtimeAssets": {
     "ios": "/models/ogontz-theatre-site.usdz",
     "android": "/models/ogontz-theatre-site.glb",

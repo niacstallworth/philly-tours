@@ -8,9 +8,6 @@ Build a lightweight editorial AR card experience optimized for readability.
 - Stop ID: `black-american-sports-overbrook-high-school`
 - Priority: 13
 - AR Type: `floating_story_card`
-- Planned provider: `fal`
-- Fallback provider: `stability`
-- Current generated provider: `none`
 - Effort: `low`
 - Coordinate quality: `approximate`
 - Trigger radius: 40m
@@ -41,29 +38,6 @@ Wilt and Kobe legacy cards; stats overlays
 - iOS target asset: `/models/overbrook-high-school.usdz`
 - Android target asset: `/models/overbrook-high-school.glb`
 - Web target asset: `/models/overbrook-high-school.glb`
-- Current concept image path: `assets/generated/ar-references/black-american-sports-overbrook-high-school.jpeg`
-
-## Current Concept Image
-
-![Overbrook High School](../../assets/generated/ar-references/black-american-sports-overbrook-high-school.jpeg)
-
-
-## Prompt Inputs
-
-### Replicate
-```
-n/a
-```
-
-### Stability
-```
-Concept art for a mobile augmented reality floating story card experience at Overbrook High School in Philadelphia. Show Wilt and Kobe legacy cards; stats overlays. Historically grounded. Rich visual detail. Strong composition for an AR tour app.
-```
-
-### fal
-```
-Concept art for a mobile augmented reality floating story card experience at Overbrook High School in Philadelphia. Show Wilt and Kobe legacy cards; stats overlays.
-```
 
 ## Notes
 

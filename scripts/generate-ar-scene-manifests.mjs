@@ -111,7 +111,7 @@ function checklistForType(arType) {
     case "route_ghost":
       return ["Check directional clarity", "Reduce clutter", "Validate path sequence"];
     default:
-      return ["Confirm concept image", "Define asset scope", "Validate runtime placement"];
+      return ["Define asset scope", "Validate runtime placement"];
   }
 }
 
@@ -129,10 +129,6 @@ function toManifest(record) {
     stylePreset: record.stylePreset || "documentary",
     visualPriority: record.visualPriority || "historical_accuracy",
     placementNote: placementNoteForAnchor(record.anchorStyle, Number(record.triggerRadiusM)),
-    conceptImagePath: record.generatedImagePath || "",
-    plannedProvider: record.imageProvider || "unassigned",
-    fallbackProvider: record.fallbackImageProvider || "unassigned",
-    generatedProvider: record.generatedImageProvider || "not generated",
     runtimeAssets: {
       ios: record.iosAsset,
       android: record.androidAsset,
@@ -148,13 +144,13 @@ function buildIndex(manifests) {
   const lines = [
     "# AR Scene Manifests",
     "",
-    `Generated from \`docs/ar-asset-catalog.csv\`. Total manifests: ${manifests.length}`,
+    "Generated from `docs/ar-asset-catalog.csv`. Total manifests: " + manifests.length,
     ""
   ];
 
   for (const manifest of manifests) {
     lines.push(
-      `- P${manifest.arPriority} [${manifest.stopTitle}](./${manifest.stopId}.json) - ${manifest.tourTitle} - planned ${manifest.plannedProvider} - generated ${manifest.generatedProvider}`
+      `- P${manifest.arPriority} [${manifest.stopTitle}](./${manifest.stopId}.json) - ${manifest.tourTitle}`
     );
   }
 

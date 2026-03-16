@@ -11,10 +11,6 @@
   "stylePreset": "architectural",
   "visualPriority": "historical_accuracy",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/eastern-star-weekend-sweetbriar-mansion.jpeg",
-  "plannedProvider": "stability",
-  "fallbackProvider": "fal",
-  "generatedProvider": "not generated",
   "runtimeAssets": {
     "ios": "/models/sweetbriar-mansion.usdz",
     "android": "/models/sweetbriar-mansion.glb",

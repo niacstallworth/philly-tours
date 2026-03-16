@@ -11,10 +11,6 @@
   "stylePreset": "cinematic",
   "visualPriority": "silhouette",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/black-american-sports-joe-frazier-s-gym-cloverlay.jpeg",
-  "plannedProvider": "replicate",
-  "fallbackProvider": "stability",
-  "generatedProvider": "not generated",
   "runtimeAssets": {
     "ios": "/models/joe-frazier-s-gym-cloverlay.usdz",
     "android": "/models/joe-frazier-s-gym-cloverlay.glb",

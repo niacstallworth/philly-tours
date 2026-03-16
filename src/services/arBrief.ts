@@ -13,9 +13,6 @@ export type ARProductionBrief = {
   historicalEra: string;
   stylePreset: string;
   visualPriority: string;
-  plannedProvider: string;
-  fallbackProvider: string;
-  generatedProvider: string;
   estimatedEffort: string;
   anchorStyle: string;
   fallbackType: string;
@@ -25,7 +22,6 @@ export type ARProductionBrief = {
   negativePrompt: string;
   briefPath: string;
   manifestPath: string;
-  conceptImagePath: string;
   runtimeAssets: ARSceneManifest["runtimeAssets"];
   contentLayers: string[];
   productionChecklist: string[];
@@ -46,9 +42,6 @@ export function toARProductionBrief(stop: Stop, tourTitle: string): ARProduction
     historicalEra: manifest.historicalEra,
     stylePreset: manifest.stylePreset,
     visualPriority: manifest.visualPriority,
-    plannedProvider: manifest.plannedProvider,
-    fallbackProvider: manifest.fallbackProvider,
-    generatedProvider: manifest.generatedProvider,
     estimatedEffort: catalogEntry?.estimatedEffort || stop.estimatedEffort || "n/a",
     anchorStyle: catalogEntry?.anchorStyle || "front_of_user",
     fallbackType: catalogEntry?.fallbackType || "card",
@@ -58,7 +51,6 @@ export function toARProductionBrief(stop: Stop, tourTitle: string): ARProduction
     negativePrompt: manifest.negativePrompt,
     briefPath: `docs/ar-briefs/${stop.id}.md`,
     manifestPath: `docs/ar-scene-manifests/${stop.id}.json`,
-    conceptImagePath: manifest.conceptImagePath,
     runtimeAssets: manifest.runtimeAssets,
     contentLayers: manifest.contentLayers,
     productionChecklist: manifest.productionChecklist

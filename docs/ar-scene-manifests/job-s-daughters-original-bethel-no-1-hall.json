@@ -11,10 +11,6 @@
   "stylePreset": "cinematic",
   "visualPriority": "silhouette",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/job-s-daughters-original-bethel-no-1-hall.jpeg",
-  "plannedProvider": "replicate",
-  "fallbackProvider": "stability",
-  "generatedProvider": "not generated",
   "runtimeAssets": {
     "ios": "/models/original-bethel-no-1-hall.usdz",
     "android": "/models/original-bethel-no-1-hall.glb",

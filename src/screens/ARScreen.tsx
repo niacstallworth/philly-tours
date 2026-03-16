@@ -102,9 +102,6 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
         headline: payload.headline,
         summary: payload.summary,
         placementNote: payload.placementNote,
-        conceptImagePath: payload.conceptImagePath,
-        plannedProvider: payload.plannedProvider,
-        generatedProvider: payload.generatedProvider,
         contentLayers: payload.contentLayers,
         productionChecklist: payload.productionChecklist
       });

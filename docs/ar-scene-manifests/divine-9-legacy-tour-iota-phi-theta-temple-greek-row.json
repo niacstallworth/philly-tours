@@ -11,10 +11,6 @@
   "stylePreset": "cinematic",
   "visualPriority": "silhouette",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
-  "conceptImagePath": "assets/generated/ar-references/divine-9-legacy-tour-iota-phi-theta-temple-greek-row.png",
-  "plannedProvider": "replicate",
-  "fallbackProvider": "stability",
-  "generatedProvider": "replicate",
   "runtimeAssets": {
     "ios": "/models/iota-phi-theta-temple-greek-row.usdz",
     "android": "/models/iota-phi-theta-temple-greek-row.glb",
