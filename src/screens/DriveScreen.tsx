@@ -29,6 +29,7 @@ function getFullAudioStopCount(tourId: string) {
 
 export function DriveScreen({ initialTourId }: Props) {
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialTourId || driveTours[0]?.id || "");
+  const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
   const { driveSession, setDriveSession, loading } = useDriveSession();
   const narration = useNarration();
   const autoNarratedStopIdRef = React.useRef<string | null>(null);
@@ -45,9 +46,13 @@ export function DriveScreen({ initialTourId }: Props) {
     }
   }, [driveSession?.tourId]);
 
+  const visibleDriveTours = React.useMemo(
+    () => (fullAudioOnly ? driveTours.filter((tour) => getFullAudioStopCount(tour.id) === tour.stopCount) : driveTours),
+    [fullAudioOnly]
+  );
   const selectedTour = React.useMemo(
-    () => driveTours.find((tour) => tour.id === selectedTourId) || driveTours[0],
-    [selectedTourId]
+    () => visibleDriveTours.find((tour) => tour.id === selectedTourId) || visibleDriveTours[0],
+    [selectedTourId, visibleDriveTours]
   );
   const driveStops = React.useMemo(() => getDriveStops(selectedTour?.id || ""), [selectedTour?.id]);
   const selectedTourFullAudioCount = React.useMemo(
@@ -185,9 +190,12 @@ export function DriveScreen({ initialTourId }: Props) {
       </View>
 
       <Card style={styles.panel}>
-        <Text style={styles.label}>Tour route</Text>
+        <View style={styles.routeHeader}>
+          <Text style={styles.label}>Tour route</Text>
+          <PrimaryButton label={fullAudioOnly ? "Showing Full Audio Routes" : "Showing All Routes"} onPress={() => setFullAudioOnly((value) => !value)} />
+        </View>
         <View style={styles.tourWrap}>
-          {driveTours.map((tour) => {
+          {visibleDriveTours.map((tour) => {
             const isActive = selectedTourId === tour.id;
             const hasSession = driveSession?.tourId === tour.id;
             const fullAudioCount = getFullAudioStopCount(tour.id);
@@ -207,6 +215,7 @@ export function DriveScreen({ initialTourId }: Props) {
             );
           })}
         </View>
+        {fullAudioOnly && visibleDriveTours.length === 0 ? <Text style={styles.copy}>No routes are fully audio-ready yet.</Text> : null}
       </Card>
 
       {selectedTour ? (
@@ -351,6 +360,12 @@ const styles = StyleSheet.create({
   },
   panel: {
     backgroundColor: "#120a22",
+    gap: 12
+  },
+  routeHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     gap: 12
   },
   narrationCard: {
