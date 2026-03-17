@@ -5,8 +5,11 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "metro": "expo start -c --port 8081",
+    "metro:dev-client": "expo start --dev-client -c --port 8081",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:device": "expo run:ios --port 8081",
     "web": "expo start --web",
     "ar:catalog:import": "node scripts/import-ar-asset-catalog.mjs",
     "ar:briefs:generate": "node scripts/generate-ar-briefs.mjs",
