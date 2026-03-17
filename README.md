@@ -35,6 +35,7 @@ This README is the current build-status document for the repo.
 - Native iOS AR bridge is present and builds.
 - First bundled iOS `.usdz` asset pipeline is in place.
 - AR asset catalog, scene manifest, and production brief infrastructure exists.
+- AR launch flow now uses a safer in-app preflight before entering native AR.
 - AR tuning snapshots can now be written back into the asset catalog with `npm run ar:tuning:apply`.
 - Narration flow now exists in app:
   - route-aware narration controls
@@ -210,6 +211,20 @@ export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
 npx expo start -c --port 8081
 ```
 
+Shortcut:
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run metro
+```
+
+### Run Metro for a dev client on device
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run metro:dev-client
+```
+
 ### Run iOS dev build
 ```bash
 cd /Users/nia/Documents/GitHub/philly-tours
@@ -218,6 +233,24 @@ export PATH="$HOME/.gem/ruby/2.6.0/bin:$PATH"
 export RUBYOPT='-rlogger'
 npx expo run:ios --port 8081
 ```
+
+Shortcut:
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ios:device
+```
+
+### iPad / Xcode dev-client checklist
+- Open [PhillyARTours.xcworkspace](/Users/nia/Documents/GitHub/philly-tours/ios/PhillyARTours.xcworkspace), not the `.xcodeproj`.
+- Start Metro before launching the app on a physical device:
+  `npm run metro:dev-client`
+- Keep the iPad and Mac on the same Wi-Fi network.
+- On first launch, allow `Philly AR Tours` to access devices on your local network so it can reach Metro on port `8081`.
+- If local-network access was previously denied, delete the app from the iPad, reinstall it, and allow the prompt again.
+- If Xcode starts showing missing Expo module maps again, clear `~/Library/Developer/Xcode/DerivedData/PhillyARTours-*` and rebuild from the workspace.
+- In the AR screen, tap `Prepare AR Moment`, let the app confirm AR readiness, then tap `Enter AR Now`.
+- Close the current AR scene before launching a different stop so only one object is live at a time.
 
 ### Apply AR tuning snapshot
 Copy the snapshot from the AR screen, then run:
@@ -229,6 +262,8 @@ npm run ar:tuning:apply
 ```
 
 This updates [docs/ar-asset-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-asset-catalog.csv) and regenerates [src/data/arAssetCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/arAssetCatalog.ts).
+
+For a reusable device QA pass, use [docs/ar-assets/generic-device-smoke-checklist.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-assets/generic-device-smoke-checklist.md).
 
 ### Run Android build
 ```bash

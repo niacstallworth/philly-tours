@@ -12,6 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.founders.phillyartours",
       "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Allow Philly AR Tours to connect to the local development server while debugging on your network.",
         "NSLocationWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops while touring."
       }

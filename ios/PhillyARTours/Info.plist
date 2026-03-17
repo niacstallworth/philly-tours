@@ -46,6 +46,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera is required for AR tour placement and scene alignment.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Allow Philly AR Tours to connect to the local development server while debugging on your network.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Location is used to trigger nearby AR tour stops while touring.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
