@@ -19,17 +19,21 @@ type Props = {
   initialStopId?: string;
 };
 
+type LaunchIntent = "solo" | "shared";
+type ActionStatus = "idle" | "preparing" | "ready" | "launching" | "launching_shared" | "shared_live" | "live" | "closing" | "error";
+
 export function ARScreen({ initialTourId, initialStopId }: Props) {
   const [selectedTourId, setSelectedTourId] = useState<string>(initialTourId || tours[0]?.id || "");
   const [selectedStopId, setSelectedStopId] = useState<string>(initialStopId || "");
   const [roomName, setRoomName] = useState("historic-philly-main");
-  const [actionStatus, setActionStatus] = useState<string>("idle");
+  const [actionStatus, setActionStatus] = useState<ActionStatus>("idle");
   const [actionError, setActionError] = useState<string | null>(null);
   const [arStatus, setArStatus] = useState<NativeARStatus | null>(null);
   const narration = useNarration();
   const [joined, setJoined] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [fullAudioOnly, setFullAudioOnly] = useState(false);
+  const [launchIntent, setLaunchIntent] = useState<LaunchIntent>("solo");
   const [scaleDraft, setScaleDraft] = useState("1");
   const [rotationDraft, setRotationDraft] = useState("180");
   const [verticalOffsetDraft, setVerticalOffsetDraft] = useState("0");
@@ -74,6 +78,20 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
     arStatus?.provider === "arkit" &&
     arStatus?.available === false &&
     (arStatus?.reason || "").toLowerCase().includes("unsupported");
+  const isBusy =
+    actionStatus === "preparing" ||
+    actionStatus === "launching" ||
+    actionStatus === "launching_shared" ||
+    actionStatus === "closing";
+  const isLive = actionStatus === "live" || actionStatus === "shared_live";
+  const isReadyToLaunch = actionStatus === "ready";
+  const hasRunningSession = isLive || Boolean(arStatus?.sessionRunning);
+  const actionTone = actionStatus === "error" ? "danger" : isLive ? "success" : isReadyToLaunch ? "warn" : "default";
+  const providerCopy = arStatus?.reason || "Check AR availability on a physical device before entering the scene.";
+  const prepareButtonLabel = actionStatus === "preparing" ? "Preparing AR..." : "Prepare AR Moment";
+  const closeButtonLabel = actionStatus === "closing" ? "Closing AR..." : "Close AR";
+  const launchButtonLabel = launchIntent === "shared" ? "Enter Shared AR Now" : "Enter AR Now";
+  const readyTitle = launchIntent === "shared" ? "Shared launch ready" : "Ready to enter AR";
 
   useEffect(() => {
     if (initialTourId && tours.some((tour) => tour.id === initialTourId)) {
@@ -103,16 +121,70 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
     setVerticalOffsetDraft(String(payload.verticalOffsetM ?? 0));
   }, [payload?.stopId]);
 
+  useEffect(() => {
+    void refreshStatus();
+  }, []);
+
   async function refreshStatus() {
     try {
       const status = await adapter.getStatus();
       setArStatus(status);
+      return status;
     } catch {
-      // no-op
+      return null;
     }
   }
 
-  async function launchStop(shared: boolean) {
+  async function prepareLaunch(shared: boolean) {
+    if (isBusy) {
+      return;
+    }
+
+    setLaunchIntent(shared ? "shared" : "solo");
+    setActionStatus("preparing");
+    setActionError(null);
+
+    try {
+      if (!payload) {
+        throw new Error("No AR stop is selected.");
+      }
+
+      const status = await refreshStatus();
+      if (!status) {
+        throw new Error("Could not confirm AR readiness on this device.");
+      }
+
+      if (!status.available) {
+        throw new Error(status.reason || "AR is not available on this device.");
+      }
+
+      if (status.sessionRunning) {
+        throw new Error("Close the current AR moment before launching another stop.");
+      }
+
+      setActionStatus("ready");
+    } catch (error) {
+      setActionStatus("error");
+      setActionError((error as Error).message || "Could not prepare this AR scene.");
+    }
+  }
+
+  function cancelPreparedLaunch() {
+    if (isBusy) {
+      return;
+    }
+
+    setActionStatus("idle");
+    setActionError(null);
+    setLaunchIntent("solo");
+  }
+
+  async function launchPreparedStop() {
+    if (isBusy) {
+      return;
+    }
+
+    const shared = launchIntent === "shared";
     setActionStatus(shared ? "launching_shared" : "launching");
     setActionError(null);
     try {
@@ -155,19 +227,26 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
       }
       setActionStatus(shared ? "shared_live" : "live");
     } catch (error) {
+      await refreshStatus();
       setActionStatus("error");
       setActionError((error as Error).message || "Could not launch this AR scene.");
     }
   }
 
   async function closeAR() {
+    if (isBusy || !hasRunningSession) {
+      return;
+    }
+
     setActionStatus("closing");
     setActionError(null);
     try {
       await adapter.stopSession();
       await refreshStatus();
+      setLaunchIntent("solo");
       setActionStatus("idle");
     } catch (error) {
+      await refreshStatus();
       setActionStatus("error");
       setActionError((error as Error).message || "Could not close AR.");
     }
@@ -303,14 +382,41 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
 
       <Card style={styles.panel}>
         <Text style={styles.label}>Launch</Text>
-        <View style={styles.actionStack}>
-          <PrimaryButton label="Launch AR Moment" onPress={() => launchStop(false)} />
-          <PrimaryButton label="Close AR" onPress={closeAR} />
-        </View>
+        {isReadyToLaunch ? (
+          <View style={styles.preflightPanel}>
+            <Text style={styles.preflightTitle}>{readyTitle}</Text>
+            <Text style={styles.preflightCopy}>
+              Move the iPad slowly, frame a textured floor or wall, and give the model enough space before you enter AR.
+            </Text>
+            <View style={styles.preflightChecklist}>
+              <Text style={styles.preflightItem}>1. Point at a surface with visible texture or edges.</Text>
+              <Text style={styles.preflightItem}>2. Sweep gently for a second or two so ARKit can settle.</Text>
+              <Text style={styles.preflightItem}>3. Enter only when you have enough room for the full building volume.</Text>
+            </View>
+            <View style={styles.actionStack}>
+              <PrimaryButton label={launchButtonLabel} onPress={launchPreparedStop} disabled={isBusy} />
+              <PrimaryButton label="Back to Setup" onPress={cancelPreparedLaunch} disabled={isBusy} />
+            </View>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.meta}>
+              {isLive
+                ? "This AR moment is already live. Close it before launching another stop."
+                : "Prepare the stop first so AR only starts once the device and scene are both ready."}
+            </Text>
+            <View style={styles.actionStack}>
+              <PrimaryButton label={prepareButtonLabel} onPress={() => prepareLaunch(false)} disabled={!payload || isBusy || hasRunningSession} />
+              <PrimaryButton label={closeButtonLabel} onPress={closeAR} disabled={!hasRunningSession || isBusy} />
+            </View>
+          </>
+        )}
         <View style={styles.chips}>
-          <Chip label={`State ${actionStatus.replaceAll("_", " ")}`} tone={actionStatus === "error" ? "danger" : actionStatus.includes("live") ? "success" : "default"} />
+          <Chip label={`State ${actionStatus.replaceAll("_", " ")}`} tone={actionTone} />
           <Chip label={`Provider ${arStatus?.provider || "unknown"}`} tone="default" />
+          {isReadyToLaunch ? <Chip label={`Mode ${launchIntent}`} tone="warn" /> : null}
         </View>
+        <Text style={styles.meta}>{providerCopy}</Text>
         {unsupportedSimulator ? (
           <Text style={styles.metaCallout}>
             This simulator cannot run ARKit. Use an ARKit-capable iPhone or iPad to validate the real 3D scene.
@@ -383,7 +489,11 @@ export function ARScreen({ initialTourId, initialStopId }: Props) {
               placeholderTextColor="#8e7d99"
               autoCapitalize="none"
             />
-            <PrimaryButton label="Launch Shared AR Moment" onPress={() => launchStop(true)} />
+            <PrimaryButton
+              label={actionStatus === "preparing" && launchIntent === "shared" ? "Preparing Shared AR..." : "Prepare Shared AR Moment"}
+              onPress={() => prepareLaunch(true)}
+              disabled={!payload || isBusy || hasRunningSession}
+            />
             <Text style={styles.meta}>Only use shared mode if you’re co-viewing the same stop.</Text>
           </View>
         ) : (
@@ -515,6 +625,30 @@ const styles = StyleSheet.create({
   },
   actionStack: {
     gap: 10
+  },
+  preflightPanel: {
+    gap: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255, 188, 138, 0.2)",
+    backgroundColor: "rgba(255, 188, 138, 0.08)",
+    borderRadius: 22,
+    padding: 16
+  },
+  preflightTitle: {
+    color: "#fff4ea",
+    fontSize: 20,
+    fontWeight: "800"
+  },
+  preflightCopy: {
+    color: "#f0dde7",
+    lineHeight: 21
+  },
+  preflightChecklist: {
+    gap: 6
+  },
+  preflightItem: {
+    color: "#ffd8b8",
+    lineHeight: 20
   },
   meta: {
     color: "#b69fbe",
