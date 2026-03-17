@@ -35,6 +35,7 @@ This README is the current build-status document for the repo.
 - Native iOS AR bridge is present and builds.
 - First bundled iOS `.usdz` asset pipeline is in place.
 - AR asset catalog, scene manifest, and production brief infrastructure exists.
+- AR launch flow now uses a safer in-app preflight before entering native AR.
 - AR tuning snapshots can now be written back into the asset catalog with `npm run ar:tuning:apply`.
 - Narration flow now exists in app:
   - route-aware narration controls
@@ -248,6 +249,8 @@ npm run ios:device
 - On first launch, allow `Philly AR Tours` to access devices on your local network so it can reach Metro on port `8081`.
 - If local-network access was previously denied, delete the app from the iPad, reinstall it, and allow the prompt again.
 - If Xcode starts showing missing Expo module maps again, clear `~/Library/Developer/Xcode/DerivedData/PhillyARTours-*` and rebuild from the workspace.
+- In the AR screen, tap `Prepare AR Moment`, let the app confirm AR readiness, then tap `Enter AR Now`.
+- Close the current AR scene before launching a different stop so only one object is live at a time.
 
 ### Apply AR tuning snapshot
 Copy the snapshot from the AR screen, then run:
