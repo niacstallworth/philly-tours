@@ -35,6 +35,7 @@ const headers = [
 
 function parseArgs(argv) {
   const args = {
+    dryRun: false,
     snapshot: "",
     stopId: "",
     scale: "",
@@ -44,6 +45,10 @@ function parseArgs(argv) {
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
+    if (arg === "--dry-run") {
+      args.dryRun = true;
+      continue;
+    }
     if (arg === "--snapshot") {
       args.snapshot = argv[i + 1] || "";
       i += 1;
@@ -105,19 +110,41 @@ function resolveSnapshotText(args) {
 }
 
 function parseSnapshot(snapshot) {
-  const match = snapshot.match(
+  const normalized = String(snapshot || "").trim();
+  const legacyMatch = normalized.match(
     /^(?<title>.+?)(?: \[(?<stopId>[^\]]+)\])?: scale (?<scale>-?\d+(?:\.\d+)?), rotationYDeg (?<rotation>-?\d+(?:\.\d+)?), verticalOffsetM (?<offset>-?\d+(?:\.\d+)?)$/i
   );
-  if (!match?.groups) {
+  if (legacyMatch?.groups) {
+    return {
+      title: legacyMatch.groups.title.trim(),
+      stopId: String(legacyMatch.groups.stopId || "").trim(),
+      scale: parseNumeric(legacyMatch.groups.scale, "scale"),
+      rotationYDeg: parseNumeric(legacyMatch.groups.rotation, "rotationYDeg"),
+      verticalOffsetM: parseNumeric(legacyMatch.groups.offset, "verticalOffsetM")
+    };
+  }
+
+  const lines = normalized
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const titleLine = lines[0] || "";
+  const scaleLine = lines.find((line) => /^scale /i.test(line)) || "";
+  const titleMatch = titleLine.match(/^(?<title>.+?)(?: \[(?<stopId>[^\]]+)\])?$/);
+  const scaleMatch = scaleLine.match(
+    /^scale (?<scale>-?\d+(?:\.\d+)?), rotationYDeg (?<rotation>-?\d+(?:\.\d+)?), verticalOffsetM (?<offset>-?\d+(?:\.\d+)?)$/i
+  );
+
+  if (!titleMatch?.groups || !scaleMatch?.groups) {
     throw new Error("Snapshot format is invalid. Copy the tuning snapshot from the AR screen or pass explicit values.");
   }
 
   return {
-    title: match.groups.title.trim(),
-    stopId: String(match.groups.stopId || "").trim(),
-    scale: parseNumeric(match.groups.scale, "scale"),
-    rotationYDeg: parseNumeric(match.groups.rotation, "rotationYDeg"),
-    verticalOffsetM: parseNumeric(match.groups.offset, "verticalOffsetM")
+    title: titleMatch.groups.title.trim(),
+    stopId: String(titleMatch.groups.stopId || "").trim(),
+    scale: parseNumeric(scaleMatch.groups.scale, "scale"),
+    rotationYDeg: parseNumeric(scaleMatch.groups.rotation, "rotationYDeg"),
+    verticalOffsetM: parseNumeric(scaleMatch.groups.offset, "verticalOffsetM")
   };
 }
 
@@ -142,7 +169,7 @@ function resolveUpdate(args) {
   };
 }
 
-function applyUpdate(update) {
+function applyUpdate(update, options = {}) {
   const catalog = readCatalogCsv(catalogPath);
   const records = catalog.records.map((record) => ({ ...record }));
 
@@ -165,7 +192,9 @@ function applyUpdate(update) {
   target.rotationYDeg = String(update.rotationYDeg);
   target.verticalOffsetM = String(update.verticalOffsetM);
 
-  writeCatalogCsv(catalogPath, headers, records);
+  if (!options.dryRun) {
+    writeCatalogCsv(catalogPath, headers, records);
+  }
   return target;
 }
 
@@ -176,11 +205,21 @@ function runCatalogImport() {
   });
 }
 
+function runReviewDashboard() {
+  execFileSync(process.execPath, [path.join(rootDir, "scripts", "generate-ar-review-dashboard.mjs")], {
+    cwd: rootDir,
+    stdio: "inherit"
+  });
+}
+
 const args = parseArgs(process.argv.slice(2));
 const update = resolveUpdate(args);
-const target = applyUpdate(update);
-runCatalogImport();
+const target = applyUpdate(update, { dryRun: args.dryRun });
+if (!args.dryRun) {
+  runCatalogImport();
+  runReviewDashboard();
+}
 
 console.log(
-  `Applied tuning to ${target.stopTitle} (${target.stopId}): scale ${target.scale}, rotationYDeg ${target.rotationYDeg}, verticalOffsetM ${target.verticalOffsetM}`
+  `${args.dryRun ? "Would apply" : "Applied"} tuning to ${target.stopTitle} (${target.stopId}): scale ${target.scale}, rotationYDeg ${target.rotationYDeg}, verticalOffsetM ${target.verticalOffsetM}`
 );

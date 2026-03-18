@@ -123,6 +123,7 @@ function toManifest(record) {
     tourTitle: record.tourTitle,
     arPriority: Number(record.arPriority),
     arType: record.arType,
+    assetStatus: record.assetStatus || "planned",
     headline: headlineForType(record.arType),
     summary: record.assetNeeded || "No asset brief entered yet.",
     historicalEra: record.historicalEra || "historic Philadelphia",

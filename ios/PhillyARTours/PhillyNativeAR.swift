@@ -89,6 +89,7 @@ class PhillyNativeAR: NSObject {
 
     let rotationYDeg = (placement["rotationYDeg"] as? NSNumber)?.floatValue ?? 0
     let verticalOffsetM = (placement["verticalOffsetM"] as? NSNumber)?.floatValue ?? 0
+    let anchorStyle = (placement["anchorStyle"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "front_of_user"
     let fallbackType = (placement["fallbackType"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "box"
     let title = (placement["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? id
     let subtitle = (placement["subtitle"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "Historic AR stop"
@@ -111,6 +112,7 @@ class PhillyNativeAR: NSObject {
           scale: scale,
           rotationYDeg: rotationYDeg,
           verticalOffsetM: verticalOffsetM,
+          anchorStyle: anchorStyle,
           fallbackType: fallbackType,
           title: title,
           subtitle: subtitle,
@@ -178,6 +180,10 @@ final class PhillyARViewController: UIViewController {
     let config = ARWorldTrackingConfiguration()
     config.planeDetection = [.horizontal, .vertical]
     config.environmentTexturing = .automatic
+    if ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh) {
+      config.sceneReconstruction = .mesh
+    }
+    config.isAutoFocusEnabled = true
     arView.session.run(config, options: [.resetTracking, .removeExistingAnchors])
   }
 
@@ -192,6 +198,7 @@ final class PhillyARViewController: UIViewController {
     scale: Float,
     rotationYDeg: Float,
     verticalOffsetM: Float,
+    anchorStyle: String,
     fallbackType: String,
     title: String,
     subtitle: String,
@@ -205,9 +212,7 @@ final class PhillyARViewController: UIViewController {
       throw NSError(domain: "PhillyNativeAR", code: 1001, userInfo: [NSLocalizedDescriptionKey: "AR frame unavailable"]) 
     }
 
-    var offset = matrix_identity_float4x4
-    offset.columns.3.z = -1.0
-    let transform = simd_mul(frame.camera.transform, offset)
+    let transform = placementTransform(frame: frame, anchorStyle: anchorStyle)
     let anchor = AnchorEntity(world: transform)
 
     let entity = try loadOrFallbackModel(
@@ -229,6 +234,61 @@ final class PhillyARViewController: UIViewController {
 
     anchor.addChild(entity)
     arView.scene.addAnchor(anchor)
+  }
+
+  private func placementTransform(frame: ARFrame, anchorStyle: String) -> simd_float4x4 {
+    let alignment: ARRaycastQuery.TargetAlignment
+    switch anchorStyle {
+    case "ground":
+      alignment = .horizontal
+    case "image_target":
+      alignment = .vertical
+    default:
+      alignment = .any
+    }
+
+    let viewportCenter = CGPoint(x: arView.bounds.midX, y: arView.bounds.midY)
+    let targets: [ARRaycastQuery.Target] = [.existingPlaneGeometry, .estimatedPlane]
+    for target in targets {
+      if let query = arView.makeRaycastQuery(from: viewportCenter, allowing: target, alignment: alignment),
+         let result = arView.session.raycast(query).first {
+        return uprightWorldTransform(from: result.worldTransform, cameraTransform: frame.camera.transform)
+      }
+    }
+
+    return fallbackPlacementTransform(cameraTransform: frame.camera.transform, anchorStyle: anchorStyle)
+  }
+
+  private func uprightWorldTransform(from source: simd_float4x4, cameraTransform: simd_float4x4) -> simd_float4x4 {
+    var transform = matrix_identity_float4x4
+    transform.columns.3 = source.columns.3
+
+    let toCamera = SIMD3<Float>(
+      cameraTransform.columns.3.x - source.columns.3.x,
+      0,
+      cameraTransform.columns.3.z - source.columns.3.z
+    )
+    let direction = simd_length_squared(toCamera) > 0.0001 ? simd_normalize(toCamera) : SIMD3<Float>(0, 0, 1)
+    let yaw = atan2(direction.x, direction.z)
+    let rotation = simd_quatf(angle: yaw, axis: SIMD3<Float>(0, 1, 0))
+    return simd_mul(transform, matrixFromQuaternion(rotation))
+  }
+
+  private func fallbackPlacementTransform(cameraTransform: simd_float4x4, anchorStyle: String) -> simd_float4x4 {
+    var offset = matrix_identity_float4x4
+    offset.columns.3.z = anchorStyle == "ground" ? -1.2 : -1.0
+    let source = simd_mul(cameraTransform, offset)
+    return uprightWorldTransform(from: source, cameraTransform: cameraTransform)
+  }
+
+  private func matrixFromQuaternion(_ rotation: simd_quatf) -> simd_float4x4 {
+    let basis = simd_float3x3(rotation)
+    return simd_float4x4(
+      SIMD4<Float>(basis.columns.0.x, basis.columns.0.y, basis.columns.0.z, 0),
+      SIMD4<Float>(basis.columns.1.x, basis.columns.1.y, basis.columns.1.z, 0),
+      SIMD4<Float>(basis.columns.2.x, basis.columns.2.y, basis.columns.2.z, 0),
+      SIMD4<Float>(0, 0, 0, 1)
+    )
   }
 
   private func loadOrFallbackModel(

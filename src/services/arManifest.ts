@@ -5,6 +5,7 @@ export type ARSceneManifest = {
   stopId: string;
   stopTitle: string;
   arType: string;
+  assetStatus: "planned" | "in_production" | "ready" | "approved";
   headline: string;
   summary: string;
   historicalEra: string;
@@ -112,6 +113,7 @@ export function toARSceneManifest(stop: Stop): ARSceneManifest {
     stopId: stop.id,
     stopTitle: stop.title,
     arType,
+    assetStatus: catalogEntry?.assetStatus || "planned",
     headline: headlineForType(arType),
     summary: stop.assetNeeded || catalogEntry?.assetNeeded || stop.description,
     historicalEra: catalogEntry?.historicalEra || "historic Philadelphia",

@@ -465,10 +465,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)"
   },
-  packChipActive: { backgroundColor: "#ff8ca8", borderColor: "#ff8ca8" },
+  packChipActive: { backgroundColor: "#007eff", borderColor: "#007eff" },
   colorDot: { width: 10, height: 10, borderRadius: 999 },
   packText: { color: "#cab6d2", fontWeight: "700" },
-  packTextActive: { color: "#2b1021" },
+  packTextActive: { color: "#f5fbff" },
   actionsRow: { gap: 10 },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   error: { color: "#ffadb7", fontWeight: "600" },

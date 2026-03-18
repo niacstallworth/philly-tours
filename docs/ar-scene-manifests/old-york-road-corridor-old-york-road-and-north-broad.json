@@ -5,6 +5,7 @@
   "tourTitle": "Old York Road Corridor",
   "arPriority": 26,
   "arType": "route_ghost",
+  "assetStatus": "planned",
   "headline": "Wayfinding ghost route",
   "summary": "corridor route arrows; milestone reveal; wayfinding card",
   "historicalEra": "historic Philadelphia",

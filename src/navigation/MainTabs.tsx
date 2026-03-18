@@ -1,12 +1,14 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { ARScreen } from "../screens/ARScreen";
+import { BuilderARScreen } from "../screens/BuilderARScreen";
 import { DriveScreen } from "../screens/DriveScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { MapScreen } from "../screens/MapScreen";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
+import { TouristARScreen } from "../screens/TouristARScreen";
 import { HandoffTarget } from "../services/deepLinks";
+import { ThemeSurfaceProvider } from "../theme/appTheme";
 
 type SessionInfo = {
   displayName: string;
@@ -41,24 +43,49 @@ export function MainTabs({ session, handoffTarget, onDeleteProfile }: Props) {
   function renderTab() {
     if (tab === "Home") {
       return (
-        <HomeScreen
-          displayName={session.displayName}
-          initialSelectedTourId={handoffTarget?.tourId}
-          highlightedStopId={handoffTarget?.stopId}
-          handoffMode={handoffTarget?.mode}
-        />
+        <ThemeSurfaceProvider surface="home">
+          <HomeScreen
+            displayName={session.displayName}
+            initialSelectedTourId={handoffTarget?.tourId}
+            highlightedStopId={handoffTarget?.stopId}
+            handoffMode={handoffTarget?.mode}
+          />
+        </ThemeSurfaceProvider>
       );
     }
     if (tab === "Map") {
-      return <MapScreen initialFocusedTourId={handoffTarget?.tourId} highlightedStopId={handoffTarget?.stopId} />;
+      return (
+        <ThemeSurfaceProvider surface="map">
+          <MapScreen initialFocusedTourId={handoffTarget?.tourId} highlightedStopId={handoffTarget?.stopId} />
+        </ThemeSurfaceProvider>
+      );
     }
     if (tab === "AR") {
-      return <ARScreen initialTourId={handoffTarget?.tourId} initialStopId={handoffTarget?.stopId} />;
+      if (session.mode === "builder") {
+        return (
+          <ThemeSurfaceProvider surface="builder">
+            <BuilderARScreen initialTourId={handoffTarget?.tourId} initialStopId={handoffTarget?.stopId} />
+          </ThemeSurfaceProvider>
+        );
+      }
+      return (
+        <ThemeSurfaceProvider surface="ar">
+          <TouristARScreen initialTourId={handoffTarget?.tourId} initialStopId={handoffTarget?.stopId} />
+        </ThemeSurfaceProvider>
+      );
     }
     if (tab === "Drive") {
-      return <DriveScreen initialTourId={handoffTarget?.tourId} />;
+      return (
+        <ThemeSurfaceProvider surface="drive">
+          <DriveScreen initialTourId={handoffTarget?.tourId} />
+        </ThemeSurfaceProvider>
+      );
     }
-    return <ProfileScreen displayName={session.displayName} mode={session.mode} email={session.email} onDeleteProfile={onDeleteProfile} />;
+    return (
+      <ThemeSurfaceProvider surface="profile">
+        <ProfileScreen displayName={session.displayName} mode={session.mode} email={session.email} onDeleteProfile={onDeleteProfile} />
+      </ThemeSurfaceProvider>
+    );
   }
 
   const tabs: Array<{ key: "Home" | "Map" | "AR" | "Drive" | "Profile"; label: string }> = [
@@ -127,6 +154,6 @@ const styles = StyleSheet.create({
     width: 22,
     height: 4,
     borderRadius: 999,
-    backgroundColor: "#ff8ca8"
+    backgroundColor: "#007eff"
   }
 });

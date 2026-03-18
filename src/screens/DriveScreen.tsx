@@ -32,7 +32,6 @@ export function DriveScreen({ initialTourId }: Props) {
   const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
   const { driveSession, setDriveSession, loading } = useDriveSession();
   const narration = useNarration();
-  const autoNarratedStopIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     if (initialTourId && driveTours.some((tour) => tour.id === initialTourId)) {
@@ -74,23 +73,6 @@ export function DriveScreen({ initialTourId }: Props) {
     [nextStop]
   );
   const activeNarrationStop = (narration.stopId ? [currentStop, nextStop].find((stop) => stop?.id === narration.stopId) : null) || null;
-
-  React.useEffect(() => {
-    if (!currentStop || activeSession?.mode !== "arrived") {
-      return;
-    }
-    if (autoNarratedStopIdRef.current === currentStop.id) {
-      return;
-    }
-    autoNarratedStopIdRef.current = currentStop.id;
-    startNarration(currentStop, "drive").catch(() => undefined);
-  }, [activeSession?.mode, currentStop]);
-
-  React.useEffect(() => {
-    if (activeSession?.mode !== "arrived") {
-      autoNarratedStopIdRef.current = null;
-    }
-  }, [activeSession?.mode]);
 
   async function previewArrivalHandoff() {
     const targetStop = activeSession ? currentStop : nextStop;
@@ -414,15 +396,15 @@ const styles = StyleSheet.create({
     overflow: "hidden"
   },
   tourChipActive: {
-    backgroundColor: "#ff8ca8",
-    borderColor: "#ff8ca8"
+    backgroundColor: "#007eff",
+    borderColor: "#007eff"
   },
   tourChipText: {
     color: "#cab6d2",
     fontWeight: "700"
   },
   tourChipTextActive: {
-    color: "#2b1021"
+    color: "#f5fbff"
   },
   tourChipMeta: {
     color: "#9d8aa8",
@@ -430,7 +412,7 @@ const styles = StyleSheet.create({
     fontWeight: "600"
   },
   tourChipMetaActive: {
-    color: "#472034"
+    color: "#dceeff"
   },
   chips: {
     flexDirection: "row",

@@ -5,6 +5,7 @@
   "tourTitle": "Old York Road Corridor",
   "arPriority": 22,
   "arType": "before_after_overlay",
+  "assetStatus": "planned",
   "headline": "Facade-accurate overlay",
   "summary": "riot and community timeline; neighborhood memory overlay",
   "historicalEra": "historic Philadelphia",

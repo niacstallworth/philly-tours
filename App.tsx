@@ -4,11 +4,13 @@ import { ActivityIndicator, Linking, Pressable, SafeAreaView, StatusBar, StyleSh
 import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
 import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
+import { isBuilderEmailAllowed } from "./src/services/builderAccess";
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
 import { subscribeToHandoffTarget } from "./src/services/handoffBus";
 import { setApiUserId } from "./src/services/payments";
 import { clearDriveSession } from "./src/services/driveMode";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
+import { AppThemeProvider, ThemeSurfaceProvider } from "./src/theme/appTheme";
 
 type AppSession = {
   displayName: string;
@@ -34,6 +36,10 @@ export default function App() {
     loadSession()
       .then((stored) => {
         if (!stored) {
+          return;
+        }
+        if (stored.mode === "builder" && !isBuilderEmailAllowed(stored.email)) {
+          clearSession().catch(() => undefined);
           return;
         }
         setApiUserId(stored.userId);
@@ -94,34 +100,38 @@ export default function App() {
   }
 
   const appBody = (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" />
-      {booting ? (
-        <View style={styles.boot}>
-          <ActivityIndicator size="large" color="#38bdf8" />
-          <Text style={styles.bootText}>Loading profile...</Text>
-        </View>
-      ) : (
-        <View style={styles.content}>
-          {session && (
-            <View style={styles.header}>
-              <View>
-                <Text style={styles.headerName}>{session.displayName}</Text>
-                <Text style={styles.headerMeta}>{session.mode === "builder" ? "Builder Mode" : "Tourist Mode"}</Text>
+    <AppThemeProvider>
+      <SafeAreaView style={styles.safe}>
+        <StatusBar barStyle="light-content" />
+        {booting ? (
+          <View style={styles.boot}>
+            <ActivityIndicator size="large" color="#38bdf8" />
+            <Text style={styles.bootText}>Loading profile...</Text>
+          </View>
+        ) : (
+          <View style={styles.content}>
+            {session && (
+              <View style={styles.header}>
+                <View>
+                  <Text style={styles.headerName}>{session.displayName}</Text>
+                  <Text style={styles.headerMeta}>{session.mode === "builder" ? "Builder Mode" : "Tourist Mode"}</Text>
+                </View>
+                <Pressable style={styles.signOutButton} onPress={signOut}>
+                  <Text style={styles.signOutText}>Sign Out</Text>
+                </Pressable>
               </View>
-              <Pressable style={styles.signOutButton} onPress={signOut}>
-                <Text style={styles.signOutText}>Sign Out</Text>
-              </Pressable>
-            </View>
-          )}
-          {!session ? (
-            <OnboardingScreen onComplete={completeOnboarding} />
-          ) : (
-            <MainTabs session={session} handoffTarget={handoffTarget} onDeleteProfile={deleteProfile} />
-          )}
-        </View>
-      )}
-    </SafeAreaView>
+            )}
+            {!session ? (
+              <ThemeSurfaceProvider surface="login">
+                <OnboardingScreen onComplete={completeOnboarding} />
+              </ThemeSurfaceProvider>
+            ) : (
+              <MainTabs session={session} handoffTarget={handoffTarget} onDeleteProfile={deleteProfile} />
+            )}
+          </View>
+        )}
+      </SafeAreaView>
+    </AppThemeProvider>
   );
 
   if (isExpoGo) {

@@ -14,6 +14,7 @@ export type ARModelPlacement = {
   scale: number;
   rotationYDeg: number;
   verticalOffsetM?: number;
+  anchorStyle?: "front_of_user" | "ground" | "image_target" | "location_marker";
   fallbackType?: "box" | "card" | "none";
   title?: string;
   subtitle?: string;

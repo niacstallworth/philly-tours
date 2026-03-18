@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "jobId": "ar-job-old-york-road-corridor-ogontz-theatre-site",
+  "status": "planned",
+  "stop": {
+    "stopId": "old-york-road-corridor-ogontz-theatre-site",
+    "stopTitle": "Ogontz Theatre Site",
+    "tourId": "old-york-road-corridor",
+    "tourTitle": "Old York Road Corridor",
+    "arPriority": 20,
+    "arType": "portal_reconstruction",
+    "assetStatus": "planned"
+  },
+  "sourceFiles": {
+    "catalogCsv": "docs/ar-asset-catalog.csv",
+    "productionBrief": "docs/ar-briefs/old-york-road-corridor-ogontz-theatre-site.md",
+    "sceneManifest": "docs/ar-scene-manifests/old-york-road-corridor-ogontz-theatre-site.json"
+  },
+  "runtimeTargets": {
+    "iosAsset": "/models/ogontz-theatre-site.usdz",
+    "androidAsset": "/models/ogontz-theatre-site.glb",
+    "webAsset": "/models/ogontz-theatre-site.glb"
+  },
+  "placement": {
+    "anchorStyle": "front_of_user",
+    "coordQuality": "verified",
+    "triggerRadiusM": 40,
+    "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+    "fallbackType": "card",
+    "scale": 1,
+    "rotationYDeg": 180,
+    "verticalOffsetM": 0
+  },
+  "creativeDirection": {
+    "headline": "Hero portal reconstruction",
+    "conceptGoal": "Create a spatially convincing reconstruction with foreground depth and a clear portal framing moment.",
+    "assetNeeded": "theatre facade reconstruction; performance poster overlays",
+    "historicalEra": "historic Philadelphia",
+    "stylePreset": "cinematic",
+    "visualPriority": "atmosphere",
+    "estimatedEffort": "high",
+    "notes": "[pipeline-sync] no generated pipeline artifacts yet",
+    "negativePrompt": "science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins"
+  },
+  "scenePlan": {
+    "contentLayers": [
+      "theatre facade reconstruction",
+      "performance poster overlays",
+      "portal frame",
+      "foreground occlusion pass",
+      "historic depth backdrop"
+    ],
+    "productionChecklist": [
+      "Confirm portal framing",
+      "Define foreground props",
+      "Validate scene depth",
+      "Check occlusion and sightlines"
+    ]
+  },
+  "aiGuardrails": [
+    "Use AI for concept ideation, moodboards, references, and rough starting geometry only.",
+    "Do not treat 2D image output as the final AR object.",
+    "Final user-facing output must become a cleaned 3D asset packaged as .usdz for iOS and .glb for Android/web.",
+    "Favor historically grounded scenes over speculative spectacle.",
+    "Optimize for one clear AR moment at a time rather than layered clutter."
+  ],
+  "pipeline": {
+    "apiStages": [
+      "text_brief",
+      "concept_image",
+      "rough_mesh"
+    ],
+    "workingDirectory": "docs/ar-job-packs/old-york-road-corridor-ogontz-theatre-site",
+    "expectedOutputs": {
+      "conceptBrief": "docs/ar-job-packs/old-york-road-corridor-ogontz-theatre-site/prompts.md#text-brief-prompt",
+      "conceptImagePrompt": "docs/ar-job-packs/old-york-road-corridor-ogontz-theatre-site/prompts.md#concept-image-prompt",
+      "roughMeshPrompt": "docs/ar-job-packs/old-york-road-corridor-ogontz-theatre-site/prompts.md#rough-mesh-prompt",
+      "draftAssetWorkspace": "generated/ar/old-york-road-corridor-ogontz-theatre-site/",
+      "finalRuntimeAssets": {
+        "ios": "/models/ogontz-theatre-site.usdz",
+        "android": "/models/ogontz-theatre-site.glb",
+        "web": "/models/ogontz-theatre-site.glb"
+      }
+    }
+  },
+  "promptPack": {
+    "textBriefPrompt": "You are preparing an internal production brief for a mobile AR scene.\nThe output should help a human artist or producer create a historically grounded 3D asset.\nDo not describe final app UI, dashboards, or developer tooling.\n\nStop: Ogontz Theatre Site\nTour: Old York Road Corridor\nAR type: portal_reconstruction\nScene goal: Create a spatially convincing reconstruction with foreground depth and a clear portal framing moment.\nHistorical era: historic Philadelphia\nStyle preset: cinematic\nVisual priority: atmosphere\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: theatre facade reconstruction, performance poster overlays, portal frame, foreground occlusion pass, historic depth backdrop\nFallback type: card\nNegative prompt / avoid list: science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins\n\nAsset request from catalog: theatre facade reconstruction; performance poster overlays\nProducer notes: [pipeline-sync] no generated pipeline artifacts yet\n\nReturn:\n1. A concise scene concept paragraph.\n2. A composition breakdown with foreground, midground, and background.\n3. A material/reference checklist.\n4. A risk list covering historical accuracy, readability, and placement drift concerns.\n5. Recommended reference imagery or archival material to gather before modeling.",
+    "conceptImagePrompt": "Generate an internal concept image only. This is not the final runtime asset.\nThe image should help art direction, lighting, composition, and texture planning for a future 3D model.\nPreserve historical plausibility and avoid speculative sci-fi embellishment.\n\nStop: Ogontz Theatre Site\nTour: Old York Road Corridor\nAR type: portal_reconstruction\nScene goal: Create a spatially convincing reconstruction with foreground depth and a clear portal framing moment.\nHistorical era: historic Philadelphia\nStyle preset: cinematic\nVisual priority: atmosphere\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: theatre facade reconstruction, performance poster overlays, portal frame, foreground occlusion pass, historic depth backdrop\nFallback type: card\nNegative prompt / avoid list: science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins\n\nScene headline: Hero portal reconstruction\nDesired visual emphasis: atmosphere\nTarget atmosphere: cinematic\n\nRequirements:\n- Keep the scene legible as a single clear AR moment.\n- Avoid crowded compositions and complex HUD overlays.\n- Bias toward forms that can be translated cleanly into a 3D asset.\n- Avoid: science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins",
+    "roughMeshPrompt": "Generate a rough 3D blockout or starting geometry only.\nThis output will be cleaned manually before becoming a production AR asset.\nDo not assume the generated mesh is final quality.\n\nStop: Ogontz Theatre Site\nTour: Old York Road Corridor\nAR type: portal_reconstruction\nScene goal: Create a spatially convincing reconstruction with foreground depth and a clear portal framing moment.\nHistorical era: historic Philadelphia\nStyle preset: cinematic\nVisual priority: atmosphere\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: theatre facade reconstruction, performance poster overlays, portal frame, foreground occlusion pass, historic depth backdrop\nFallback type: card\nNegative prompt / avoid list: science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins\n\nPrimary asset request: theatre facade reconstruction; performance poster overlays\nExpected runtime targets: iOS /models/ogontz-theatre-site.usdz, Android /models/ogontz-theatre-site.glb, Web /models/ogontz-theatre-site.glb\n\nRequirements:\n- Prioritize silhouette, scale, and spatial readability over decorative detail.\n- Preserve clean separable geometry for manual cleanup in Blender or similar tools.\n- Favor historically plausible massing and proportions.\n- Avoid: science fiction elements, neon cyberpunk styling, modern cars, modern glass towers, exaggerated fantasy ruins"
+  }
+}

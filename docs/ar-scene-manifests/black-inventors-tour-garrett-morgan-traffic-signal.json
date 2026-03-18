@@ -5,6 +5,7 @@
   "tourTitle": "Black Inventors Tour",
   "arPriority": 15,
   "arType": "animated_diagram",
+  "assetStatus": "planned",
   "headline": "Animated explainer scene",
   "summary": "signal mechanism; intersection overlay; patent timeline",
   "historicalEra": "historic Philadelphia",

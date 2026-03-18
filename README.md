@@ -258,12 +258,372 @@ Copy the snapshot from the AR screen, then run:
 ```bash
 cd /Users/nia/Documents/GitHub/philly-tours
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:tuning:apply -- --dry-run
 npm run ar:tuning:apply
 ```
 
 This updates [docs/ar-asset-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-asset-catalog.csv) and regenerates [src/data/arAssetCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/arAssetCatalog.ts).
 
 For a reusable device QA pass, use [docs/ar-assets/generic-device-smoke-checklist.md](/Users/nia/Documents/GitHub/philly-tours/docs/ar-assets/generic-device-smoke-checklist.md).
+
+### Generate AR job packs
+Generate provider-agnostic per-stop job folders for API-driven AR asset work:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:jobs:generate
+```
+
+This creates [docs/ar-job-packs](/Users/nia/Documents/GitHub/philly-tours/docs/ar-job-packs), with one folder per AR stop containing:
+- `job.json` for structured pipeline metadata, runtime targets, and stage planning
+- `prompts.md` for text-brief, concept-image, and rough-mesh prompts
+
+### Run AR job packs
+Run the first live provider-backed stage from the generated job packs:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:jobs:run -- --dry-run --limit 1
+```
+
+Current behavior:
+- Default stage is `text_brief`
+- Default provider is `anthropic`
+- Default limit is `1` so you do not accidentally fan out paid API calls
+- Generated stage outputs land in `generated/ar/<stopId>/<stage>/<provider>/`
+- `--dry-run` writes the prompt and run metadata without calling the provider
+
+Useful options:
+```bash
+npm run ar:jobs:run -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --dry-run
+npm run ar:jobs:run -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --stage text_brief --provider anthropic
+npm run ar:jobs:run -- --all --stage text_brief --provider anthropic
+npm run ar:jobs:run -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --stage concept_image --provider replicate --dry-run
+npm run ar:jobs:run -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --stage concept_image --provider replicate
+npm run ar:jobs:run -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --stage rough_mesh
+```
+
+Live provider support is currently implemented for:
+- `text_brief` via Anthropic
+- `concept_image` via Replicate (`black-forest-labs/flux-1.1-pro` by default)
+
+Fallback provider support is still available for:
+- `concept_image` via fal
+
+The rough-mesh stage now defaults to a no-cost `manual` provider that builds a modeler handoff workspace from the stop prompt plus any existing concept-image outputs. It writes:
+- `output.md` with modeling priorities and references
+- `mesh-handoff.json` with placement/runtime targets and cleanup guidance
+- `cleanup-checklist.md`
+- `references.md`
+
+This is intended to bridge concept review into Blender/manual cleanup without paying for a mesh API before you are ready.
+
+### Ingest cleaned rough-mesh assets
+Once a cleaned `.usdz` or `.glb` is ready, drop it into:
+
+- `generated/ar/<stopId>/rough_mesh/manual/reviewed/`
+
+The mesh-ingest helper creates a guide file in that folder automatically and looks for either:
+- the final runtime filenames from the job pack
+- the `*-blockout.*` filenames suggested by the rough-mesh handoff
+
+Dry-run the ingest first:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:mesh:ingest -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --dry-run
+```
+
+Then do the real staging:
+
+```bash
+npm run ar:mesh:ingest -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church
+```
+
+This writes:
+- `generated/ar-runtime-staging/<stopId>/mesh-ingest-manifest.json`
+- `generated/ar-runtime-staging/<stopId>/mesh-ingest-manifest.md`
+
+And stages into the same runtime destinations used by the app:
+- iOS: `ios/PhillyARTours/ARAssets/models/*.usdz`
+- Android/Web: `assets/models/*.glb`
+
+On a real run, this also refreshes:
+- `docs/ar-asset-catalog.csv`
+- generated scene manifests / job packs
+- the AR review dashboard
+
+Relevant `.env` values for live image generation:
+```env
+REPLICATE_API_TOKEN=r8_xxx
+REPLICATE_DEFAULT_MODEL=black-forest-labs/flux-1.1-pro
+REPLICATE_DEFAULT_ASPECT_RATIO=3:2
+REPLICATE_DEFAULT_OUTPUT_FORMAT=png
+```
+
+Optional fallback image-provider values:
+```env
+FAL_KEY=your_fal_key
+FAL_DEFAULT_MODEL=fal-ai/flux/dev
+FAL_DEFAULT_IMAGE_SIZE=landscape_4_3
+FAL_DEFAULT_OUTPUT_FORMAT=jpeg
+```
+
+### Stage reviewed runtime assets
+Prepare reviewed model files for the runtime asset locations without manually copying them around:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:runtime:stage -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --source-dir /absolute/path/to/reviewed-assets --dry-run
+```
+
+You can also pass files explicitly:
+```bash
+npm run ar:runtime:stage -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --ios-file /absolute/path/to/model.usdz --android-file /absolute/path/to/model.glb --web-file /absolute/path/to/model.glb
+```
+
+The staging script writes a manifest under:
+- `generated/ar-runtime-staging/<stopId>/staging-manifest.json`
+- `generated/ar-runtime-staging/<stopId>/staging-manifest.md`
+
+Destination conventions:
+- iOS runtime asset target: `ios/PhillyARTours/ARAssets/models/*.usdz`
+- Android/Web runtime asset target: `assets/models/*.glb`
+
+On a real run, it also triggers `npm run ar:catalog:sync-runtime` for that stop so the catalog/dashboard pick up the newly staged runtime asset state.
+
+### Ingest AR job outputs
+Summarize generated AR workspace outputs into a review-friendly index:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:jobs:ingest
+```
+
+This writes:
+- `generated/ar/ingest-index.json`
+- `generated/ar/ingest-index.md`
+
+The ingest index does not modify runtime assets yet. It just tells you:
+- which stages exist for each stop
+- which files were produced
+- whether the stop is ready for concept review, mesh cleanup, or runtime packaging next
+
+### Sync runtime readiness back into the catalog
+Write pipeline progress back into the source-of-truth AR catalog and regenerate the runtime files:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:catalog:sync-runtime -- --dry-run
+npm run ar:catalog:sync-runtime
+```
+
+This updates:
+- [docs/ar-asset-catalog.csv](/Users/nia/Documents/GitHub/philly-tours/docs/ar-asset-catalog.csv)
+- [src/data/arAssetCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/arAssetCatalog.ts)
+- [docs/ar-scene-manifests](/Users/nia/Documents/GitHub/philly-tours/docs/ar-scene-manifests)
+- [docs/ar-job-packs](/Users/nia/Documents/GitHub/philly-tours/docs/ar-job-packs)
+
+And writes a sync report to:
+- `generated/ar-runtime-staging/catalog-sync/report.json`
+- `generated/ar-runtime-staging/catalog-sync/report.md`
+
+### Approve a stop after a good device pass
+Once a stop feels solid on-device, promote it to `approved` without hand-editing the catalog:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:catalog:approve -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --note "Stable on iPad after slow floor scan." --dry-run
+```
+
+Then do the real approval:
+
+```bash
+npm run ar:catalog:approve -- --stop-id black-american-legacy-and-quaker-heritage-mother-bethel-ame-church --note "Stable on iPad after slow floor scan."
+```
+
+This command:
+- sets `assetStatus` to `approved`
+- appends a `[manual-status] ...` note to the catalog row
+- regenerates the imported catalog, scene manifests, and job packs
+
+It refuses to approve a stop that is still `planned` unless you pass `--force`.
+
+### Apply an approval queue copied from the AR screen
+The AR screen can now copy a queue of approval commands for all stable, buildable stops. Pipe that queue into:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+pbpaste | npm run ar:catalog:approve-queue -- --dry-run
+```
+
+Then apply it for real:
+
+```bash
+pbpaste | npm run ar:catalog:approve-queue
+```
+
+You can also read from a saved file:
+
+```bash
+npm run ar:catalog:approve-queue -- --file /absolute/path/to/approval-queue.txt --dry-run
+```
+
+### Import a full device review report from the AR screen
+The AR screen can also copy a full review report for the current tour, including asset status, pass status, notes, approval candidates, and retune items.
+
+Preview an import from the clipboard:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+pbpaste | npm run ar:reviews:import -- --dry-run
+```
+
+Then import it for real:
+
+```bash
+pbpaste | npm run ar:reviews:import
+```
+
+If a preview import looks good and you want to bless it without recopypasting from the device:
+
+```bash
+npm run ar:reviews:promote -- --tour-id <tourId> --dry-run
+npm run ar:reviews:promote -- --tour-id <tourId>
+```
+
+You can also apply a queued batch of preview promotions:
+
+```bash
+pbpaste | npm run ar:reviews:promote-queue -- --dry-run
+pbpaste | npm run ar:reviews:promote-queue
+```
+
+Or use the generated aggregate queue directly:
+
+```bash
+npm run ar:reviews:promote-next -- --dry-run
+npm run ar:reviews:promote-next
+```
+
+To advance the full review pipeline in order, run:
+
+```bash
+npm run ar:reviews:advance -- --dry-run
+npm run ar:reviews:advance
+```
+
+That applies queued preview promotions first, then queued approvals. You can also pass `--skip-promotions` or `--skip-approvals`.
+
+### Import a full AR session closeout from the AR screen
+If you use `Copy Session Closeout` on the AR screen, the clipboard bundle includes both the selected stop’s tuning snapshot and the full tour device review. The importer applies the tuning snapshot first, then imports the review report.
+
+Preview a closeout import from the clipboard:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+pbpaste | npm run ar:closeout:import -- --dry-run
+```
+
+Then import it for real:
+
+```bash
+pbpaste | npm run ar:closeout:import
+```
+
+Optional flags:
+
+```bash
+pbpaste | npm run ar:closeout:import -- --dry-run --skip-tuning
+pbpaste | npm run ar:closeout:import -- --dry-run --skip-review
+npm run ar:closeout:import -- --file /absolute/path/to/session-closeout.txt --dry-run
+```
+On a real run, it now refreshes the approval queue after promotions so newly unlocked approvals get applied in the same pass.
+
+This writes:
+- `generated/ar-runtime-staging/device-reviews/<tourId>-preview.json` and friends when you use `--dry-run`
+- `generated/ar-runtime-staging/device-reviews/<tourId>-latest.json` and friends on a real import
+- `generated/ar-runtime-staging/device-reviews/<tourId>-current-approval-queue.txt`
+- `generated/ar-runtime-staging/device-reviews/<tourId>-current-retune-queue.md`
+- `generated/ar-runtime-staging/device-reviews/dashboard.json`
+- `generated/ar-runtime-staging/device-reviews/dashboard.md`
+- `generated/ar-runtime-staging/device-reviews/next-actions.json`
+- `generated/ar-runtime-staging/device-reviews/next-actions.md`
+- `generated/ar-runtime-staging/device-reviews/next-session-handoff.json`
+- `generated/ar-runtime-staging/device-reviews/next-session-handoff.md`
+- `generated/ar-runtime-staging/device-reviews/next-device-pass.json`
+- `generated/ar-runtime-staging/device-reviews/next-device-pass.md`
+- `generated/ar-runtime-staging/device-reviews/next-approval-queue.txt`
+- `generated/ar-runtime-staging/device-reviews/next-projected-approval-queue.txt`
+- `generated/ar-runtime-staging/device-reviews/next-retune-queue.md`
+- `generated/ar-runtime-staging/device-reviews/first-device-review-queue.md`
+
+The imported report includes:
+- stable / drift / retune summary counts
+- approval candidates with ready-to-run approval commands
+- buildable stops that still need more tuning
+
+Dry-run imports are now treated as preview-only and do not count as official reviews in the dashboard/action queues. You can either import a real review from the iPad or promote an existing preview into the official `-latest.*` files.
+
+If you have older preview imports from before that naming split, normalize them once:
+
+```bash
+npm run ar:reviews:normalize
+```
+
+The extra queue files make the next step explicit:
+- `*-approval-queue.txt` can be piped into `npm run ar:catalog:approve-queue`
+- `*-retune-queue.md` is a focused list for the next iPad tuning pass
+
+For reviewed tours, the dashboard generator also writes stale-proof current companions:
+- `*-current-approval-queue.txt` from the latest catalog status plus imported device-pass results
+- `*-current-retune-queue.md` from the same recomputed review state
+
+You can also regenerate the cross-tour dashboard directly:
+
+```bash
+npm run ar:reviews:dashboard
+```
+
+The review dashboard now refreshes automatically after:
+- `npm run ar:catalog:sync-runtime`
+- `npm run ar:catalog:approve`
+- `npm run ar:catalog:approve-queue`
+- `npm run ar:closeout:import`
+- `npm run ar:tuning:apply`
+- `npm run ar:reviews:import`
+
+The dashboard pass also emits a focused action board:
+- `next-actions.md` for immediate approvals, retunes, and tours that still need a first device pass
+- `next-actions.json` for any future tooling or UI layer
+- `next-session-handoff.md` for the next desk + iPad work block
+- `next-session-handoff.json` for any future UI/automation layer
+- `next-device-pass.md` for the recommended iPad session packet
+- `next-device-pass.json` for tooling around that packet
+- `next-preview-promotion-queue.txt` for tours that already have preview-only device reviews
+- `next-projected-approval-queue.txt` for approvals that would unlock after promoting previews
+- `next-approval-queue.txt` for one cross-tour approval batch
+- `next-retune-queue.md` for the current retune backlog
+- `first-device-review-queue.md` for tours that have buildable stops but no imported device review yet
+
+To apply the current aggregate approval queue directly:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+npm run ar:catalog:approve-next -- --dry-run
+npm run ar:catalog:approve-next
+```
 
 ### Run Android build
 ```bash

@@ -18,6 +18,9 @@ export type NarrationState = {
 };
 
 type NarrationListener = (state: NarrationState) => void;
+type StartNarrationOptions = {
+  preferSpeech?: boolean;
+};
 
 const listeners = new Set<NarrationListener>();
 
@@ -170,7 +173,11 @@ function onPlaybackStatus(stop: DriveStop, status: AVPlaybackStatus) {
   });
 }
 
-export async function startNarration(stop: DriveStop, variant: NarrationVariant = "walk") {
+export async function startNarration(
+  stop: DriveStop,
+  variant: NarrationVariant = "walk",
+  options: StartNarrationOptions = {}
+) {
   await stopNarration();
   emit({
     status: "loading",
@@ -180,8 +187,8 @@ export async function startNarration(stop: DriveStop, variant: NarrationVariant 
   });
 
   const preferredPath = resolveNarrationPath(stop, variant);
-  const audioUri = resolveAudioUri(preferredPath);
-  const audioAsset = resolveAudioAsset(preferredPath);
+  const audioUri = options.preferSpeech ? null : resolveAudioUri(preferredPath);
+  const audioAsset = options.preferSpeech ? null : resolveAudioAsset(preferredPath);
   if (audioUri || audioAsset) {
     try {
       await configureAudioMode();
@@ -217,7 +224,7 @@ export async function startNarration(stop: DriveStop, variant: NarrationVariant 
       source: "speech",
       stopId: stop.id,
       stopTitle: stop.title,
-      message: "Speaking live stop preview."
+      message: options.preferSpeech ? "Speaking current script text." : "Speaking live stop preview."
     });
     Speech.speak(speechScript, {
       rate: 0.95,

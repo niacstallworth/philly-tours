@@ -5,6 +5,7 @@
   "tourTitle": "Library Story Hop Tour",
   "arPriority": 19,
   "arType": "object_on_plinth",
+  "assetStatus": "planned",
   "headline": "Museum-style object scene",
   "summary": "hymnbook or archival object model; collection card",
   "historicalEra": "historic Philadelphia",

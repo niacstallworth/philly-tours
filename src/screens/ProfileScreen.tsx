@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Linking, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import {
@@ -11,6 +11,7 @@ import {
   listDeletionRequests,
   requestBackendDeletion
 } from "../services/payments";
+import { THEME_SURFACE_LABELS, useAppTheme } from "../theme/appTheme";
 
 type Props = {
   displayName?: string;
@@ -27,6 +28,7 @@ export function ProfileScreen({
   mode = "builder",
   onDeleteProfile
 }: Props) {
+  const { activePreset, presets, setPreset, settings } = useAppTheme();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [entitlementStatus, setEntitlementStatus] = useState<string>("not_loaded");
@@ -174,6 +176,47 @@ export function ProfileScreen({
           <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
         </View>
       </View>
+
+      {mode === "builder" ? (
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Theme Studio</Text>
+          <Text style={styles.copy}>
+            Builder only. This sets the shared button palette across the app now, while the page-by-page color map is ready for the next tuning pass.
+          </Text>
+          <View style={styles.chips}>
+            <Chip label={`Current ${activePreset.label}`} tone="success" />
+          </View>
+          <View style={styles.themePresetGrid}>
+            {presets.map((preset) => {
+              const selected = preset.id === activePreset.id;
+              return (
+                <Pressable
+                  key={preset.id}
+                  onPress={() => void setPreset(preset.id)}
+                  style={[styles.themePresetCard, selected && styles.themePresetCardActive]}
+                >
+                  <View style={styles.themePresetHeader}>
+                    <View style={[styles.themeSwatch, { backgroundColor: preset.accent.background }]} />
+                    <Text style={styles.themePresetTitle}>{preset.label}</Text>
+                  </View>
+                  <Text style={styles.meta}>{preset.description}</Text>
+                  <Text style={[styles.themePresetStatus, selected && styles.themePresetStatusActive]}>
+                    {selected ? "Active now" : "Use this palette"}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <View style={styles.themePreviewGrid}>
+            {Object.entries(THEME_SURFACE_LABELS).map(([surface, label]) => (
+              <View key={surface} style={styles.themePreviewItem}>
+                <View style={[styles.themePreviewSwatch, { backgroundColor: settings.buttonThemes[surface as keyof typeof THEME_SURFACE_LABELS].background }]} />
+                <Text style={styles.themePreviewLabel}>{label}</Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+      ) : null}
 
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Membership</Text>
@@ -383,5 +426,60 @@ const styles = StyleSheet.create({
     color: "#fff0e4",
     fontSize: 16,
     fontWeight: "800"
+  },
+  themePresetGrid: {
+    gap: 10
+  },
+  themePresetCard: {
+    gap: 8,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: "#1a102e",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)"
+  },
+  themePresetCardActive: {
+    borderColor: "rgba(255,255,255,0.2)"
+  },
+  themePresetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10
+  },
+  themeSwatch: {
+    width: 18,
+    height: 18,
+    borderRadius: 999
+  },
+  themePresetTitle: {
+    color: "#fff0e4",
+    fontSize: 15,
+    fontWeight: "800"
+  },
+  themePresetStatus: {
+    color: "#b69fbe",
+    fontWeight: "700"
+  },
+  themePresetStatusActive: {
+    color: "#b9f0df"
+  },
+  themePreviewGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  themePreviewItem: {
+    minWidth: 72,
+    gap: 6
+  },
+  themePreviewSwatch: {
+    width: "100%",
+    height: 10,
+    borderRadius: 999
+  },
+  themePreviewLabel: {
+    color: "#b69fbe",
+    fontSize: 12,
+    fontWeight: "700"
   }
 });

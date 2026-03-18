@@ -9,6 +9,7 @@ export type ARScenePayload = {
   scale: number;
   rotationYDeg: number;
   verticalOffsetM: number;
+  anchorStyle: "front_of_user" | "ground" | "image_target" | "location_marker";
   fallbackType: "box" | "card" | "none";
   title: string;
   subtitle: string;
@@ -66,6 +67,7 @@ export function toARScenePayload(stop: Stop): ARScenePayload {
     scale: catalogEntry?.scale ?? 1,
     rotationYDeg: catalogEntry?.rotationYDeg ?? 180,
     verticalOffsetM: catalogEntry?.verticalOffsetM ?? stop.verticalOffsetM ?? 0,
+    anchorStyle: (catalogEntry?.anchorStyle as ARScenePayload["anchorStyle"] | undefined) ?? "front_of_user",
     fallbackType: catalogEntry?.fallbackType ?? "box",
     title: stop.title,
     subtitle,

@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { colors, radius } from "../../theme/tokens";
+import { ThemeSurface, useButtonTheme } from "../../theme/appTheme";
 
 type CardProps = {
   children: React.ReactNode;
@@ -24,12 +25,25 @@ type PrimaryButtonProps = {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  surface?: ThemeSurface;
 };
 
-export function PrimaryButton({ label, onPress, disabled }: PrimaryButtonProps) {
+export function PrimaryButton({ label, onPress, disabled, surface }: PrimaryButtonProps) {
+  const buttonTheme = useButtonTheme(surface);
   return (
-    <Pressable style={[styles.button, disabled && styles.buttonDisabled]} onPress={onPress} disabled={disabled}>
-      <Text style={styles.buttonText}>{label}</Text>
+    <Pressable
+      style={[
+        styles.button,
+        {
+          backgroundColor: buttonTheme.background,
+          shadowColor: buttonTheme.shadow
+        },
+        disabled && styles.buttonDisabled
+      ]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Text style={[styles.buttonText, { color: buttonTheme.foreground }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -80,14 +94,12 @@ const styles = StyleSheet.create({
     color: "#ffc2d0"
   },
   button: {
-    backgroundColor: "#ff8ca8",
     borderRadius: 16,
     minHeight: 50,
     paddingVertical: 13,
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#ff8ca8",
     shadowOpacity: 0.2,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
@@ -97,7 +109,6 @@ const styles = StyleSheet.create({
     opacity: 0.5
   },
   buttonText: {
-    color: "#2b1021",
     fontWeight: "800",
     letterSpacing: 0.2
   },

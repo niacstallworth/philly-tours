@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
+import { validateBuilderCredentials } from "../services/builderAccess";
 
 export type AppMode = "tourist" | "builder";
 
@@ -18,17 +19,28 @@ export function OnboardingScreen({ onComplete }: Props) {
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [mode, setMode] = useState<AppMode>("tourist");
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const canContinue = useMemo(() => {
     const hasName = displayName.trim().length >= 2;
     const hasEmail = email.trim().includes("@") && email.trim().includes(".");
-    return hasName && hasEmail;
-  }, [displayName, email]);
+    const hasPassword = password.trim().length >= 1;
+    return hasName && hasEmail && (mode === "tourist" || hasPassword);
+  }, [displayName, email, mode, password]);
 
   function submit() {
     if (!canContinue) {
       return;
     }
+    if (mode === "builder") {
+      const result = validateBuilderCredentials(email, password);
+      if (!result.ok) {
+        setAuthError(result.error);
+        return;
+      }
+    }
+    setAuthError(null);
     onComplete({
       displayName: displayName.trim(),
       email: email.trim().toLowerCase(),
@@ -52,7 +64,12 @@ export function OnboardingScreen({ onComplete }: Props) {
         <Text style={styles.label}>Display name</Text>
         <TextInput
           value={displayName}
-          onChangeText={setDisplayName}
+          onChangeText={(next) => {
+            setDisplayName(next);
+            if (authError) {
+              setAuthError(null);
+            }
+          }}
           placeholder="Founder Name"
           placeholderTextColor="#8e7d99"
           style={styles.input}
@@ -62,7 +79,12 @@ export function OnboardingScreen({ onComplete }: Props) {
         <Text style={styles.label}>Email</Text>
         <TextInput
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(next) => {
+            setEmail(next);
+            if (authError) {
+              setAuthError(null);
+            }
+          }}
           placeholder="you@example.com"
           placeholderTextColor="#8e7d99"
           style={styles.input}
@@ -76,20 +98,51 @@ export function OnboardingScreen({ onComplete }: Props) {
             active={mode === "tourist"}
             title="Tour"
             detail="For public-facing touring and playback."
-            onPress={() => setMode("tourist")}
+            onPress={() => {
+              setMode("tourist");
+              setAuthError(null);
+            }}
           />
           <ModeOption
             active={mode === "builder"}
             title="Builder"
             detail="For content setup and internal review."
-            onPress={() => setMode("builder")}
+            onPress={() => {
+              setMode("builder");
+              setAuthError(null);
+            }}
           />
         </View>
+
+        {mode === "builder" ? (
+          <>
+            <Text style={styles.label}>Builder password</Text>
+            <TextInput
+              value={password}
+              onChangeText={(next) => {
+                setPassword(next);
+                if (authError) {
+                  setAuthError(null);
+                }
+              }}
+              placeholder="Admin password"
+              placeholderTextColor="#8e7d99"
+              style={styles.input}
+              autoCapitalize="none"
+              secureTextEntry
+            />
+            <Text style={styles.modeHint}>Builder mode is limited to admin emails listed in the local builder access CSV.</Text>
+          </>
+        ) : null}
+
+        {authError ? <Text style={styles.error}>{authError}</Text> : null}
       </Card>
 
       <Card style={styles.noteCard}>
         <Text style={styles.noteTitle}>What happens next</Text>
-        <Text style={styles.noteCopy}>You’ll land in the main app shell with Home, Map, AR, Drive, and Profile ready. This profile stays local to the device for now.</Text>
+        <Text style={styles.noteCopy}>
+          You’ll land in the main app shell with Home, Map, AR, Drive, and Profile ready. This profile stays local to the device for now.
+        </Text>
       </Card>
 
       <PrimaryButton label="Enter App" onPress={submit} disabled={!canContinue} />
@@ -208,5 +261,14 @@ const styles = StyleSheet.create({
   noteCopy: {
     color: "#d0bed7",
     lineHeight: 21
+  },
+  modeHint: {
+    color: "#d9cce2",
+    lineHeight: 20
+  },
+  error: {
+    color: "#ffb2c8",
+    lineHeight: 20,
+    fontWeight: "700"
   }
 });
