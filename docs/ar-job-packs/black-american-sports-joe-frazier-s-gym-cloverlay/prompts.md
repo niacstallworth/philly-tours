@@ -5,9 +5,9 @@ Provider-agnostic AR generation job pack for `black-american-sports-joe-frazier-
 ## Stop Summary
 
 - Tour: Black American Sports
-- Priority: 12
-- AR Type: `historical_figure_presence`
-- Asset status: `planned`
+- Priority: 6
+- AR Type: `object_on_plinth`
+- Asset status: `in_production`
 - Runtime targets:
   - iOS: `/models/joe-frazier-s-gym-cloverlay.usdz`
   - Android: `/models/joe-frazier-s-gym-cloverlay.glb`
@@ -15,14 +15,14 @@ Provider-agnostic AR generation job pack for `black-american-sports-joe-frazier-
 
 ## Creative Direction
 
-- Headline: Figure-led historic scene
-- Concept goal: Stage a respectful figure-led scene with strong silhouette clarity and restrained supporting context.
-- Historical era: 20th century Philadelphia
+- Headline: Museum-style object scene
+- Concept goal: Create a clean hero object presentation with museum-style framing and minimal clutter.
+- Historical era: 20th century Philadelphia boxing
 - Style preset: `cinematic`
 - Visual priority: `silhouette`
-- Asset request: training scene; gloves and belt object set; archival card
+- Asset request: boxing gloves and belt miniature; gym plaque; training card
 - Placement note: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-- Negative prompt / avoid list: uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter
+- Negative prompt / avoid list: floating fragments, broken anatomy, abstract sculptures, futuristic materials
 
 ## AI Guardrails
 
@@ -47,18 +47,18 @@ Do not describe final app UI, dashboards, or developer tooling.
 
 Stop: Joe Frazier's Gym (Cloverlay)
 Tour: Black American Sports
-AR type: historical_figure_presence
-Scene goal: Stage a respectful figure-led scene with strong silhouette clarity and restrained supporting context.
-Historical era: 20th century Philadelphia
+AR type: object_on_plinth
+Scene goal: Create a clean hero object presentation with museum-style framing and minimal clutter.
+Historical era: 20th century Philadelphia boxing
 Style preset: cinematic
 Visual priority: silhouette
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: training scene, gloves and belt object set, archival card, hero figure silhouette, staging marker, supporting context card
+Requested content layers: boxing gloves and belt miniature, gym plaque, training card, hero object, plinth/base, annotation card
 Fallback type: card
-Negative prompt / avoid list: uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter
+Negative prompt / avoid list: floating fragments, broken anatomy, abstract sculptures, futuristic materials
 
-Asset request from catalog: training scene; gloves and belt object set; archival card
-Producer notes: [pipeline-sync] no generated pipeline artifacts yet
+Asset request from catalog: boxing gloves and belt miniature; gym plaque; training card
+Producer notes: [strategy-reset] sports artifact scene prioritized over site reconstruction
 
 Return:
 1. A concise scene concept paragraph.
@@ -77,17 +77,17 @@ Preserve historical plausibility and avoid speculative sci-fi embellishment.
 
 Stop: Joe Frazier's Gym (Cloverlay)
 Tour: Black American Sports
-AR type: historical_figure_presence
-Scene goal: Stage a respectful figure-led scene with strong silhouette clarity and restrained supporting context.
-Historical era: 20th century Philadelphia
+AR type: object_on_plinth
+Scene goal: Create a clean hero object presentation with museum-style framing and minimal clutter.
+Historical era: 20th century Philadelphia boxing
 Style preset: cinematic
 Visual priority: silhouette
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: training scene, gloves and belt object set, archival card, hero figure silhouette, staging marker, supporting context card
+Requested content layers: boxing gloves and belt miniature, gym plaque, training card, hero object, plinth/base, annotation card
 Fallback type: card
-Negative prompt / avoid list: uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter
+Negative prompt / avoid list: floating fragments, broken anatomy, abstract sculptures, futuristic materials
 
-Scene headline: Figure-led historic scene
+Scene headline: Museum-style object scene
 Desired visual emphasis: silhouette
 Target atmosphere: cinematic
 
@@ -95,7 +95,7 @@ Requirements:
 - Keep the scene legible as a single clear AR moment.
 - Avoid crowded compositions and complex HUD overlays.
 - Bias toward forms that can be translated cleanly into a 3D asset.
-- Avoid: uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter
+- Avoid: floating fragments, broken anatomy, abstract sculptures, futuristic materials
 ```
 
 ## Rough Mesh Prompt
@@ -107,22 +107,22 @@ Do not assume the generated mesh is final quality.
 
 Stop: Joe Frazier's Gym (Cloverlay)
 Tour: Black American Sports
-AR type: historical_figure_presence
-Scene goal: Stage a respectful figure-led scene with strong silhouette clarity and restrained supporting context.
-Historical era: 20th century Philadelphia
+AR type: object_on_plinth
+Scene goal: Create a clean hero object presentation with museum-style framing and minimal clutter.
+Historical era: 20th century Philadelphia boxing
 Style preset: cinematic
 Visual priority: silhouette
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: training scene, gloves and belt object set, archival card, hero figure silhouette, staging marker, supporting context card
+Requested content layers: boxing gloves and belt miniature, gym plaque, training card, hero object, plinth/base, annotation card
 Fallback type: card
-Negative prompt / avoid list: uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter
+Negative prompt / avoid list: floating fragments, broken anatomy, abstract sculptures, futuristic materials
 
-Primary asset request: training scene; gloves and belt object set; archival card
+Primary asset request: boxing gloves and belt miniature; gym plaque; training card
 Expected runtime targets: iOS /models/joe-frazier-s-gym-cloverlay.usdz, Android /models/joe-frazier-s-gym-cloverlay.glb, Web /models/joe-frazier-s-gym-cloverlay.glb
 
 Requirements:
 - Prioritize silhouette, scale, and spatial readability over decorative detail.
 - Preserve clean separable geometry for manual cleanup in Blender or similar tools.
 - Favor historically plausible massing and proportions.
-- Avoid: uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter
+- Avoid: floating fragments, broken anatomy, abstract sculptures, futuristic materials
 ```

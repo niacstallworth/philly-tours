@@ -1,8 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
+import { useColorScheme } from "react-native";
 
-export type ThemeSurface = "default" | "login" | "home" | "map" | "ar" | "drive" | "profile" | "builder";
+export type ThemeSurface = "default" | "login" | "home" | "map" | "hunt" | "profile" | "builder";
 export type ThemePresetId = "rose" | "gold" | "ocean" | "jade";
+export type AppAppearanceMode = "system" | "light" | "dark";
+export type ResolvedAppearanceMode = "light" | "dark";
+export type AppTextScale = "standard" | "large" | "xlarge";
 
 export type ButtonSurfaceTheme = {
   background: string;
@@ -11,8 +15,40 @@ export type ButtonSurfaceTheme = {
 };
 
 export type AppThemeSettings = {
+  appearanceMode: AppAppearanceMode;
+  textScale: AppTextScale;
   presetId: ThemePresetId;
   buttonThemes: Record<ThemeSurface, ButtonSurfaceTheme>;
+};
+
+export type AppPalette = {
+  background: string;
+  backgroundElevated: string;
+  surface: string;
+  surfaceSoft: string;
+  surfaceRaised: string;
+  border: string;
+  borderStrong: string;
+  text: string;
+  textSoft: string;
+  textMuted: string;
+  inputBackground: string;
+  inputBorder: string;
+  headerBackground: string;
+  headerBorder: string;
+  navBackground: string;
+  navBorder: string;
+  navText: string;
+  navTextActive: string;
+  shadow: string;
+  success: string;
+  successSoft: string;
+  warn: string;
+  warnSoft: string;
+  danger: string;
+  dangerSoft: string;
+  info: string;
+  infoSoft: string;
 };
 
 type ThemePreset = {
@@ -24,8 +60,15 @@ type ThemePreset = {
 
 type AppThemeContextValue = {
   settings: AppThemeSettings;
+  appearanceMode: AppAppearanceMode;
+  resolvedAppearanceMode: ResolvedAppearanceMode;
+  textScale: AppTextScale;
+  textScaleMultiplier: number;
+  colors: AppPalette;
   activePreset: ThemePreset;
   presets: ThemePreset[];
+  setAppearanceMode: (appearanceMode: AppAppearanceMode) => Promise<void>;
+  setTextScale: (textScale: AppTextScale) => Promise<void>;
   setPreset: (presetId: ThemePresetId) => Promise<void>;
   setSurfaceButtonTheme: (surface: ThemeSurface, theme: ButtonSurfaceTheme) => Promise<void>;
 };
@@ -50,16 +93,10 @@ const MAP_BUTTON_THEME: ButtonSurfaceTheme = {
   shadow: "#a835f2"
 };
 
-const AR_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#89f336",
-  foreground: "#102405",
-  shadow: "#89f336"
-};
-
-const DRIVE_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#007eff",
-  foreground: "#f5fbff",
-  shadow: "#007eff"
+const HUNT_BUTTON_THEME: ButtonSurfaceTheme = {
+  background: "#111827",
+  foreground: "#f8fafc",
+  shadow: "#111827"
 };
 
 const PROFILE_BUTTON_THEME: ButtonSurfaceTheme = {
@@ -68,7 +105,74 @@ const PROFILE_BUTTON_THEME: ButtonSurfaceTheme = {
   shadow: "#ffbf00"
 };
 
-const THEME_SURFACES: ThemeSurface[] = ["default", "login", "home", "map", "ar", "drive", "profile", "builder"];
+const THEME_SURFACES: ThemeSurface[] = ["default", "login", "home", "map", "hunt", "profile", "builder"];
+const APPEARANCE_MODES: AppAppearanceMode[] = ["system", "light", "dark"];
+const TEXT_SCALES: AppTextScale[] = ["standard", "large", "xlarge"];
+const TEXT_SCALE_MULTIPLIERS: Record<AppTextScale, number> = {
+  standard: 1,
+  large: 1.12,
+  xlarge: 1.26
+};
+
+const lightPalette: AppPalette = {
+  background: "#f4f7fb",
+  backgroundElevated: "#ffffff",
+  surface: "#ffffff",
+  surfaceSoft: "#eef4fb",
+  surfaceRaised: "#f8fbff",
+  border: "rgba(15, 23, 42, 0.08)",
+  borderStrong: "rgba(15, 23, 42, 0.14)",
+  text: "#0f172a",
+  textSoft: "#334155",
+  textMuted: "#64748b",
+  inputBackground: "#f8fbff",
+  inputBorder: "rgba(15, 23, 42, 0.12)",
+  headerBackground: "#f8fbff",
+  headerBorder: "rgba(15, 23, 42, 0.08)",
+  navBackground: "rgba(255,255,255,0.96)",
+  navBorder: "rgba(15, 23, 42, 0.1)",
+  navText: "#64748b",
+  navTextActive: "#0f172a",
+  shadow: "#0f172a",
+  success: "#15803d",
+  successSoft: "rgba(21,128,61,0.1)",
+  warn: "#b45309",
+  warnSoft: "rgba(180,83,9,0.1)",
+  danger: "#dc2626",
+  dangerSoft: "rgba(220,38,38,0.1)",
+  info: "#0284c7",
+  infoSoft: "rgba(2,132,199,0.1)"
+};
+
+const darkPalette: AppPalette = {
+  background: "#060312",
+  backgroundElevated: "#130a25",
+  surface: "#120a22",
+  surfaceSoft: "#1b102d",
+  surfaceRaised: "#24112c",
+  border: "rgba(255,255,255,0.08)",
+  borderStrong: "rgba(255,255,255,0.14)",
+  text: "#fff3ea",
+  textSoft: "#e6d8e8",
+  textMuted: "#b69fbe",
+  inputBackground: "#1b102d",
+  inputBorder: "rgba(255,255,255,0.08)",
+  headerBackground: "#020617",
+  headerBorder: "#1f2937",
+  navBackground: "rgba(18, 12, 33, 0.94)",
+  navBorder: "rgba(226, 184, 135, 0.16)",
+  navText: "#bdaecf",
+  navTextActive: "#fff6ee",
+  shadow: "#000000",
+  success: "#8fd7c3",
+  successSoft: "rgba(143,215,195,0.18)",
+  warn: "#ffbc8a",
+  warnSoft: "rgba(255,188,138,0.18)",
+  danger: "#ff8ca8",
+  dangerSoft: "rgba(255,140,168,0.18)",
+  info: "#7dc9ff",
+  infoSoft: "rgba(125,201,255,0.18)"
+};
 
 export const themePresets: ThemePreset[] = [
   {
@@ -117,8 +221,7 @@ export const THEME_SURFACE_LABELS: Record<Exclude<ThemeSurface, "default">, stri
   login: "Login",
   home: "Home",
   map: "Map",
-  ar: "AR",
-  drive: "Drive",
+  hunt: "Scavenger Hunt",
   profile: "Profile",
   builder: "Builder"
 };
@@ -138,17 +241,22 @@ function getPresetById(presetId: ThemePresetId) {
   return themePresets.find((preset) => preset.id === presetId) ?? themePresets[0];
 }
 
-function buildThemeSettings(presetId: ThemePresetId): AppThemeSettings {
+function buildThemeSettings(
+  presetId: ThemePresetId,
+  appearanceMode: AppAppearanceMode = "system",
+  textScale: AppTextScale = "standard"
+): AppThemeSettings {
   const preset = getPresetById(presetId);
   return {
+    appearanceMode,
+    textScale,
     presetId: preset.id,
     buttonThemes: {
       default: cloneButtonTheme(preset.accent),
       login: cloneButtonTheme(LOGIN_BUTTON_THEME),
       home: cloneButtonTheme(HOME_BUTTON_THEME),
       map: cloneButtonTheme(MAP_BUTTON_THEME),
-      ar: cloneButtonTheme(AR_BUTTON_THEME),
-      drive: cloneButtonTheme(DRIVE_BUTTON_THEME),
+      hunt: cloneButtonTheme(HUNT_BUTTON_THEME),
       profile: cloneButtonTheme(PROFILE_BUTTON_THEME),
       builder: cloneButtonTheme(preset.accent)
     }
@@ -157,6 +265,14 @@ function buildThemeSettings(presetId: ThemePresetId): AppThemeSettings {
 
 function isThemePresetId(value: unknown): value is ThemePresetId {
   return typeof value === "string" && themePresets.some((preset) => preset.id === value);
+}
+
+function isAppearanceMode(value: unknown): value is AppAppearanceMode {
+  return typeof value === "string" && APPEARANCE_MODES.includes(value as AppAppearanceMode);
+}
+
+function isTextScale(value: unknown): value is AppTextScale {
+  return typeof value === "string" && TEXT_SCALES.includes(value as AppTextScale);
 }
 
 function isButtonSurfaceTheme(value: unknown): value is ButtonSurfaceTheme {
@@ -169,11 +285,15 @@ function isButtonSurfaceTheme(value: unknown): value is ButtonSurfaceTheme {
 
 function normalizeThemeSettings(value: unknown): AppThemeSettings {
   if (!value || typeof value !== "object") {
-    return buildThemeSettings("rose");
+    return buildThemeSettings("rose", "system", "standard");
   }
 
   const candidate = value as Partial<AppThemeSettings> & { buttonThemes?: Partial<Record<ThemeSurface, ButtonSurfaceTheme>> };
-  const nextSettings = buildThemeSettings(isThemePresetId(candidate.presetId) ? candidate.presetId : "rose");
+  const nextSettings = buildThemeSettings(
+    isThemePresetId(candidate.presetId) ? candidate.presetId : "rose",
+    isAppearanceMode(candidate.appearanceMode) ? candidate.appearanceMode : "system",
+    isTextScale(candidate.textScale) ? candidate.textScale : "standard"
+  );
 
   if (!candidate.buttonThemes || typeof candidate.buttonThemes !== "object") {
     return nextSettings;
@@ -190,7 +310,8 @@ function normalizeThemeSettings(value: unknown): AppThemeSettings {
 }
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = React.useState<AppThemeSettings>(() => buildThemeSettings("rose"));
+  const deviceColorScheme = useColorScheme();
+  const [settings, setSettings] = React.useState<AppThemeSettings>(() => buildThemeSettings("rose", "system", "standard"));
 
   React.useEffect(() => {
     let isMounted = true;
@@ -219,7 +340,21 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function setPreset(presetId: ThemePresetId) {
-    await persistThemeSettings(buildThemeSettings(presetId));
+    await persistThemeSettings(buildThemeSettings(presetId, settings.appearanceMode, settings.textScale));
+  }
+
+  async function setAppearanceMode(appearanceMode: AppAppearanceMode) {
+    await persistThemeSettings({
+      ...settings,
+      appearanceMode
+    });
+  }
+
+  async function setTextScale(textScale: AppTextScale) {
+    await persistThemeSettings({
+      ...settings,
+      textScale
+    });
   }
 
   async function setSurfaceButtonTheme(surface: ThemeSurface, theme: ButtonSurfaceTheme) {
@@ -233,13 +368,24 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   }
 
   const activePreset = getPresetById(settings.presetId);
+  const resolvedAppearanceMode: ResolvedAppearanceMode =
+    settings.appearanceMode === "system" ? (deviceColorScheme === "light" ? "light" : "dark") : settings.appearanceMode;
+  const colors = resolvedAppearanceMode === "light" ? lightPalette : darkPalette;
+  const textScaleMultiplier = TEXT_SCALE_MULTIPLIERS[settings.textScale] ?? 1;
 
   return (
     <AppThemeContext.Provider
       value={{
         settings,
+        appearanceMode: settings.appearanceMode,
+        resolvedAppearanceMode,
+        textScale: settings.textScale,
+        textScaleMultiplier,
+        colors,
         activePreset,
         presets: themePresets,
+        setAppearanceMode,
+        setTextScale,
         setPreset,
         setSurfaceButtonTheme
       }}
@@ -259,6 +405,27 @@ export function useAppTheme() {
     throw new Error("useAppTheme must be used inside AppThemeProvider.");
   }
   return context;
+}
+
+export function useThemeColors() {
+  return useAppTheme().colors;
+}
+
+export function useTextScaleMultiplier() {
+  return useAppTheme().textScaleMultiplier;
+}
+
+export function useTypeScale() {
+  const multiplier = useTextScaleMultiplier();
+
+  return React.useMemo(
+    () => ({
+      multiplier,
+      font: (size: number) => Math.round(size * multiplier),
+      line: (height: number) => Math.round(height * multiplier)
+    }),
+    [multiplier]
+  );
 }
 
 export function useButtonTheme(surfaceOverride?: ThemeSurface) {

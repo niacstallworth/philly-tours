@@ -5,9 +5,9 @@ Provider-agnostic AR generation job pack for `black-inventors-tour-dr-charles-dr
 ## Stop Summary
 
 - Tour: Black Inventors Tour
-- Priority: 16
+- Priority: 3
 - AR Type: `animated_diagram`
-- Asset status: `planned`
+- Asset status: `in_production`
 - Runtime targets:
   - iOS: `/models/dr-charles-drew-blood-bank.usdz`
   - Android: `/models/dr-charles-drew-blood-bank.glb`
@@ -17,10 +17,10 @@ Provider-agnostic AR generation job pack for `black-inventors-tour-dr-charles-dr
 
 - Headline: Animated explainer scene
 - Concept goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-- Historical era: historic Philadelphia
-- Style preset: `architectural`
-- Visual priority: `historical_accuracy`
-- Asset request: blood plasma storage explainer; medical card set
+- Historical era: 20th century medical innovation
+- Style preset: `documentary`
+- Visual priority: `readability`
+- Asset request: blood plasma storage explainer; medical card set; tubing sequence
 - Placement note: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
 - Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
@@ -49,16 +49,16 @@ Stop: Dr. Charles Drew Blood Bank
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: 20th century medical innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: blood plasma storage explainer, medical card set, primary mechanism, step labels, motion sequence overlays
+Requested content layers: blood plasma storage explainer, medical card set, tubing sequence, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
-Asset request from catalog: blood plasma storage explainer; medical card set
-Producer notes: [pipeline-sync] no generated pipeline artifacts yet
+Asset request from catalog: blood plasma storage explainer; medical card set; tubing sequence
+Producer notes: [strategy-reset] medical explainer AR candidate prioritized over site reconstruction
 
 Return:
 1. A concise scene concept paragraph.
@@ -79,17 +79,17 @@ Stop: Dr. Charles Drew Blood Bank
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: 20th century medical innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: blood plasma storage explainer, medical card set, primary mechanism, step labels, motion sequence overlays
+Requested content layers: blood plasma storage explainer, medical card set, tubing sequence, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
 Scene headline: Animated explainer scene
-Desired visual emphasis: historical_accuracy
-Target atmosphere: architectural
+Desired visual emphasis: readability
+Target atmosphere: documentary
 
 Requirements:
 - Keep the scene legible as a single clear AR moment.
@@ -109,15 +109,15 @@ Stop: Dr. Charles Drew Blood Bank
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: 20th century medical innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: blood plasma storage explainer, medical card set, primary mechanism, step labels, motion sequence overlays
+Requested content layers: blood plasma storage explainer, medical card set, tubing sequence, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
-Primary asset request: blood plasma storage explainer; medical card set
+Primary asset request: blood plasma storage explainer; medical card set; tubing sequence
 Expected runtime targets: iOS /models/dr-charles-drew-blood-bank.usdz, Android /models/dr-charles-drew-blood-bank.glb, Web /models/dr-charles-drew-blood-bank.glb
 
 Requirements:

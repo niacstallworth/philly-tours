@@ -5,9 +5,9 @@ Provider-agnostic AR generation job pack for `black-inventors-tour-garrett-morga
 ## Stop Summary
 
 - Tour: Black Inventors Tour
-- Priority: 15
+- Priority: 2
 - AR Type: `animated_diagram`
-- Asset status: `planned`
+- Asset status: `in_production`
 - Runtime targets:
   - iOS: `/models/garrett-morgan-traffic-signal.usdz`
   - Android: `/models/garrett-morgan-traffic-signal.glb`
@@ -17,10 +17,10 @@ Provider-agnostic AR generation job pack for `black-inventors-tour-garrett-morga
 
 - Headline: Animated explainer scene
 - Concept goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-- Historical era: historic Philadelphia
-- Style preset: `architectural`
-- Visual priority: `historical_accuracy`
-- Asset request: signal mechanism; intersection overlay; patent timeline
+- Historical era: early 20th century innovation
+- Style preset: `documentary`
+- Visual priority: `readability`
+- Asset request: signal mechanism; intersection explainer; patent timeline
 - Placement note: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
 - Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
@@ -49,16 +49,16 @@ Stop: Garrett Morgan Traffic Signal
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: early 20th century innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: signal mechanism, intersection overlay, patent timeline, primary mechanism, step labels, motion sequence overlays
+Requested content layers: signal mechanism, intersection explainer, patent timeline, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
-Asset request from catalog: signal mechanism; intersection overlay; patent timeline
-Producer notes: [pipeline-sync] no generated pipeline artifacts yet
+Asset request from catalog: signal mechanism; intersection explainer; patent timeline
+Producer notes: [strategy-reset] object-centered AR candidate prioritized over building/site reconstruction
 
 Return:
 1. A concise scene concept paragraph.
@@ -79,17 +79,17 @@ Stop: Garrett Morgan Traffic Signal
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: early 20th century innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: signal mechanism, intersection overlay, patent timeline, primary mechanism, step labels, motion sequence overlays
+Requested content layers: signal mechanism, intersection explainer, patent timeline, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
 Scene headline: Animated explainer scene
-Desired visual emphasis: historical_accuracy
-Target atmosphere: architectural
+Desired visual emphasis: readability
+Target atmosphere: documentary
 
 Requirements:
 - Keep the scene legible as a single clear AR moment.
@@ -109,15 +109,15 @@ Stop: Garrett Morgan Traffic Signal
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: early 20th century innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
-Requested content layers: signal mechanism, intersection overlay, patent timeline, primary mechanism, step labels, motion sequence overlays
+Requested content layers: signal mechanism, intersection explainer, patent timeline, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
-Primary asset request: signal mechanism; intersection overlay; patent timeline
+Primary asset request: signal mechanism; intersection explainer; patent timeline
 Expected runtime targets: iOS /models/garrett-morgan-traffic-signal.usdz, Android /models/garrett-morgan-traffic-signal.glb, Web /models/garrett-morgan-traffic-signal.glb
 
 Requirements:

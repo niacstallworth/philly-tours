@@ -81,7 +81,8 @@ function assetExistsInRepo(assetPath) {
   const candidates = [
     path.join(rootDir, normalized),
     path.join(rootDir, "assets", normalized),
-    path.join(rootDir, "ios", "PhillyARTours", normalized)
+    path.join(rootDir, "ios", "PhillyARTours", normalized),
+    path.join(rootDir, "ios", "PhillyARTours", "ARAssets", normalized)
   ];
 
   return candidates.some((candidate) => fs.existsSync(candidate));

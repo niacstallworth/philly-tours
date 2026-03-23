@@ -1,0 +1,10 @@
+[
+  {
+    "id": "qa-intent-001",
+    "endpoint": "payments_intent",
+    "request_hash": "7a4b31d9182d4f8a6258a25a7ba9bbef15774ff44f96b2c896f98b5857dd8384",
+    "response_json": "{\"clientSecret\":\"pi_3T87pp7Pu4X4mCqQ0wWEhhua_secret_tLKoosFLTEg9uIHYRt83HTe5x\",\"paymentIntentId\":\"pi_3T87pp7Pu4X4mCqQ0wWEhhua\"}",
+    "status_code": 200,
+    "created_at": 1772839869908
+  }
+]

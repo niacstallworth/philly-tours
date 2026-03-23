@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "user_id": "demo-user",
+    "email": "info@foundersthreads.org",
+    "display_name": "Founders Threads",
+    "reason": "User requested account deletion",
+    "status": "requested",
+    "requested_at": 1773492462017,
+    "resolved_at": null,
+    "resolved_by": null,
+    "resolution_note": null
+  }
+]

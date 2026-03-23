@@ -7,10 +7,9 @@ import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/Onbo
 import { isBuilderEmailAllowed } from "./src/services/builderAccess";
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
 import { subscribeToHandoffTarget } from "./src/services/handoffBus";
-import { setApiUserId } from "./src/services/payments";
-import { clearDriveSession } from "./src/services/driveMode";
+import { getEntitlements, setApiUserId } from "./src/services/payments";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
-import { AppThemeProvider, ThemeSurfaceProvider } from "./src/theme/appTheme";
+import { AppThemeProvider, ThemeSurfaceProvider, useAppTheme, useTypeScale } from "./src/theme/appTheme";
 
 type AppSession = {
   displayName: string;
@@ -31,6 +30,28 @@ export default function App() {
   const [session, setSession] = useState<AppSession | null>(null);
   const [booting, setBooting] = useState(true);
   const [handoffTarget, setHandoffTarget] = useState<HandoffTarget | null>(null);
+  const [audioHistoryOnlyUnlocked, setAudioHistoryOnlyUnlocked] = useState(false);
+  const [fullAppUnlocked, setFullAppUnlocked] = useState(false);
+
+  async function refreshEntitlements() {
+    if (!session) {
+      setAudioHistoryOnlyUnlocked(false);
+      setFullAppUnlocked(false);
+      return;
+    }
+    try {
+      const entitlements = await getEntitlements();
+      setAudioHistoryOnlyUnlocked(
+        entitlements.some((entry) => entry.status === "active" && entry.plan_id === "audio_history_only")
+      );
+      setFullAppUnlocked(
+        entitlements.some((entry) => entry.status === "active" && entry.plan_id !== "audio_history_only")
+      );
+    } catch {
+      setAudioHistoryOnlyUnlocked(false);
+      setFullAppUnlocked(false);
+    }
+  }
 
   useEffect(() => {
     loadSession()
@@ -49,6 +70,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    refreshEntitlements().catch(() => undefined);
+  }, [session?.userId]);
+
+  useEffect(() => {
     async function hydrateInitialLink() {
       const initialUrl = await Linking.getInitialURL();
       if (!initialUrl) {
@@ -65,6 +90,9 @@ export default function App() {
       const parsed = parseHandoffUrl(url);
       if (parsed) {
         setHandoffTarget(parsed);
+      }
+      if (url.includes("checkout/")) {
+        refreshEntitlements().catch(() => undefined);
       }
     });
     const handoffSubscription = subscribeToHandoffTarget((target) => {
@@ -96,41 +124,22 @@ export default function App() {
     setSession(null);
     setHandoffTarget(null);
     setApiUserId("demo-user");
-    Promise.all([clearSession(), clearDriveSession()]).catch(() => undefined);
+    clearSession().catch(() => undefined);
   }
 
   const appBody = (
     <AppThemeProvider>
-      <SafeAreaView style={styles.safe}>
-        <StatusBar barStyle="light-content" />
-        {booting ? (
-          <View style={styles.boot}>
-            <ActivityIndicator size="large" color="#38bdf8" />
-            <Text style={styles.bootText}>Loading profile...</Text>
-          </View>
-        ) : (
-          <View style={styles.content}>
-            {session && (
-              <View style={styles.header}>
-                <View>
-                  <Text style={styles.headerName}>{session.displayName}</Text>
-                  <Text style={styles.headerMeta}>{session.mode === "builder" ? "Builder Mode" : "Tourist Mode"}</Text>
-                </View>
-                <Pressable style={styles.signOutButton} onPress={signOut}>
-                  <Text style={styles.signOutText}>Sign Out</Text>
-                </Pressable>
-              </View>
-            )}
-            {!session ? (
-              <ThemeSurfaceProvider surface="login">
-                <OnboardingScreen onComplete={completeOnboarding} />
-              </ThemeSurfaceProvider>
-            ) : (
-              <MainTabs session={session} handoffTarget={handoffTarget} onDeleteProfile={deleteProfile} />
-            )}
-          </View>
-        )}
-      </SafeAreaView>
+      <AppShell
+        booting={booting}
+        session={session}
+        handoffTarget={handoffTarget}
+        audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+        fullAppUnlocked={fullAppUnlocked}
+        onRefreshEntitlements={refreshEntitlements}
+        onComplete={completeOnboarding}
+        onDeleteProfile={deleteProfile}
+        onSignOut={signOut}
+      />
     </AppThemeProvider>
   );
 
@@ -143,6 +152,63 @@ export default function App() {
     <StripeProvider publishableKey={publishableKey} merchantIdentifier="merchant.com.founders.phillyartours">
       {appBody}
     </StripeProvider>
+  );
+}
+
+type AppShellProps = {
+  booting: boolean;
+  session: AppSession | null;
+  handoffTarget: HandoffTarget | null;
+  audioHistoryOnlyUnlocked: boolean;
+  fullAppUnlocked: boolean;
+  onRefreshEntitlements: () => Promise<void>;
+  onComplete: (payload: OnboardingPayload) => void;
+  onDeleteProfile: () => void;
+  onSignOut: () => void;
+};
+
+function AppShell({ booting, session, handoffTarget, audioHistoryOnlyUnlocked, fullAppUnlocked, onRefreshEntitlements, onComplete, onDeleteProfile, onSignOut }: AppShellProps) {
+  const { colors, resolvedAppearanceMode } = useAppTheme();
+  const type = useTypeScale();
+
+  return (
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.headerBackground }]}>
+      <StatusBar barStyle={resolvedAppearanceMode === "light" ? "dark-content" : "light-content"} />
+      {booting ? (
+        <View style={styles.boot}>
+          <ActivityIndicator size="large" color="#38bdf8" />
+          <Text style={[styles.bootText, { color: colors.textSoft, fontSize: type.font(15) }]}>Loading profile...</Text>
+        </View>
+      ) : (
+        <View style={styles.content}>
+          {session && (
+            <View style={[styles.header, { borderBottomColor: colors.headerBorder, backgroundColor: colors.headerBackground }]}>
+              <View>
+                <Text style={[styles.headerName, { color: colors.text, fontSize: type.font(16) }]}>{session.displayName}</Text>
+                <Text style={[styles.headerMeta, { color: colors.textMuted, fontSize: type.font(12) }]}>{session.mode === "builder" ? "Builder Mode" : "Tourist Mode"}</Text>
+              </View>
+              <Pressable style={[styles.signOutButton, { borderColor: colors.borderStrong }]} onPress={onSignOut}>
+                <Text style={[styles.signOutText, { color: colors.textSoft, fontSize: type.font(12) }]}>Sign Out</Text>
+              </Pressable>
+            </View>
+          )}
+          {!session ? (
+            <ThemeSurfaceProvider surface="login">
+              <OnboardingScreen onComplete={onComplete} />
+            </ThemeSurfaceProvider>
+          ) : (
+            <MainTabs
+              session={session}
+              handoffTarget={handoffTarget}
+              audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+              fullAppUnlocked={fullAppUnlocked}
+              onRefreshEntitlements={onRefreshEntitlements}
+              onDeleteProfile={onDeleteProfile}
+            />
+          )}
+        </View>
+      )}
+    </SafeAreaView>
   );
 }
 

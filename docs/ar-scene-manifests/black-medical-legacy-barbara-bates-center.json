@@ -1,0 +1,34 @@
+{
+  "stopId": "black-medical-legacy-barbara-bates-center",
+  "stopTitle": "Barbara Bates Center",
+  "tourId": "black-medical-legacy",
+  "tourTitle": "Black Medical Legacy",
+  "arPriority": 5,
+  "arType": "object_on_plinth",
+  "assetStatus": "in_production",
+  "headline": "Museum-style object scene",
+  "summary": "archival nursing kit; oral-history card; collection marker",
+  "historicalEra": "20th century nursing archives",
+  "stylePreset": "documentary",
+  "visualPriority": "historical_accuracy",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/barbara-bates-center.usdz",
+    "android": "/models/barbara-bates-center.glb",
+    "web": "/models/barbara-bates-center.glb"
+  },
+  "contentLayers": [
+    "archival nursing kit",
+    "oral-history card",
+    "collection marker",
+    "hero object",
+    "plinth/base",
+    "annotation card"
+  ],
+  "productionChecklist": [
+    "Approve hero object shape",
+    "Approve plinth scale",
+    "Check annotation clarity"
+  ],
+  "negativePrompt": "floating fragments, broken anatomy, abstract sculptures, futuristic materials"
+}

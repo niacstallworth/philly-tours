@@ -3,14 +3,14 @@
   "stopTitle": "Dr. Charles Drew Blood Bank",
   "tourId": "black-inventors-tour",
   "tourTitle": "Black Inventors Tour",
-  "arPriority": 16,
+  "arPriority": 3,
   "arType": "animated_diagram",
-  "assetStatus": "planned",
+  "assetStatus": "in_production",
   "headline": "Animated explainer scene",
-  "summary": "blood plasma storage explainer; medical card set",
-  "historicalEra": "historic Philadelphia",
-  "stylePreset": "architectural",
-  "visualPriority": "historical_accuracy",
+  "summary": "blood plasma storage explainer; medical card set; tubing sequence",
+  "historicalEra": "20th century medical innovation",
+  "stylePreset": "documentary",
+  "visualPriority": "readability",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
   "runtimeAssets": {
     "ios": "/models/dr-charles-drew-blood-bank.usdz",
@@ -20,6 +20,7 @@
   "contentLayers": [
     "blood plasma storage explainer",
     "medical card set",
+    "tubing sequence",
     "primary mechanism",
     "step labels",
     "motion sequence overlays"

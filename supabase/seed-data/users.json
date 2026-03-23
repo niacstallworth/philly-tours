@@ -1,0 +1,52 @@
+[
+  {
+    "id": "qa-user-1",
+    "stripe_customer_id": "cus_U6KUCtqGNUAjk0",
+    "created_at": 1772839869072
+  },
+  {
+    "id": "qa-cred-test",
+    "stripe_customer_id": null,
+    "created_at": 1772885602182
+  },
+  {
+    "id": "qa-cred-prod",
+    "stripe_customer_id": null,
+    "created_at": 1772885672788
+  },
+  {
+    "id": "qa-android-only",
+    "stripe_customer_id": null,
+    "created_at": 1772904100717
+  },
+  {
+    "id": "qa-ios-retest",
+    "stripe_customer_id": null,
+    "created_at": 1772920082233
+  },
+  {
+    "id": "qa-ios-sandbox",
+    "stripe_customer_id": null,
+    "created_at": 1772942966686
+  },
+  {
+    "id": "demo-user",
+    "stripe_customer_id": "cus_U7OJra0AztMphQ",
+    "created_at": 1773083918772
+  },
+  {
+    "id": "info-foundersthreads-org",
+    "stripe_customer_id": "cus_U7Qq9dFmMlJjOM",
+    "created_at": 1773086613685
+  },
+  {
+    "id": "info-foudersthreads-org",
+    "stripe_customer_id": "cus_U8pkNOHZ472r3g",
+    "created_at": 1773156561910
+  },
+  {
+    "id": "info-founders-com",
+    "stripe_customer_id": "cus_UCXREc8s21NBVC",
+    "created_at": 1774271441113
+  }
+]

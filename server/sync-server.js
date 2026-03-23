@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const express = require("express");
 const rateLimit = require("express-rate-limit");
 const http = require("http");
-const Database = require("better-sqlite3");
+const { Pool } = require("pg");
 const { Server } = require("socket.io");
 const Stripe = require("stripe");
 const jwt = require("jsonwebtoken");
@@ -43,7 +43,6 @@ function loadDotEnvFile(filePath) {
 loadDotEnvFile(path.join(__dirname, "..", ".env"));
 
 const PORT = Number(process.env.PORT || 4000);
-const DB_PATH = process.env.DB_PATH || "./server/payments.db";
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
@@ -57,6 +56,9 @@ const GOOGLE_PLAY_PACKAGE_NAME =
 const GOOGLE_SERVICE_ACCOUNT_JSON = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || "";
 const GOOGLE_SERVICE_ACCOUNT_FILE = process.env.GOOGLE_SERVICE_ACCOUNT_FILE || "";
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "";
+const SUPABASE_DB_URL = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL || "";
+const SUPABASE_DB_PASSWORD = process.env.SUPABASE_DB_PASSWORD || "";
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
 const APPLE_IAP_ENABLED =
   !!APPLE_IAP_BUNDLE_ID && !!APPLE_IAP_ISSUER_ID && !!APPLE_IAP_KEY_ID && !!APPLE_IAP_PRIVATE_KEY;
 const GOOGLE_IAP_ENABLED =
@@ -76,226 +78,113 @@ const io = new Server(server, {
   }
 });
 
-const db = new Database(DB_PATH);
-db.pragma("journal_mode = WAL");
-db.exec(`
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY,
-  stripe_customer_id TEXT,
-  created_at INTEGER NOT NULL
-);
+function inferSupabaseProjectRef() {
+  const match = SUPABASE_URL.match(/^https:\/\/([a-z0-9]+)\.supabase\.co/i);
+  return match ? match[1] : "";
+}
 
-CREATE TABLE IF NOT EXISTS payment_orders (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id TEXT NOT NULL,
-  source TEXT NOT NULL,
-  stripe_payment_intent_id TEXT,
-  stripe_checkout_session_id TEXT,
-  amount INTEGER NOT NULL,
-  currency TEXT NOT NULL,
-  status TEXT NOT NULL,
-  description TEXT,
-  metadata_json TEXT,
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL
-);
+function createPool() {
+  if (SUPABASE_DB_URL) {
+    return new Pool({
+      connectionString: SUPABASE_DB_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+  }
+  const projectRef = inferSupabaseProjectRef();
+  if (projectRef && SUPABASE_DB_PASSWORD) {
+    return new Pool({
+      host: `db.${projectRef}.supabase.co`,
+      port: 5432,
+      database: "postgres",
+      user: "postgres",
+      password: SUPABASE_DB_PASSWORD,
+      ssl: { rejectUnauthorized: false }
+    });
+  }
+  throw new Error("Supabase Postgres is not configured. Set SUPABASE_DB_URL or EXPO_PUBLIC_SUPABASE_URL with SUPABASE_DB_PASSWORD.");
+}
 
-CREATE TABLE IF NOT EXISTS entitlements (
-  user_id TEXT NOT NULL,
-  plan_id TEXT NOT NULL,
-  source TEXT NOT NULL,
-  status TEXT NOT NULL,
-  transaction_id TEXT,
-  platform TEXT,
-  expires_at INTEGER,
-  raw_json TEXT,
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL,
-  PRIMARY KEY(user_id, plan_id)
-);
+const db = createPool();
 
-CREATE TABLE IF NOT EXISTS iap_receipts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id TEXT NOT NULL,
-  platform TEXT NOT NULL,
-  product_id TEXT NOT NULL,
-  transaction_id TEXT NOT NULL UNIQUE,
-  purchase_token TEXT,
-  status TEXT NOT NULL,
-  raw_json TEXT,
-  created_at INTEGER NOT NULL
-);
+async function dbQuery(text, params = []) {
+  return db.query(text, params);
+}
 
-CREATE TABLE IF NOT EXISTS idempotency (
-  id TEXT PRIMARY KEY,
-  endpoint TEXT NOT NULL,
-  request_hash TEXT NOT NULL,
-  response_json TEXT NOT NULL,
-  status_code INTEGER NOT NULL,
-  created_at INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS provider_events (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  provider TEXT NOT NULL,
-  event_id TEXT NOT NULL UNIQUE,
-  event_type TEXT NOT NULL,
-  payload_json TEXT NOT NULL,
-  created_at INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS deletion_requests (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id TEXT NOT NULL,
-  email TEXT,
-  display_name TEXT,
-  reason TEXT,
-  status TEXT NOT NULL,
-  requested_at INTEGER NOT NULL,
-  resolved_at INTEGER,
-  resolved_by TEXT,
-  resolution_note TEXT
-);
-`);
-
-const insertUserStmt = db.prepare(`
-  INSERT OR IGNORE INTO users(id, created_at) VALUES (?, ?)
-`);
-
-const getUserStmt = db.prepare(`
-  SELECT id, stripe_customer_id FROM users WHERE id = ?
-`);
-
-const updateUserStripeCustomerStmt = db.prepare(`
-  UPDATE users SET stripe_customer_id = ? WHERE id = ?
-`);
-
-const insertOrderStmt = db.prepare(`
-  INSERT INTO payment_orders(
-    user_id, source, stripe_payment_intent_id, stripe_checkout_session_id,
-    amount, currency, status, description, metadata_json, created_at, updated_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`);
-
-const updateOrderByPaymentIntentStmt = db.prepare(`
-  UPDATE payment_orders
-  SET status = ?, updated_at = ?, metadata_json = ?
-  WHERE stripe_payment_intent_id = ?
-`);
-
-const updateOrderByCheckoutSessionStmt = db.prepare(`
-  UPDATE payment_orders
-  SET status = ?, updated_at = ?, metadata_json = ?
-  WHERE stripe_checkout_session_id = ?
-`);
-
-const upsertEntitlementStmt = db.prepare(`
-  INSERT INTO entitlements(
-    user_id, plan_id, source, status, transaction_id, platform,
-    expires_at, raw_json, created_at, updated_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  ON CONFLICT(user_id, plan_id)
-  DO UPDATE SET
-    source = excluded.source,
-    status = excluded.status,
-    transaction_id = excluded.transaction_id,
-    platform = excluded.platform,
-    expires_at = excluded.expires_at,
-    raw_json = excluded.raw_json,
-    updated_at = excluded.updated_at
-`);
-
-const listEntitlementsStmt = db.prepare(`
-  SELECT user_id, plan_id, source, status, transaction_id, platform, expires_at, updated_at
-  FROM entitlements
-  WHERE user_id = ?
-`);
-
-const insertIapReceiptStmt = db.prepare(`
-  INSERT INTO iap_receipts(
-    user_id, platform, product_id, transaction_id, purchase_token, status, raw_json, created_at
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-`);
-
-const insertProviderEventStmt = db.prepare(`
-  INSERT INTO provider_events(provider, event_id, event_type, payload_json, created_at)
-  VALUES (?, ?, ?, ?, ?)
-`);
-
-const listProviderEventsStmt = db.prepare(`
-  SELECT id, provider, event_id, event_type, created_at
-  FROM provider_events
-  ORDER BY id DESC
-  LIMIT ?
-`);
-
-const insertDeletionRequestStmt = db.prepare(`
-  INSERT INTO deletion_requests(
-    user_id, email, display_name, reason, status, requested_at
-  ) VALUES (?, ?, ?, ?, ?, ?)
-`);
-
-const listDeletionRequestsStmt = db.prepare(`
-  SELECT id, user_id, email, display_name, reason, status, requested_at, resolved_at, resolved_by, resolution_note
-  FROM deletion_requests
-  ORDER BY id DESC
-  LIMIT ?
-`);
-
-const getDeletionRequestStmt = db.prepare(`
-  SELECT id, user_id, email, display_name, reason, status, requested_at, resolved_at, resolved_by, resolution_note
-  FROM deletion_requests
-  WHERE id = ?
-`);
-
-const updateDeletionRequestStmt = db.prepare(`
-  UPDATE deletion_requests
-  SET status = ?, resolved_at = ?, resolved_by = ?, resolution_note = ?
-  WHERE id = ?
-`);
-
-const deleteUserOrdersStmt = db.prepare(`
-  DELETE FROM payment_orders WHERE user_id = ?
-`);
-
-const deleteUserEntitlementsStmt = db.prepare(`
-  DELETE FROM entitlements WHERE user_id = ?
-`);
-
-const deleteUserReceiptsStmt = db.prepare(`
-  DELETE FROM iap_receipts WHERE user_id = ?
-`);
-
-const deleteUserRecordStmt = db.prepare(`
-  DELETE FROM users WHERE id = ?
-`);
-
-const getIdempotencyStmt = db.prepare(`
-  SELECT request_hash, response_json, status_code FROM idempotency WHERE id = ? AND endpoint = ?
-`);
-
-const insertIdempotencyStmt = db.prepare(`
-  INSERT INTO idempotency(id, endpoint, request_hash, response_json, status_code, created_at)
-  VALUES (?, ?, ?, ?, ?, ?)
-`);
-
-const listRecentOrdersStmt = db.prepare(`
-  SELECT id, source, amount, currency, status, description, created_at, updated_at
-  FROM payment_orders
-  WHERE user_id = ?
-  ORDER BY id DESC
-  LIMIT ?
-`);
-
-const listPendingStripeOrdersStmt = db.prepare(`
-  SELECT id, source, stripe_payment_intent_id, stripe_checkout_session_id, status
-  FROM payment_orders
-  WHERE user_id = ?
-    AND source IN ('stripe_payment_intent', 'stripe_checkout_session')
-    AND status IN ('created', 'pending')
-  ORDER BY id DESC
-  LIMIT 50
-`);
+async function ensureSchema() {
+  await dbQuery(`
+    create table if not exists public.users (
+      id text primary key,
+      stripe_customer_id text,
+      created_at bigint not null
+    );
+    create table if not exists public.payment_orders (
+      id bigint generated by default as identity primary key,
+      user_id text not null,
+      source text not null,
+      stripe_payment_intent_id text,
+      stripe_checkout_session_id text,
+      amount integer not null,
+      currency text not null,
+      status text not null,
+      description text,
+      metadata_json text,
+      created_at bigint not null,
+      updated_at bigint not null
+    );
+    create table if not exists public.entitlements (
+      user_id text not null,
+      plan_id text not null,
+      source text not null,
+      status text not null,
+      transaction_id text,
+      platform text,
+      expires_at bigint,
+      raw_json text,
+      created_at bigint not null,
+      updated_at bigint not null,
+      primary key(user_id, plan_id)
+    );
+    create table if not exists public.iap_receipts (
+      id bigint generated by default as identity primary key,
+      user_id text not null,
+      platform text not null,
+      product_id text not null,
+      transaction_id text not null unique,
+      purchase_token text,
+      status text not null,
+      raw_json text,
+      created_at bigint not null
+    );
+    create table if not exists public.idempotency (
+      id text primary key,
+      endpoint text not null,
+      request_hash text not null,
+      response_json text not null,
+      status_code integer not null,
+      created_at bigint not null
+    );
+    create table if not exists public.provider_events (
+      id bigint generated by default as identity primary key,
+      provider text not null,
+      event_id text not null unique,
+      event_type text not null,
+      payload_json text not null,
+      created_at bigint not null
+    );
+    create table if not exists public.deletion_requests (
+      id bigint generated by default as identity primary key,
+      user_id text not null,
+      email text,
+      display_name text,
+      reason text,
+      status text not null,
+      requested_at bigint not null,
+      resolved_at bigint,
+      resolved_by text,
+      resolution_note text
+    );
+  `);
+}
 
 const paymentIntentRequestSchema = z.object({
   amount: z.number().int().min(50).max(5_000_000),
@@ -308,6 +197,7 @@ const paymentIntentRequestSchema = z.object({
 const checkoutSessionRequestSchema = z.object({
   amount: z.number().int().min(50).max(5_000_000),
   title: z.string().min(1).max(200),
+  planId: z.string().min(1).max(120).optional(),
   successUrl: z.string().url(),
   cancelUrl: z.string().url(),
   idempotencyKey: z.string().min(8).max(128).optional()
@@ -369,14 +259,21 @@ function requireAdmin(req, res) {
   return req.header("x-admin-user") || "admin";
 }
 
-function purgeUserData(userId) {
-  const transaction = db.transaction((id) => {
-    deleteUserOrdersStmt.run(id);
-    deleteUserEntitlementsStmt.run(id);
-    deleteUserReceiptsStmt.run(id);
-    deleteUserRecordStmt.run(id);
-  });
-  transaction(userId);
+async function purgeUserData(userId) {
+  const client = await db.connect();
+  try {
+    await client.query("begin");
+    await client.query("delete from public.payment_orders where user_id = $1", [userId]);
+    await client.query("delete from public.entitlements where user_id = $1", [userId]);
+    await client.query("delete from public.iap_receipts where user_id = $1", [userId]);
+    await client.query("delete from public.users where id = $1", [userId]);
+    await client.query("commit");
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 function toEpochMs(input) {
@@ -572,17 +469,23 @@ async function verifyIapPurchaseWithStore(body) {
   });
 }
 
-function ensureUser(userId) {
-  insertUserStmt.run(userId, now());
+async function ensureUser(userId) {
+  await dbQuery(
+    `insert into public.users(id, created_at)
+     values ($1, $2)
+     on conflict (id) do nothing`,
+    [userId, now()]
+  );
 }
 
-function getOrCreateStripeCustomer(userId) {
-  const existing = getUserStmt.get(userId);
-  if (existing?.stripe_customer_id) {
-    return existing.stripe_customer_id;
-  }
-
-  return null;
+async function getOrCreateStripeCustomer(userId) {
+  const { rows } = await dbQuery(
+    `select id, stripe_customer_id
+     from public.users
+     where id = $1`,
+    [userId]
+  );
+  return rows[0]?.stripe_customer_id || null;
 }
 
 function requireStripe(res) {
@@ -596,7 +499,7 @@ function requireStripe(res) {
   return false;
 }
 
-function handleIdempotency(req, res, endpoint, requestBody) {
+async function handleIdempotency(req, res, endpoint, requestBody) {
   const headerKey = req.header("idempotency-key");
   const bodyKey = requestBody.idempotencyKey;
   const key = (headerKey || bodyKey || "").trim();
@@ -605,7 +508,13 @@ function handleIdempotency(req, res, endpoint, requestBody) {
   }
 
   const requestHash = jsonHash(requestBody);
-  const existing = getIdempotencyStmt.get(key, endpoint);
+  const { rows } = await dbQuery(
+    `select request_hash, response_json, status_code
+     from public.idempotency
+     where id = $1 and endpoint = $2`,
+    [key, endpoint]
+  );
+  const existing = rows[0];
   if (!existing) {
     return { hit: false, key, requestHash };
   }
@@ -621,18 +530,21 @@ function handleIdempotency(req, res, endpoint, requestBody) {
   return { hit: true, key, requestHash };
 }
 
-function storeIdempotencyRecord(key, endpoint, requestHash, responseBody, statusCode) {
+async function storeIdempotencyRecord(key, endpoint, requestHash, responseBody, statusCode) {
   if (!key || !requestHash) {
     return;
   }
 
-  insertIdempotencyStmt.run(
-    key,
-    endpoint,
-    requestHash,
-    JSON.stringify(responseBody),
-    statusCode,
-    now()
+  await dbQuery(
+    `insert into public.idempotency(id, endpoint, request_hash, response_json, status_code, created_at)
+     values ($1, $2, $3, $4, $5, $6)
+     on conflict (id) do update set
+       endpoint = excluded.endpoint,
+       request_hash = excluded.request_hash,
+       response_json = excluded.response_json,
+       status_code = excluded.status_code,
+       created_at = excluded.created_at`,
+    [key, endpoint, requestHash, JSON.stringify(responseBody), statusCode, now()]
   );
 }
 
@@ -665,12 +577,45 @@ function normalizeCheckoutStatus(session) {
   return "pending";
 }
 
+async function upsertStripeCheckoutEntitlementFromSession(session) {
+  const planId = String(session?.metadata?.planId || "").trim();
+  const userId = String(session?.metadata?.userId || "").trim();
+  if (!planId || !userId) {
+    return;
+  }
+
+  await dbQuery(
+    `insert into public.entitlements(
+       user_id, plan_id, source, status, transaction_id, platform, expires_at, raw_json, created_at, updated_at
+     ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+     on conflict (user_id, plan_id)
+     do update set
+       source = excluded.source,
+       status = excluded.status,
+       transaction_id = excluded.transaction_id,
+       platform = excluded.platform,
+       expires_at = excluded.expires_at,
+       raw_json = excluded.raw_json,
+       updated_at = excluded.updated_at`,
+    [userId, planId, "stripe_checkout", "active", session.id || null, "stripe", null, JSON.stringify(session), now(), now()]
+  );
+}
+
 async function refreshPendingStripeOrders(userId) {
   if (!stripe) {
     return;
   }
 
-  const pending = listPendingStripeOrdersStmt.all(userId);
+  const { rows: pending } = await dbQuery(
+    `select id, source, stripe_payment_intent_id, stripe_checkout_session_id, status
+     from public.payment_orders
+     where user_id = $1
+       and source in ('stripe_payment_intent', 'stripe_checkout_session')
+       and status in ('created', 'pending')
+     order by id desc
+     limit 50`,
+    [userId]
+  );
   if (!pending.length) {
     return;
   }
@@ -682,12 +627,15 @@ async function refreshPendingStripeOrders(userId) {
         const session = await stripe.checkout.sessions.retrieve(order.stripe_checkout_session_id);
         const nextStatus = normalizeCheckoutStatus(session);
         if (nextStatus !== order.status) {
-          updateOrderByCheckoutSessionStmt.run(
-            nextStatus,
-            updatedAt,
-            JSON.stringify(session),
-            order.stripe_checkout_session_id
+          await dbQuery(
+            `update public.payment_orders
+             set status = $1, updated_at = $2, metadata_json = $3
+             where stripe_checkout_session_id = $4`,
+            [nextStatus, updatedAt, JSON.stringify(session), order.stripe_checkout_session_id]
           );
+        }
+        if (nextStatus === "succeeded") {
+          await upsertStripeCheckoutEntitlementFromSession(session);
         }
         continue;
       }
@@ -696,11 +644,11 @@ async function refreshPendingStripeOrders(userId) {
         const intent = await stripe.paymentIntents.retrieve(order.stripe_payment_intent_id);
         const nextStatus = normalizeIntentStatus(intent.status);
         if (nextStatus !== order.status) {
-          updateOrderByPaymentIntentStmt.run(
-            nextStatus,
-            updatedAt,
-            JSON.stringify(intent),
-            order.stripe_payment_intent_id
+          await dbQuery(
+            `update public.payment_orders
+             set status = $1, updated_at = $2, metadata_json = $3
+             where stripe_payment_intent_id = $4`,
+            [nextStatus, updatedAt, JSON.stringify(intent), order.stripe_payment_intent_id]
           );
         }
       }
@@ -747,36 +695,66 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), (req,
     return;
   }
 
-  try {
-    insertProviderEventStmt.run("stripe", event.id, event.type, JSON.stringify(event), now());
-  } catch (error) {
-    if (String(error.message || "").includes("UNIQUE")) {
-      res.json({ received: true, duplicate: true });
-      return;
+  (async () => {
+    try {
+      await dbQuery(
+        `insert into public.provider_events(provider, event_id, event_type, payload_json, created_at)
+         values ($1, $2, $3, $4, $5)`,
+        ["stripe", event.id, event.type, JSON.stringify(event), now()]
+      );
+    } catch (error) {
+      if (error.code === "23505") {
+        res.json({ received: true, duplicate: true });
+        return;
+      }
+      throw error;
     }
-    throw error;
-  }
 
-  const object = event.data?.object || {};
-  const updatedAt = now();
+    const object = event.data?.object || {};
+    const updatedAt = now();
 
-  if (event.type === "payment_intent.succeeded") {
-    updateOrderByPaymentIntentStmt.run("succeeded", updatedAt, JSON.stringify(object), object.id || "");
-  } else if (event.type === "payment_intent.payment_failed") {
-    updateOrderByPaymentIntentStmt.run("failed", updatedAt, JSON.stringify(object), object.id || "");
-  } else if (event.type === "checkout.session.completed") {
-    updateOrderByCheckoutSessionStmt.run("succeeded", updatedAt, JSON.stringify(object), object.id || "");
-  } else if (event.type === "checkout.session.expired") {
-    updateOrderByCheckoutSessionStmt.run("expired", updatedAt, JSON.stringify(object), object.id || "");
-  }
+    if (event.type === "payment_intent.succeeded") {
+      await dbQuery(
+        `update public.payment_orders
+         set status = $1, updated_at = $2, metadata_json = $3
+         where stripe_payment_intent_id = $4`,
+        ["succeeded", updatedAt, JSON.stringify(object), object.id || ""]
+      );
+    } else if (event.type === "payment_intent.payment_failed") {
+      await dbQuery(
+        `update public.payment_orders
+         set status = $1, updated_at = $2, metadata_json = $3
+         where stripe_payment_intent_id = $4`,
+        ["failed", updatedAt, JSON.stringify(object), object.id || ""]
+      );
+    } else if (event.type === "checkout.session.completed") {
+      await dbQuery(
+        `update public.payment_orders
+         set status = $1, updated_at = $2, metadata_json = $3
+         where stripe_checkout_session_id = $4`,
+        ["succeeded", updatedAt, JSON.stringify(object), object.id || ""]
+      );
+      await upsertStripeCheckoutEntitlementFromSession(object);
+    } else if (event.type === "checkout.session.expired") {
+      await dbQuery(
+        `update public.payment_orders
+         set status = $1, updated_at = $2, metadata_json = $3
+         where stripe_checkout_session_id = $4`,
+        ["expired", updatedAt, JSON.stringify(object), object.id || ""]
+      );
+    }
 
-  res.json({ received: true });
+    res.json({ received: true });
+  })().catch((error) => {
+    console.error("Stripe webhook handling failed", error);
+    res.status(500).json({ error: error.message || "Webhook processing failed." });
+  });
 });
 
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/health", (_, res) => {
-  res.json({ ok: true, stripeConfigured: !!stripe });
+  res.json({ ok: true, stripeConfigured: !!stripe, databaseConfigured: true });
 });
 
 app.get("/api/config/status", (_, res) => {
@@ -784,6 +762,7 @@ app.get("/api/config/status", (_, res) => {
   res.json({
     ok: true,
     mode: productionMode ? "production" : "development",
+    databaseConfigured: true,
     stripeConfigured: !!stripe,
     appleIapConfigured: APPLE_IAP_ENABLED,
     appleIapEnv: APPLE_IAP_ENV,
@@ -805,22 +784,22 @@ app.post("/api/payments/intent", async (req, res) => {
   }
 
   const body = parsed.data;
-  const idem = handleIdempotency(req, res, "payments_intent", body);
+  const idem = await handleIdempotency(req, res, "payments_intent", body);
   if (idem.hit) {
     return;
   }
 
   const userId = getUserId(req);
-  ensureUser(userId);
+  await ensureUser(userId);
 
-  let customerId = getOrCreateStripeCustomer(userId);
+  let customerId = await getOrCreateStripeCustomer(userId);
   if (!customerId) {
     try {
       const customer = await stripe.customers.create({
         metadata: { userId }
       });
       customerId = customer.id;
-      updateUserStripeCustomerStmt.run(customerId, userId);
+      await dbQuery(`update public.users set stripe_customer_id = $1 where id = $2`, [customerId, userId]);
     } catch (error) {
       res.status(500).json({ error: error.message || "Unable to create Stripe customer." });
       return;
@@ -844,22 +823,28 @@ app.post("/api/payments/intent", async (req, res) => {
       idem.key ? { idempotencyKey: idem.key } : undefined
     );
 
-    insertOrderStmt.run(
-      userId,
-      "stripe_payment_intent",
-      intent.id,
-      null,
-      body.amount,
-      body.currency.toLowerCase(),
-      "created",
-      body.description,
-      JSON.stringify(body.metadata || {}),
-      now(),
-      now()
+    await dbQuery(
+      `insert into public.payment_orders(
+        user_id, source, stripe_payment_intent_id, stripe_checkout_session_id,
+        amount, currency, status, description, metadata_json, created_at, updated_at
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [
+        userId,
+        "stripe_payment_intent",
+        intent.id,
+        null,
+        body.amount,
+        body.currency.toLowerCase(),
+        "created",
+        body.description,
+        JSON.stringify(body.metadata || {}),
+        now(),
+        now()
+      ]
     );
 
     const responseBody = { clientSecret: intent.client_secret, paymentIntentId: intent.id };
-    storeIdempotencyRecord(idem.key, "payments_intent", idem.requestHash, responseBody, 200);
+    await storeIdempotencyRecord(idem.key, "payments_intent", idem.requestHash, responseBody, 200);
     res.json(responseBody);
   } catch (error) {
     res.status(500).json({ error: error.message || "Unable to create payment intent." });
@@ -878,22 +863,22 @@ app.post("/api/payments/checkout-session", async (req, res) => {
   }
 
   const body = parsed.data;
-  const idem = handleIdempotency(req, res, "checkout_session", body);
+  const idem = await handleIdempotency(req, res, "checkout_session", body);
   if (idem.hit) {
     return;
   }
 
   const userId = getUserId(req);
-  ensureUser(userId);
+  await ensureUser(userId);
 
-  let customerId = getOrCreateStripeCustomer(userId);
+  let customerId = await getOrCreateStripeCustomer(userId);
   if (!customerId) {
     try {
       const customer = await stripe.customers.create({
         metadata: { userId }
       });
       customerId = customer.id;
-      updateUserStripeCustomerStmt.run(customerId, userId);
+      await dbQuery(`update public.users set stripe_customer_id = $1 where id = $2`, [customerId, userId]);
     } catch (error) {
       res.status(500).json({ error: error.message || "Unable to create Stripe customer." });
       return;
@@ -909,7 +894,8 @@ app.post("/api/payments/checkout-session", async (req, res) => {
         cancel_url: body.cancelUrl,
         metadata: {
           source: "hosted_checkout",
-          userId
+          userId,
+          ...(body.planId ? { planId: body.planId } : {})
         },
         line_items: [
           {
@@ -927,22 +913,28 @@ app.post("/api/payments/checkout-session", async (req, res) => {
       idem.key ? { idempotencyKey: idem.key } : undefined
     );
 
-    insertOrderStmt.run(
-      userId,
-      "stripe_checkout_session",
-      null,
-      session.id,
-      body.amount,
-      "usd",
-      "created",
-      body.title,
-      JSON.stringify({}),
-      now(),
-      now()
+    await dbQuery(
+      `insert into public.payment_orders(
+        user_id, source, stripe_payment_intent_id, stripe_checkout_session_id,
+        amount, currency, status, description, metadata_json, created_at, updated_at
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [
+        userId,
+        "stripe_checkout_session",
+        null,
+        session.id,
+        body.amount,
+        "usd",
+        "created",
+        body.title,
+        JSON.stringify(body.planId ? { planId: body.planId } : {}),
+        now(),
+        now()
+      ]
     );
 
     const responseBody = { url: session.url, checkoutSessionId: session.id };
-    storeIdempotencyRecord(idem.key, "checkout_session", idem.requestHash, responseBody, 200);
+    await storeIdempotencyRecord(idem.key, "checkout_session", idem.requestHash, responseBody, 200);
     res.json(responseBody);
   } catch (error) {
     res.status(500).json({ error: error.message || "Unable to create checkout session." });
@@ -958,7 +950,7 @@ app.post("/api/iap/verify", async (req, res) => {
 
   const body = parsed.data;
   const userId = getUserId(req);
-  ensureUser(userId);
+  await ensureUser(userId);
 
   const purchaseRaw = JSON.stringify({
     ...body,
@@ -1012,48 +1004,50 @@ app.post("/api/iap/verify", async (req, res) => {
   });
 
   try {
-    insertIapReceiptStmt.run(
-      userId,
-      body.platform,
-      body.productId,
-      body.transactionId,
-      body.purchaseToken || null,
-      verificationStatus,
-      storedRaw,
-      now()
+    await dbQuery(
+      `insert into public.iap_receipts(
+        user_id, platform, product_id, transaction_id, purchase_token, status, raw_json, created_at
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [userId, body.platform, body.productId, body.transactionId, body.purchaseToken || null, verificationStatus, storedRaw, now()]
     );
   } catch (error) {
-    if (!String(error.message || "").includes("UNIQUE")) {
+    if (error.code !== "23505") {
       res.status(500).json({ error: error.message || "Unable to record receipt." });
       return;
     }
   }
 
   if (isActive) {
-    upsertEntitlementStmt.run(
-      userId,
-      body.planId,
-      "iap",
-      "active",
-      body.transactionId,
-      body.platform,
-      expiresAt,
-      storedRaw,
-      now(),
-      now()
+    await dbQuery(
+      `insert into public.entitlements(
+        user_id, plan_id, source, status, transaction_id, platform, expires_at, raw_json, created_at, updated_at
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      on conflict (user_id, plan_id)
+      do update set
+        source = excluded.source,
+        status = excluded.status,
+        transaction_id = excluded.transaction_id,
+        platform = excluded.platform,
+        expires_at = excluded.expires_at,
+        raw_json = excluded.raw_json,
+        updated_at = excluded.updated_at`,
+      [userId, body.planId, "iap", "active", body.transactionId, body.platform, expiresAt, storedRaw, now(), now()]
     );
   } else {
-    upsertEntitlementStmt.run(
-      userId,
-      body.planId,
-      "iap",
-      verificationStatus,
-      body.transactionId,
-      body.platform,
-      expiresAt,
-      storedRaw,
-      now(),
-      now()
+    await dbQuery(
+      `insert into public.entitlements(
+        user_id, plan_id, source, status, transaction_id, platform, expires_at, raw_json, created_at, updated_at
+      ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      on conflict (user_id, plan_id)
+      do update set
+        source = excluded.source,
+        status = excluded.status,
+        transaction_id = excluded.transaction_id,
+        platform = excluded.platform,
+        expires_at = excluded.expires_at,
+        raw_json = excluded.raw_json,
+        updated_at = excluded.updated_at`,
+      [userId, body.planId, "iap", verificationStatus, body.transactionId, body.platform, expiresAt, storedRaw, now(), now()]
     );
   }
 
@@ -1066,29 +1060,48 @@ app.post("/api/iap/verify", async (req, res) => {
   });
 });
 
-app.get("/api/entitlements", (req, res) => {
+app.get("/api/entitlements", async (req, res) => {
   const userId = getUserId(req);
-  ensureUser(userId);
-  const rows = listEntitlementsStmt.all(userId);
+  await ensureUser(userId);
+  await refreshPendingStripeOrders(userId);
+  const { rows } = await dbQuery(
+    `select user_id, plan_id, source, status, transaction_id, platform, expires_at, updated_at
+     from public.entitlements
+     where user_id = $1`,
+    [userId]
+  );
   res.json({ userId, entitlements: rows });
 });
 
 app.get("/api/orders", async (req, res) => {
   const userId = getUserId(req);
-  ensureUser(userId);
+  await ensureUser(userId);
   await refreshPendingStripeOrders(userId);
   const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
-  const orders = listRecentOrdersStmt.all(userId, limit);
+  const { rows: orders } = await dbQuery(
+    `select id, source, amount, currency, status, description, created_at, updated_at
+     from public.payment_orders
+     where user_id = $1
+     order by id desc
+     limit $2`,
+    [userId, limit]
+  );
   res.json({ userId, orders });
 });
 
-app.get("/api/provider-events", (req, res) => {
+app.get("/api/provider-events", async (req, res) => {
   const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
-  const events = listProviderEventsStmt.all(limit);
+  const { rows: events } = await dbQuery(
+    `select id, provider, event_id, event_type, created_at
+     from public.provider_events
+     order by id desc
+     limit $1`,
+    [limit]
+  );
   res.json({ events });
 });
 
-app.post("/api/privacy/delete-request", express.json(), (req, res) => {
+app.post("/api/privacy/delete-request", express.json(), async (req, res) => {
   const parseResult = deletionRequestSchema.safeParse(req.body || {});
   if (!parseResult.success) {
     res.status(400).json({ error: parseResult.error.issues[0]?.message || "Invalid deletion request." });
@@ -1097,37 +1110,42 @@ app.post("/api/privacy/delete-request", express.json(), (req, res) => {
 
   const userId = getUserId(req);
   const body = parseResult.data;
-  ensureUser(userId);
+  await ensureUser(userId);
   const requestedAt = now();
-  const result = insertDeletionRequestStmt.run(
-    userId,
-    body.email || null,
-    body.displayName || null,
-    body.reason || null,
-    "requested",
-    requestedAt
+  const { rows } = await dbQuery(
+    `insert into public.deletion_requests(
+      user_id, email, display_name, reason, status, requested_at
+    ) values ($1, $2, $3, $4, $5, $6)
+    returning id`,
+    [userId, body.email || null, body.displayName || null, body.reason || null, "requested", requestedAt]
   );
 
   res.status(201).json({
     ok: true,
-    requestId: result.lastInsertRowid,
+    requestId: rows[0].id,
     userId,
     status: "requested",
     requestedAt
   });
 });
 
-app.get("/api/admin/delete-requests", (req, res) => {
+app.get("/api/admin/delete-requests", async (req, res) => {
   const adminUser = requireAdmin(req, res);
   if (!adminUser) {
     return;
   }
   const limit = Math.min(Math.max(Number(req.query.limit || 50), 1), 200);
-  const requests = listDeletionRequestsStmt.all(limit);
+  const { rows: requests } = await dbQuery(
+    `select id, user_id, email, display_name, reason, status, requested_at, resolved_at, resolved_by, resolution_note
+     from public.deletion_requests
+     order by id desc
+     limit $1`,
+    [limit]
+  );
   res.json({ ok: true, adminUser, requests });
 });
 
-app.post("/api/admin/delete-requests/:id/fulfill", express.json(), (req, res) => {
+app.post("/api/admin/delete-requests/:id/fulfill", express.json(), async (req, res) => {
   const adminUser = requireAdmin(req, res);
   if (!adminUser) {
     return;
@@ -1139,7 +1157,13 @@ app.post("/api/admin/delete-requests/:id/fulfill", express.json(), (req, res) =>
     return;
   }
 
-  const requestRecord = getDeletionRequestStmt.get(requestId);
+  const { rows } = await dbQuery(
+    `select id, user_id, email, display_name, reason, status, requested_at, resolved_at, resolved_by, resolution_note
+     from public.deletion_requests
+     where id = $1`,
+    [requestId]
+  );
+  const requestRecord = rows[0];
   if (!requestRecord) {
     res.status(404).json({ error: "Deletion request not found." });
     return;
@@ -1151,8 +1175,13 @@ app.post("/api/admin/delete-requests/:id/fulfill", express.json(), (req, res) =>
   }
 
   const resolvedAt = now();
-  purgeUserData(requestRecord.user_id);
-  updateDeletionRequestStmt.run("fulfilled", resolvedAt, adminUser, "User data purged", requestId);
+  await purgeUserData(requestRecord.user_id);
+  await dbQuery(
+    `update public.deletion_requests
+     set status = $1, resolved_at = $2, resolved_by = $3, resolution_note = $4
+     where id = $5`,
+    ["fulfilled", resolvedAt, adminUser, "User data purged", requestId]
+  );
 
   res.json({
     ok: true,
@@ -1229,7 +1258,15 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Sync and payments server running on http://localhost:${PORT}`);
-  console.log(`SQLite DB: ${DB_PATH}`);
-});
+(async () => {
+  try {
+    await ensureSchema();
+    server.listen(PORT, () => {
+      console.log(`Sync and payments server running on http://localhost:${PORT}`);
+      console.log(`Postgres backend connected via Supabase.`);
+    });
+  } catch (error) {
+    console.error("Unable to start sync server", error);
+    process.exit(1);
+  }
+})();

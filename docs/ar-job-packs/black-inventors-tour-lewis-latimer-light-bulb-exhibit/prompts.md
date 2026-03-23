@@ -5,9 +5,9 @@ Provider-agnostic AR generation job pack for `black-inventors-tour-lewis-latimer
 ## Stop Summary
 
 - Tour: Black Inventors Tour
-- Priority: 14
+- Priority: 1
 - AR Type: `animated_diagram`
-- Asset status: `planned`
+- Asset status: `in_production`
 - Runtime targets:
   - iOS: `/models/lewis-latimer-light-bulb-exhibit.usdz`
   - Android: `/models/lewis-latimer-light-bulb-exhibit.glb`
@@ -17,9 +17,9 @@ Provider-agnostic AR generation job pack for `black-inventors-tour-lewis-latimer
 
 - Headline: Animated explainer scene
 - Concept goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-- Historical era: historic Philadelphia
-- Style preset: `architectural`
-- Visual priority: `historical_accuracy`
+- Historical era: late 19th century innovation
+- Style preset: `documentary`
+- Visual priority: `readability`
 - Asset request: filament model; patent diagram animation; inventor card
 - Placement note: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
 - Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
@@ -49,16 +49,16 @@ Stop: Lewis Latimer Light Bulb Exhibit
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: late 19th century innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
 Requested content layers: filament model, patent diagram animation, inventor card, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
 Asset request from catalog: filament model; patent diagram animation; inventor card
-Producer notes: [pipeline-sync] no generated pipeline artifacts yet
+Producer notes: [strategy-reset] object-centered AR candidate prioritized over building/site reconstruction
 
 Return:
 1. A concise scene concept paragraph.
@@ -79,17 +79,17 @@ Stop: Lewis Latimer Light Bulb Exhibit
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: late 19th century innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
 Requested content layers: filament model, patent diagram animation, inventor card, primary mechanism, step labels, motion sequence overlays
 Fallback type: card
 Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
 Scene headline: Animated explainer scene
-Desired visual emphasis: historical_accuracy
-Target atmosphere: architectural
+Desired visual emphasis: readability
+Target atmosphere: documentary
 
 Requirements:
 - Keep the scene legible as a single clear AR moment.
@@ -109,9 +109,9 @@ Stop: Lewis Latimer Light Bulb Exhibit
 Tour: Black Inventors Tour
 AR type: animated_diagram
 Scene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.
-Historical era: historic Philadelphia
-Style preset: architectural
-Visual priority: historical_accuracy
+Historical era: late 19th century innovation
+Style preset: documentary
+Visual priority: readability
 Runtime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.
 Requested content layers: filament model, patent diagram animation, inventor card, primary mechanism, step labels, motion sequence overlays
 Fallback type: card

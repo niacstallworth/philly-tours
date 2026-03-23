@@ -1,0 +1,34 @@
+{
+  "stopId": "black-american-sports-allen-iverson-s-hampton-park-courts",
+  "stopTitle": "Allen Iverson's Hampton Park Courts",
+  "tourId": "black-american-sports",
+  "tourTitle": "Black American Sports",
+  "arPriority": 7,
+  "arType": "object_on_plinth",
+  "assetStatus": "in_production",
+  "headline": "Museum-style object scene",
+  "summary": "basketball and crossover trail object; mural card; legacy marker",
+  "historicalEra": "late 20th to early 21st century Philadelphia basketball",
+  "stylePreset": "cinematic",
+  "visualPriority": "readability",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/allen-iverson-s-hampton-park-courts.usdz",
+    "android": "/models/allen-iverson-s-hampton-park-courts.glb",
+    "web": "/models/allen-iverson-s-hampton-park-courts.glb"
+  },
+  "contentLayers": [
+    "basketball and crossover trail object",
+    "mural card",
+    "legacy marker",
+    "hero object",
+    "plinth/base",
+    "annotation card"
+  ],
+  "productionChecklist": [
+    "Approve hero object shape",
+    "Approve plinth scale",
+    "Check annotation clarity"
+  ],
+  "negativePrompt": "floating fragments, broken anatomy, abstract sculptures, futuristic materials"
+}

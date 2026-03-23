@@ -5,6 +5,12 @@ export type UserPosition = {
   longitude: number;
 };
 
+export type UserHeading = {
+  magHeadingDeg: number | null;
+  trueHeadingDeg: number | null;
+  accuracy?: number | null;
+};
+
 export type PositionWatcher = {
   remove: () => void;
 };
@@ -22,6 +28,23 @@ export async function getCurrentPosition(): Promise<UserPosition> {
   return {
     latitude: position.coords.latitude,
     longitude: position.coords.longitude
+  };
+}
+
+export async function getCurrentHeading(): Promise<UserHeading | null> {
+  const heading = await Location.getHeadingAsync();
+  const magHeadingDeg = Number.isFinite(heading.magHeading) ? heading.magHeading : null;
+  const trueHeadingDeg = Number.isFinite(heading.trueHeading) && heading.trueHeading >= 0 ? heading.trueHeading : null;
+  const accuracy = Number.isFinite(heading.accuracy) ? heading.accuracy : null;
+
+  if (magHeadingDeg === null && trueHeadingDeg === null) {
+    return null;
+  }
+
+  return {
+    magHeadingDeg,
+    trueHeadingDeg,
+    accuracy
   };
 }
 

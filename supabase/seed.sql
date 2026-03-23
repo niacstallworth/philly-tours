@@ -1,0 +1,2 @@
+-- Intentionally blank for now.
+-- App data still lives in SQLite until the first import/migration run is completed.

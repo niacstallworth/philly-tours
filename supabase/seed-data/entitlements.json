@@ -1,0 +1,26 @@
+[
+  {
+    "user_id": "qa-user-1",
+    "plan_id": "plus",
+    "source": "iap",
+    "status": "active",
+    "transaction_id": "txn-cli-001",
+    "platform": "ios",
+    "expires_at": null,
+    "raw_json": "{\"request\":{\"platform\":\"ios\",\"planId\":\"plus\",\"productId\":\"com.founders.phillyartours.plus\",\"transactionId\":\"txn-cli-001\",\"receiptData\":\"dummy\"},\"verification\":{\"mode\":\"dev_fallback\",\"error\":\"secretOrPrivateKey must be an asymmetric key when using ES256\"},\"receivedAt\":1772839881900}",
+    "created_at": 1772839881901,
+    "updated_at": 1772839881901
+  },
+  {
+    "user_id": "qa-cred-test",
+    "plan_id": "plus",
+    "source": "iap",
+    "status": "active",
+    "transaction_id": "1000000000000000",
+    "platform": "ios",
+    "expires_at": null,
+    "raw_json": "{\"request\":{\"platform\":\"ios\",\"planId\":\"plus\",\"productId\":\"com.founders.phillyartours.plus\",\"transactionId\":\"1000000000000000\",\"receiptData\":\"dummy\"},\"verification\":{\"mode\":\"dev_fallback\",\"error\":\"Apple verification failed (401): Unauthenticated\\n\\nRequest ID: F3T4NO4N7X5LSAFRVRJUZFHH7M.0.0\\n\"},\"receivedAt\":1772885626295}",
+    "created_at": 1772885603023,
+    "updated_at": 1772885626296
+  }
+]

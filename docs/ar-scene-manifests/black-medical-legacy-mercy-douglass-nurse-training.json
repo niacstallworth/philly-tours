@@ -1,0 +1,34 @@
+{
+  "stopId": "black-medical-legacy-mercy-douglass-nurse-training",
+  "stopTitle": "Mercy-Douglass Nurse Training",
+  "tourId": "black-medical-legacy",
+  "tourTitle": "Black Medical Legacy",
+  "arPriority": 4,
+  "arType": "object_on_plinth",
+  "assetStatus": "in_production",
+  "headline": "Museum-style object scene",
+  "summary": "nurse cap and diploma miniature; training badge; cohort story card",
+  "historicalEra": "20th century Black medical education",
+  "stylePreset": "documentary",
+  "visualPriority": "historical_accuracy",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/mercy-douglass-nurse-training.usdz",
+    "android": "/models/mercy-douglass-nurse-training.glb",
+    "web": "/models/mercy-douglass-nurse-training.glb"
+  },
+  "contentLayers": [
+    "nurse cap and diploma miniature",
+    "training badge",
+    "cohort story card",
+    "hero object",
+    "plinth/base",
+    "annotation card"
+  ],
+  "productionChecklist": [
+    "Approve hero object shape",
+    "Approve plinth scale",
+    "Check annotation clarity"
+  ],
+  "negativePrompt": "floating fragments, broken anatomy, abstract sculptures, futuristic materials"
+}

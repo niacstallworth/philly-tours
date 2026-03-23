@@ -7,9 +7,9 @@
     "stopTitle": "Dr. Charles Drew Blood Bank",
     "tourId": "black-inventors-tour",
     "tourTitle": "Black Inventors Tour",
-    "arPriority": 16,
+    "arPriority": 3,
     "arType": "animated_diagram",
-    "assetStatus": "planned"
+    "assetStatus": "in_production"
   },
   "sourceFiles": {
     "catalogCsv": "docs/ar-asset-catalog.csv",
@@ -27,25 +27,26 @@
     "triggerRadiusM": 40,
     "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
     "fallbackType": "card",
-    "scale": 1,
+    "scale": 0.88,
     "rotationYDeg": 180,
     "verticalOffsetM": 0
   },
   "creativeDirection": {
     "headline": "Animated explainer scene",
     "conceptGoal": "Create a readable explanatory object or mechanism scene where motion supports understanding.",
-    "assetNeeded": "blood plasma storage explainer; medical card set",
-    "historicalEra": "historic Philadelphia",
-    "stylePreset": "architectural",
-    "visualPriority": "historical_accuracy",
+    "assetNeeded": "blood plasma storage explainer; medical card set; tubing sequence",
+    "historicalEra": "20th century medical innovation",
+    "stylePreset": "documentary",
+    "visualPriority": "readability",
     "estimatedEffort": "medium",
-    "notes": "[pipeline-sync] no generated pipeline artifacts yet",
+    "notes": "[strategy-reset] medical explainer AR candidate prioritized over site reconstruction",
     "negativePrompt": "messy composition, extra parts, abstract background noise, unreadable labels"
   },
   "scenePlan": {
     "contentLayers": [
       "blood plasma storage explainer",
       "medical card set",
+      "tubing sequence",
       "primary mechanism",
       "step labels",
       "motion sequence overlays"
@@ -83,8 +84,8 @@
     }
   },
   "promptPack": {
-    "textBriefPrompt": "You are preparing an internal production brief for a mobile AR scene.\nThe output should help a human artist or producer create a historically grounded 3D asset.\nDo not describe final app UI, dashboards, or developer tooling.\n\nStop: Dr. Charles Drew Blood Bank\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: historic Philadelphia\nStyle preset: architectural\nVisual priority: historical_accuracy\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: blood plasma storage explainer, medical card set, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nAsset request from catalog: blood plasma storage explainer; medical card set\nProducer notes: [pipeline-sync] no generated pipeline artifacts yet\n\nReturn:\n1. A concise scene concept paragraph.\n2. A composition breakdown with foreground, midground, and background.\n3. A material/reference checklist.\n4. A risk list covering historical accuracy, readability, and placement drift concerns.\n5. Recommended reference imagery or archival material to gather before modeling.",
-    "conceptImagePrompt": "Generate an internal concept image only. This is not the final runtime asset.\nThe image should help art direction, lighting, composition, and texture planning for a future 3D model.\nPreserve historical plausibility and avoid speculative sci-fi embellishment.\n\nStop: Dr. Charles Drew Blood Bank\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: historic Philadelphia\nStyle preset: architectural\nVisual priority: historical_accuracy\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: blood plasma storage explainer, medical card set, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nScene headline: Animated explainer scene\nDesired visual emphasis: historical_accuracy\nTarget atmosphere: architectural\n\nRequirements:\n- Keep the scene legible as a single clear AR moment.\n- Avoid crowded compositions and complex HUD overlays.\n- Bias toward forms that can be translated cleanly into a 3D asset.\n- Avoid: messy composition, extra parts, abstract background noise, unreadable labels",
-    "roughMeshPrompt": "Generate a rough 3D blockout or starting geometry only.\nThis output will be cleaned manually before becoming a production AR asset.\nDo not assume the generated mesh is final quality.\n\nStop: Dr. Charles Drew Blood Bank\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: historic Philadelphia\nStyle preset: architectural\nVisual priority: historical_accuracy\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: blood plasma storage explainer, medical card set, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nPrimary asset request: blood plasma storage explainer; medical card set\nExpected runtime targets: iOS /models/dr-charles-drew-blood-bank.usdz, Android /models/dr-charles-drew-blood-bank.glb, Web /models/dr-charles-drew-blood-bank.glb\n\nRequirements:\n- Prioritize silhouette, scale, and spatial readability over decorative detail.\n- Preserve clean separable geometry for manual cleanup in Blender or similar tools.\n- Favor historically plausible massing and proportions.\n- Avoid: messy composition, extra parts, abstract background noise, unreadable labels"
+    "textBriefPrompt": "You are preparing an internal production brief for a mobile AR scene.\nThe output should help a human artist or producer create a historically grounded 3D asset.\nDo not describe final app UI, dashboards, or developer tooling.\n\nStop: Dr. Charles Drew Blood Bank\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: 20th century medical innovation\nStyle preset: documentary\nVisual priority: readability\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: blood plasma storage explainer, medical card set, tubing sequence, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nAsset request from catalog: blood plasma storage explainer; medical card set; tubing sequence\nProducer notes: [strategy-reset] medical explainer AR candidate prioritized over site reconstruction\n\nReturn:\n1. A concise scene concept paragraph.\n2. A composition breakdown with foreground, midground, and background.\n3. A material/reference checklist.\n4. A risk list covering historical accuracy, readability, and placement drift concerns.\n5. Recommended reference imagery or archival material to gather before modeling.",
+    "conceptImagePrompt": "Generate an internal concept image only. This is not the final runtime asset.\nThe image should help art direction, lighting, composition, and texture planning for a future 3D model.\nPreserve historical plausibility and avoid speculative sci-fi embellishment.\n\nStop: Dr. Charles Drew Blood Bank\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: 20th century medical innovation\nStyle preset: documentary\nVisual priority: readability\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: blood plasma storage explainer, medical card set, tubing sequence, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nScene headline: Animated explainer scene\nDesired visual emphasis: readability\nTarget atmosphere: documentary\n\nRequirements:\n- Keep the scene legible as a single clear AR moment.\n- Avoid crowded compositions and complex HUD overlays.\n- Bias toward forms that can be translated cleanly into a 3D asset.\n- Avoid: messy composition, extra parts, abstract background noise, unreadable labels",
+    "roughMeshPrompt": "Generate a rough 3D blockout or starting geometry only.\nThis output will be cleaned manually before becoming a production AR asset.\nDo not assume the generated mesh is final quality.\n\nStop: Dr. Charles Drew Blood Bank\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: 20th century medical innovation\nStyle preset: documentary\nVisual priority: readability\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: blood plasma storage explainer, medical card set, tubing sequence, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nPrimary asset request: blood plasma storage explainer; medical card set; tubing sequence\nExpected runtime targets: iOS /models/dr-charles-drew-blood-bank.usdz, Android /models/dr-charles-drew-blood-bank.glb, Web /models/dr-charles-drew-blood-bank.glb\n\nRequirements:\n- Prioritize silhouette, scale, and spatial readability over decorative detail.\n- Preserve clean separable geometry for manual cleanup in Blender or similar tools.\n- Favor historically plausible massing and proportions.\n- Avoid: messy composition, extra parts, abstract background noise, unreadable labels"
   }
 }

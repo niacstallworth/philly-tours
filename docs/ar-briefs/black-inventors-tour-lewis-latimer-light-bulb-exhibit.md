@@ -6,14 +6,14 @@ Build an explanatory 3D diagram scene focused on clear mechanism storytelling.
 
 - Tour: Black Inventors Tour
 - Stop ID: `black-inventors-tour-lewis-latimer-light-bulb-exhibit`
-- Priority: 14
+- Priority: 1
 - AR Type: `animated_diagram`
 - Effort: `medium`
 - Coordinate quality: `approximate`
 - Trigger radius: 40m
-- Historical era: historic Philadelphia
-- Style preset: `architectural`
-- Visual priority: `historical_accuracy`
+- Historical era: late 19th century innovation
+- Style preset: `documentary`
+- Visual priority: `readability`
 
 ## Scene Intent
 
@@ -23,7 +23,7 @@ filament model; patent diagram animation; inventor card
 
 - Anchor style: `front_of_user`
 - Fallback type: `card`
-- Scale: 1
+- Scale: 0.9
 - Rotation: 180deg
 - Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
@@ -43,4 +43,4 @@ filament model; patent diagram animation; inventor card
 
 ## Notes
 
-No additional notes.
+[strategy-reset] object-centered AR candidate prioritized over building/site reconstruction
