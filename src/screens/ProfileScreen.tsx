@@ -56,7 +56,9 @@ export function ProfileScreen({
     setStatusMessage(null);
     try {
       const entitlements = await getEntitlements();
-      const active = entitlements.find((entry) => entry.status === "active");
+      const active =
+        entitlements.find((entry) => entry.status === "active" && entry.plan_id === "full_app") ||
+        entitlements.find((entry) => entry.status === "active");
       if (active?.plan_id) {
         setActivatedPlan(active.plan_id);
       }
@@ -72,7 +74,7 @@ export function ProfileScreen({
     }
   }
 
-  async function startHostedCheckout(amount = 999, title = "Philly Tours Day Pass") {
+  async function startHostedCheckout(amount = 999, title = "Philly Tours Day Pass", planId?: string) {
     if (entitlementStatus === "offline") {
       setStatusMessage(`Sync server unreachable at ${getSyncServerUrl()}. Start the backend to use checkout.`);
       return;
@@ -80,7 +82,7 @@ export function ProfileScreen({
     setLoadingAction("hosted");
     setStatusMessage(null);
     try {
-      const session = await createCheckoutSession(amount, title);
+      const session = await createCheckoutSession(amount, title, planId);
       if (!session.url) {
         throw new Error("Stripe Checkout URL was not returned.");
       }
@@ -240,7 +242,7 @@ export function ProfileScreen({
         {statusMessage ? <Text style={styles.warning}>{statusMessage}</Text> : null}
         <PrimaryButton
           disabled={loadingAction !== null || entitlementStatus === "offline"}
-          onPress={() => startHostedCheckout(999, "Philly Tours Day Pass")}
+          onPress={() => startHostedCheckout(999, "Philly Tours Day Pass", "full_app")}
           label={entitlementStatus === "offline" ? "Backend Offline" : loadingAction === "hosted" ? "Preparing..." : "Open Hosted Checkout ($9.99)"}
         />
         <PrimaryButton
