@@ -156,3 +156,5 @@ npm run builder:admins:map
 ```
 
 This is an internal client-side gate, not production-grade server auth.
+
+Made with ❤️ for Philadelphia storytelling. Questions or want to collaborate? Open an issue!
