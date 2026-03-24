@@ -1,0 +1,33 @@
+{
+  "stopId": "divine-9-legacy-tour-delta-sigma-theta-40th-and-market",
+  "stopTitle": "Delta Sigma Theta - 40th & Market",
+  "tourId": "divine-9-legacy-tour",
+  "tourTitle": "Divine 9 Legacy Tour",
+  "arPriority": 9,
+  "arType": "floating_story_card",
+  "headline": "Editorial AR story card",
+  "summary": "public act timeline; archival photos; chapter card",
+  "historicalEra": "historic Philadelphia",
+  "stylePreset": "editorial",
+  "visualPriority": "readability",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/delta-sigma-theta-40th-and-market.usdz",
+    "android": "/models/delta-sigma-theta-40th-and-market.glb",
+    "web": "/models/delta-sigma-theta-40th-and-market.glb"
+  },
+  "contentLayers": [
+    "public act timeline",
+    "archival photos",
+    "chapter card",
+    "story card stack",
+    "headline frame",
+    "lightweight foreground treatment"
+  ],
+  "productionChecklist": [
+    "Check card readability",
+    "Trim background clutter",
+    "Validate mobile-safe margins"
+  ],
+  "negativePrompt": "busy backgrounds, unreadable layouts, overdecorated borders, dense clutter"
+}

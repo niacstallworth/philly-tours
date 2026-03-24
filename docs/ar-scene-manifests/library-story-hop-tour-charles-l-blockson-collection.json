@@ -1,0 +1,32 @@
+{
+  "stopId": "library-story-hop-tour-charles-l-blockson-collection",
+  "stopTitle": "Charles L. Blockson Collection",
+  "tourId": "library-story-hop-tour",
+  "tourTitle": "Library Story Hop Tour",
+  "arPriority": 19,
+  "arType": "object_on_plinth",
+  "headline": "Museum-style object scene",
+  "summary": "hymnbook or archival object model; collection card",
+  "historicalEra": "historic Philadelphia",
+  "stylePreset": "architectural",
+  "visualPriority": "historical_accuracy",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/charles-l-blockson-collection.usdz",
+    "android": "/models/charles-l-blockson-collection.glb",
+    "web": "/models/charles-l-blockson-collection.glb"
+  },
+  "contentLayers": [
+    "hymnbook or archival object model",
+    "collection card",
+    "hero object",
+    "plinth/base",
+    "annotation card"
+  ],
+  "productionChecklist": [
+    "Approve hero object shape",
+    "Approve plinth scale",
+    "Check annotation clarity"
+  ],
+  "negativePrompt": "floating fragments, broken anatomy, abstract sculptures, futuristic materials"
+}
