@@ -66,11 +66,11 @@ export function DriveScreen({ initialTourId }: Props) {
     [activeSession, driveStops]
   );
   const currentHandoffMeta = React.useMemo(
-    () => (currentStop ? getHandoffModeMeta(currentStop.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive") : null),
+    () => (currentStop ? getHandoffModeMeta(currentStop.handoffDeepLink.endsWith("/ar") ? "map" : "arrive") : null),
     [currentStop]
   );
   const nextHandoffMeta = React.useMemo(
-    () => (nextStop ? getHandoffModeMeta(nextStop.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive") : null),
+    () => (nextStop ? getHandoffModeMeta(nextStop.handoffDeepLink.endsWith("/ar") ? "map" : "arrive") : null),
     [nextStop]
   );
   const activeNarrationStop = (narration.stopId ? [currentStop, nextStop].find((stop) => stop?.id === narration.stopId) : null) || null;

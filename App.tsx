@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
+import { createAuthenticatedSession, setAuthToken, validateAuthenticatedSession } from "./src/services/auth";
 import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
-import { isBuilderEmailAllowed } from "./src/services/builderAccess";
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
 import { subscribeToHandoffTarget } from "./src/services/handoffBus";
 import { getEntitlements, setApiUserId } from "./src/services/payments";
@@ -16,11 +16,10 @@ type AppSession = {
   email: string;
   mode: AppMode;
   userId: string;
+  roles?: string[];
+  authToken?: string | null;
+  authExpiresAt?: number | null;
 };
-
-function toUserId(email: string) {
-  return email.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "demo-user";
-}
 
 export default function App() {
   const isExpoGo = Constants.appOwnership === "expo";
@@ -59,12 +58,42 @@ export default function App() {
         if (!stored) {
           return;
         }
-        if (stored.mode === "builder" && !isBuilderEmailAllowed(stored.email)) {
-          clearSession().catch(() => undefined);
-          return;
-        }
         setApiUserId(stored.userId);
-        setSession(stored);
+        setAuthToken(stored.authToken);
+        if (!stored.authToken) {
+          if (stored.mode === "builder") {
+            clearSession().catch(() => undefined);
+            return;
+          }
+          return createAuthenticatedSession({
+            displayName: stored.displayName,
+            email: stored.email,
+            mode: "tourist"
+          })
+            .then((nextSession) => {
+              setAuthToken(nextSession.authToken);
+              setApiUserId(nextSession.userId);
+              setSession(nextSession);
+              return saveSession(nextSession);
+            })
+            .catch(() => {
+              setAuthToken(null);
+              setApiUserId("demo-user");
+              return clearSession();
+            });
+        }
+        return validateAuthenticatedSession(stored.authToken)
+          .then((validated) => {
+            setApiUserId(validated.userId);
+            setAuthToken(validated.authToken);
+            setSession(validated);
+            return saveSession(validated);
+          })
+          .catch(() => {
+            setAuthToken(null);
+            setApiUserId("demo-user");
+            return clearSession();
+          });
       })
       .finally(() => setBooting(false));
   }, []);
@@ -106,16 +135,22 @@ export default function App() {
     };
   }, []);
 
-  function completeOnboarding(payload: OnboardingPayload) {
-    const userId = toUserId(payload.email);
-    const nextSession = { ...payload, userId };
-    setApiUserId(userId);
-    setSession(nextSession);
-    saveSession(nextSession).catch(() => undefined);
+  async function completeOnboarding(payload: OnboardingPayload) {
+    try {
+      const nextSession = await createAuthenticatedSession(payload);
+      setAuthToken(nextSession.authToken);
+      setApiUserId(nextSession.userId);
+      setSession(nextSession);
+      await saveSession(nextSession);
+      return null;
+    } catch (error) {
+      return (error as Error).message || "Unable to sign in.";
+    }
   }
 
   function signOut() {
     setSession(null);
+    setAuthToken(null);
     setApiUserId("demo-user");
     clearSession().catch(() => undefined);
   }
@@ -123,6 +158,7 @@ export default function App() {
   function deleteProfile() {
     setSession(null);
     setHandoffTarget(null);
+    setAuthToken(null);
     setApiUserId("demo-user");
     clearSession().catch(() => undefined);
   }
@@ -162,7 +198,7 @@ type AppShellProps = {
   audioHistoryOnlyUnlocked: boolean;
   fullAppUnlocked: boolean;
   onRefreshEntitlements: () => Promise<void>;
-  onComplete: (payload: OnboardingPayload) => void;
+  onComplete: (payload: OnboardingPayload) => Promise<string | null>;
   onDeleteProfile: () => void;
   onSignOut: () => void;
 };

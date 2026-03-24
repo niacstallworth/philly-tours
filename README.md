@@ -132,7 +132,6 @@ Deployment docs:
 - `deploy/philly-tours-sync.service.example`
 - `deploy/Caddyfile.api.example`
 - `deploy/nginx-api.philly-tours.conf.example`
-
 Stripe webhook forwarding:
 
 ```bash
