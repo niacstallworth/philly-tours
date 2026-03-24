@@ -46,6 +46,10 @@ const PORT = Number(process.env.PORT || 4000);
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;
+const AUTH_JWT_SECRET =
+  process.env.AUTH_JWT_SECRET || (process.env.NODE_ENV === "production" ? "" : "dev-local-auth-secret");
+const LEGACY_ADMIN_API_KEY_ENABLED =
+  process.env.ALLOW_LEGACY_ADMIN_API_KEY === "true" && process.env.NODE_ENV !== "production";
 const APPLE_IAP_BUNDLE_ID = process.env.APPLE_IAP_BUNDLE_ID || process.env.IOS_BUNDLE_ID || "";
 const APPLE_IAP_ISSUER_ID = process.env.APPLE_IAP_ISSUER_ID || "";
 const APPLE_IAP_KEY_ID = process.env.APPLE_IAP_KEY_ID || "";
@@ -56,6 +60,7 @@ const GOOGLE_PLAY_PACKAGE_NAME =
 const GOOGLE_SERVICE_ACCOUNT_JSON = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || "";
 const GOOGLE_SERVICE_ACCOUNT_FILE = process.env.GOOGLE_SERVICE_ACCOUNT_FILE || "";
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "";
+const BUILDER_ADMIN_ACCOUNTS_JSON = process.env.BUILDER_ADMIN_ACCOUNTS_JSON || "";
 const SUPABASE_DB_URL = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL || "";
 const SUPABASE_DB_PASSWORD = process.env.SUPABASE_DB_PASSWORD || "";
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
@@ -63,6 +68,46 @@ const APPLE_IAP_ENABLED =
   !!APPLE_IAP_BUNDLE_ID && !!APPLE_IAP_ISSUER_ID && !!APPLE_IAP_KEY_ID && !!APPLE_IAP_PRIVATE_KEY;
 const GOOGLE_IAP_ENABLED =
   !!GOOGLE_PLAY_PACKAGE_NAME && (!!GOOGLE_SERVICE_ACCOUNT_JSON || !!GOOGLE_SERVICE_ACCOUNT_FILE);
+
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function toUserId(email) {
+  return normalizeEmail(email).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "demo-user";
+}
+
+function parseBuilderAdminAccounts() {
+  if (!BUILDER_ADMIN_ACCOUNTS_JSON.trim()) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(BUILDER_ADMIN_ACCOUNTS_JSON);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .map((entry) => {
+        const email = normalizeEmail(entry?.email);
+        const passwordHash = String(entry?.passwordHash || "").trim();
+        const displayName = String(entry?.displayName || email || "Builder").trim();
+        const roles = Array.isArray(entry?.roles)
+          ? entry.roles.filter((role) => role === "builder" || role === "admin")
+          : [];
+        if (!email || !passwordHash || roles.length === 0) {
+          return null;
+        }
+        return { email, passwordHash, displayName, roles };
+      })
+      .filter(Boolean);
+  } catch (error) {
+    console.warn("Failed to parse BUILDER_ADMIN_ACCOUNTS_JSON", error);
+    return [];
+  }
+}
+
+const builderAdminAccounts = parseBuilderAdminAccounts();
 
 const app = express();
 app.use(
@@ -226,6 +271,21 @@ const deletionRequestSchema = z.object({
   reason: z.string().min(1).max(500).optional()
 });
 
+const authSessionRequestSchema = z.object({
+  email: z.string().email(),
+  displayName: z.string().min(1).max(120),
+  mode: z.enum(["tourist", "builder"]),
+  password: z.string().min(1).max(256).optional()
+}).superRefine((value, ctx) => {
+  if (value.mode === "builder" && !value.password?.trim()) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["password"],
+      message: "Builder sign-in requires a password."
+    });
+  }
+});
+
 const roomMembers = new Map();
 
 let googleAuthClientPromise = null;
@@ -238,7 +298,94 @@ function jsonHash(input) {
   return crypto.createHash("sha256").update(JSON.stringify(input)).digest("hex");
 }
 
+function authConfigured() {
+  return !!AUTH_JWT_SECRET;
+}
+
+function hasRole(actor, role) {
+  return Array.isArray(actor?.roles) && actor.roles.includes(role);
+}
+
+function timingSafeEqualHex(aHex, bHex) {
+  try {
+    const a = Buffer.from(aHex, "hex");
+    const b = Buffer.from(bHex, "hex");
+    if (a.length !== b.length) {
+      return false;
+    }
+    return crypto.timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
+
+function verifyPasswordHash(password, encodedHash) {
+  const [algorithm, saltHex, derivedKeyHex] = String(encodedHash || "").split("$");
+  if (algorithm !== "scrypt" || !saltHex || !derivedKeyHex) {
+    return false;
+  }
+
+  const derivedKey = crypto.scryptSync(password, Buffer.from(saltHex, "hex"), 64);
+  return timingSafeEqualHex(derivedKey.toString("hex"), derivedKeyHex);
+}
+
+function signAuthToken(session) {
+  if (!AUTH_JWT_SECRET) {
+    throw new Error("AUTH_JWT_SECRET is not configured.");
+  }
+  return jwt.sign(
+    {
+      sub: session.userId,
+      email: session.email,
+      displayName: session.displayName,
+      mode: session.mode,
+      roles: session.roles
+    },
+    AUTH_JWT_SECRET,
+    {
+      algorithm: "HS256",
+      expiresIn: "12h"
+    }
+  );
+}
+
+function decodeAuthToken(token) {
+  if (!AUTH_JWT_SECRET) {
+    throw new Error("AUTH_JWT_SECRET is not configured.");
+  }
+  return jwt.verify(token, AUTH_JWT_SECRET, { algorithms: ["HS256"] });
+}
+
+function getBearerToken(req) {
+  const header = req.header("authorization") || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : "";
+}
+
+function getAuthenticatedActor(req) {
+  const bearerToken = getBearerToken(req);
+  if (!bearerToken) {
+    return null;
+  }
+  try {
+    const payload = decodeAuthToken(bearerToken);
+    return {
+      userId: String(payload.sub || "").trim() || "demo-user",
+      email: normalizeEmail(payload.email),
+      displayName: String(payload.displayName || "").trim(),
+      mode: payload.mode === "builder" ? "builder" : "tourist",
+      roles: Array.isArray(payload.roles) ? payload.roles.filter(Boolean) : []
+    };
+  } catch {
+    return null;
+  }
+}
+
 function getUserId(req) {
+  const actor = getAuthenticatedActor(req);
+  if (actor?.userId) {
+    return actor.userId;
+  }
   const headerUserId = req.header("x-user-id");
   if (headerUserId && headerUserId.trim()) {
     return headerUserId.trim();
@@ -246,17 +393,32 @@ function getUserId(req) {
   return "demo-user";
 }
 
-function requireAdmin(req, res) {
-  if (!ADMIN_API_KEY) {
-    res.status(503).json({ error: "Admin deletion API is not configured." });
+function requireRoles(req, res, roles) {
+  const actor = getAuthenticatedActor(req);
+  if (actor && roles.some((role) => hasRole(actor, role))) {
+    return actor;
+  }
+
+  if (LEGACY_ADMIN_API_KEY_ENABLED && roles.includes("admin") && ADMIN_API_KEY) {
+    const providedKey = req.header("x-admin-key");
+    if (providedKey && providedKey === ADMIN_API_KEY) {
+      return {
+        userId: "legacy-admin",
+        email: normalizeEmail(req.header("x-admin-user") || "admin@local"),
+        displayName: req.header("x-admin-user") || "admin",
+        mode: "builder",
+        roles: ["admin"]
+      };
+    }
+  }
+
+  if (!authConfigured()) {
+    res.status(503).json({ error: "Server auth is not configured." });
     return null;
   }
-  const providedKey = req.header("x-admin-key");
-  if (!providedKey || providedKey !== ADMIN_API_KEY) {
-    res.status(403).json({ error: "Admin access denied." });
-    return null;
-  }
-  return req.header("x-admin-user") || "admin";
+
+  res.status(401).json({ error: "Authorized session required." });
+  return null;
 }
 
 async function purgeUserData(userId) {
@@ -669,6 +831,14 @@ const apiLimiter = rateLimit({
   legacyHeaders: false
 });
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many sign-in attempts. Please wait and try again." }
+});
+
 app.use("/api", apiLimiter);
 
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), (req, res) => {
@@ -762,6 +932,8 @@ app.get("/api/config/status", (_, res) => {
   res.json({
     ok: true,
     mode: productionMode ? "production" : "development",
+    authConfigured: authConfigured(),
+    builderAuthConfigured: builderAdminAccounts.length > 0,
     databaseConfigured: true,
     stripeConfigured: !!stripe,
     appleIapConfigured: APPLE_IAP_ENABLED,
@@ -772,7 +944,74 @@ app.get("/api/config/status", (_, res) => {
   });
 });
 
+app.post("/api/auth/session", authLimiter, async (req, res) => {
+  const parsed = authSessionRequestSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid sign-in request." });
+    return;
+  }
+
+  if (!authConfigured()) {
+    res.status(503).json({ error: "Server auth is not configured." });
+    return;
+  }
+
+  const body = parsed.data;
+  const normalizedEmail = normalizeEmail(body.email);
+
+  let sessionRecord;
+  if (body.mode === "builder") {
+    const account = builderAdminAccounts.find((entry) => entry.email === normalizedEmail);
+    if (!account || !verifyPasswordHash(body.password || "", account.passwordHash)) {
+      res.status(401).json({ error: "Builder email or password is incorrect." });
+      return;
+    }
+    sessionRecord = {
+      userId: toUserId(normalizedEmail),
+      email: normalizedEmail,
+      displayName: account.displayName || body.displayName.trim(),
+      mode: "builder",
+      roles: account.roles
+    };
+  } else {
+    sessionRecord = {
+      userId: toUserId(normalizedEmail),
+      email: normalizedEmail,
+      displayName: body.displayName.trim(),
+      mode: "tourist",
+      roles: ["tourist"]
+    };
+  }
+
+  await ensureUser(sessionRecord.userId);
+  const token = signAuthToken(sessionRecord);
+  const payload = decodeAuthToken(token);
+  res.json({
+    ok: true,
+    token,
+    expiresAt: typeof payload.exp === "number" ? payload.exp * 1000 : null,
+    session: sessionRecord
+  });
+});
+
+app.get("/api/auth/session", async (req, res) => {
+  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
+  if (!actor) {
+    return;
+  }
+
+  await ensureUser(actor.userId);
+  res.json({
+    ok: true,
+    session: actor
+  });
+});
+
 app.post("/api/payments/intent", async (req, res) => {
+  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
+  if (!actor) {
+    return;
+  }
   if (!requireStripe(res)) {
     return;
   }
@@ -789,7 +1028,7 @@ app.post("/api/payments/intent", async (req, res) => {
     return;
   }
 
-  const userId = getUserId(req);
+  const userId = actor.userId;
   await ensureUser(userId);
 
   let customerId = await getOrCreateStripeCustomer(userId);
@@ -852,6 +1091,10 @@ app.post("/api/payments/intent", async (req, res) => {
 });
 
 app.post("/api/payments/checkout-session", async (req, res) => {
+  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
+  if (!actor) {
+    return;
+  }
   if (!requireStripe(res)) {
     return;
   }
@@ -868,7 +1111,7 @@ app.post("/api/payments/checkout-session", async (req, res) => {
     return;
   }
 
-  const userId = getUserId(req);
+  const userId = actor.userId;
   await ensureUser(userId);
 
   let customerId = await getOrCreateStripeCustomer(userId);
@@ -942,6 +1185,10 @@ app.post("/api/payments/checkout-session", async (req, res) => {
 });
 
 app.post("/api/iap/verify", async (req, res) => {
+  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
+  if (!actor) {
+    return;
+  }
   const parsed = iapVerifySchema.safeParse(req.body || {});
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid request body." });
@@ -949,7 +1196,7 @@ app.post("/api/iap/verify", async (req, res) => {
   }
 
   const body = parsed.data;
-  const userId = getUserId(req);
+  const userId = actor.userId;
   await ensureUser(userId);
 
   const purchaseRaw = JSON.stringify({
@@ -1061,7 +1308,11 @@ app.post("/api/iap/verify", async (req, res) => {
 });
 
 app.get("/api/entitlements", async (req, res) => {
-  const userId = getUserId(req);
+  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
+  if (!actor) {
+    return;
+  }
+  const userId = actor.userId;
   await ensureUser(userId);
   await refreshPendingStripeOrders(userId);
   const { rows } = await dbQuery(
@@ -1074,7 +1325,11 @@ app.get("/api/entitlements", async (req, res) => {
 });
 
 app.get("/api/orders", async (req, res) => {
-  const userId = getUserId(req);
+  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
+  if (!actor) {
+    return;
+  }
+  const userId = actor.userId;
   await ensureUser(userId);
   await refreshPendingStripeOrders(userId);
   const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
@@ -1090,6 +1345,10 @@ app.get("/api/orders", async (req, res) => {
 });
 
 app.get("/api/provider-events", async (req, res) => {
+  const actor = requireRoles(req, res, ["admin"]);
+  if (!actor) {
+    return;
+  }
   const limit = Math.min(Math.max(Number(req.query.limit || 20), 1), 100);
   const { rows: events } = await dbQuery(
     `select id, provider, event_id, event_type, created_at
@@ -1098,17 +1357,21 @@ app.get("/api/provider-events", async (req, res) => {
      limit $1`,
     [limit]
   );
-  res.json({ events });
+  res.json({ adminUser: actor.email, events });
 });
 
 app.post("/api/privacy/delete-request", express.json(), async (req, res) => {
+  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
+  if (!actor) {
+    return;
+  }
   const parseResult = deletionRequestSchema.safeParse(req.body || {});
   if (!parseResult.success) {
     res.status(400).json({ error: parseResult.error.issues[0]?.message || "Invalid deletion request." });
     return;
   }
 
-  const userId = getUserId(req);
+  const userId = actor.userId;
   const body = parseResult.data;
   await ensureUser(userId);
   const requestedAt = now();
@@ -1130,8 +1393,8 @@ app.post("/api/privacy/delete-request", express.json(), async (req, res) => {
 });
 
 app.get("/api/admin/delete-requests", async (req, res) => {
-  const adminUser = requireAdmin(req, res);
-  if (!adminUser) {
+  const actor = requireRoles(req, res, ["admin"]);
+  if (!actor) {
     return;
   }
   const limit = Math.min(Math.max(Number(req.query.limit || 50), 1), 200);
@@ -1142,12 +1405,12 @@ app.get("/api/admin/delete-requests", async (req, res) => {
      limit $1`,
     [limit]
   );
-  res.json({ ok: true, adminUser, requests });
+  res.json({ ok: true, adminUser: actor.email, requests });
 });
 
 app.post("/api/admin/delete-requests/:id/fulfill", express.json(), async (req, res) => {
-  const adminUser = requireAdmin(req, res);
-  if (!adminUser) {
+  const actor = requireRoles(req, res, ["admin"]);
+  if (!actor) {
     return;
   }
 
@@ -1180,7 +1443,7 @@ app.post("/api/admin/delete-requests/:id/fulfill", express.json(), async (req, r
     `update public.deletion_requests
      set status = $1, resolved_at = $2, resolved_by = $3, resolution_note = $4
      where id = $5`,
-    ["fulfilled", resolvedAt, adminUser, "User data purged", requestId]
+    ["fulfilled", resolvedAt, actor.email, "User data purged", requestId]
   );
 
   res.json({
@@ -1189,7 +1452,7 @@ app.post("/api/admin/delete-requests/:id/fulfill", express.json(), async (req, r
     userId: requestRecord.user_id,
     status: "fulfilled",
     resolvedAt,
-    resolvedBy: adminUser
+    resolvedBy: actor.email
   });
 });
 

@@ -1,4 +1,6 @@
-﻿export type PaymentIntentRequest = {
+﻿import { getAuthHeaders } from "./auth";
+
+export type PaymentIntentRequest = {
   amount: number;
   currency?: string;
   description?: string;
@@ -91,7 +93,8 @@ async function postJson<T>(path: string, body: Record<string, unknown>): Promise
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-user-id": apiUserId
+        "x-user-id": apiUserId,
+        ...getAuthHeaders()
       },
       body: JSON.stringify(body)
     });
@@ -134,7 +137,8 @@ export async function getEntitlements() {
     response = await fetch(`${getServerUrl()}/api/entitlements`, {
       method: "GET",
       headers: {
-        "x-user-id": apiUserId
+        "x-user-id": apiUserId,
+        ...getAuthHeaders()
       }
     });
   } catch (error) {
@@ -154,7 +158,8 @@ export async function getOrders(limit = 10) {
     response = await fetch(`${getServerUrl()}/api/orders?limit=${Math.max(1, Math.min(limit, 100))}`, {
       method: "GET",
       headers: {
-        "x-user-id": apiUserId
+        "x-user-id": apiUserId,
+        ...getAuthHeaders()
       }
     });
   } catch (error) {
@@ -172,7 +177,10 @@ export async function getProviderEvents(limit = 10) {
   let response: Response;
   try {
     response = await fetch(`${getServerUrl()}/api/provider-events?limit=${Math.max(1, Math.min(limit, 100))}`, {
-      method: "GET"
+      method: "GET",
+      headers: {
+        ...getAuthHeaders()
+      }
     });
   } catch (error) {
     throw toApiError(error, "Unable to load provider events.");
@@ -209,16 +217,14 @@ export async function requestBackendDeletion(payload: { email?: string; displayN
   return postJson<DeletionRequestResult>("/api/privacy/delete-request", payload);
 }
 
-async function adminJson<T>(path: string, init: RequestInit & { adminKey: string; adminUser?: string }) {
-  const { adminKey, adminUser, ...requestInit } = init;
+async function adminJson<T>(path: string, init: RequestInit) {
   let response: Response;
   try {
     response = await fetch(`${getServerUrl()}${path}`, {
-      ...requestInit,
+      ...init,
       headers: {
-        ...(requestInit.headers || {}),
-        "x-admin-key": adminKey,
-        ...(adminUser ? { "x-admin-user": adminUser } : {})
+        ...(init.headers || {}),
+        ...getAuthHeaders()
       }
     });
   } catch (error) {
@@ -232,23 +238,21 @@ async function adminJson<T>(path: string, init: RequestInit & { adminKey: string
   return data;
 }
 
-export async function listDeletionRequests(adminKey: string, adminUser?: string, limit = 50) {
+export async function listDeletionRequests(limit = 50) {
   const data = await adminJson<{ requests?: DeletionRequestRecord[] }>(
     `/api/admin/delete-requests?limit=${Math.max(1, Math.min(limit, 200))}`,
-    { method: "GET", adminKey, adminUser }
+    { method: "GET" }
   );
   return data.requests || [];
 }
 
-export async function fulfillDeletionRequest(requestId: number, adminKey: string, adminUser?: string) {
+export async function fulfillDeletionRequest(requestId: number) {
   return adminJson<{ ok: boolean; requestId: number; userId: string; status: string }>(
     `/api/admin/delete-requests/${requestId}/fulfill`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
-      adminKey,
-      adminUser
+      body: JSON.stringify({})
     }
   );
 }

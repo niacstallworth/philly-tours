@@ -7,7 +7,7 @@ Philly Tours is an Expo / React Native app for Philadelphia tour storytelling, h
 - Main shell: Home, Scavenger Hunt, and Profile
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Hosted payments + entitlement sync: `src/services/payments.ts` and `server/sync-server.js`
-- Builder access gate: `src/services/builderAccess.ts`
+- Server-issued session auth: `src/services/auth.ts` and `server/sync-server.js`
 - Shared theming and UI primitives: `src/theme/appTheme.tsx` and `src/components/ui/Primitives.tsx`
 
 ## Key Files
@@ -61,6 +61,7 @@ Example environment values live in `.env.example`.
 Important groups:
 
 - Expo public app config
+- Server auth + builder/admin accounts
 - Stripe checkout + webhooks
 - Apple / Google purchase verification
 - AWS Polly narration generation
@@ -69,6 +70,13 @@ Important groups:
 ## Payments / Backend
 
 The local sync server lives in `server/sync-server.js`.
+
+Production-oriented auth notes:
+
+- Every app session is now issued by the backend as a signed JWT.
+- Tourist mode still uses lightweight sign-in, but backend requests are authenticated instead of trusting raw client headers.
+- Builder/admin access is configured from `BUILDER_ADMIN_ACCOUNTS_JSON`, not from bundled client credentials.
+- Legacy `ADMIN_API_KEY` support is optional and should stay disabled in production.
 
 Stripe webhook forwarding:
 
@@ -144,15 +152,18 @@ npm run ar:catalog:sync-runtime
 
 ## Builder Access
 
-Builder mode is driven by:
+Builder/admin credentials are server-side only. Source and generation flow:
 
 - `docs/builder-admins.csv`
-- `src/data/builderAdminCredentials.ts`
+- `scripts/generate-builder-admin-credentials.mjs`
+- `generated/builder-admin-accounts.json`
 
-Regenerate credentials after editing the CSV:
+Generate hashed account records after editing the CSV:
 
 ```bash
 npm run builder:admins:map
 ```
 
-This is an internal client-side gate, not production-grade server auth.
+Then copy the printed JSON into your server environment as `BUILDER_ADMIN_ACCOUNTS_JSON` and set a strong `AUTH_JWT_SECRET`.
+
+Do not commit real builder/admin credentials to the repo.

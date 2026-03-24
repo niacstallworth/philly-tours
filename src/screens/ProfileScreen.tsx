@@ -43,7 +43,6 @@ export function ProfileScreen({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [deletionReason, setDeletionReason] = useState("");
   const [deletionRequestedAt, setDeletionRequestedAt] = useState<number | null>(null);
-  const [adminKey, setAdminKey] = useState("");
   const [adminRequests, setAdminRequests] = useState<DeletionRequestRecord[]>([]);
 
   React.useEffect(() => {
@@ -140,14 +139,10 @@ export function ProfileScreen({
   }
 
   async function refreshAdminDeletionRequests() {
-    if (!adminKey.trim()) {
-      setStatusMessage("Enter ADMIN_API_KEY to review deletion requests.");
-      return;
-    }
     setLoadingAction("admin-requests");
     setStatusMessage(null);
     try {
-      const requests = await listDeletionRequests(adminKey.trim(), email || displayName || "builder");
+      const requests = await listDeletionRequests();
       setAdminRequests(requests);
     } catch (error) {
       setStatusMessage((error as Error).message || "Could not load deletion requests.");
@@ -157,16 +152,12 @@ export function ProfileScreen({
   }
 
   async function fulfillDeletionRequestFromQueue(requestId: number) {
-    if (!adminKey.trim()) {
-      setStatusMessage("Enter ADMIN_API_KEY before fulfilling deletion requests.");
-      return;
-    }
     setLoadingAction(`fulfill:${requestId}`);
     setStatusMessage(null);
     try {
-      await fulfillDeletionRequest(requestId, adminKey.trim(), email || displayName || "builder");
+      await fulfillDeletionRequest(requestId);
       setStatusMessage(`Deletion request ${requestId} fulfilled. Backend records were purged.`);
-      const requests = await listDeletionRequests(adminKey.trim(), email || displayName || "builder");
+      const requests = await listDeletionRequests();
       setAdminRequests(requests);
     } catch (error) {
       setStatusMessage((error as Error).message || "Could not fulfill deletion request.");
@@ -375,16 +366,7 @@ export function ProfileScreen({
       {mode === "builder" ? (
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Admin Deletion Queue</Text>
-          <Text style={styles.copy}>Internal only. Review requested deletions and purge backend records after user confirmation.</Text>
-          <TextInput
-            value={adminKey}
-            onChangeText={setAdminKey}
-            placeholder="ADMIN_API_KEY"
-            placeholderTextColor="#8e7d99"
-            secureTextEntry
-            style={styles.input}
-            autoCapitalize="none"
-          />
+          <Text style={styles.copy}>Internal only. Review requested deletions and purge backend records after user confirmation. This queue now uses your authenticated builder/admin session.</Text>
           <PrimaryButton
             disabled={loadingAction !== null}
             onPress={refreshAdminDeletionRequests}

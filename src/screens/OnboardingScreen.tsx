@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 
@@ -9,10 +9,11 @@ export type OnboardingPayload = {
   displayName: string;
   email: string;
   mode: AppMode;
+  password?: string;
 };
 
 type Props = {
-  onComplete: (payload: OnboardingPayload) => void;
+  onComplete: (payload: OnboardingPayload) => Promise<string | null>;
 };
 
 export function OnboardingScreen({ onComplete }: Props) {
@@ -21,23 +22,34 @@ export function OnboardingScreen({ onComplete }: Props) {
   const styles = useMemo(() => createStyles(colors, type), [colors, type]);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
-  const mode: AppMode = "tourist";
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<AppMode>("tourist");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const canContinue = useMemo(() => {
     const hasName = displayName.trim().length >= 2;
     const hasEmail = email.trim().includes("@") && email.trim().includes(".");
-    return hasName && hasEmail;
-  }, [displayName, email]);
+    const hasPassword = mode === "tourist" || password.trim().length >= 8;
+    return hasName && hasEmail && hasPassword;
+  }, [displayName, email, mode, password]);
 
-  function submit() {
+  async function submit() {
     if (!canContinue) {
       return;
     }
-    onComplete({
+    setSubmitting(true);
+    setError(null);
+    const result = await onComplete({
       displayName: displayName.trim(),
       email: email.trim().toLowerCase(),
-      mode
+      mode,
+      ...(mode === "builder" ? { password: password.trim() } : {})
     });
+    if (result) {
+      setError(result);
+    }
+    setSubmitting(false);
   }
 
   return (
@@ -53,6 +65,27 @@ export function OnboardingScreen({ onComplete }: Props) {
       </View>
 
       <Card style={styles.card}>
+        <Text style={styles.label}>Experience</Text>
+        <View style={styles.modeRow}>
+          {(["tourist", "builder"] as AppMode[]).map((option) => {
+            const selected = option === mode;
+            return (
+              <Pressable
+                key={option}
+                onPress={() => {
+                  setMode(option);
+                  setError(null);
+                }}
+                style={[styles.modeChip, selected && styles.modeChipActive]}
+              >
+                <Text style={[styles.modeChipText, selected && styles.modeChipTextActive]}>
+                  {option === "tourist" ? "Tourist" : "Builder"}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
         <Text style={styles.label}>Display name</Text>
         <TextInput
           value={displayName}
@@ -74,7 +107,27 @@ export function OnboardingScreen({ onComplete }: Props) {
           autoCapitalize="none"
         />
 
-        <Text style={styles.modeHint}>This sign-in opens the public tour experience on this device.</Text>
+        {mode === "builder" ? (
+          <>
+            <Text style={styles.label}>Builder password</Text>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter builder password"
+              placeholderTextColor={colors.textMuted}
+              style={styles.input}
+              secureTextEntry
+              autoCapitalize="none"
+            />
+          </>
+        ) : null}
+
+        <Text style={styles.modeHint}>
+          {mode === "builder"
+            ? "Builder mode now requires a server-authenticated session."
+            : "This sign-in opens the public tour experience on this device."}
+        </Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
       </Card>
 
       <Card style={styles.noteCard}>
@@ -84,7 +137,11 @@ export function OnboardingScreen({ onComplete }: Props) {
         </Text>
       </Card>
 
-      <PrimaryButton label="Enter App" onPress={submit} disabled={!canContinue} />
+      <PrimaryButton
+        label={submitting ? "Signing in..." : mode === "builder" ? "Enter Builder Mode" : "Enter App"}
+        onPress={() => void submit()}
+        disabled={!canContinue || submitting}
+      />
     </ScrollView>
   );
 }
@@ -135,6 +192,33 @@ function createStyles(
     flexWrap: "wrap",
     gap: 8
   },
+  modeRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  modeChip: {
+    minWidth: 100,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surfaceSoft
+  },
+  modeChipActive: {
+    borderColor: "#007eff",
+    backgroundColor: colors.infoSoft
+  },
+  modeChipText: {
+    color: colors.textSoft,
+    fontWeight: "700",
+    textAlign: "center",
+    fontSize: type.font(14)
+  },
+  modeChipTextActive: {
+    color: colors.text
+  },
   card: {
     gap: 10
   },
@@ -164,6 +248,11 @@ function createStyles(
     color: colors.textSoft,
     lineHeight: type.line(21),
     fontSize: type.font(14)
+  },
+  error: {
+    color: colors.danger,
+    lineHeight: type.line(20),
+    fontSize: type.font(13)
   },
   modeHint: {
     color: colors.textSoft,
