@@ -1,12 +1,12 @@
 # Philly Tours
 
-Philly Tours is a React Native + Expo app for story-first Philadelphia touring with selective AR moments, narrated stops, and an internal builder workflow for tuning and review.
+Philly Tours is a React Native + Expo app for story-first Philadelphia touring with narrated stops, selective native AR moments on iOS, hosted checkout, and an internal builder workflow for tuning and review.
 
 ## Current Status
 
 - The iOS app launches and runs on a physical iPad.
 - Native AR is working on device: models render in space through the custom iOS bridge.
-- Tourist and builder AR are now split into separate screens.
+- The current shipped shell is Home + Scavenger Hunt + Profile, with native AR launched through the iOS bridge rather than a dedicated React screen.
 - Builder mode is gated by an email/password CSV.
 - Drive narration is manual only now. It no longer auto-plays on arrival.
 - Public page button colors are pinned by surface:
@@ -32,16 +32,15 @@ Philly Tours is a React Native + Expo app for story-first Philadelphia touring w
 
 - [OnboardingScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/OnboardingScreen.tsx)
 - [HomeScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/HomeScreen.tsx)
-- [MapScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/MapScreen.tsx)
-- [TouristARScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/TouristARScreen.tsx)
+- [ScavengerHuntScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/ScavengerHuntScreen.tsx)
 - [DriveScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/DriveScreen.tsx)
 - [ProfileScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/ProfileScreen.tsx)
 
 ### Builder flow
 
-- [BuilderARScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/BuilderARScreen.tsx)
 - builder-only login gate in [builderAccess.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/builderAccess.ts)
 - builder theme controls in [ProfileScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/ProfileScreen.tsx)
+- native AR session implementation in [PhillyNativeAR.swift](/Users/nia/Documents/GitHub/philly-tours/ios/PhillyARTours/PhillyNativeAR.swift)
 
 ### App shell
 
@@ -84,6 +83,15 @@ Important:
 - Open the `.xcworkspace`, not the `.xcodeproj`.
 - The app needs local network access on iPad so it can reach Metro.
 - If AR launches but placement drifts, that is a tuning problem, not a launch/build problem.
+
+### Run the local backend
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+npm run sync-server
+```
+
+The payment/profile surface expects the sync server at the URL configured by `EXPO_PUBLIC_SYNC_SERVER_URL`.
 
 ## Builder Access
 
@@ -131,7 +139,7 @@ npm run narration:map
 
 ### Builder-side audio check
 
-In [BuilderARScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/BuilderARScreen.tsx):
+Builder-mode audio verification currently lives in the shared touring surfaces and narration tools:
 
 - `Play Stop Audio` plays the bundled/recorded audio
 - `Play Script Voice` speaks the current script text
@@ -151,9 +159,9 @@ The app now supports a builder-side iPad validation loop:
 
 Key files:
 
-- [BuilderARScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/BuilderARScreen.tsx)
 - [PhillyNativeAR.swift](/Users/nia/Documents/GitHub/philly-tours/ios/PhillyARTours/PhillyNativeAR.swift)
-- [ar.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/ar.ts)
+- [arAssetCatalog.ts](/Users/nia/Documents/GitHub/philly-tours/src/data/arAssetCatalog.ts)
+- [generate-ar-review-dashboard.mjs](/Users/nia/Documents/GitHub/philly-tours/scripts/generate-ar-review-dashboard.mjs)
 
 ### Review dashboard
 
@@ -268,6 +276,34 @@ cd /Users/nia/Documents/GitHub/philly-tours
 npm run stripe:listen
 ```
 
+Important:
+
+- Development builds can read `EXPO_PUBLIC_SYNC_SERVER_URL` from local `.env`.
+- EAS preview/release builds do not get your local `.env`; put required public values in [eas.json](/Users/nia/Documents/GitHub/philly-tours/eas.json) or EAS secrets/env config.
+- If a release build ever shows `http://localhost:4000`, that build was produced without the preview env baked in.
+
+## EAS Builds
+
+The repo is now set up for internal iOS preview builds through [eas.json](/Users/nia/Documents/GitHub/philly-tours/eas.json).
+
+Typical commands:
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+npx eas-cli build --platform ios --profile preview
+```
+
+```bash
+cd /Users/nia/Documents/GitHub/philly-tours
+npx eas-cli build --platform android --profile preview
+```
+
+Notes:
+
+- `preview` is the internal-distribution profile for device installs.
+- `development` is the dev-client profile.
+- The current preview profile bakes in `EXPO_PUBLIC_SYNC_SERVER_URL` and `EXPO_PUBLIC_APP_SCHEME`.
+
 ## Environment
 
 Main environment examples live in:
@@ -289,10 +325,11 @@ Typical groups:
 What is solid right now:
 
 - public app shell
-- builder/tourist split
-- builder access gate
+- builder login gate
 - page-aware button theming
 - physical iPad AR launch
+- hosted checkout and backend entitlement sync
+- EAS iOS internal preview builds
 - builder review/tuning workflow
 - narration script vs audio comparison
 - AR asset pipeline scaffolding
@@ -309,10 +346,11 @@ What still needs continued tuning:
 - App shell: [App.tsx](/Users/nia/Documents/GitHub/philly-tours/App.tsx)
 - Tabs: [MainTabs.tsx](/Users/nia/Documents/GitHub/philly-tours/src/navigation/MainTabs.tsx)
 - Theme system: [appTheme.tsx](/Users/nia/Documents/GitHub/philly-tours/src/theme/appTheme.tsx)
-- Builder AR: [BuilderARScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/BuilderARScreen.tsx)
-- Tourist AR: [TouristARScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/TouristARScreen.tsx)
+- iOS native AR: [PhillyNativeAR.swift](/Users/nia/Documents/GitHub/philly-tours/ios/PhillyARTours/PhillyNativeAR.swift)
 - Drive flow: [DriveScreen.tsx](/Users/nia/Documents/GitHub/philly-tours/src/screens/DriveScreen.tsx)
 - Narration service: [narration.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/narration.ts)
 - Builder access: [builderAccess.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/builderAccess.ts)
+- Payments + checkout: [payments.ts](/Users/nia/Documents/GitHub/philly-tours/src/services/payments.ts)
+- Sync backend: [sync-server.js](/Users/nia/Documents/GitHub/philly-tours/server/sync-server.js)
 - AR job runner: [run-ar-job-packs.mjs](/Users/nia/Documents/GitHub/philly-tours/scripts/run-ar-job-packs.mjs)
 - Review dashboard: [generate-ar-review-dashboard.mjs](/Users/nia/Documents/GitHub/philly-tours/scripts/generate-ar-review-dashboard.mjs)
