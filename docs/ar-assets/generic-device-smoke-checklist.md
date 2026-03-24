@@ -6,7 +6,7 @@ Use this checklist on a real ARKit-capable iPhone or iPad. The simulator cannot 
 
 - Confirm the app is running from [PhillyARTours.xcworkspace](/Users/nia/Documents/GitHub/philly-tours/ios/PhillyARTours.xcworkspace)
 - Confirm Metro is running with:
-  `npm run metro:dev-client`
+  `npm run start:metro:dev-client`
 - Confirm the device has Local Network access enabled for `Philly AR Tours`
 - Confirm the selected stop has an AR moment available
 

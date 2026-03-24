@@ -669,7 +669,7 @@ function buildDevicePassPacket(item, handoff) {
     buildableStopCount: item.buildableStopCount,
     deskPrepCommands: [
       handoff.deskActions.advanceCommand,
-      "npm run metro:dev-client"
+      "npm run start:metro:dev-client"
     ],
     beforeLeavingDesk: item.previewReportPath
       ? [

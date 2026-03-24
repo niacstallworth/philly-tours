@@ -64,7 +64,7 @@ npm install
 ```bash
 cd /Users/nia/Documents/GitHub/philly-tours
 export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
-npm run metro:dev-client
+npm run start:metro:dev-client
 ```
 
 ### Open the iOS workspace

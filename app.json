@@ -6,22 +6,29 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "icon": "./assets/icon.png",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.founders.phillyartours",
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "Allow Philly AR Tours to connect to the local development server while debugging on your network.",
         "NSLocationWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops while touring."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops while touring.",
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ]
       }
     },
     "android": {
       "package": "com.founders.phillyartours",
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "plugins": [
@@ -36,6 +43,11 @@
     ],
     "web": {
       "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bfcb984c-f905-4340-941a-44a9bb5714c9"
+      }
     }
   }
 }

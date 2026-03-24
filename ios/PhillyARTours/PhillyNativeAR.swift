@@ -242,6 +242,20 @@ final class PhillyARViewController: UIViewController {
     restartSession()
   }
 
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+
+    // RealityKit/ARKit can continue holding significant resources after the modal
+    // is dismissed unless we explicitly pause and tear the session down.
+    if isBeingDismissed || navigationController?.isBeingDismissed == true {
+      stopSession()
+    }
+  }
+
+  deinit {
+    stopSession()
+  }
+
   func restartSession() {
     let config = ARWorldTrackingConfiguration()
     config.planeDetection = useLegacyARRendering ? [.horizontal] : [.horizontal, .vertical]
@@ -1080,8 +1094,7 @@ final class PhillyARViewController: UIViewController {
 
   @objc
   private func closeTapped() {
-    cancelPendingPlacement(message: "AR placement was cancelled.")
-    updateInfoPanel(title: nil, body: nil)
+    stopSession()
     dismiss(animated: true)
   }
 
