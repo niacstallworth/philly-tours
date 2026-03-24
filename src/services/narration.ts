@@ -3,11 +3,11 @@ import * as Speech from "expo-speech";
 import { narrationAudioMap } from "../data/narrationAudioMap";
 import { narrationCatalogByStopId, type NarrationVariant } from "../data/narrationCatalog";
 import { narrationScriptMapByStopId } from "../data/narrationScriptMap";
-import type { DriveStop } from "./driveMode";
 
 type NarrationSource = "audio" | "speech" | "none";
 export type NarrationStatus = "idle" | "loading" | "playing" | "stopped" | "error";
 export type NarrationCoverage = "full_audio" | "partial_audio" | "script_only" | "basic";
+export type NarrationTone = "default" | "success" | "warn" | "danger";
 
 export type NarrationState = {
   status: NarrationStatus;
@@ -17,7 +17,29 @@ export type NarrationState = {
   message: string;
 };
 
+export type NarrationUiMeta = {
+  coverageLabel: string;
+  coverageTone: NarrationTone;
+  idleLabel: string;
+  activeLabel: string;
+  stopLabel: string;
+  supportCopy: string;
+};
+
 type NarrationListener = (state: NarrationState) => void;
+type StartNarrationOptions = {
+  preferSpeech?: boolean;
+};
+
+export type NarrationStop = {
+  id: string;
+  title: string;
+  lat?: number;
+  lng?: number;
+  triggerRadiusM?: number;
+  audioUrl?: string;
+  summary?: string;
+};
 
 const listeners = new Set<NarrationListener>();
 
@@ -40,11 +62,8 @@ export function getNarrationCoverage(stopId: string): NarrationCoverage {
   const audioEntry = narrationCatalogByStopId[stopId];
   const scriptEntry = narrationScriptMapByStopId[stopId];
 
-  if (audioEntry?.drive && audioEntry?.walk) {
-    return "full_audio";
-  }
   if (audioEntry?.drive || audioEntry?.walk) {
-    return "partial_audio";
+    return "full_audio";
   }
   if (scriptEntry?.drive || scriptEntry?.walk) {
     return "script_only";
@@ -52,15 +71,52 @@ export function getNarrationCoverage(stopId: string): NarrationCoverage {
   return "basic";
 }
 
-function getSpeechScript(stop: DriveStop, variant: NarrationVariant) {
+export function getNarrationUiMeta(stopId: string): NarrationUiMeta {
+  const coverage = getNarrationCoverage(stopId);
+
+  switch (coverage) {
+    case "full_audio":
+      return {
+        coverageLabel: "Recorded narration",
+        coverageTone: "success",
+        idleLabel: "Hear Narration",
+        activeLabel: "Replay Narration",
+        stopLabel: "Stop Narration",
+        supportCopy: "This stop has a recorded track ready to play."
+      };
+    case "script_only":
+      return {
+        coverageLabel: "Live script voice",
+        coverageTone: "default",
+        idleLabel: "Hear Live Voice",
+        activeLabel: "Replay Live Voice",
+        stopLabel: "Stop Voice",
+        supportCopy: "This stop speaks the current script text live on the device."
+      };
+    default:
+      return {
+        coverageLabel: "Quick voice intro",
+        coverageTone: "default",
+        idleLabel: "Hear Stop Intro",
+        activeLabel: "Replay Stop Intro",
+        stopLabel: "Stop Voice",
+        supportCopy: "This stop uses a shorter live voice intro when no full script is available."
+      };
+  }
+}
+
+function getSpeechScript(stop: NarrationStop, variant: NarrationVariant) {
   const fromCatalog = narrationScriptMapByStopId[stop.id]?.[variant];
   if (fromCatalog) {
     return fromCatalog;
   }
-  if (variant === "drive") {
-    return `${stop.title}. ${stop.arrivalSummary}. Slow down as you approach and prepare to continue on foot when it is safe.`;
+  const fallbackVariant: NarrationVariant = variant === "walk" ? "drive" : "walk";
+  const fallbackCatalog = narrationScriptMapByStopId[stop.id]?.[fallbackVariant];
+  if (fallbackCatalog) {
+    return fallbackCatalog;
   }
-  return `${stop.title}. ${stop.arrivalSummary}. Continue on foot when you are ready.`;
+  const summary = stop.summary?.trim();
+  return summary ? `${stop.title}. ${summary}` : `${stop.title}. Philadelphia tour stop.`;
 }
 
 function resolveAudioUri(audioUrl: string) {
@@ -80,9 +136,13 @@ function resolveAudioAsset(audioUrl: string) {
   return narrationAudioMap[audioUrl as keyof typeof narrationAudioMap] || null;
 }
 
-function resolveNarrationPath(stop: DriveStop, variant: NarrationVariant) {
+function resolveNarrationPath(stop: NarrationStop, variant: NarrationVariant) {
   const fromCatalog = narrationCatalogByStopId[stop.id]?.[variant];
-  return fromCatalog || stop.audioUrl;
+  if (fromCatalog) {
+    return fromCatalog;
+  }
+  const fallbackVariant: NarrationVariant = variant === "walk" ? "drive" : "walk";
+  return narrationCatalogByStopId[stop.id]?.[fallbackVariant] || stop.audioUrl || "";
 }
 
 async function resolvePreferredSpeechVoiceId() {
@@ -135,7 +195,7 @@ async function releaseSound() {
   }
 }
 
-function onPlaybackStatus(stop: DriveStop, status: AVPlaybackStatus) {
+function onPlaybackStatus(stop: NarrationStop, status: AVPlaybackStatus) {
   if (!status.isLoaded) {
     if (status.error) {
       emit({
@@ -170,7 +230,11 @@ function onPlaybackStatus(stop: DriveStop, status: AVPlaybackStatus) {
   });
 }
 
-export async function startNarration(stop: DriveStop, variant: NarrationVariant = "walk") {
+export async function startNarration(
+  stop: NarrationStop,
+  variant: NarrationVariant = "walk",
+  options: StartNarrationOptions = {}
+) {
   await stopNarration();
   emit({
     status: "loading",
@@ -180,8 +244,8 @@ export async function startNarration(stop: DriveStop, variant: NarrationVariant 
   });
 
   const preferredPath = resolveNarrationPath(stop, variant);
-  const audioUri = resolveAudioUri(preferredPath);
-  const audioAsset = resolveAudioAsset(preferredPath);
+  const audioUri = options.preferSpeech ? null : resolveAudioUri(preferredPath);
+  const audioAsset = options.preferSpeech ? null : resolveAudioAsset(preferredPath);
   if (audioUri || audioAsset) {
     try {
       await configureAudioMode();
@@ -217,7 +281,7 @@ export async function startNarration(stop: DriveStop, variant: NarrationVariant 
       source: "speech",
       stopId: stop.id,
       stopTitle: stop.title,
-      message: "Speaking live stop preview."
+      message: options.preferSpeech ? "Speaking current script text." : "Speaking live stop preview."
     });
     Speech.speak(speechScript, {
       rate: 0.95,

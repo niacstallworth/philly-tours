@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Linking, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import {
@@ -11,16 +11,32 @@ import {
   listDeletionRequests,
   requestBackendDeletion
 } from "../services/payments";
+import { AppAppearanceMode, AppPalette, AppTextScale, THEME_SURFACE_LABELS, useAppTheme, useTypeScale } from "../theme/appTheme";
 
 type Props = {
   displayName?: string;
   email?: string;
   mode?: "tourist" | "builder";
+  audioHistoryOnlyUnlocked?: boolean;
+  fullAppUnlocked?: boolean;
+  onRefreshEntitlements?: () => Promise<void>;
+  onDeleteProfile?: () => void;
 };
 
 WebBrowser.maybeCompleteAuthSession();
 
-export function ProfileScreen({ displayName = "Founder Demo", email = "demo@local.app", mode = "builder" }: Props) {
+export function ProfileScreen({
+  displayName = "Founder Demo",
+  email = "demo@local.app",
+  mode = "builder",
+  audioHistoryOnlyUnlocked = false,
+  fullAppUnlocked = false,
+  onRefreshEntitlements,
+  onDeleteProfile
+}: Props) {
+  const { activePreset, presets, setPreset, settings, appearanceMode, setAppearanceMode, textScale, setTextScale, colors } = useAppTheme();
+  const type = useTypeScale();
+  const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [entitlementStatus, setEntitlementStatus] = useState<string>("not_loaded");
@@ -48,11 +64,17 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
     setStatusMessage(null);
     try {
       const entitlements = await getEntitlements();
-      const active = entitlements.find((entry) => entry.status === "active");
+      const active =
+        entitlements.find((entry) => entry.status === "active" && entry.plan_id === "full_app") ||
+        entitlements.find((entry) => entry.status === "active" && entry.plan_id === "audio_history_only") ||
+        entitlements.find((entry) => entry.status === "active");
       if (active?.plan_id) {
         setActivatedPlan(active.plan_id);
+      } else {
+        setActivatedPlan(null);
       }
       setEntitlementStatus(active ? `active:${active.plan_id}` : "none");
+      await onRefreshEntitlements?.();
     } catch (error) {
       setEntitlementStatus("offline");
       setStatusMessage((error as Error).message || "Could not load membership status.");
@@ -64,15 +86,11 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
     }
   }
 
-  async function startHostedCheckout(amount = 999, title = "Philly Tours Day Pass") {
-    if (entitlementStatus === "offline") {
-      setStatusMessage(`Sync server unreachable at ${getSyncServerUrl()}. Start the backend to use checkout.`);
-      return;
-    }
+  async function startHostedCheckout(amount = 999, title = "Philly Tours Day Pass", planId?: string) {
     setLoadingAction("hosted");
     setStatusMessage(null);
     try {
-      const session = await createCheckoutSession(amount, title);
+      const session = await createCheckoutSession(amount, title, planId);
       if (!session.url) {
         throw new Error("Stripe Checkout URL was not returned.");
       }
@@ -85,6 +103,17 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
     } finally {
       setLoadingAction(null);
     }
+  }
+
+  function confirmDeleteProfile() {
+    Alert.alert("Delete profile?", "This clears your local profile and saved hunt progress on this device.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => onDeleteProfile?.()
+      }
+    ]);
   }
 
   async function submitDeletionRequest() {
@@ -158,10 +187,116 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
         </View>
       </View>
 
+      {mode === "builder" ? (
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+          <Text style={styles.copy}>Choose whether the app follows the device setting or stays manually light or dark.</Text>
+          <View style={styles.appearanceRow}>
+            {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
+              const selected = option === appearanceMode;
+              return (
+                <Pressable
+                  key={option}
+                  onPress={() => void setAppearanceMode(option)}
+                  style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
+                >
+                  <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
+                    {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+      ) : (
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+          <Text style={styles.copy}>Follow the device theme or choose a fixed look for this app.</Text>
+          <View style={styles.appearanceRow}>
+            {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
+              const selected = option === appearanceMode;
+              return (
+                <Pressable
+                  key={option}
+                  onPress={() => void setAppearanceMode(option)}
+                  style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
+                >
+                  <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
+                    {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+      )}
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Text Size</Text>
+        <Text style={styles.copy}>Choose a reading size that feels comfortable on this device.</Text>
+        <View style={styles.appearanceRow}>
+          {(["standard", "large", "xlarge"] as AppTextScale[]).map((option) => {
+            const selected = option === textScale;
+            return (
+              <Pressable
+                key={option}
+                onPress={() => void setTextScale(option)}
+                style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
+              >
+                <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
+                  {option === "standard" ? "Standard" : option === "large" ? "Large" : "Extra Large"}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </Card>
+
+      {mode === "builder" ? (
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Theme Studio</Text>
+          <Text style={styles.copy}>
+            Builder only. This sets the shared button palette across the app now, while the page-by-page color map is ready for the next tuning pass.
+          </Text>
+          <View style={styles.chips}>
+            <Chip label={`Current ${activePreset.label}`} tone="success" />
+          </View>
+          <View style={styles.themePresetGrid}>
+            {presets.map((preset) => {
+              const selected = preset.id === activePreset.id;
+              return (
+                <Pressable
+                  key={preset.id}
+                  onPress={() => void setPreset(preset.id)}
+                  style={[styles.themePresetCard, selected && styles.themePresetCardActive]}
+                >
+                  <View style={styles.themePresetHeader}>
+                    <View style={[styles.themeSwatch, { backgroundColor: preset.accent.background }]} />
+                    <Text style={styles.themePresetTitle}>{preset.label}</Text>
+                  </View>
+                  <Text style={styles.meta}>{preset.description}</Text>
+                  <Text style={[styles.themePresetStatus, selected && styles.themePresetStatusActive]}>
+                    {selected ? "Active now" : "Use this palette"}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <View style={styles.themePreviewGrid}>
+            {Object.entries(THEME_SURFACE_LABELS).map(([surface, label]) => (
+              <View key={surface} style={styles.themePreviewItem}>
+                <View style={[styles.themePreviewSwatch, { backgroundColor: settings.buttonThemes[surface as keyof typeof THEME_SURFACE_LABELS].background }]} />
+                <Text style={styles.themePreviewLabel}>{label}</Text>
+              </View>
+            ))}
+          </View>
+        </Card>
+      ) : null}
+
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Membership</Text>
         <Text style={styles.copy}>
-          Unlock premium tours and future spatial upgrades with a simple pass instead of cluttering the app with store mechanics.
+          Unlock premium tours and future upgrades with a simple pass instead of cluttering the app with store mechanics.
         </Text>
         <View style={styles.chips}>
           <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
@@ -179,26 +314,37 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
         <Text style={styles.meta}>Status: {entitlementStatus}</Text>
         {statusMessage ? <Text style={styles.warning}>{statusMessage}</Text> : null}
         <PrimaryButton
-          disabled={loadingAction !== null || entitlementStatus === "offline"}
-          onPress={() => startHostedCheckout(999, "Philly Tours Day Pass")}
-          label={entitlementStatus === "offline" ? "Backend Offline" : loadingAction === "hosted" ? "Preparing..." : "Open Hosted Checkout ($9.99)"}
+          disabled={loadingAction !== null || fullAppUnlocked}
+          onPress={() => startHostedCheckout(999, "Philly Tours Day Pass", "full_app")}
+          label={fullAppUnlocked ? "Full Membership Unlocked" : loadingAction === "hosted" ? "Preparing..." : "Checkout ($9.99)"}
         />
+      </Card>
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Audio History Only</Text>
+        <Text style={styles.copy}>
+          This option is available for guests who are unable to travel but still have a willingness to learn Philadelphia Founders history through the narrated stops.
+        </Text>
+        <Text style={styles.meta}>
+          Purchase audio history only to listen through the tour stories from home, without needing to physically complete the route.
+        </Text>
+        {audioHistoryOnlyUnlocked ? (
+          <View style={styles.chips}>
+            <Chip label="Audio history unlocked" tone="success" />
+            <Chip label="All stops available" tone="default" />
+          </View>
+        ) : null}
         <PrimaryButton
-          disabled={loadingAction !== null}
-          onPress={() => refreshEntitlements(true)}
-          label={loadingAction === "entitlements" ? "Refreshing..." : "Refresh Membership"}
+          disabled={loadingAction !== null || audioHistoryOnlyUnlocked}
+          onPress={() => startHostedCheckout(999, "Philly Tours Audio History Only", "audio_history_only")}
+          label={audioHistoryOnlyUnlocked ? "Audio History Unlocked" : loadingAction === "hosted" ? "Preparing..." : "Purchase Audio History Only"}
         />
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Billing Surface</Text>
-        <Text style={styles.copy}>Hosted checkout keeps the phone app cleaner than embedding a heavy storefront in the touring flow.</Text>
-        <Text style={styles.meta}>Sync server: {getSyncServerUrl()}</Text>
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Coming Soon</Text>
-        <Text style={styles.copy}>Saved badges, completed tours, and personalized collections will live here once the public experience is locked.</Text>
+        <Text style={styles.sectionTitle}>Device Profile</Text>
+        <Text style={styles.copy}>Delete the local profile on this phone and return to onboarding. This does not cancel purchases already recorded on the backend.</Text>
+        <PrimaryButton onPress={confirmDeleteProfile} label="Delete Profile On This Device" />
       </Card>
 
       <Card style={styles.card}>
@@ -250,7 +396,9 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
             <View style={styles.adminQueue}>
               {adminRequests.map((request) => (
                 <View key={request.id} style={styles.adminRequestRow}>
-                  <Text style={styles.adminRequestTitle}>{request.display_name || request.email || request.user_id}</Text>
+                  <Text style={styles.adminRequestTitle}>
+                    {request.display_name || request.email || request.user_id}
+                  </Text>
                   <Text style={styles.meta}>User: {request.user_id}</Text>
                   <Text style={styles.meta}>Status: {request.status}</Text>
                   {request.reason ? <Text style={styles.copy}>Reason: {request.reason}</Text> : null}
@@ -276,68 +424,101 @@ export function ProfileScreen({ displayName = "Founder Demo", email = "demo@loca
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(
+  colors: AppPalette,
+  type: {
+    font: (size: number) => number;
+    line: (height: number) => number;
+  }
+) {
+  return StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 18,
     gap: 18,
-    backgroundColor: "#060312"
+    backgroundColor: colors.background
   },
   heroPanel: {
-    backgroundColor: "#130a25",
+    backgroundColor: colors.backgroundElevated,
     borderRadius: 30,
     padding: 22,
     gap: 10,
     borderWidth: 1,
-    borderColor: "rgba(255, 191, 173, 0.16)"
+    borderColor: colors.border
   },
   heroEyebrow: {
-    color: "#ff9ab2",
-    fontSize: 12,
+    color: colors.warn,
+    fontSize: type.font(12),
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 1.2
   },
   heroTitle: {
-    color: "#fff3ea",
-    fontSize: 30,
-    lineHeight: 36,
+    color: colors.text,
+    fontSize: type.font(30),
+    lineHeight: type.line(36),
     fontWeight: "800"
   },
   heroCopy: {
-    color: "#d8c7df",
-    lineHeight: 21
+    color: colors.textSoft,
+    lineHeight: type.line(21)
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   card: {
-    backgroundColor: "#120a22",
     gap: 12
   },
   sectionTitle: {
-    color: "#fff0e4",
-    fontSize: 18,
+    color: colors.text,
+    fontSize: type.font(18),
     fontWeight: "800"
   },
   copy: {
-    color: "#d8c7df",
-    lineHeight: 21
+    color: colors.textSoft,
+    lineHeight: type.line(21)
   },
   meta: {
-    color: "#b69fbe",
-    lineHeight: 20
+    color: colors.textMuted,
+    lineHeight: type.line(20)
   },
   warning: {
-    color: "#ffc2d0",
-    lineHeight: 22
+    color: colors.danger,
+    lineHeight: type.line(22)
   },
   input: {
-    backgroundColor: "#1b102d",
-    borderColor: "rgba(255,255,255,0.08)",
+    backgroundColor: colors.inputBackground,
+    borderColor: colors.inputBorder,
     borderWidth: 1,
     borderRadius: 16,
-    color: "#fff3ea",
+    color: colors.text,
     paddingHorizontal: 12,
     paddingVertical: 13
+  },
+  appearanceRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  appearanceChip: {
+    minWidth: 94,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surfaceSoft
+  },
+  appearanceChipActive: {
+    borderColor: "#007eff",
+    backgroundColor: colors.infoSoft
+  },
+  appearanceChipText: {
+    color: colors.textSoft,
+    fontWeight: "700",
+    textAlign: "center",
+    fontSize: type.font(14)
+  },
+  appearanceChipTextActive: {
+    color: colors.info
   },
   multilineInput: {
     minHeight: 92,
@@ -350,13 +531,69 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 14,
     borderRadius: 18,
-    backgroundColor: "#1a102e",
+    backgroundColor: colors.surfaceSoft,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)"
+    borderColor: colors.border
   },
   adminRequestTitle: {
-    color: "#fff0e4",
-    fontSize: 16,
+    color: colors.text,
+    fontSize: type.font(16),
     fontWeight: "800"
+  },
+  themePresetGrid: {
+    gap: 10
+  },
+  themePresetCard: {
+    gap: 8,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: colors.surfaceSoft,
+    borderWidth: 1,
+    borderColor: colors.border
+  },
+  themePresetCardActive: {
+    borderColor: colors.borderStrong
+  },
+  themePresetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10
+  },
+  themeSwatch: {
+    width: 18,
+    height: 18,
+    borderRadius: 999
+  },
+  themePresetTitle: {
+    color: colors.text,
+    fontSize: type.font(15),
+    fontWeight: "800"
+  },
+  themePresetStatus: {
+    color: colors.textMuted,
+    fontWeight: "700"
+  },
+  themePresetStatusActive: {
+    color: colors.success
+  },
+  themePreviewGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  themePreviewItem: {
+    minWidth: 72,
+    gap: 6
+  },
+  themePreviewSwatch: {
+    width: "100%",
+    height: 10,
+    borderRadius: 999
+  },
+  themePreviewLabel: {
+    color: colors.textMuted,
+    fontSize: type.font(12),
+    fontWeight: "700"
   }
-});
+  });
+}

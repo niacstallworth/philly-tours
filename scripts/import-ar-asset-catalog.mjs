@@ -12,6 +12,8 @@ const ANCHOR_STYLE_VALUES = new Set(["front_of_user", "ground", "image_target", 
 const FALLBACK_TYPE_VALUES = new Set(["box", "card", "none"]);
 const COORD_QUALITY_VALUES = new Set(["verified", "approximate"]);
 const EFFORT_VALUES = new Set(["", "low", "medium", "high"]);
+const SITE_PLACEMENT_MODE_VALUES = new Set(["", "default", "outdoor_building", "miniature_reconstruction"]);
+const PLACEMENT_ENVIRONMENT_VALUES = new Set(["", "indoor", "outdoor", "mixed"]);
 
 function normalizeRepoPath(assetPath) {
   return assetPath.replace(/^\/+/, "");
@@ -21,7 +23,9 @@ function assetExistsInRepo(assetPath) {
   const normalized = normalizeRepoPath(assetPath);
   const candidates = [
     path.join(rootDir, normalized),
-    path.join(rootDir, "assets", normalized)
+    path.join(rootDir, "assets", normalized),
+    path.join(rootDir, "ios", "PhillyARTours", normalized),
+    path.join(rootDir, "ios", "PhillyARTours", "ARAssets", normalized)
   ];
 
   return candidates.some((candidate) => fs.existsSync(candidate));
@@ -94,7 +98,15 @@ function readCatalogRows() {
       stylePreset: asEnum(resolveStylePreset(record), STYLE_PRESET_VALUES, "stylePreset", rowNumber),
       visualPriority: asEnum(resolveVisualPriority(record), VISUAL_PRIORITY_VALUES, "visualPriority", rowNumber),
       historicalEra: record.historicalEra?.trim() || "",
-      negativePrompt: record.negativePrompt?.trim() || ""
+      negativePrompt: record.negativePrompt?.trim() || "",
+      sitePlacementMode: asEnum((record.sitePlacementMode || "").trim(), SITE_PLACEMENT_MODE_VALUES, "sitePlacementMode", rowNumber),
+      siteBearingDeg: optionalNumber(record.siteBearingDeg, "siteBearingDeg", rowNumber),
+      headingToleranceDeg: optionalNumber(record.headingToleranceDeg, "headingToleranceDeg", rowNumber),
+      preferredViewingDistanceM: optionalNumber(record.preferredViewingDistanceM, "preferredViewingDistanceM", rowNumber),
+      siteOffsetXM: optionalNumber(record.siteOffsetXM, "siteOffsetXM", rowNumber),
+      siteOffsetZM: optionalNumber(record.siteOffsetZM, "siteOffsetZM", rowNumber),
+      requiresProximity: String(record.requiresProximity || "").trim() === "true",
+      placementEnvironment: asEnum((record.placementEnvironment || "").trim(), PLACEMENT_ENVIRONMENT_VALUES, "placementEnvironment", rowNumber)
     };
   });
 }
@@ -128,6 +140,14 @@ function writeCatalogModule(rows) {
   visualPriority: "" | "facade_accuracy" | "historical_accuracy" | "atmosphere" | "readability" | "silhouette";
   historicalEra: string;
   negativePrompt: string;
+  sitePlacementMode: "" | "default" | "outdoor_building" | "miniature_reconstruction";
+  siteBearingDeg?: number;
+  headingToleranceDeg?: number;
+  preferredViewingDistanceM?: number;
+  siteOffsetXM?: number;
+  siteOffsetZM?: number;
+  requiresProximity: boolean;
+  placementEnvironment: "" | "indoor" | "outdoor" | "mixed";
 };
 
 export const arAssetCatalog: ARAssetCatalogEntry[] = ${JSON.stringify(rows, null, 2)};

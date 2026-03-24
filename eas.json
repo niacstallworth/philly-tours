@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 18.4.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SYNC_SERVER_URL": "http://10.0.0.139:4000",
+        "EXPO_PUBLIC_APP_SCHEME": "phillyartours"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SYNC_SERVER_URL": "http://10.0.0.139:4000",
+        "EXPO_PUBLIC_APP_SCHEME": "phillyartours"
+      }
+    },
+    "production": {
+      "autoIncrement": true
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

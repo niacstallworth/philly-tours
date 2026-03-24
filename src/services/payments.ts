@@ -67,11 +67,7 @@ export function setApiUserId(userId: string) {
 }
 
 function getServerUrl() {
-  const envServerUrl = (globalThis as any)?.process?.env?.EXPO_PUBLIC_SYNC_SERVER_URL as
-    | string
-    | undefined;
-
-  const base = (envServerUrl || "http://localhost:4000").trim();
+  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
   return base.replace(/\/+$/, "");
 }
 
@@ -114,14 +110,15 @@ export async function createCheckoutIntent(request: PaymentIntentRequest) {
   return postJson<{ clientSecret: string }>("/api/payments/intent", request);
 }
 
-export async function createCheckoutSession(amount: number, title: string) {
+export async function createCheckoutSession(amount: number, title: string, planId?: string) {
   const appScheme =
-    (((globalThis as any)?.process?.env?.EXPO_PUBLIC_APP_SCHEME as string | undefined)?.trim() || "phillyartours")
+    ((process.env.EXPO_PUBLIC_APP_SCHEME || "phillyartours").trim())
       .replace(/:\/\//g, "")
       .replace(/\/+$/g, "");
   return postJson<{ url: string | null }>("/api/payments/checkout-session", {
     amount,
     title,
+    ...(planId ? { planId } : {}),
     successUrl: `${appScheme}://checkout/success`,
     cancelUrl: `${appScheme}://checkout/cancel`
   });

@@ -1,0 +1,34 @@
+{
+  "stopId": "black-american-sports-sonny-hill-league-tustin",
+  "stopTitle": "Sonny Hill League @ Tustin",
+  "tourId": "black-american-sports",
+  "tourTitle": "Black American Sports",
+  "arPriority": 8,
+  "arType": "object_on_plinth",
+  "assetStatus": "in_production",
+  "headline": "Museum-style object scene",
+  "summary": "summer league trophy; basketball object set; bracket story card",
+  "historicalEra": "late 20th century Philadelphia basketball",
+  "stylePreset": "documentary",
+  "visualPriority": "readability",
+  "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+  "runtimeAssets": {
+    "ios": "/models/sonny-hill-league-tustin.usdz",
+    "android": "/models/sonny-hill-league-tustin.glb",
+    "web": "/models/sonny-hill-league-tustin.glb"
+  },
+  "contentLayers": [
+    "summer league trophy",
+    "basketball object set",
+    "bracket story card",
+    "hero object",
+    "plinth/base",
+    "annotation card"
+  ],
+  "productionChecklist": [
+    "Approve hero object shape",
+    "Approve plinth scale",
+    "Check annotation clarity"
+  ],
+  "negativePrompt": "floating fragments, broken anatomy, abstract sculptures, futuristic materials"
+}

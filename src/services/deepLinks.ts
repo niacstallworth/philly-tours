@@ -1,4 +1,4 @@
-export type HandoffMode = "arrive" | "map" | "ar";
+export type HandoffMode = "arrive" | "map";
 
 export type HandoffTarget = {
   tourId: string;
@@ -7,18 +7,11 @@ export type HandoffTarget = {
 };
 
 export function getHandoffModeMeta(mode: HandoffMode) {
-  if (mode === "ar") {
-    return {
-      ctaLabel: "Open AR Moment",
-      chipLabel: "Ready for AR",
-      summary: "Step out and open the spatial moment for this stop."
-    };
-  }
   if (mode === "map") {
     return {
-      ctaLabel: "Open Map Context",
-      chipLabel: "Map context",
-      summary: "Open the stop in map view and continue the route on foot."
+      ctaLabel: "Open Tour Stop",
+      chipLabel: "Stop context",
+      summary: "Open the stop in the main tour view and continue the story there."
     };
   }
   return {
@@ -51,7 +44,7 @@ export function parseHandoffUrl(url: string): HandoffTarget | null {
   return {
     tourId: decodeURIComponent(parts[1]),
     stopId: decodeURIComponent(parts[3]),
-    mode
+    mode: mode === "ar" ? "map" : mode
   };
 }
 

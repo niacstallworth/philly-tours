@@ -107,9 +107,5 @@ export class RealtimeSync {
 }
 
 export function createRealtimeSyncFromEnv() {
-  const envServerUrl = (globalThis as any)?.process?.env?.EXPO_PUBLIC_SYNC_SERVER_URL as
-    | string
-    | undefined;
-
-  return new RealtimeSync(envServerUrl || "http://localhost:4000");
+  return new RealtimeSync(process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000");
 }

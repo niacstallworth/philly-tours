@@ -3,6 +3,8 @@ node_modules/
 .expo/
 dist/
 build/
+generated/
+tmp/
 *.log
 *.tmp
 *.temp

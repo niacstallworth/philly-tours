@@ -3,11 +3,12 @@
   "stopTitle": "Joe Frazier's Gym (Cloverlay)",
   "tourId": "black-american-sports",
   "tourTitle": "Black American Sports",
-  "arPriority": 12,
-  "arType": "historical_figure_presence",
-  "headline": "Figure-led historic scene",
-  "summary": "training scene; gloves and belt object set; archival card",
-  "historicalEra": "20th century Philadelphia",
+  "arPriority": 6,
+  "arType": "object_on_plinth",
+  "assetStatus": "in_production",
+  "headline": "Museum-style object scene",
+  "summary": "boxing gloves and belt miniature; gym plaque; training card",
+  "historicalEra": "20th century Philadelphia boxing",
   "stylePreset": "cinematic",
   "visualPriority": "silhouette",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
@@ -17,18 +18,17 @@
     "web": "/models/joe-frazier-s-gym-cloverlay.glb"
   },
   "contentLayers": [
-    "training scene",
-    "gloves and belt object set",
-    "archival card",
-    "hero figure silhouette",
-    "staging marker",
-    "supporting context card"
+    "boxing gloves and belt miniature",
+    "gym plaque",
+    "training card",
+    "hero object",
+    "plinth/base",
+    "annotation card"
   ],
   "productionChecklist": [
-    "Confirm respectful figure staging",
-    "Lock silhouette readability",
-    "Check period wardrobe cues",
-    "Validate context card copy"
+    "Approve hero object shape",
+    "Approve plinth scale",
+    "Check annotation clarity"
   ],
-  "negativePrompt": "uncanny faces, caricature proportions, modern clothing, modern accessories, crowd clutter"
+  "negativePrompt": "floating fragments, broken anatomy, abstract sculptures, futuristic materials"
 }

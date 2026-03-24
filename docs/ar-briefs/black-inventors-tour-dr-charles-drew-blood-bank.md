@@ -6,24 +6,24 @@ Build an explanatory 3D diagram scene focused on clear mechanism storytelling.
 
 - Tour: Black Inventors Tour
 - Stop ID: `black-inventors-tour-dr-charles-drew-blood-bank`
-- Priority: 16
+- Priority: 3
 - AR Type: `animated_diagram`
 - Effort: `medium`
 - Coordinate quality: `approximate`
 - Trigger radius: 40m
-- Historical era: historic Philadelphia
-- Style preset: `architectural`
-- Visual priority: `historical_accuracy`
+- Historical era: 20th century medical innovation
+- Style preset: `documentary`
+- Visual priority: `readability`
 
 ## Scene Intent
 
-blood plasma storage explainer; medical card set
+blood plasma storage explainer; medical card set; tubing sequence
 
 ## Visual Direction
 
 - Anchor style: `front_of_user`
 - Fallback type: `card`
-- Scale: 1
+- Scale: 0.88
 - Rotation: 180deg
 - Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
@@ -43,4 +43,4 @@ blood plasma storage explainer; medical card set
 
 ## Notes
 
-No additional notes.
+[strategy-reset] medical explainer AR candidate prioritized over site reconstruction

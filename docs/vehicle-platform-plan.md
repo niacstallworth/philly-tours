@@ -53,7 +53,8 @@ These repo areas already support a future car companion:
 
 Do not mirror these mobile surfaces into the car UI:
 
-- `src/screens/ARScreen.tsx`
+- `src/screens/TouristARScreen.tsx`
+- `src/screens/BuilderARScreen.tsx`
 - `src/screens/ProfileScreen.tsx`
 - checkout UI
 - build/admin flows

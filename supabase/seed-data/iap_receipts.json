@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "user_id": "qa-user-1",
+    "platform": "ios",
+    "product_id": "com.founders.phillyartours.plus",
+    "transaction_id": "txn-cli-001",
+    "purchase_token": null,
+    "status": "verified_dev",
+    "raw_json": "{\"request\":{\"platform\":\"ios\",\"planId\":\"plus\",\"productId\":\"com.founders.phillyartours.plus\",\"transactionId\":\"txn-cli-001\",\"receiptData\":\"dummy\"},\"verification\":{\"mode\":\"dev_fallback\",\"error\":\"secretOrPrivateKey must be an asymmetric key when using ES256\"},\"receivedAt\":1772839881900}",
+    "created_at": 1772839881900
+  },
+  {
+    "id": 2,
+    "user_id": "qa-cred-test",
+    "platform": "android",
+    "product_id": "com.founders.phillyartours.plus",
+    "transaction_id": "gp-test-1",
+    "purchase_token": "dummy-token",
+    "status": "verified_dev",
+    "raw_json": "{\"request\":{\"platform\":\"android\",\"planId\":\"plus\",\"productId\":\"com.founders.phillyartours.plus\",\"transactionId\":\"gp-test-1\",\"purchaseToken\":\"dummy-token\"},\"verification\":{\"mode\":\"dev_fallback\",\"error\":\"Google verification failed (404): {\\n  \\\"error\\\": {\\n    \\\"code\\\": 404,\\n    \\\"message\\\": \\\"No application was found for the given package name.\\\",\\n    \\\"errors\\\": [\\n      {\\n        \\\"message\\\": \\\"No application was found for the given package name.\\\",\\n        \\\"domain\\\": \\\"global\\\",\\n        \\\"reason\\\": \\\"applicationNotFound\\\",\\n        \\\"location\\\": \\\"packageName\\\",\\n        \\\"locationType\\\": \\\"parameter\\\"\\n      }\\n    ]\\n  }\\n}\\n\"},\"receivedAt\":1772885603023}",
+    "created_at": 1772885603023
+  },
+  {
+    "id": 3,
+    "user_id": "qa-cred-test",
+    "platform": "ios",
+    "product_id": "com.founders.phillyartours.plus",
+    "transaction_id": "1000000000000000",
+    "purchase_token": null,
+    "status": "verified_dev",
+    "raw_json": "{\"request\":{\"platform\":\"ios\",\"planId\":\"plus\",\"productId\":\"com.founders.phillyartours.plus\",\"transactionId\":\"1000000000000000\",\"receiptData\":\"dummy\"},\"verification\":{\"mode\":\"dev_fallback\",\"error\":\"Apple verification failed (401): Unauthenticated\\n\\nRequest ID: F3T4NO4N7X5LSAFRVRJUZFHH7M.0.0\\n\"},\"receivedAt\":1772885626295}",
+    "created_at": 1772885626295
+  }
+]

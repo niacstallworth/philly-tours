@@ -9,7 +9,18 @@ type UpgradeProductConfig = {
 };
 
 function env(name: string) {
-  return ((globalThis as any)?.process?.env?.[name] as string | undefined)?.trim();
+  switch (name) {
+    case "EXPO_PUBLIC_IAP_PLUS_IOS":
+      return process.env.EXPO_PUBLIC_IAP_PLUS_IOS?.trim();
+    case "EXPO_PUBLIC_IAP_PRO_IOS":
+      return process.env.EXPO_PUBLIC_IAP_PRO_IOS?.trim();
+    case "EXPO_PUBLIC_IAP_PLUS_ANDROID":
+      return process.env.EXPO_PUBLIC_IAP_PLUS_ANDROID?.trim();
+    case "EXPO_PUBLIC_IAP_PRO_ANDROID":
+      return process.env.EXPO_PUBLIC_IAP_PRO_ANDROID?.trim();
+    default:
+      return undefined;
+  }
 }
 
 const iosPlus = env("EXPO_PUBLIC_IAP_PLUS_IOS") || "com.founders.phillyartours.plus";

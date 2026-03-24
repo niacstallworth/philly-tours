@@ -6,24 +6,24 @@ Build an explanatory 3D diagram scene focused on clear mechanism storytelling.
 
 - Tour: Black Inventors Tour
 - Stop ID: `black-inventors-tour-garrett-morgan-traffic-signal`
-- Priority: 15
+- Priority: 2
 - AR Type: `animated_diagram`
 - Effort: `medium`
 - Coordinate quality: `approximate`
 - Trigger radius: 40m
-- Historical era: historic Philadelphia
-- Style preset: `architectural`
-- Visual priority: `historical_accuracy`
+- Historical era: early 20th century innovation
+- Style preset: `documentary`
+- Visual priority: `readability`
 
 ## Scene Intent
 
-signal mechanism; intersection overlay; patent timeline
+signal mechanism; intersection explainer; patent timeline
 
 ## Visual Direction
 
 - Anchor style: `front_of_user`
 - Fallback type: `card`
-- Scale: 1
+- Scale: 0.9
 - Rotation: 180deg
 - Negative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels
 
@@ -43,4 +43,4 @@ signal mechanism; intersection overlay; patent timeline
 
 ## Notes
 
-No additional notes.
+[strategy-reset] object-centered AR candidate prioritized over building/site reconstruction

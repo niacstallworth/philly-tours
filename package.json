@@ -5,13 +5,34 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "start:metro": "expo start -c --port 8081",
+    "start:metro:dev-client": "expo start --dev-client -c --port 8081",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:device": "expo run:ios --port 8081",
     "web": "expo start --web",
     "ar:catalog:import": "node scripts/import-ar-asset-catalog.mjs",
     "ar:briefs:generate": "node scripts/generate-ar-briefs.mjs",
+    "ar:jobs:generate": "node scripts/generate-ar-job-packs.mjs",
+    "ar:jobs:ingest": "node scripts/ingest-ar-job-outputs.mjs",
+    "ar:jobs:run": "node scripts/run-ar-job-packs.mjs",
+    "ar:catalog:sync-runtime": "node scripts/sync-ar-runtime-readiness.mjs",
+    "ar:catalog:approve": "node scripts/approve-ar-runtime-stop.mjs",
+    "ar:catalog:approve-queue": "node scripts/approve-ar-runtime-queue.mjs",
+    "ar:catalog:approve-next": "node scripts/apply-next-approval-queue.mjs",
+    "ar:closeout:import": "node scripts/import-ar-session-closeout.mjs",
+    "ar:reviews:import": "node scripts/import-ar-device-review.mjs",
+    "ar:reviews:promote": "node scripts/promote-ar-device-review-preview.mjs",
+    "ar:reviews:promote-queue": "node scripts/promote-ar-device-review-queue.mjs",
+    "ar:reviews:promote-next": "node scripts/apply-next-preview-promotion-queue.mjs",
+    "ar:reviews:advance": "node scripts/apply-next-review-actions.mjs",
+    "ar:reviews:normalize": "node scripts/normalize-ar-device-reviews.mjs",
+    "ar:reviews:dashboard": "node scripts/generate-ar-review-dashboard.mjs",
+    "ar:mesh:ingest": "node scripts/ingest-rough-mesh-assets.mjs",
+    "ar:runtime:stage": "node scripts/stage-ar-runtime-assets.mjs",
     "ar:manifests:generate": "node scripts/generate-ar-scene-manifests.mjs",
     "ar:tuning:apply": "node scripts/apply-ar-tuning-snapshot.mjs",
+    "builder:admins:map": "node scripts/generate-builder-admin-credentials.mjs",
     "narration:map": "node scripts/generate-narration-audio-map.mjs && node scripts/generate-narration-runtime-catalog.mjs",
     "narration:catalog:runtime": "node scripts/generate-narration-runtime-catalog.mjs",
     "narration:scripts:map": "node scripts/generate-narration-script-map.mjs",
@@ -20,6 +41,8 @@
     "narration:normalize": "node scripts/normalize-narration-catalog.mjs",
     "narration:seed:missing": "node scripts/seed-missing-narration-catalog.mjs",
     "narration:polly": "node scripts/generate-polly-narration.mjs",
+    "db:export:supabase": "node scripts/export-sqlite-for-supabase.mjs",
+    "db:import:supabase": "node scripts/import-supabase-seed.mjs",
     "sync-server": "node server/sync-server.js",
     "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook"
   },
@@ -47,6 +70,7 @@
     "google-auth-library": "^10.6.1",
     "jose": "^6.2.0",
     "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0",
     "react": "19.0.0",
     "react-native": "0.79.6",
     "react-native-gesture-handler": "~2.24.0",
@@ -64,5 +88,15 @@
   "devDependencies": {
     "@types/react": "~19.0.10",
     "typescript": "~5.8.3"
+  },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "expo-av"
+        ],
+        "listUnknownPackages": false
+      }
+    }
   }
 }

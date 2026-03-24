@@ -1,27 +1,25 @@
 import React from "react";
-import { useNarration } from "../hooks/useNarration";
-import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
-import { useDriveSession } from "../hooks/useDriveSession";
-import { getHandoffModeMeta, parseHandoffUrl, type HandoffMode } from "../services/deepLinks";
-import { triggerHandoffTarget } from "../services/handoffBus";
-import { getCurrentDriveStop, getNextDriveStop } from "../services/driveMode";
+import { useNarration } from "../hooks/useNarration";
+import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
+import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 
 type Props = {
   displayName?: string;
   initialSelectedTourId?: string;
   highlightedStopId?: string;
-  handoffMode?: "arrive" | "map" | "ar";
+  audioHistoryOnlyUnlocked?: boolean;
+  fullAppUnlocked?: boolean;
+  onOpenPurchase?: () => void;
 };
 
-function getTourPackBlurb(durationMin: number, arMoments: number, fullAudioCount: number) {
-  if (arMoments > 0 && fullAudioCount > 0) {
-    return "Audio-led city storytelling with selective AR reveals and narrated stops ready to launch.";
-  }
-  if (arMoments > 0) {
-    return "A walk-first route with selective AR reveals placed where the site can carry a stronger spatial moment.";
+const METERS_PER_MILE = 1609.344;
+
+function getTourPackBlurb(durationMin: number, fullAudioCount: number) {
+  if (fullAudioCount > 0) {
+    return "Audio-led city storytelling with narrated stops, clear pacing, and strong neighborhood context.";
   }
   if (durationMin >= 90) {
     return "A longer city route built for deep historical context, steady pacing, and full-neighborhood discovery.";
@@ -29,85 +27,126 @@ function getTourPackBlurb(durationMin: number, arMoments: number, fullAudioCount
   return "A focused walking route built around clear storytelling, easy pacing, and elegant stop-by-stop discovery.";
 }
 
+function formatMilesFromMeters(distanceInMeters: number) {
+  const miles = distanceInMeters / METERS_PER_MILE;
+  return `${miles < 0.1 ? miles.toFixed(2) : miles.toFixed(1)} mi`;
+}
+
 export function HomeScreen({
   displayName = "Founder",
   initialSelectedTourId,
   highlightedStopId,
-  handoffMode
+  audioHistoryOnlyUnlocked = false,
+  fullAppUnlocked = false,
+  onOpenPurchase
 }: Props) {
+  const colors = useThemeColors();
+  const type = useTypeScale();
+  const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
+  const [activeStopId, setActiveStopId] = React.useState<string | null>(highlightedStopId || null);
   const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
-  const { driveSession } = useDriveSession();
   const narration = useNarration();
+
   React.useEffect(() => {
     if (initialSelectedTourId && tours.some((tour) => tour.id === initialSelectedTourId)) {
       setSelectedTourId(initialSelectedTourId);
     }
   }, [initialSelectedTourId]);
+
   React.useEffect(() => {
-    if (!initialSelectedTourId && driveSession?.tourId && tours.some((tour) => tour.id === driveSession.tourId)) {
-      setSelectedTourId(driveSession.tourId);
+    if (highlightedStopId) {
+      setActiveStopId(highlightedStopId);
     }
-  }, [driveSession?.tourId, initialSelectedTourId]);
+  }, [highlightedStopId]);
+
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
-  const activeDriveTour = React.useMemo(
-    () => (driveSession ? tours.find((tour) => tour.id === driveSession.tourId) || null : null),
-    [driveSession]
-  );
-  const currentDriveStop = React.useMemo(() => getCurrentDriveStop(driveSession), [driveSession]);
-  const nextDriveStop = React.useMemo(() => getNextDriveStop(driveSession), [driveSession]);
-  const activeHandoffMode: HandoffMode = handoffMode || (currentDriveStop?.handoffDeepLink.endsWith("/ar") ? "ar" : "arrive");
-  const activeHandoffMeta = React.useMemo(() => getHandoffModeMeta(activeHandoffMode), [activeHandoffMode]);
   const visibleStops = React.useMemo(
     () => (fullAudioOnly ? (selectedTour?.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio") || []) : selectedTour?.stops || []),
     [fullAudioOnly, selectedTour]
   );
-  const highlightedStop = React.useMemo(
-    () => {
-      const preferredStopId = highlightedStopId || currentDriveStop?.id;
-      return visibleStops.find((stop) => stop.id === preferredStopId) || visibleStops[0] || null;
-    },
-    [currentDriveStop?.id, highlightedStopId, visibleStops]
-  );
-  const heroStop = visibleStops[0];
-  const plannedCount = selectedTour?.stops.filter((stop) => typeof stop.arPriority === "number").length ?? 0;
+
+  React.useEffect(() => {
+    setActiveStopId((current) => {
+      if (!visibleStops.length) {
+        return null;
+      }
+      if (current && visibleStops.some((stop) => stop.id === current)) {
+        return current;
+      }
+      return highlightedStopId && visibleStops.some((stop) => stop.id === highlightedStopId) ? highlightedStopId : visibleStops[0]?.id || null;
+    });
+  }, [highlightedStopId, visibleStops]);
+  const highlightedStop = React.useMemo(() => {
+    const preferredStopId = activeStopId || highlightedStopId;
+    return visibleStops.find((stop) => stop.id === preferredStopId) || visibleStops[0] || null;
+  }, [activeStopId, highlightedStopId, visibleStops]);
+  const totalStops = selectedTour?.stops.length ?? 0;
   const fullAudioCount = selectedTour?.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length ?? 0;
+  const highlightedNarrationMeta = highlightedStop ? getNarrationUiMeta(highlightedStop.id) : null;
+  const selectedTourBlurb = selectedTour ? getTourPackBlurb(selectedTour.durationMin, fullAudioCount) : "";
+  const highlightedStopIndex = highlightedStop ? visibleStops.findIndex((stop) => stop.id === highlightedStop.id) : -1;
+  const nextStop = highlightedStopIndex >= 0 ? visibleStops[highlightedStopIndex + 1] || null : null;
+  const previewLimit = 2;
+  const previewCount = Math.min(previewLimit, visibleStops.length);
+  const lockedCount = Math.max(visibleStops.length - previewLimit, 0);
+  const hasPaidAudioAccess = audioHistoryOnlyUnlocked || fullAppUnlocked;
+  const highlightedStopLocked = highlightedStopIndex >= 2 && !hasPaidAudioAccess;
+  const nextStopIndex = nextStop ? visibleStops.findIndex((stop) => stop.id === nextStop.id) : -1;
+  const nextStopLocked = nextStopIndex >= 2 && !hasPaidAudioAccess;
+  const highlightedHasFullAudio = highlightedStop ? getNarrationCoverage(highlightedStop.id) === "full_audio" : false;
+  const currentStopFinished =
+    !!highlightedStop &&
+    narration.stopId === highlightedStop.id &&
+    narration.status === "stopped" &&
+    narration.message === "Narration finished.";
+  const canPlayNextStop = Boolean(nextStop && highlightedHasFullAudio && currentStopFinished);
 
-  async function onPreviewDriveHandoff() {
-    if (!currentDriveStop || driveSession?.mode !== "arrived") {
-      return;
-    }
-    const parsed = parseHandoffUrl(currentDriveStop.handoffDeepLink);
-    if (!parsed) {
-      Alert.alert("Handoff unavailable", "Could not resolve the handoff target.");
-      return;
-    }
-    triggerHandoffTarget(parsed);
-  }
-
-  async function onPlayHighlightedNarration() {
-    if (!highlightedStop || !selectedTour) {
-      return;
-    }
+  async function playStopNarration(stop: (typeof tours)[number]["stops"][number]) {
     try {
       await startNarration({
-        id: highlightedStop.id,
-        tourId: selectedTour.id,
-        title: highlightedStop.title,
-        lat: highlightedStop.lat,
-        lng: highlightedStop.lng,
-        triggerRadiusM: highlightedStop.triggerRadiusM,
-        audioUrl: highlightedStop.audioUrl,
-        arrivalSummary: highlightedStop.description.split("|")[0]?.trim() || highlightedStop.description,
-        handoffDeepLink: `phillyartours://tour/${selectedTour.id}/stop/${highlightedStop.id}/arrive`
-      }, "walk");
+        id: stop.id,
+        title: stop.title,
+        lat: stop.lat,
+        lng: stop.lng,
+        triggerRadiusM: stop.triggerRadiusM,
+        audioUrl: stop.audioUrl,
+        summary: stop.description.split("|")[0]?.trim() || stop.description
+      });
     } catch (error) {
       Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
     }
   }
 
+  async function onPlayHighlightedNarration() {
+    if (!highlightedStop) {
+      return;
+    }
+    if (highlightedStopLocked) {
+      onOpenPurchase?.();
+      return;
+    }
+    await playStopNarration(highlightedStop);
+  }
+
   async function onStopHighlightedNarration() {
     await stopNarration();
+  }
+
+  async function onPlayStopNarration(stop: (typeof tours)[number]["stops"][number]) {
+    await playStopNarration(stop);
+  }
+
+  async function onPlayNextStop() {
+    if (!nextStop) {
+      return;
+    }
+    if (nextStopLocked) {
+      onOpenPurchase?.();
+      return;
+    }
+    setActiveStopId(nextStop.id);
+    await playStopNarration(nextStop);
   }
 
   function getCoverageMeta(coverage: NarrationCoverage) {
@@ -127,132 +166,142 @@ export function HomeScreen({
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
         <Text style={styles.heroEyebrow}>Philly tours by founders</Text>
-        <Text style={styles.heroTitle}>Historic city walks with elegant AR moments.</Text>
+        <Text style={styles.heroTitle}>Historic city walks with elegant guided storytelling.</Text>
         <Text style={styles.heroCopy}>
-          Start with one tour pack, follow the map, and launch spatial moments only where they matter.
+          Start with one tour pack and move through Philadelphia one clear stop at a time.
         </Text>
         <View style={styles.heroChips}>
           <Chip label={`${tours.length} tour packs`} tone="default" />
-          <Chip label={`${plannedCount} AR moments in this pack`} tone="success" />
+          <Chip label={selectedTour ? `${totalStops} stops in ${selectedTour.title}` : `${totalStops} stops in this pack`} tone="success" />
+          {audioHistoryOnlyUnlocked ? <Chip label="Audio history unlocked" tone="warn" /> : null}
+          {fullAppUnlocked ? <Chip label="Full app unlocked" tone="success" /> : null}
         </View>
       </View>
 
       <Card style={styles.welcomeCard}>
         <Text style={styles.welcomeTitle}>Good evening, {displayName}</Text>
         <Text style={styles.welcomeCopy}>
-          Pick a tour pack below. Keep the experience light, focused, and story-first.
+          Choose a tour tab below to open that pack, preview the first two stops for free, and continue through the route one stop at a time.
         </Text>
         <View style={styles.heroChips}>
           <PrimaryButton label={fullAudioOnly ? "Showing Full Audio" : "Showing All Stops"} onPress={() => setFullAudioOnly((value) => !value)} />
+          {audioHistoryOnlyUnlocked ? <Chip label="All stop history available from home" tone="success" /> : null}
         </View>
       </Card>
 
-      {driveSession && activeDriveTour && currentDriveStop ? (
-        <Card style={styles.driveCard}>
-          <Text style={styles.featureEyebrow}>Resume drive session</Text>
-          <Text style={styles.driveTitle}>{activeDriveTour.title}</Text>
-          <Text style={styles.driveCopy}>
-            Current: {currentDriveStop.title}
-            {nextDriveStop ? ` | Next: ${nextDriveStop.title}` : " | Final stop reached"}
-          </Text>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Tour Packs</Text>
+        <Text style={styles.sectionMeta}>Tap a tab to open that tour pack</Text>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.packTabs}>
+        {tours.map((tour) => {
+          const isActive = tour.id === selectedTourId;
+          return (
+            <Pressable key={tour.id} onPress={() => setSelectedTourId(tour.id)} style={[styles.packTab, isActive && styles.packTabActive]}>
+              <Text style={[styles.packTabTitle, isActive && styles.packTabTitleActive]} numberOfLines={2}>
+                {tour.title}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+
+      {selectedTour ? (
+        <Card style={styles.packDetailCard}>
+          <Text style={styles.heroEyebrow}>Active Tour Pack</Text>
+          <Text style={styles.sectionTitle}>{selectedTour.title}</Text>
+          <Text style={styles.routeMeta}>{selectedTourBlurb}</Text>
           <View style={styles.heroChips}>
-            <Chip label={`Mode ${driveSession.mode}`} tone="success" />
-            <Chip
-              label={
-                driveSession.mode === "arrived"
-                  ? activeHandoffMeta.chipLabel
-                  : nextDriveStop
-                    ? "Open Drive tab to continue"
-                    : "Route complete"
-              }
-              tone="warn"
-            />
+            <Chip label={`${selectedTour.durationMin} min`} tone="default" />
+            <Chip label={`${selectedTour.distanceMiles} mi`} tone="default" />
+            <Chip label={`${selectedTour.rating} rating`} tone="warn" />
+            <Chip label={`${fullAudioCount} full audio stops`} tone="success" />
+            <Chip label={`${previewCount} free stops`} tone="warn" />
+            {lockedCount > 0 && !hasPaidAudioAccess ? <Chip label={`${lockedCount} stops unlock after purchase`} tone="default" /> : null}
           </View>
-          {driveSession.mode === "arrived" ? <PrimaryButton label={activeHandoffMeta.ctaLabel} onPress={onPreviewDriveHandoff} /> : null}
         </Card>
       ) : null}
 
       {selectedTour && highlightedStop ? (
         <Card style={styles.handoffCard}>
-          <Text style={styles.featureEyebrow}>{driveSession?.mode === "arrived" ? "Arrived" : "Vehicle handoff"}</Text>
-          <Text style={styles.handoffTitle}>{driveSession?.mode === "arrived" ? `Now continue at ${highlightedStop.title}` : `Continue at ${highlightedStop.title}`}</Text>
-          <Text style={styles.handoffCopy}>{driveSession?.mode === "arrived" ? activeHandoffMeta.summary : highlightedStop.description.split("|")[0]?.trim() || "Arrive and continue on foot."}</Text>
+          <Text style={styles.heroEyebrow}>Start Here</Text>
+          <Text style={styles.handoffStep}>
+            {highlightedStopIndex >= 0 ? `Stop ${highlightedStopIndex + 1} of ${visibleStops.length}` : "Tour stop"}
+          </Text>
+          <Text style={styles.handoffTitle}>{highlightedStop.title}</Text>
+          <Text style={styles.handoffCopy}>{highlightedStop.description.split("|")[0]?.trim() || "Open the stop and start the narration when you're ready."}</Text>
           <View style={styles.heroChips}>
             <Chip label={selectedTour.title} tone="default" />
-            <Chip label={activeHandoffMeta.chipLabel} tone="success" />
-            <Chip label={narration.stopId === highlightedStop.id && narration.status === "playing" ? "Narration live" : "Tap for narration"} tone="warn" />
+            {!highlightedStopLocked && highlightedStopIndex < previewLimit && !hasPaidAudioAccess ? <Chip label="Free preview" tone="success" /> : null}
+            <Chip
+              label={
+                highlightedStopLocked
+                  ? "Purchase required"
+                  : narration.stopId === highlightedStop.id && narration.status === "playing"
+                    ? "Narration live"
+                    : highlightedNarrationMeta?.coverageLabel || "Narration"
+              }
+              tone={highlightedStopLocked ? "warn" : highlightedNarrationMeta?.coverageTone || "warn"}
+            />
           </View>
+          {highlightedStopLocked ? (
+            <Text style={styles.purchaseCopy}>
+              The first two stops in each tour are free. Purchase full app content to hear stop three and beyond in this tour.
+            </Text>
+          ) : null}
           <View style={styles.handoffActions}>
-            <PrimaryButton label={narration.stopId === highlightedStop.id && narration.status === "playing" ? "Replay Stop Audio" : "Play Stop Audio"} onPress={onPlayHighlightedNarration} />
-            {narration.stopId === highlightedStop.id && (narration.status === "playing" || narration.status === "loading") ? <PrimaryButton label="Stop Audio" onPress={onStopHighlightedNarration} /> : null}
-            {driveSession?.mode === "arrived" ? <PrimaryButton label={activeHandoffMeta.ctaLabel} onPress={onPreviewDriveHandoff} /> : null}
-          </View>
-        </Card>
-      ) : null}
-
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Tour Packs</Text>
-        <Text style={styles.sectionMeta}>Curated for walkable discovery</Text>
-      </View>
-      <View style={styles.packList}>
-        {tours.map((tour) => {
-          const isActive = tour.id === selectedTourId;
-          const arMoments = tour.stops.filter((stop) => typeof stop.arPriority === "number").length;
-          const fullAudioStops = tour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length;
-          return (
-            <Pressable
-              key={tour.id}
-              onPress={() => setSelectedTourId(tour.id)}
-              style={[styles.packCard, isActive && styles.packCardActive]}
-            >
-              <Text style={[styles.packTitle, isActive && styles.packTitleActive]}>{tour.title}</Text>
-              <Text style={styles.packMeta}>
-                {tour.durationMin} min | {tour.distanceMiles} mi | {tour.rating} rating
-              </Text>
-              <Text style={styles.packBody} numberOfLines={2}>
-                {getTourPackBlurb(tour.durationMin, arMoments, fullAudioStops)}
-              </Text>
-              <View style={styles.heroChips}>
-                <Chip label={`${tour.stops.length} stops`} tone="default" />
-                <Chip label={`${arMoments} AR moments`} tone={arMoments > 0 ? "success" : "default"} />
-                <Chip label={`${fullAudioStops} full audio`} tone="warn" />
-              </View>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      {selectedTour && heroStop ? (
-        <Card style={styles.featureCard}>
-          <Text style={styles.featureEyebrow}>Featured Stop</Text>
-          <Text style={styles.featureTitle}>{heroStop.title}</Text>
-          <Text style={styles.featureMeta}>
-            {selectedTour.title} | {selectedTour.durationMin} min walk | {selectedTour.distanceMiles} mi
-          </Text>
-          <Text style={styles.featureBody}>{heroStop.description}</Text>
-          <View style={styles.heroChips}>
-            <Chip label={heroStop.arType ? heroStop.arType.replaceAll("_", " ") : "story stop"} tone="warn" />
-            <Chip label={`${heroStop.triggerRadiusM}m reveal radius`} tone="default" />
-            <Chip {...getCoverageMeta(getNarrationCoverage(heroStop.id))} />
-            <Chip label={fullAudioOnly ? `${fullAudioCount} full-audio stops in this pack` : `${visibleStops.length} visible stops`} tone="default" />
+            <PrimaryButton
+              label={
+                highlightedStopLocked
+                  ? "Purchase Full App Content"
+                  : narration.stopId === highlightedStop.id && narration.status === "playing"
+                    ? highlightedNarrationMeta?.activeLabel || "Replay Narration"
+                    : highlightedNarrationMeta?.idleLabel || "Hear Narration"
+              }
+              onPress={() => void onPlayHighlightedNarration()}
+            />
+            {narration.stopId === highlightedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
+              <PrimaryButton label={highlightedNarrationMeta?.stopLabel || "Stop Narration"} onPress={onStopHighlightedNarration} />
+            ) : null}
+            {nextStop ? (
+              <PrimaryButton
+                label={nextStopLocked ? "Purchase Full App Content" : "Play Next Stop"}
+                onPress={() => void onPlayNextStop()}
+                disabled={nextStopLocked ? false : !canPlayNextStop}
+              />
+            ) : null}
           </View>
         </Card>
       ) : null}
 
       {selectedTour ? (
         <Card style={styles.routeCard}>
-          <Text style={styles.sectionTitle}>On This Route</Text>
-          {visibleStops.slice(0, 5).map((stop, index) => (
-            <View key={stop.id} style={styles.routeRow}>
+          <Text style={styles.sectionTitle}>Stops In This Tour Pack</Text>
+          <Text style={styles.sectionMeta}>
+            {fullAudioOnly
+              ? "Showing only stops with recorded full audio."
+              : hasPaidAudioAccess
+                ? "All stops are available to hear in order."
+                : "The first two stops are free. Later stops unlock with full app purchase."}
+          </Text>
+          {visibleStops.map((stop, index) => (
+            <Pressable key={stop.id} style={[styles.routeRow, activeStopId === stop.id && styles.routeRowActive]} onPress={() => setActiveStopId(stop.id)}>
               <View style={styles.routeIndex}><Text style={styles.routeIndexText}>{index + 1}</Text></View>
               <View style={styles.routeContent}>
                 <Text style={styles.routeTitle}>{stop.title}</Text>
                 <View style={styles.routeChips}>
+                  <Chip label={index < previewLimit || hasPaidAudioAccess ? "Open now" : "Purchase required"} tone={index < previewLimit || hasPaidAudioAccess ? "success" : "warn"} />
                   <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
                 </View>
                 <Text style={styles.routeMeta} numberOfLines={2}>{stop.description}</Text>
+                {audioHistoryOnlyUnlocked ? (
+                  <PrimaryButton
+                    label={narration.stopId === stop.id && narration.status === "playing" ? "Replay Stop History" : "Hear Stop History"}
+                    onPress={() => void onPlayStopNarration(stop)}
+                  />
+                ) : null}
               </View>
-            </View>
+            </Pressable>
           ))}
           {visibleStops.length === 0 ? <Text style={styles.routeMeta}>No full-audio stops in this pack yet.</Text> : null}
         </Card>
@@ -261,198 +310,216 @@ export function HomeScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 18,
-    gap: 18,
-    backgroundColor: "#060312"
-  },
-  heroPanel: {
-    borderRadius: 30,
-    padding: 22,
-    gap: 12,
-    backgroundColor: "#130a25",
-    borderWidth: 1,
-    borderColor: "rgba(255, 191, 173, 0.16)"
-  },
-  heroEyebrow: {
-    color: "#ff9ab2",
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 1.2
-  },
-  heroTitle: {
-    color: "#fff3ea",
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "800"
-  },
-  heroCopy: {
-    color: "#d8c7df",
-    fontSize: 15,
-    lineHeight: 22
-  },
-  heroChips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
-  },
-  welcomeCard: {
-    backgroundColor: "#1a102e",
-    borderColor: "rgba(255,255,255,0.06)",
-    gap: 6
-  },
-  welcomeTitle: {
-    color: "#fff7f1",
-    fontSize: 22,
-    fontWeight: "800"
-  },
-  welcomeCopy: {
-    color: "#cdbed5",
-    lineHeight: 21
-  },
-  handoffCard: {
-    backgroundColor: "#24112c",
-    borderColor: "rgba(255, 140, 168, 0.28)",
-    gap: 12
-  },
-  driveCard: {
-    backgroundColor: "#201228",
-    borderColor: "rgba(143, 215, 195, 0.24)",
-    gap: 12
-  },
-  handoffActions: {
-    gap: 10
-  },
-  driveTitle: {
-    color: "#fff8f3",
-    fontSize: 24,
-    lineHeight: 29,
-    fontWeight: "800"
-  },
-  driveCopy: {
-    color: "#e4d7e7",
-    lineHeight: 21
-  },
-  handoffTitle: {
-    color: "#fff8f3",
-    fontSize: 26,
-    lineHeight: 31,
-    fontWeight: "800"
-  },
-  handoffCopy: {
-    color: "#ead7e2",
-    lineHeight: 22
-  },
-  sectionHeader: {
-    gap: 4
-  },
-  sectionTitle: {
-    color: "#fff0e4",
-    fontSize: 22,
-    fontWeight: "800"
-  },
-  sectionMeta: {
-    color: "#b69fbe",
-    fontSize: 13
-  },
-  packList: {
-    gap: 14
-  },
-  packCard: {
-    borderRadius: 24,
-    padding: 20,
-    gap: 10,
-    backgroundColor: "#120a22",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)"
-  },
-  packCardActive: {
-    borderColor: "rgba(255, 140, 168, 0.65)",
-    backgroundColor: "#1b0f31"
-  },
-  packTitle: {
-    color: "#f4e6f0",
-    fontSize: 19,
-    fontWeight: "800"
-  },
-  packTitleActive: {
-    color: "#fff7f1"
-  },
-  packMeta: {
-    color: "#d2bfca",
-    fontSize: 13,
-    lineHeight: 18
-  },
-  packBody: {
-    color: "#bdaec7",
-    lineHeight: 21
-  },
-  featureCard: {
-    backgroundColor: "#2b1530",
-    borderColor: "rgba(255, 176, 132, 0.2)",
-    gap: 12
-  },
-  featureEyebrow: {
-    color: "#ffbc8a",
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 0.9
-  },
-  featureTitle: {
-    color: "#fff8f3",
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: "800"
-  },
-  featureMeta: {
-    color: "#dbc3cf",
-    lineHeight: 19
-  },
-  featureBody: {
-    color: "#f3e8ef",
-    lineHeight: 23
-  },
-  routeCard: {
-    backgroundColor: "#120a22",
-    gap: 4
-  },
-  routeRow: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start",
-    paddingVertical: 8
-  },
-  routeIndex: {
-    width: 28,
-    height: 28,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8ca8"
-  },
-  routeIndexText: {
-    color: "#220b16",
-    fontWeight: "800",
-    fontSize: 12
-  },
-  routeContent: {
-    flex: 1,
-    gap: 4
-  },
-  routeChips: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
-  },
-  routeTitle: {
-    color: "#fff1e8",
-    fontWeight: "700",
-    fontSize: 16
-  },
-  routeMeta: {
-    color: "#c6b3c5",
-    lineHeight: 20
+function createStyles(
+  colors: AppPalette,
+  type: {
+    font: (size: number) => number;
+    line: (height: number) => number;
   }
-});
+) {
+  return StyleSheet.create({
+    container: {
+      padding: 18,
+      gap: 18,
+      backgroundColor: colors.background
+    },
+    heroPanel: {
+      borderRadius: 30,
+      padding: 22,
+      gap: 12,
+      backgroundColor: colors.backgroundElevated,
+      borderWidth: 1,
+      borderColor: colors.border
+    },
+    heroEyebrow: {
+      color: colors.warn,
+      fontSize: type.font(12),
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 1.2
+    },
+    heroTitle: {
+      color: colors.text,
+      fontSize: type.font(34),
+      lineHeight: type.line(40),
+      fontWeight: "800"
+    },
+    heroCopy: {
+      color: colors.textSoft,
+      fontSize: type.font(15),
+      lineHeight: type.line(22)
+    },
+    heroChips: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8
+    },
+    welcomeCard: {
+      gap: 6
+    },
+    welcomeTitle: {
+      color: colors.text,
+      fontSize: type.font(22),
+      fontWeight: "800"
+    },
+    welcomeCopy: {
+      color: colors.textSoft,
+      lineHeight: type.line(21),
+      fontSize: type.font(14)
+    },
+    handoffCard: {
+      backgroundColor: colors.surfaceRaised,
+      borderColor: colors.dangerSoft,
+      gap: 12
+    },
+    handoffActions: {
+      gap: 10
+    },
+    handoffTitle: {
+      color: colors.text,
+      fontSize: type.font(26),
+      lineHeight: type.line(31),
+      fontWeight: "800"
+    },
+    handoffStep: {
+      color: colors.textMuted,
+      fontSize: type.font(12),
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 1
+    },
+    handoffCopy: {
+      color: colors.textSoft,
+      lineHeight: type.line(22),
+      fontSize: type.font(14)
+    },
+    purchaseCopy: {
+      color: colors.textSoft,
+      lineHeight: type.line(20),
+      fontSize: type.font(13)
+    },
+    sectionHeader: {
+      gap: 4
+    },
+    sectionTitle: {
+      color: colors.text,
+      fontSize: type.font(22),
+      fontWeight: "800"
+    },
+    sectionMeta: {
+      color: colors.textMuted,
+      fontSize: type.font(13)
+    },
+    packList: {
+      gap: 14
+    },
+    packTabs: {
+      gap: 10,
+      paddingRight: 18
+    },
+    packTab: {
+      width: 196,
+      minHeight: 86,
+      borderRadius: 22,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      justifyContent: "center",
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border
+    },
+    packTabActive: {
+      borderColor: "#007eff",
+      backgroundColor: colors.infoSoft
+    },
+    packTabTitle: {
+      color: colors.text,
+      fontSize: type.font(15),
+      lineHeight: type.line(20),
+      fontWeight: "800"
+    },
+    packTabTitleActive: {
+      color: colors.info
+    },
+    packDetailCard: {
+      backgroundColor: colors.surface,
+      borderColor: colors.infoSoft,
+      gap: 12
+    },
+    packCard: {
+      borderRadius: 24,
+      padding: 20,
+      gap: 10,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border
+    },
+    packCardActive: {
+      borderColor: "#007eff",
+      backgroundColor: colors.surfaceSoft
+    },
+    packTitle: {
+      color: colors.text,
+      fontSize: type.font(19),
+      fontWeight: "800"
+    },
+    packTitleActive: {
+      color: colors.text
+    },
+    packMeta: {
+      color: colors.textSoft,
+      fontSize: type.font(13),
+      lineHeight: type.line(18)
+    },
+    packBody: {
+      color: colors.textMuted,
+      lineHeight: type.line(21),
+      fontSize: type.font(14)
+    },
+    routeCard: {
+      gap: 14
+    },
+    routeRow: {
+      flexDirection: "row",
+      gap: 14,
+      alignItems: "flex-start"
+    },
+    routeRowActive: {
+      padding: 12,
+      borderRadius: 18,
+      backgroundColor: colors.surfaceSoft
+    },
+    routeIndex: {
+      width: 30,
+      height: 30,
+      borderRadius: 999,
+      backgroundColor: colors.surfaceSoft,
+      alignItems: "center",
+      justifyContent: "center"
+    },
+    routeIndexText: {
+      color: colors.text,
+      fontWeight: "800",
+      fontSize: type.font(13)
+    },
+    routeContent: {
+      flex: 1,
+      gap: 6
+    },
+    routeTitle: {
+      color: colors.text,
+      fontSize: type.font(16),
+      fontWeight: "700"
+    },
+    routeChips: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8
+    },
+    routeMeta: {
+      color: colors.textSoft,
+      fontSize: type.font(13),
+      lineHeight: type.line(20)
+    }
+  });
+}

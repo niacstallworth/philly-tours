@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "jobId": "ar-job-black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+  "status": "planned",
+  "stop": {
+    "stopId": "black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+    "stopTitle": "Lewis Latimer Light Bulb Exhibit",
+    "tourId": "black-inventors-tour",
+    "tourTitle": "Black Inventors Tour",
+    "arPriority": 1,
+    "arType": "animated_diagram",
+    "assetStatus": "in_production"
+  },
+  "sourceFiles": {
+    "catalogCsv": "docs/ar-asset-catalog.csv",
+    "productionBrief": "docs/ar-briefs/black-inventors-tour-lewis-latimer-light-bulb-exhibit.md",
+    "sceneManifest": "docs/ar-scene-manifests/black-inventors-tour-lewis-latimer-light-bulb-exhibit.json"
+  },
+  "runtimeTargets": {
+    "iosAsset": "/models/lewis-latimer-light-bulb-exhibit.usdz",
+    "androidAsset": "/models/lewis-latimer-light-bulb-exhibit.glb",
+    "webAsset": "/models/lewis-latimer-light-bulb-exhibit.glb"
+  },
+  "placement": {
+    "anchorStyle": "front_of_user",
+    "coordQuality": "approximate",
+    "triggerRadiusM": 40,
+    "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+    "fallbackType": "card",
+    "scale": 0.9,
+    "rotationYDeg": 180,
+    "verticalOffsetM": 0
+  },
+  "creativeDirection": {
+    "headline": "Animated explainer scene",
+    "conceptGoal": "Create a readable explanatory object or mechanism scene where motion supports understanding.",
+    "assetNeeded": "filament model; patent diagram animation; inventor card",
+    "historicalEra": "late 19th century innovation",
+    "stylePreset": "documentary",
+    "visualPriority": "readability",
+    "estimatedEffort": "medium",
+    "notes": "[strategy-reset] object-centered AR candidate prioritized over building/site reconstruction",
+    "negativePrompt": "messy composition, extra parts, abstract background noise, unreadable labels"
+  },
+  "scenePlan": {
+    "contentLayers": [
+      "filament model",
+      "patent diagram animation",
+      "inventor card",
+      "primary mechanism",
+      "step labels",
+      "motion sequence overlays"
+    ],
+    "productionChecklist": [
+      "Approve mechanism breakdown",
+      "Check animation step order",
+      "Verify label legibility"
+    ]
+  },
+  "aiGuardrails": [
+    "Use AI for concept ideation, moodboards, references, and rough starting geometry only.",
+    "Do not treat 2D image output as the final AR object.",
+    "Final user-facing output must become a cleaned 3D asset packaged as .usdz for iOS and .glb for Android/web.",
+    "Favor historically grounded scenes over speculative spectacle.",
+    "Optimize for one clear AR moment at a time rather than layered clutter."
+  ],
+  "pipeline": {
+    "apiStages": [
+      "text_brief",
+      "concept_image",
+      "rough_mesh"
+    ],
+    "workingDirectory": "docs/ar-job-packs/black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+    "expectedOutputs": {
+      "conceptBrief": "docs/ar-job-packs/black-inventors-tour-lewis-latimer-light-bulb-exhibit/prompts.md#text-brief-prompt",
+      "conceptImagePrompt": "docs/ar-job-packs/black-inventors-tour-lewis-latimer-light-bulb-exhibit/prompts.md#concept-image-prompt",
+      "roughMeshPrompt": "docs/ar-job-packs/black-inventors-tour-lewis-latimer-light-bulb-exhibit/prompts.md#rough-mesh-prompt",
+      "draftAssetWorkspace": "generated/ar/black-inventors-tour-lewis-latimer-light-bulb-exhibit/",
+      "finalRuntimeAssets": {
+        "ios": "/models/lewis-latimer-light-bulb-exhibit.usdz",
+        "android": "/models/lewis-latimer-light-bulb-exhibit.glb",
+        "web": "/models/lewis-latimer-light-bulb-exhibit.glb"
+      }
+    }
+  },
+  "promptPack": {
+    "textBriefPrompt": "You are preparing an internal production brief for a mobile AR scene.\nThe output should help a human artist or producer create a historically grounded 3D asset.\nDo not describe final app UI, dashboards, or developer tooling.\n\nStop: Lewis Latimer Light Bulb Exhibit\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: late 19th century innovation\nStyle preset: documentary\nVisual priority: readability\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: filament model, patent diagram animation, inventor card, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nAsset request from catalog: filament model; patent diagram animation; inventor card\nProducer notes: [strategy-reset] object-centered AR candidate prioritized over building/site reconstruction\n\nReturn:\n1. A concise scene concept paragraph.\n2. A composition breakdown with foreground, midground, and background.\n3. A material/reference checklist.\n4. A risk list covering historical accuracy, readability, and placement drift concerns.\n5. Recommended reference imagery or archival material to gather before modeling.",
+    "conceptImagePrompt": "Generate an internal concept image only. This is not the final runtime asset.\nThe image should help art direction, lighting, composition, and texture planning for a future 3D model.\nPreserve historical plausibility and avoid speculative sci-fi embellishment.\n\nStop: Lewis Latimer Light Bulb Exhibit\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: late 19th century innovation\nStyle preset: documentary\nVisual priority: readability\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: filament model, patent diagram animation, inventor card, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nScene headline: Animated explainer scene\nDesired visual emphasis: readability\nTarget atmosphere: documentary\n\nRequirements:\n- Keep the scene legible as a single clear AR moment.\n- Avoid crowded compositions and complex HUD overlays.\n- Bias toward forms that can be translated cleanly into a 3D asset.\n- Avoid: messy composition, extra parts, abstract background noise, unreadable labels",
+    "roughMeshPrompt": "Generate a rough 3D blockout or starting geometry only.\nThis output will be cleaned manually before becoming a production AR asset.\nDo not assume the generated mesh is final quality.\n\nStop: Lewis Latimer Light Bulb Exhibit\nTour: Black Inventors Tour\nAR type: animated_diagram\nScene goal: Create a readable explanatory object or mechanism scene where motion supports understanding.\nHistorical era: late 19th century innovation\nStyle preset: documentary\nVisual priority: readability\nRuntime placement: Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.\nRequested content layers: filament model, patent diagram animation, inventor card, primary mechanism, step labels, motion sequence overlays\nFallback type: card\nNegative prompt / avoid list: messy composition, extra parts, abstract background noise, unreadable labels\n\nPrimary asset request: filament model; patent diagram animation; inventor card\nExpected runtime targets: iOS /models/lewis-latimer-light-bulb-exhibit.usdz, Android /models/lewis-latimer-light-bulb-exhibit.glb, Web /models/lewis-latimer-light-bulb-exhibit.glb\n\nRequirements:\n- Prioritize silhouette, scale, and spatial readability over decorative detail.\n- Preserve clean separable geometry for manual cleanup in Blender or similar tools.\n- Favor historically plausible massing and proportions.\n- Avoid: messy composition, extra parts, abstract background noise, unreadable labels"
+  }
+}
