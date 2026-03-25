@@ -40,6 +40,8 @@ function loadDotEnvFile(filePath) {
   }
 }
 
+loadDotEnvFile(path.join(__dirname, "..", ".env.server.local"));
+loadDotEnvFile(path.join(__dirname, "..", ".env.server"));
 loadDotEnvFile(path.join(__dirname, "..", ".env"));
 
 const PORT = Number(process.env.PORT || 4000);
