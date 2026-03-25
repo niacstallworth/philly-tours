@@ -1,0 +1,23 @@
+[Unit]
+Description=Philly Tours Sync Server
+After=network.target
+
+[Service]
+Type=simple
+User=philly
+Group=philly
+WorkingDirectory=/srv/philly-tours
+EnvironmentFile=/etc/philly-tours/sync-server.env
+ExecStart=/usr/bin/env node server/sync-server.js
+Restart=always
+RestartSec=5
+
+# Lock down the service a bit
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/philly-tours
+
+[Install]
+WantedBy=multi-user.target

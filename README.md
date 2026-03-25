@@ -78,6 +78,12 @@ Production-oriented auth notes:
 - Builder/admin access is configured from `BUILDER_ADMIN_ACCOUNTS_JSON`, not from bundled client credentials.
 - Legacy `ADMIN_API_KEY` support is optional and should stay disabled in production.
 
+Deployment docs:
+
+- `docs/server-deployment.md`
+- `deploy/sync-server.env.example`
+- `deploy/philly-tours-sync.service.example`
+
 Stripe webhook forwarding:
 
 ```bash
