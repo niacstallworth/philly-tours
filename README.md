@@ -167,3 +167,5 @@ npm run builder:admins:map
 Then copy the printed JSON into your server environment as `BUILDER_ADMIN_ACCOUNTS_JSON` and set a strong `AUTH_JWT_SECRET`.
 
 Do not commit real builder/admin credentials to the repo.
+
+Questions or want to collaborate? Open an issue.
