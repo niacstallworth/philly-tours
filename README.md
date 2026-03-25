@@ -92,6 +92,9 @@ npm run stripe:listen
 
 Development builds can read `EXPO_PUBLIC_SYNC_SERVER_URL` from local `.env`.
 
+For local backend work, keep server-only secrets in `.env.server.local` or `.env.server`.
+The sync server loads those before `.env`, so client-safe `EXPO_PUBLIC_*` values can stay in `.env` without mixing in private server credentials.
+
 EAS preview / release builds do not get your local `.env`, so required public values must be set in `eas.json` or in EAS environment configuration.
 
 ## EAS Builds
