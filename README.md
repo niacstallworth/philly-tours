@@ -121,6 +121,7 @@ The Apple Team ID should come from Xcode signing for the app target.
 Important:
 
 - These are native iOS build settings, not `EXPO_PUBLIC_*` values.
+- Set them locally in Xcode for your personal build environment. Do not commit real Meta app credentials to `project.pbxproj`.
 - The current companion setup screen will now explain which Meta DAT values are still placeholders.
 - The real Meta project credentials should come from the Wearables Developer Center, not from the app bundle or backend env.
 
