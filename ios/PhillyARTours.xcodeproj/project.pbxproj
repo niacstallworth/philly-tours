@@ -26,8 +26,8 @@
 
 /* Begin PBXFileReference section */
 		03E26A4356903BA54F95B8F6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = PhillyARTours/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PhillyNativeWearables.m; path = PhillyARTours/PhillyNativeWearables.m; sourceTree = "<group>"; };
 		0CDE2D762F68F086006B5D36 /* PhillyARToursRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = PhillyARToursRelease.entitlements; path = PhillyARTours/PhillyARToursRelease.entitlements; sourceTree = "<group>"; };
+		0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PhillyNativeWearables.m; path = PhillyARTours/PhillyNativeWearables.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* PhillyARTours.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhillyARTours.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PhillyARTours/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PhillyARTours/Info.plist; sourceTree = "<group>"; };
