@@ -7,7 +7,7 @@ Philly Tours is an Expo / React Native app for Philadelphia tour storytelling, h
 - Main shell: Home, Scavenger Hunt, and Profile
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Hosted payments + entitlement sync: `src/services/payments.ts` and `server/sync-server.js`
-- Builder access gate: `src/services/builderAccess.ts`
+- Server-issued session auth: `src/services/auth.ts` and `server/sync-server.js`
 - Shared theming and UI primitives: `src/theme/appTheme.tsx` and `src/components/ui/Primitives.tsx`
 
 ## Key Files
@@ -36,6 +36,24 @@ Start Metro for the dev client:
 npm run start:metro:dev-client
 ```
 
+Run the static webapp with generated data:
+
+```bash
+npm run webapp:serve
+```
+
+Build a deployable static bundle:
+
+```bash
+npm run webapp:build
+```
+
+Build and package an upload-ready release:
+
+```bash
+npm run webapp:package
+```
+
 Run the local backend:
 
 ```bash
@@ -53,6 +71,7 @@ Notes:
 - Open the `.xcworkspace`, not the `.xcodeproj`.
 - Device builds need local network access if they are expected to talk to Metro or the local sync server.
 - If the app shows `localhost:4000` in a release build, that build was created without the correct EAS public env baked in.
+- Web camera and geolocation features work on `http://localhost`, but public browser deployments should use `https`.
 
 ## Environment
 
@@ -61,6 +80,7 @@ Example environment values live in `.env.example`.
 Important groups:
 
 - Expo public app config
+- Server auth + builder/admin accounts
 - Stripe checkout + webhooks
 - Apple / Google purchase verification
 - AWS Polly narration generation
@@ -70,6 +90,22 @@ Important groups:
 
 The local sync server lives in `server/sync-server.js`.
 
+Production-oriented auth notes:
+
+- Every app session is now issued by the backend as a signed JWT.
+- Tourist mode still uses lightweight sign-in, but backend requests are authenticated instead of trusting raw client headers.
+- Builder/admin access is configured from `BUILDER_ADMIN_ACCOUNTS_JSON`, not from bundled client credentials.
+- Legacy `ADMIN_API_KEY` support is optional and should stay disabled in production.
+
+Deployment docs:
+
+- `docs/server-deployment.md`
+- `docs/webapp-deployment.md`
+- `docs/production-launch-checklist.md`
+- `docs/meta-wearables-companion-plan.md`
+- `deploy/sync-server.env.example`
+- `deploy/philly-tours-sync.service.example`
+
 Stripe webhook forwarding:
 
 ```bash
@@ -78,7 +114,36 @@ npm run stripe:listen
 
 Development builds can read `EXPO_PUBLIC_SYNC_SERVER_URL` from local `.env`.
 
+For local backend work, keep server-only secrets in `.env.server.local` or `.env.server`.
+The sync server loads those before `.env`, so client-safe `EXPO_PUBLIC_*` values can stay in `.env` without mixing in private server credentials.
+
 EAS preview / release builds do not get your local `.env`, so required public values must be set in `eas.json` or in EAS environment configuration.
+
+## Meta Wearables DAT iOS Setup
+
+The Meta iOS SDK is wired into the Xcode project via Swift Package Manager, but pairing will stay unavailable until the iOS target has real DAT project values.
+
+Current required `MWDAT` values:
+
+- `MetaAppID`
+- `ClientToken`
+- `AppLinkURLScheme`
+
+In this repo they are currently exposed as iOS target build settings:
+
+- `META_WEARABLES_APP_ID`
+- `META_WEARABLES_CLIENT_TOKEN`
+- `META_WEARABLES_APP_LINK_URL_SCHEME`
+
+The app reads those into `ios/PhillyARTours/Info.plist` under `MWDAT`. Replace the placeholder values in the Xcode target before testing Meta glasses registration on device.
+The Apple Team ID should come from Xcode signing for the app target.
+
+Important:
+
+- These are native iOS build settings, not `EXPO_PUBLIC_*` values.
+- Set them locally in Xcode for your personal build environment. Do not commit real Meta app credentials to `project.pbxproj`.
+- The current companion setup screen will now explain which Meta DAT values are still placeholders.
+- The real Meta project credentials should come from the Wearables Developer Center, not from the app bundle or backend env.
 
 ## EAS Builds
 
@@ -144,17 +209,20 @@ npm run ar:catalog:sync-runtime
 
 ## Builder Access
 
-Builder mode is driven by:
+Builder/admin credentials are server-side only. Source and generation flow:
 
 - `docs/builder-admins.csv`
-- `src/data/builderAdminCredentials.ts`
+- `scripts/generate-builder-admin-credentials.mjs`
+- `generated/builder-admin-accounts.json`
 
-Regenerate credentials after editing the CSV:
+Generate hashed account records after editing the CSV:
 
 ```bash
 npm run builder:admins:map
 ```
 
-This is an internal client-side gate, not production-grade server auth.
+Then copy the printed JSON into your server environment as `BUILDER_ADMIN_ACCOUNTS_JSON` and set a strong `AUTH_JWT_SECRET`.
 
-Made with ❤️ for Philadelphia storytelling. Questions or want to collaborate? Open an issue!
+Do not commit real builder/admin credentials to the repo.
+
+Questions or want to collaborate? Open an issue.
