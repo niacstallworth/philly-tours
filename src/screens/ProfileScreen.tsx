@@ -17,6 +17,7 @@ type Props = {
   fullAppUnlocked?: boolean;
   onRefreshEntitlements?: () => Promise<void>;
   onDeleteProfile?: () => void;
+  onOpenCompanion?: () => void;
 };
 
 WebBrowser.maybeCompleteAuthSession();
@@ -27,7 +28,8 @@ export function ProfileScreen({
   audioHistoryOnlyUnlocked = false,
   fullAppUnlocked = false,
   onRefreshEntitlements,
-  onDeleteProfile
+  onDeleteProfile,
+  onOpenCompanion
 }: Props) {
   const { appearanceMode, setAppearanceMode, textScale, setTextScale, colors } = useAppTheme();
   const type = useTypeScale();
@@ -184,6 +186,14 @@ export function ProfileScreen({
             );
           })}
         </View>
+      </Card>
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Meta Glasses Companion</Text>
+        <Text style={styles.copy}>
+          Pair Meta glasses, confirm DAT registration, and check camera permission for the hands-free companion flow.
+        </Text>
+        <PrimaryButton onPress={onOpenCompanion || (() => undefined)} disabled={!onOpenCompanion} label="Open Companion Setup" />
       </Card>
 
       <Card style={styles.card}>

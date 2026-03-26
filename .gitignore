@@ -17,6 +17,7 @@ ios/Pods/
 ios/.xcode.env.local
 ios/*.xcworkspace/
 ios/**/*.xcuserdata/
+ios/PhillyARTours/Supporting/MetaWearables.local.xcconfig
 .DS_Store
 *.swp
 *.swo

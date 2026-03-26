@@ -1,5 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { CompanionSetupScreen } from "../screens/CompanionSetupScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
@@ -26,7 +27,7 @@ type Props = {
 export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, fullAppUnlocked, onRefreshEntitlements, onDeleteProfile }: Props) {
   const colors = useThemeColors();
   const type = useTypeScale();
-  const [tab, setTab] = React.useState<"Home" | "Hunt" | "Profile">("Home");
+  const [tab, setTab] = React.useState<"Home" | "Hunt" | "Profile" | "Companion">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
 
   React.useEffect(() => {
@@ -64,6 +65,13 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
         </ThemeSurfaceProvider>
       );
     }
+    if (tab === "Companion") {
+      return (
+        <ThemeSurfaceProvider surface="profile">
+          <CompanionSetupScreen />
+        </ThemeSurfaceProvider>
+      );
+    }
     return (
       <ThemeSurfaceProvider surface="profile">
         <ProfileScreen
@@ -73,6 +81,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
           fullAppUnlocked={fullAppUnlocked}
           onRefreshEntitlements={onRefreshEntitlements}
           onDeleteProfile={onDeleteProfile}
+          onOpenCompanion={() => setTab("Companion")}
         />
       </ThemeSurfaceProvider>
     );
