@@ -6,6 +6,7 @@ build/
 generated/
 tmp/
 web-dist/
+web-release/
 *.log
 *.tmp
 *.temp
