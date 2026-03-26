@@ -1,2 +1,2 @@
 email,password,displayName,roles,active
-builder@example.com,replace_with_long_unique_password,Builder Admin,"builder|admin",false
+,,Builder Admin,"builder|admin",false
