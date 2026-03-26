@@ -4,6 +4,7 @@ import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
+import { setCurrentTourSelection } from "../services/tourControl";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 
 type Props = {
@@ -77,6 +78,11 @@ export function HomeScreen({
       return highlightedStopId && visibleStops.some((stop) => stop.id === highlightedStopId) ? highlightedStopId : visibleStops[0]?.id || null;
     });
   }, [highlightedStopId, visibleStops]);
+
+  React.useEffect(() => {
+    setCurrentTourSelection(selectedTour?.id || null, activeStopId || highlightedStopId || visibleStops[0]?.id || null);
+  }, [activeStopId, highlightedStopId, selectedTour?.id, visibleStops]);
+
   const highlightedStop = React.useMemo(() => {
     const preferredStopId = activeStopId || highlightedStopId;
     return visibleStops.find((stop) => stop.id === preferredStopId) || visibleStops[0] || null;
