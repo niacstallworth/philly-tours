@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { connectCompanion, disconnectCompanion } from "../services/companion";
+import { connectCompanion, disconnectCompanion, refreshCompanionStatus } from "../services/companion";
 import { useCompanionSession } from "../hooks/useCompanionSession";
 import { type AppPalette, useTypeScale, useThemeColors } from "../theme/appTheme";
 
@@ -12,6 +12,14 @@ export function CompanionSetupScreen() {
   const { status } = useCompanionSession();
   const [busy, setBusy] = React.useState<"pair" | "disconnect" | null>(null);
   const [message, setMessage] = React.useState<string | null>(status.lastError);
+
+  React.useEffect(() => {
+    void refreshCompanionStatus();
+  }, []);
+
+  React.useEffect(() => {
+    setMessage(status.lastError ?? status.statusMessage ?? null);
+  }, [status.lastError, status.statusMessage]);
 
   async function onPair() {
     setBusy("pair");
@@ -53,12 +61,12 @@ export function CompanionSetupScreen() {
         <Text style={styles.value}>{status.grantedPermissions.length ? status.grantedPermissions.join(", ") : "None granted"}</Text>
         {message ? <Text style={styles.message}>{message}</Text> : null}
         <PrimaryButton
-          label={busy === "pair" ? "Pairing..." : "Pair Meta Glasses"}
+          label={busy === "pair" ? "Connecting..." : "Connect Meta Glasses"}
           onPress={() => void onPair()}
           disabled={busy !== null}
         />
         <PrimaryButton
-          label={busy === "disconnect" ? "Disconnecting..." : "Disconnect"}
+          label={busy === "disconnect" ? "Disconnecting..." : "Remove Meta Registration"}
           onPress={() => void onDisconnect()}
           disabled={busy !== null}
         />

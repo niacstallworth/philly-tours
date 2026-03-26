@@ -1,4 +1,5 @@
 import Expo
+import MWDATCore
 import React
 import ReactAppDependencyProvider
 
@@ -40,9 +41,7 @@ public class AppDelegate: ExpoAppDelegate {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    if MetaWearablesManager.shared.handleOpenURL(url) {
-      return true
-    }
+    MetaWearablesManager.shared.handleOpenURL(url)
     return super.application(app, open: url, options: options) || RCTLinkingManager.application(app, open: url, options: options)
   }
 
@@ -52,9 +51,7 @@ public class AppDelegate: ExpoAppDelegate {
     continue userActivity: NSUserActivity,
     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
   ) -> Bool {
-    if MetaWearablesManager.shared.handleUserActivity(userActivity) {
-      return true
-    }
+    MetaWearablesManager.shared.handleUserActivity(userActivity)
     let result = RCTLinkingManager.application(application, continue: userActivity, restorationHandler: restorationHandler)
     return super.application(application, continue: userActivity, restorationHandler: restorationHandler) || result
   }
@@ -89,44 +86,325 @@ enum MetaWearablesConnectionState: String {
   case error
 }
 
+@MainActor
 final class MetaWearablesManager {
   static let shared = MetaWearablesManager()
 
-  private(set) var connectionState: MetaWearablesConnectionState = .unavailable
-  private(set) var statusMessage: String = "Meta Wearables Device Access Toolkit not installed."
+  private var didConfigure = false
+  private var observers: [NSObjectProtocol] = []
+  private var sessionToken: ObjC_AnyListenerToken?
+  private var activeDeviceId: String?
+  private var activeSessionState: SessionState = .stopped
+  private var lastErrorMessage: String?
+  private var statusNote: String?
+
+  private var wearables: ObjC_Wearables {
+    ObjC_Wearables.sharedInstance
+  }
 
   private init() {}
 
   func configureIfAvailable() {
-    connectionState = .unavailable
-    statusMessage = "Meta Wearables package not linked yet. Add https://github.com/facebook/meta-wearables-dat-ios in Xcode."
+    guard !didConfigure else { return }
 
-    // Future integration point:
-    // 1. `import` the Meta package here once it is added via Swift Package Manager.
-    // 2. Initialize toolkit registration/device management during app launch.
-    // 3. Publish connection state to React Native through a native bridge or event emitter.
+    var configurationError: NSError?
+    ObjC_Wearables.configure(&configurationError)
+
+    didConfigure = true
+    installObservers()
+
+    if let configurationError {
+      lastErrorMessage = configurationError.localizedDescription
+    } else {
+      lastErrorMessage = nil
+      statusNote = "Meta DAT configured for this build."
+    }
+
+    Task { await syncFromToolkit() }
   }
 
-  func beginPairing() {
-    connectionState = .error
-    statusMessage = "Pairing is not available until the Meta Wearables Device Access Toolkit is linked."
+  func beginPairing() async throws -> [String: Any] {
+    await syncFromToolkit()
+    lastErrorMessage = nil
+
+    switch wearables.registrationState {
+    case .available:
+      do {
+        try await wearables.startRegistration()
+        statusNote = "Meta registration started. Complete the flow in the Meta AI app, then return here."
+      } catch {
+        lastErrorMessage = error.localizedDescription
+        throw error
+      }
+    case .registering:
+      statusNote = "Meta registration is already in progress."
+    case .registered:
+      statusNote = wearables.devices.isEmpty
+        ? "Meta registration is complete. Power on paired glasses in the Meta AI app to continue."
+        : "Meta glasses are already registered."
+
+      if wearables.devices.first != nil {
+        do {
+          _ = try await wearables.requestPermission(.camera)
+        } catch {
+          lastErrorMessage = error.localizedDescription
+        }
+      }
+    case .unavailable:
+      let error = NSError(
+        domain: "MetaWearables",
+        code: 1,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "Meta wearables registration is unavailable. Check DAT project configuration and ensure the Meta AI app is installed."
+        ]
+      )
+      lastErrorMessage = error.localizedDescription
+      throw error
+    }
+
+    return await statusPayload()
   }
 
-  func disconnect() {
-    connectionState = .disconnected
-    statusMessage = "Wearable session disconnected."
+  func disconnect() async throws -> [String: Any] {
+    await syncFromToolkit()
+    lastErrorMessage = nil
+
+    guard wearables.registrationState == .registered else {
+      statusNote = "No active Meta registration to remove."
+      return await statusPayload()
+    }
+
+    do {
+      try await wearables.startUnregistration()
+      statusNote = "Meta wearables unregistration started in the Meta AI app."
+    } catch {
+      lastErrorMessage = error.localizedDescription
+      throw error
+    }
+
+    return await statusPayload()
   }
 
-  func handleOpenURL(_ url: URL) -> Bool {
-    // Future integration point for Meta toolkit callback URLs or pairing continuations.
-    // Returning false keeps current React Native deep-link behavior unchanged.
-    _ = url
-    return false
+  func handleOpenURL(_ url: URL) {
+    Task {
+      do {
+        let handled = try await wearables.handleUrl(url)
+        if handled {
+          lastErrorMessage = nil
+          statusNote = "Meta registration callback received."
+        }
+      } catch {
+        lastErrorMessage = error.localizedDescription
+      }
+
+      await syncFromToolkit()
+    }
   }
 
-  func handleUserActivity(_ userActivity: NSUserActivity) -> Bool {
-    // Future integration point for any Meta pairing/session continuation user activity.
+  func handleUserActivity(_ userActivity: NSUserActivity) {
+    // Keep the hook in place for future DAT user-activity based flows.
     _ = userActivity
-    return false
+  }
+
+  func statusPayload() async -> [String: Any] {
+    await syncFromToolkit()
+    let permissions = await grantedPermissions()
+    let connectionState = currentConnectionState()
+    let statusMessage = currentStatusMessage(for: connectionState)
+
+    return [
+      "supported": true,
+      "connectionState": connectionState.rawValue,
+      "pairedDevice": devicePayload() ?? NSNull(),
+      "grantedPermissions": permissions,
+      "lastError": lastErrorMessage ?? NSNull(),
+      "statusMessage": statusMessage ?? NSNull()
+    ]
+  }
+
+  private func installObservers() {
+    guard observers.isEmpty else { return }
+
+    let notificationCenter = NotificationCenter.default
+
+    observers.append(
+      notificationCenter.addObserver(
+        forName: NSNotification.Name.wearablesRegistrationStateChanged,
+        object: nil,
+        queue: .main
+      ) { [weak self] _ in
+        Task { @MainActor in
+          await self?.syncFromToolkit()
+        }
+      }
+    )
+
+    observers.append(
+      notificationCenter.addObserver(
+        forName: NSNotification.Name.wearablesDevicesChanged,
+        object: nil,
+        queue: .main
+      ) { [weak self] _ in
+        Task { @MainActor in
+          await self?.syncFromToolkit()
+        }
+      }
+    )
+  }
+
+  private func syncFromToolkit() async {
+    let nextDeviceId = wearables.devices.first
+
+    if activeDeviceId != nextDeviceId {
+      sessionToken = nil
+      activeDeviceId = nextDeviceId
+      activeSessionState = .stopped
+
+      if let nextDeviceId {
+        sessionToken = await wearables.addDeviceSessionStateListener(forDeviceId: nextDeviceId) { [weak self] state in
+          Task { @MainActor in
+            self?.activeSessionState = state
+            self?.statusNote = self?.message(for: state)
+          }
+        }
+      }
+    }
+  }
+
+  private func grantedPermissions() async -> [String] {
+    var permissions: [String] = []
+
+    do {
+      if try await wearables.checkPermissionStatus(.camera) == .granted {
+        permissions.append("camera")
+      }
+    } catch {
+      if lastErrorMessage == nil {
+        lastErrorMessage = error.localizedDescription
+      }
+    }
+
+    return permissions
+  }
+
+  private func devicePayload() -> [String: Any]? {
+    guard let deviceId = wearables.devices.first,
+          let device = wearables.deviceForIdentifier(deviceId) else {
+      return nil
+    }
+
+    return [
+      "id": device.identifier,
+      "model": device.deviceType().rawValue,
+      "displayName": device.nameOrId(),
+      "platform": "meta_glasses",
+      "capabilities": ["camera", "device_state"]
+    ]
+  }
+
+  private func currentConnectionState() -> MetaWearablesConnectionState {
+    if wearables.registrationState == .registering {
+      return .pairing
+    }
+
+    if activeDeviceId != nil {
+      switch activeSessionState {
+      case .running, .paused:
+        return .connected
+      case .waitingForDevice:
+        return .pairing
+      case .stopped, .unknown:
+        return .disconnected
+      }
+    }
+
+    switch wearables.registrationState {
+    case .registered, .available:
+      return .idle
+    case .registering:
+      return .pairing
+    case .unavailable:
+      return lastErrorMessage == nil ? .unavailable : .error
+    }
+  }
+
+  private func currentStatusMessage(for connectionState: MetaWearablesConnectionState) -> String? {
+    if let lastErrorMessage {
+      return lastErrorMessage
+    }
+
+    if let statusNote {
+      return statusNote
+    }
+
+    switch connectionState {
+    case .connected:
+      return "Meta glasses session is active."
+    case .pairing:
+      return "Meta pairing or session activation is in progress."
+    case .disconnected:
+      return "Meta glasses are known to the app but the current session is not running."
+    case .idle:
+      return wearables.registrationState == .registered
+        ? "Meta registration is complete. Connect glasses or request camera permission to continue."
+        : "Meta registration is available for this app."
+    case .unavailable:
+      return "Meta DAT is installed, but registration is unavailable until project configuration is completed."
+    case .error:
+      return "Meta DAT reported an error."
+    }
+  }
+
+  private func message(for sessionState: SessionState) -> String {
+    switch sessionState {
+    case .running:
+      return "Meta glasses session is running."
+    case .paused:
+      return "Meta glasses session is paused."
+    case .waitingForDevice:
+      return "Waiting for paired Meta glasses to become available."
+    case .stopped:
+      return "Meta glasses session is stopped."
+    case .unknown:
+      return "Meta glasses session state is unknown."
+    }
+  }
+}
+
+@objc(PhillyNativeWearables)
+class PhillyNativeWearables: NSObject {
+  @objc
+  static func requiresMainQueueSetup() -> Bool {
+    true
+  }
+
+  @objc(getStatus:rejecter:)
+  func getStatus(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      resolve(await MetaWearablesManager.shared.statusPayload())
+    }
+  }
+
+  @objc(pairWearable:rejecter:)
+  func pairWearable(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      do {
+        resolve(try await MetaWearablesManager.shared.beginPairing())
+      } catch {
+        reject("META_WEARABLE_PAIR_FAILED", error.localizedDescription, error)
+      }
+    }
+  }
+
+  @objc(disconnectWearable:rejecter:)
+  func disconnectWearable(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      do {
+        resolve(try await MetaWearablesManager.shared.disconnect())
+      } catch {
+        reject("META_WEARABLE_DISCONNECT_FAILED", error.localizedDescription, error)
+      }
+    }
   }
 }

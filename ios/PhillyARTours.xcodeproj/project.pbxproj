@@ -10,6 +10,7 @@
 		0C798C182F74CFF90021C790 /* MWDATCamera in Frameworks */ = {isa = PBXBuildFile; productRef = 0C798C172F74CFF90021C790 /* MWDATCamera */; };
 		0C798C1A2F74CFF90021C790 /* MWDATCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0C798C192F74CFF90021C790 /* MWDATCore */; };
 		0C798C1C2F74CFF90021C790 /* MWDATMockDevice in Frameworks */ = {isa = PBXBuildFile; productRef = 0C798C1B2F74CFF90021C790 /* MWDATMockDevice */; };
+		0F3D1C8C2F778D7A003A7D91 /* PhillyNativeWearables.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		21F3448A9B3A40CA8E0B87C4 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82D739086344C3F8AD79F33 /* noop-file.swift */; };
 		2AB64DD80F8F4A2DA73F2410 /* PhillyNativeAR.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */; };
@@ -25,6 +26,7 @@
 
 /* Begin PBXFileReference section */
 		03E26A4356903BA54F95B8F6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = PhillyARTours/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PhillyNativeWearables.m; path = PhillyARTours/PhillyNativeWearables.m; sourceTree = "<group>"; };
 		0CDE2D762F68F086006B5D36 /* PhillyARToursRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = PhillyARToursRelease.entitlements; path = PhillyARTours/PhillyARToursRelease.entitlements; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* PhillyARTours.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhillyARTours.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PhillyARTours/Images.xcassets; sourceTree = "<group>"; };
@@ -67,6 +69,7 @@
 				F11748442D0722820044C1D9 /* PhillyARTours-Bridging-Header.h */,
 				8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */,
 				1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */,
+				0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */,
 				4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -360,6 +363,7 @@
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				4D37B92A5D39417EB8ECFD3F /* PhillyNativeAR.swift in Sources */,
 				2AB64DD80F8F4A2DA73F2410 /* PhillyNativeAR.m in Sources */,
+				0F3D1C8C2F778D7A003A7D91 /* PhillyNativeWearables.m in Sources */,
 				21F3448A9B3A40CA8E0B87C4 /* noop-file.swift in Sources */,
 				500A59858DC61308115345EC /* ExpoModulesProvider.swift in Sources */,
 			);
