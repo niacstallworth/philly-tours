@@ -13,6 +13,8 @@ public class AppDelegate: ExpoAppDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    MetaWearablesManager.shared.configureIfAvailable()
+
     let delegate = ReactNativeDelegate()
     let factory = ExpoReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -38,6 +40,9 @@ public class AppDelegate: ExpoAppDelegate {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
+    if MetaWearablesManager.shared.handleOpenURL(url) {
+      return true
+    }
     return super.application(app, open: url, options: options) || RCTLinkingManager.application(app, open: url, options: options)
   }
 
@@ -47,6 +52,9 @@ public class AppDelegate: ExpoAppDelegate {
     continue userActivity: NSUserActivity,
     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
   ) -> Bool {
+    if MetaWearablesManager.shared.handleUserActivity(userActivity) {
+      return true
+    }
     let result = RCTLinkingManager.application(application, continue: userActivity, restorationHandler: restorationHandler)
     return super.application(application, continue: userActivity, restorationHandler: restorationHandler) || result
   }
@@ -69,5 +77,56 @@ class ReactNativeDelegate: ExpoReactNativeFactoryDelegate {
 #else
     return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
+  }
+}
+
+enum MetaWearablesConnectionState: String {
+  case unavailable
+  case idle
+  case pairing
+  case connected
+  case disconnected
+  case error
+}
+
+final class MetaWearablesManager {
+  static let shared = MetaWearablesManager()
+
+  private(set) var connectionState: MetaWearablesConnectionState = .unavailable
+  private(set) var statusMessage: String = "Meta Wearables Device Access Toolkit not installed."
+
+  private init() {}
+
+  func configureIfAvailable() {
+    connectionState = .unavailable
+    statusMessage = "Meta Wearables package not linked yet. Add https://github.com/facebook/meta-wearables-dat-ios in Xcode."
+
+    // Future integration point:
+    // 1. `import` the Meta package here once it is added via Swift Package Manager.
+    // 2. Initialize toolkit registration/device management during app launch.
+    // 3. Publish connection state to React Native through a native bridge or event emitter.
+  }
+
+  func beginPairing() {
+    connectionState = .error
+    statusMessage = "Pairing is not available until the Meta Wearables Device Access Toolkit is linked."
+  }
+
+  func disconnect() {
+    connectionState = .disconnected
+    statusMessage = "Wearable session disconnected."
+  }
+
+  func handleOpenURL(_ url: URL) -> Bool {
+    // Future integration point for Meta toolkit callback URLs or pairing continuations.
+    // Returning false keeps current React Native deep-link behavior unchanged.
+    _ = url
+    return false
+  }
+
+  func handleUserActivity(_ userActivity: NSUserActivity) -> Bool {
+    // Future integration point for any Meta pairing/session continuation user activity.
+    _ = userActivity
+    return false
   }
 }
