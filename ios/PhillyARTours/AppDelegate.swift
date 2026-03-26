@@ -232,7 +232,7 @@ final class MetaWearablesManager {
 
     observers.append(
       notificationCenter.addObserver(
-        forName: NSNotification.Name.wearablesRegistrationStateChanged,
+        forName: NSNotification.wearablesRegistrationStateChanged,
         object: nil,
         queue: .main
       ) { [weak self] _ in
@@ -244,7 +244,7 @@ final class MetaWearablesManager {
 
     observers.append(
       notificationCenter.addObserver(
-        forName: NSNotification.Name.wearablesDevicesChanged,
+        forName: NSNotification.wearablesDevicesChanged,
         object: nil,
         queue: .main
       ) { [weak self] _ in
