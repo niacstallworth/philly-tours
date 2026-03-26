@@ -58,13 +58,14 @@ export default function App() {
         if (!stored) {
           return;
         }
+        if (stored.mode !== "tourist") {
+          setAuthToken(null);
+          setApiUserId("demo-user");
+          return clearSession();
+        }
         setApiUserId(stored.userId);
         setAuthToken(stored.authToken);
         if (!stored.authToken) {
-          if (stored.mode === "builder") {
-            clearSession().catch(() => undefined);
-            return;
-          }
           return createAuthenticatedSession({
             displayName: stored.displayName,
             email: stored.email,
@@ -221,7 +222,7 @@ function AppShell({ booting, session, handoffTarget, audioHistoryOnlyUnlocked, f
             <View style={[styles.header, { borderBottomColor: colors.headerBorder, backgroundColor: colors.headerBackground }]}>
               <View>
                 <Text style={[styles.headerName, { color: colors.text, fontSize: type.font(16) }]}>{session.displayName}</Text>
-                <Text style={[styles.headerMeta, { color: colors.textMuted, fontSize: type.font(12) }]}>{session.mode === "builder" ? "Builder Mode" : "Tourist Mode"}</Text>
+                <Text style={[styles.headerMeta, { color: colors.textMuted, fontSize: type.font(12) }]}>Tourist Mode</Text>
               </View>
               <Pressable style={[styles.signOutButton, { borderColor: colors.borderStrong }]} onPress={onSignOut}>
                 <Text style={[styles.signOutText, { color: colors.textSoft, fontSize: type.font(12) }]}>Sign Out</Text>

@@ -4,19 +4,15 @@ import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import {
   createCheckoutSession,
-  DeletionRequestRecord,
-  fulfillDeletionRequest,
   getEntitlements,
   getSyncServerUrl,
-  listDeletionRequests,
   requestBackendDeletion
 } from "../services/payments";
-import { AppAppearanceMode, AppPalette, AppTextScale, THEME_SURFACE_LABELS, useAppTheme, useTypeScale } from "../theme/appTheme";
+import { AppAppearanceMode, AppPalette, AppTextScale, useAppTheme, useTypeScale } from "../theme/appTheme";
 
 type Props = {
   displayName?: string;
   email?: string;
-  mode?: "tourist" | "builder";
   audioHistoryOnlyUnlocked?: boolean;
   fullAppUnlocked?: boolean;
   onRefreshEntitlements?: () => Promise<void>;
@@ -28,13 +24,12 @@ WebBrowser.maybeCompleteAuthSession();
 export function ProfileScreen({
   displayName = "Founder Demo",
   email = "demo@local.app",
-  mode = "builder",
   audioHistoryOnlyUnlocked = false,
   fullAppUnlocked = false,
   onRefreshEntitlements,
   onDeleteProfile
 }: Props) {
-  const { activePreset, presets, setPreset, settings, appearanceMode, setAppearanceMode, textScale, setTextScale, colors } = useAppTheme();
+  const { appearanceMode, setAppearanceMode, textScale, setTextScale, colors } = useAppTheme();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
@@ -43,7 +38,6 @@ export function ProfileScreen({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [deletionReason, setDeletionReason] = useState("");
   const [deletionRequestedAt, setDeletionRequestedAt] = useState<number | null>(null);
-  const [adminRequests, setAdminRequests] = useState<DeletionRequestRecord[]>([]);
 
   React.useEffect(() => {
     refreshEntitlements(false).catch(() => undefined);
@@ -138,34 +132,6 @@ export function ProfileScreen({
     }
   }
 
-  async function refreshAdminDeletionRequests() {
-    setLoadingAction("admin-requests");
-    setStatusMessage(null);
-    try {
-      const requests = await listDeletionRequests();
-      setAdminRequests(requests);
-    } catch (error) {
-      setStatusMessage((error as Error).message || "Could not load deletion requests.");
-    } finally {
-      setLoadingAction(null);
-    }
-  }
-
-  async function fulfillDeletionRequestFromQueue(requestId: number) {
-    setLoadingAction(`fulfill:${requestId}`);
-    setStatusMessage(null);
-    try {
-      await fulfillDeletionRequest(requestId);
-      setStatusMessage(`Deletion request ${requestId} fulfilled. Backend records were purged.`);
-      const requests = await listDeletionRequests();
-      setAdminRequests(requests);
-    } catch (error) {
-      setStatusMessage((error as Error).message || "Could not fulfill deletion request.");
-    } finally {
-      setLoadingAction(null);
-    }
-  }
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -173,54 +139,31 @@ export function ProfileScreen({
         <Text style={styles.heroTitle}>{displayName}</Text>
         <Text style={styles.heroCopy}>{email}</Text>
         <View style={styles.chips}>
-          <Chip label={mode === "builder" ? "Creator mode" : "Tour mode"} tone="default" />
+          <Chip label="Tour mode" tone="default" />
           <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
         </View>
       </View>
 
-      {mode === "builder" ? (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Appearance</Text>
-          <Text style={styles.copy}>Choose whether the app follows the device setting or stays manually light or dark.</Text>
-          <View style={styles.appearanceRow}>
-            {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
-              const selected = option === appearanceMode;
-              return (
-                <Pressable
-                  key={option}
-                  onPress={() => void setAppearanceMode(option)}
-                  style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
-                >
-                  <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
-                    {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
-      ) : (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Appearance</Text>
-          <Text style={styles.copy}>Follow the device theme or choose a fixed look for this app.</Text>
-          <View style={styles.appearanceRow}>
-            {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
-              const selected = option === appearanceMode;
-              return (
-                <Pressable
-                  key={option}
-                  onPress={() => void setAppearanceMode(option)}
-                  style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
-                >
-                  <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
-                    {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
-      )}
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Appearance</Text>
+        <Text style={styles.copy}>Follow the device theme or choose a fixed look for this app.</Text>
+        <View style={styles.appearanceRow}>
+          {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
+            const selected = option === appearanceMode;
+            return (
+              <Pressable
+                key={option}
+                onPress={() => void setAppearanceMode(option)}
+                style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
+              >
+                <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
+                  {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </Card>
 
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Text Size</Text>
@@ -242,47 +185,6 @@ export function ProfileScreen({
           })}
         </View>
       </Card>
-
-      {mode === "builder" ? (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Theme Studio</Text>
-          <Text style={styles.copy}>
-            Builder only. This sets the shared button palette across the app now, while the page-by-page color map is ready for the next tuning pass.
-          </Text>
-          <View style={styles.chips}>
-            <Chip label={`Current ${activePreset.label}`} tone="success" />
-          </View>
-          <View style={styles.themePresetGrid}>
-            {presets.map((preset) => {
-              const selected = preset.id === activePreset.id;
-              return (
-                <Pressable
-                  key={preset.id}
-                  onPress={() => void setPreset(preset.id)}
-                  style={[styles.themePresetCard, selected && styles.themePresetCardActive]}
-                >
-                  <View style={styles.themePresetHeader}>
-                    <View style={[styles.themeSwatch, { backgroundColor: preset.accent.background }]} />
-                    <Text style={styles.themePresetTitle}>{preset.label}</Text>
-                  </View>
-                  <Text style={styles.meta}>{preset.description}</Text>
-                  <Text style={[styles.themePresetStatus, selected && styles.themePresetStatusActive]}>
-                    {selected ? "Active now" : "Use this palette"}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-          <View style={styles.themePreviewGrid}>
-            {Object.entries(THEME_SURFACE_LABELS).map(([surface, label]) => (
-              <View key={surface} style={styles.themePreviewItem}>
-                <View style={[styles.themePreviewSwatch, { backgroundColor: settings.buttonThemes[surface as keyof typeof THEME_SURFACE_LABELS].background }]} />
-                <Text style={styles.themePreviewLabel}>{label}</Text>
-              </View>
-            ))}
-          </View>
-        </Card>
-      ) : null}
 
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Membership</Text>
@@ -363,45 +265,6 @@ export function ProfileScreen({
         />
       </Card>
 
-      {mode === "builder" ? (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Admin Deletion Queue</Text>
-          <Text style={styles.copy}>Internal only. Review requested deletions and purge backend records after user confirmation. This queue now uses your authenticated builder/admin session.</Text>
-          <PrimaryButton
-            disabled={loadingAction !== null}
-            onPress={refreshAdminDeletionRequests}
-            label={loadingAction === "admin-requests" ? "Loading..." : "Load Deletion Requests"}
-          />
-          {adminRequests.length === 0 ? (
-            <Text style={styles.meta}>No loaded deletion requests yet.</Text>
-          ) : (
-            <View style={styles.adminQueue}>
-              {adminRequests.map((request) => (
-                <View key={request.id} style={styles.adminRequestRow}>
-                  <Text style={styles.adminRequestTitle}>
-                    {request.display_name || request.email || request.user_id}
-                  </Text>
-                  <Text style={styles.meta}>User: {request.user_id}</Text>
-                  <Text style={styles.meta}>Status: {request.status}</Text>
-                  {request.reason ? <Text style={styles.copy}>Reason: {request.reason}</Text> : null}
-                  <Text style={styles.meta}>Requested: {new Date(request.requested_at).toLocaleString()}</Text>
-                  {request.status === "fulfilled" ? (
-                    <Text style={styles.meta}>
-                      Fulfilled by {request.resolved_by || "admin"}{request.resolved_at ? ` on ${new Date(request.resolved_at).toLocaleString()}` : ""}
-                    </Text>
-                  ) : (
-                    <PrimaryButton
-                      disabled={loadingAction !== null}
-                      onPress={() => fulfillDeletionRequestFromQueue(request.id)}
-                      label={loadingAction === `fulfill:${request.id}` ? "Purging..." : "Fulfill & Purge User Data"}
-                    />
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
-        </Card>
-      ) : null}
     </ScrollView>
   );
 }
