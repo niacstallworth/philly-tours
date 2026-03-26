@@ -99,6 +99,31 @@ The sync server loads those before `.env`, so client-safe `EXPO_PUBLIC_*` values
 
 EAS preview / release builds do not get your local `.env`, so required public values must be set in `eas.json` or in EAS environment configuration.
 
+## Meta Wearables DAT iOS Setup
+
+The Meta iOS SDK is wired into the Xcode project via Swift Package Manager, but pairing will stay unavailable until the iOS target has real DAT project values.
+
+Current required `MWDAT` values:
+
+- `MetaAppID`
+- `ClientToken`
+- `AppLinkURLScheme`
+
+In this repo they are currently exposed as iOS target build settings:
+
+- `META_WEARABLES_APP_ID`
+- `META_WEARABLES_CLIENT_TOKEN`
+- `META_WEARABLES_APP_LINK_URL_SCHEME`
+
+The app reads those into `ios/PhillyARTours/Info.plist` under `MWDAT`. Replace the placeholder values in the Xcode target before testing Meta glasses registration on device.
+The Apple Team ID should come from Xcode signing for the app target.
+
+Important:
+
+- These are native iOS build settings, not `EXPO_PUBLIC_*` values.
+- The current companion setup screen will now explain which Meta DAT values are still placeholders.
+- The real Meta project credentials should come from the Wearables Developer Center, not from the app bundle or backend env.
+
 ## EAS Builds
 
 The project is configured for internal preview builds in `eas.json`.

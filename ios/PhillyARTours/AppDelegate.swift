@@ -97,6 +97,7 @@ final class MetaWearablesManager {
   private var activeSessionState: SessionState = .stopped
   private var lastErrorMessage: String?
   private var statusNote: String?
+  private var configurationIssues: [String] = []
 
   private var wearables: ObjC_Wearables {
     ObjC_Wearables.sharedInstance
@@ -120,6 +121,7 @@ final class MetaWearablesManager {
       statusNote = "Meta DAT configured for this build."
     }
 
+    configurationIssues = metaConfigurationIssues()
     Task { await syncFromToolkit() }
   }
 
@@ -156,7 +158,7 @@ final class MetaWearablesManager {
         code: 1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "Meta wearables registration is unavailable. Check DAT project configuration and ensure the Meta AI app is installed."
+            unavailableMessage()
         ]
       )
       lastErrorMessage = error.localizedDescription
@@ -254,6 +256,7 @@ final class MetaWearablesManager {
   }
 
   private func syncFromToolkit() async {
+    configurationIssues = metaConfigurationIssues()
     let nextDeviceId = wearables.devices.first
 
     if activeDeviceId != nextDeviceId {
@@ -334,6 +337,10 @@ final class MetaWearablesManager {
       return lastErrorMessage
     }
 
+    if !configurationIssues.isEmpty {
+      return unavailableMessage()
+    }
+
     if let statusNote {
       return statusNote
     }
@@ -350,9 +357,42 @@ final class MetaWearablesManager {
         ? "Meta registration is complete. Connect glasses or request camera permission to continue."
         : "Meta registration is available for this app."
     case .unavailable:
-      return "Meta DAT is installed, but registration is unavailable until project configuration is completed."
+      return unavailableMessage()
     case .error:
       return "Meta DAT reported an error."
+    }
+  }
+
+  private func unavailableMessage() -> String {
+    if configurationIssues.isEmpty {
+      return "Meta DAT is installed, but registration is unavailable until the Meta AI app is installed and the project is configured."
+    }
+
+    return "Meta DAT is missing project configuration: \(configurationIssues.joined(separator: ", ")). Replace the placeholder build settings in the iOS target before pairing."
+  }
+
+  private func metaConfigurationIssues() -> [String] {
+    guard let config = Bundle.main.object(forInfoDictionaryKey: "MWDAT") as? [String: Any] else {
+      return ["MWDAT dictionary"]
+    }
+
+    let requiredValues: [(String, String)] = [
+      ("MetaAppID", "Meta app ID"),
+      ("ClientToken", "Meta client token"),
+      ("AppLinkURLScheme", "Meta app link URL scheme")
+    ]
+
+    return requiredValues.compactMap { key, label in
+      guard let value = config[key] as? String else {
+        return label
+      }
+
+      let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+      if trimmed.isEmpty || trimmed.contains("required") || trimmed.contains("placeholder") || trimmed == "$(DEVELOPMENT_TEAM)" {
+        return label
+      }
+
+      return nil
     }
   }
 
