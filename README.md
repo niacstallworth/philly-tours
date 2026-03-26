@@ -81,6 +81,7 @@ Production-oriented auth notes:
 Deployment docs:
 
 - `docs/server-deployment.md`
+- `docs/production-launch-checklist.md`
 - `deploy/sync-server.env.example`
 - `deploy/philly-tours-sync.service.example`
 
