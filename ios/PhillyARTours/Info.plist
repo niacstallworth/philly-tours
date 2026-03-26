@@ -60,6 +60,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera is required for AR tour placement and scene alignment.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Bluetooth is required to discover and connect to supported Meta glasses for hands-free tour features.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Allow Philly AR Tours to connect to the local development server while debugging on your network.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

@@ -68,7 +68,6 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
       <ThemeSurfaceProvider surface="profile">
         <ProfileScreen
           displayName={session.displayName}
-          mode={session.mode}
           email={session.email}
           audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
           fullAppUnlocked={fullAppUnlocked}

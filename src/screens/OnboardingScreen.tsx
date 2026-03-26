@@ -1,15 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 
-export type AppMode = "tourist" | "builder";
+export type AppMode = "tourist";
 
 export type OnboardingPayload = {
   displayName: string;
   email: string;
   mode: AppMode;
-  password?: string;
 };
 
 type Props = {
@@ -22,17 +21,14 @@ export function OnboardingScreen({ onComplete }: Props) {
   const styles = useMemo(() => createStyles(colors, type), [colors, type]);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [mode, setMode] = useState<AppMode>("tourist");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const canContinue = useMemo(() => {
     const hasName = displayName.trim().length >= 2;
     const hasEmail = email.trim().includes("@") && email.trim().includes(".");
-    const hasPassword = mode === "tourist" || password.trim().length >= 8;
-    return hasName && hasEmail && hasPassword;
-  }, [displayName, email, mode, password]);
+    return hasName && hasEmail;
+  }, [displayName, email]);
 
   async function submit() {
     if (!canContinue) {
@@ -43,8 +39,7 @@ export function OnboardingScreen({ onComplete }: Props) {
     const result = await onComplete({
       displayName: displayName.trim(),
       email: email.trim().toLowerCase(),
-      mode,
-      ...(mode === "builder" ? { password: password.trim() } : {})
+      mode: "tourist"
     });
     if (result) {
       setError(result);
@@ -66,24 +61,9 @@ export function OnboardingScreen({ onComplete }: Props) {
 
       <Card style={styles.card}>
         <Text style={styles.label}>Experience</Text>
-        <View style={styles.modeRow}>
-          {(["tourist", "builder"] as AppMode[]).map((option) => {
-            const selected = option === mode;
-            return (
-              <Pressable
-                key={option}
-                onPress={() => {
-                  setMode(option);
-                  setError(null);
-                }}
-                style={[styles.modeChip, selected && styles.modeChipActive]}
-              >
-                <Text style={[styles.modeChipText, selected && styles.modeChipTextActive]}>
-                  {option === "tourist" ? "Tourist" : "Builder"}
-                </Text>
-              </Pressable>
-            );
-          })}
+        <View style={styles.heroChips}>
+          <Chip label="Tourist" tone="success" />
+          <Chip label="Public experience" tone="default" />
         </View>
 
         <Text style={styles.label}>Display name</Text>
@@ -107,25 +87,8 @@ export function OnboardingScreen({ onComplete }: Props) {
           autoCapitalize="none"
         />
 
-        {mode === "builder" ? (
-          <>
-            <Text style={styles.label}>Builder password</Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter builder password"
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          </>
-        ) : null}
-
         <Text style={styles.modeHint}>
-          {mode === "builder"
-            ? "Builder mode now requires a server-authenticated session."
-            : "This sign-in opens the public tour experience on this device."}
+          This sign-in opens the public tour experience on this device.
         </Text>
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </Card>
@@ -138,7 +101,7 @@ export function OnboardingScreen({ onComplete }: Props) {
       </Card>
 
       <PrimaryButton
-        label={submitting ? "Signing in..." : mode === "builder" ? "Enter Builder Mode" : "Enter App"}
+        label={submitting ? "Signing in..." : "Enter App"}
         onPress={() => void submit()}
         disabled={!canContinue || submitting}
       />
@@ -191,33 +154,6 @@ function createStyles(
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8
-  },
-  modeRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10
-  },
-  modeChip: {
-    minWidth: 100,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    backgroundColor: colors.surfaceSoft
-  },
-  modeChipActive: {
-    borderColor: "#007eff",
-    backgroundColor: colors.infoSoft
-  },
-  modeChipText: {
-    color: colors.textSoft,
-    fontWeight: "700",
-    textAlign: "center",
-    fontSize: type.font(14)
-  },
-  modeChipTextActive: {
-    color: colors.text
   },
   card: {
     gap: 10
