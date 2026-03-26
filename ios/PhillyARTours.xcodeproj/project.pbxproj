@@ -35,6 +35,8 @@
 		465585F82E1E3BAF2554DE0B /* Pods-PhillyARTours.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.release.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.release.xcconfig"; sourceTree = "<group>"; };
 		4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PhillyARTours/ARAssets; sourceTree = "<group>"; };
 		5B9641E3C10325E7974FA90C /* Pods-PhillyARTours.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.debug.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.debug.xcconfig"; sourceTree = "<group>"; };
+		5D99C5012F8011110021C790 /* PhillyARTours.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PhillyARTours.debug.xcconfig; path = PhillyARTours/Supporting/PhillyARTours.debug.xcconfig; sourceTree = "<group>"; };
+		5D99C5022F8011120021C790 /* PhillyARTours.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PhillyARTours.release.xcconfig; path = PhillyARTours/Supporting/PhillyARTours.release.xcconfig; sourceTree = "<group>"; };
 		7BDDF101B2AE11840D415836 /* libPods-PhillyARTours.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PhillyARTours.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhillyNativeAR.swift; path = PhillyARTours/PhillyNativeAR.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = PhillyARTours/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -133,6 +135,8 @@
 			isa = PBXGroup;
 			children = (
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
+				5D99C5012F8011110021C790 /* PhillyARTours.debug.xcconfig */,
+				5D99C5022F8011120021C790 /* PhillyARTours.release.xcconfig */,
 			);
 			name = Supporting;
 			path = PhillyARTours/Supporting;
@@ -374,7 +378,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B9641E3C10325E7974FA90C /* Pods-PhillyARTours.debug.xcconfig */;
+			baseConfigurationReference = 5D99C5012F8011110021C790 /* PhillyARTours.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -396,9 +400,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				META_WEARABLES_APP_ID = meta-app-id-required;
-				META_WEARABLES_APP_LINK_URL_SCHEME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
-				META_WEARABLES_CLIENT_TOKEN = meta-client-token-required;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -417,7 +418,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 465585F82E1E3BAF2554DE0B /* Pods-PhillyARTours.release.xcconfig */;
+			baseConfigurationReference = 5D99C5022F8011120021C790 /* PhillyARTours.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -434,9 +435,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				META_WEARABLES_APP_ID = meta-app-id-required;
-				META_WEARABLES_APP_LINK_URL_SCHEME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
-				META_WEARABLES_CLIENT_TOKEN = meta-client-token-required;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
