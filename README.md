@@ -6,6 +6,7 @@ Philly Tours is an Expo / React Native app for Philadelphia tour storytelling, h
 
 - Main shell: Home, Scavenger Hunt, and Profile
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
+- Meta glasses companion scaffolding: `src/services/wearables.ts`, `src/services/companion.ts`, `src/screens/CompanionSetupScreen.tsx`
 - Hosted payments + entitlement sync: `src/services/payments.ts` and `server/sync-server.js`
 - Server-issued session auth: `src/services/auth.ts` and `server/sync-server.js`
 - Shared theming and UI primitives: `src/theme/appTheme.tsx` and `src/components/ui/Primitives.tsx`
@@ -144,6 +145,23 @@ Important:
 - Set them locally in Xcode for your personal build environment. Do not commit real Meta app credentials to `project.pbxproj`.
 - The current companion setup screen will now explain which Meta DAT values are still placeholders.
 - The real Meta project credentials should come from the Wearables Developer Center, not from the app bundle or backend env.
+
+## Meta Companion Build Path
+
+The current Meta grant path is a companion-device prototype, not glasses-native AR.
+
+The target Phase 1 demo is:
+
+1. pair Meta glasses from inside the phone app
+2. route stop narration through the companion-preferred audio path
+3. support a small command set like `next stop`, `pause`, `repeat`, and `open AR on phone`
+4. deep-link into the correct phone AR-ready stop when richer visuals are needed
+
+Primary planning doc:
+
+- `docs/meta-wearables-companion-plan.md`
+
+That plan now tracks what is already scaffolded in the repo and what still needs to be completed for a credible grant demo.
 
 ## EAS Builds
 

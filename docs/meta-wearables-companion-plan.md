@@ -4,6 +4,24 @@ This plan defines the first Philly Tours product slice that aligns with Meta AI 
 
 The goal is not to port the phone AR app into glasses. The goal is to turn Philly Tours into a strong companion-device experience where the glasses handle hands-free context and control, while the phone remains the source of truth for rich UI, payments, and native AR.
 
+## Current Repo Status
+
+The repo is already past pure planning. These pieces now exist and should be treated as the starting line for the grant prototype, not as future ideas:
+
+- low-level toolkit wrapper:
+  - `src/services/wearables.ts`
+- Philly Tours companion orchestration:
+  - `src/services/companion.ts`
+- reactive session hook:
+  - `src/hooks/useCompanionSession.ts`
+- setup surface in the mobile app:
+  - `src/screens/CompanionSetupScreen.tsx`
+- native iOS DAT bridge and registration plumbing:
+  - `ios/PhillyARTours/AppDelegate.swift`
+  - `ios/PhillyARTours/Info.plist`
+
+That means the next work should focus on closing the demo loop, not rebuilding scaffolding that is already in place.
+
 ## Product Rule
 
 The first Meta-compatible version should be a glasses companion flow.
@@ -58,6 +76,23 @@ Build a convincing glasses-enhanced tourism demo with this flow:
 5. when a stop needs visual depth, the phone opens directly into the correct stop/AR-ready state
 
 This is the first implementation target that moves Philly Tours from “good mobile tourism app” to “serious Meta glasses companion concept.”
+
+## Reviewer-Facing Demo Flow
+
+The strongest near-term demo is:
+
+1. user signs into Philly Tours on phone
+2. user opens the Meta companion setup screen and pairs glasses
+3. user starts a tour stop and hears narration through the companion route
+4. user triggers:
+   - `next stop`
+   - `pause`
+   - `repeat`
+   - `open AR on phone`
+5. app deep-links directly into the phone AR-ready stop state
+6. if glasses disconnect, phone playback and controls remain usable
+
+This shows companion value clearly without depending on glasses-native computer vision.
 
 ## Companion Scope
 
@@ -133,6 +168,9 @@ Add these modules:
 
 - `App.tsx`
   - register companion listeners after authenticated session restore
+
+- `src/screens/ProfileScreen.tsx`
+  - elevate the companion card from a static settings entry into a live system status surface
 
 ## Backend Requirements
 
@@ -264,25 +302,67 @@ But builder-only diagnostics should not be required for the consumer flow.
 
 ## Phase Plan
 
-### Phase 1
+### Phase 1: Demo-critical loop
 
-- pairing scaffolding
-- companion session model
-- wearable command abstraction
-- narration routing
-- open-on-phone AR handoff
+Goal: pair, hear narration, issue a few commands, and hand off to phone AR.
 
-### Phase 2
+Already in repo:
 
-- context request: “tell me about this stop”
+- pairing wrapper in `src/services/wearables.ts`
+- companion command layer in `src/services/companion.ts`
+- reactive hook in `src/hooks/useCompanionSession.ts`
+- setup UI in `src/screens/CompanionSetupScreen.tsx`
+
+Must complete next:
+
+- narration output preference for companion-connected sessions
+- command-to-app wiring for:
+  - `next_stop`
+  - `pause_narration`
+  - `repeat_narration`
+  - `open_ar_on_phone`
+- AR handoff preflight checks before opening the phone flow
+- visible fallback behavior when glasses disconnect or are unavailable
+
+Definition of done:
+
+- a user can pair glasses in-app
+- a stop can start narration through the companion-preferred route
+- at least three commands work end to end
+- `open AR on phone` opens the correct tour/stop context
+
+### Phase 2: Hardening and operator confidence
+
+Goal: make the companion flow dependable enough for demos, testers, and pilot use.
+
+- backend support for:
+  - `wearable_devices`
+  - `wearable_pairings`
+  - `companion_sessions`
+- `/api/wearables` routes for pairing/session lifecycle
+- reconnect and stale-session recovery
+- richer stop context requests like “tell me about this stop”
+- diagnostics surfaced in Profile or a limited builder panel
+
+Definition of done:
+
+- wearable state survives app restarts in a controlled way
+- revoked or stale sessions fail safely
+- connection state and errors are understandable from the app UI
+
+### Phase 3: Advanced wearable behaviors
+
+Goal: expand companion value only after the core loop is stable.
+
 - arrival-aware automatic cueing
-- more robust reconnect behavior
-
-### Phase 3
-
-- limited camera/context awareness if the Meta toolkit path supports it cleanly
-- accessibility-specific variants
+- limited camera/context awareness if the toolkit path supports it cleanly
+- accessibility-specific touring variants
 - glasses-first scavenger interactions
+
+Definition of done:
+
+- new wearable behaviors add value without weakening the baseline companion loop
+- no advanced feature becomes a dependency for pairing, narration, or AR handoff
 
 ## Grant Positioning
 
@@ -299,11 +379,41 @@ That is much closer to a credible Meta AI glasses narrative than phone-only mobi
 
 Build in this order:
 
-1. `src/services/wearables.ts`
-2. `src/services/companion.ts`
-3. backend wearable device/session endpoints
-4. `CompanionSetupScreen`
-5. narration route integration
-6. open-on-phone AR handoff
+1. extend `src/services/narration.ts` so companion-connected sessions become the preferred playback target
+2. finish command routing in `src/services/companion.ts` against real tour/narration state
+3. harden `CompanionSetupScreen` and `useCompanionSession` so connection state is obvious and demo-friendly
+4. add AR handoff preflight around the existing deep-link pattern
+5. add backend wearable device/session endpoints
+6. add richer context and reconnect behavior
 
 Do not start with camera/computer-vision features before pairing, session control, and narration routing exist.
+
+## Working Checklist
+
+### Phase 1 checklist
+
+- [x] DAT iOS package and native registration bridge are wired
+- [x] `wearables.ts` exists as the low-level integration point
+- [x] `companion.ts` exists with the initial command model
+- [x] `useCompanionSession.ts` exists
+- [x] `CompanionSetupScreen.tsx` exists
+- [ ] narration prefers wearable-connected output when available
+- [ ] phone fallback is explicit and user-visible
+- [ ] `next_stop` is validated against real route progression
+- [ ] `pause_narration` / `repeat_narration` are tested end to end
+- [ ] `open_ar_on_phone` opens the correct stop with preflight checks
+- [ ] demo script is tested on real Meta hardware
+
+### Phase 2 checklist
+
+- [ ] wearable tables exist in the backend
+- [ ] `/api/wearables` session routes are implemented
+- [ ] revoked or stale sessions fail safely
+- [ ] reconnect flow handles app restarts
+- [ ] Profile surfaces live companion diagnostics
+
+### Phase 3 checklist
+
+- [ ] arrival-aware cueing is added
+- [ ] accessibility-specific touring variants are defined
+- [ ] advanced wearable behaviors are gated behind stable Phase 1 and 2 behavior
