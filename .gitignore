@@ -5,6 +5,7 @@ dist/
 build/
 generated/
 tmp/
+web-dist/
 *.log
 *.tmp
 *.temp

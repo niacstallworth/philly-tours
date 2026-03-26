@@ -43,6 +43,9 @@
     "narration:polly": "node scripts/generate-polly-narration.mjs",
     "db:export:supabase": "node scripts/export-sqlite-for-supabase.mjs",
     "db:import:supabase": "node scripts/import-supabase-seed.mjs",
+    "webapp:data": "node scripts/build-webapp-data.mjs",
+    "webapp:build": "npm run webapp:data && node scripts/build-webapp-dist.mjs",
+    "webapp:serve": "npm run webapp:data && node scripts/serve-webapp.mjs",
     "sync-server": "node server/sync-server.js",
     "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook"
   },

@@ -36,6 +36,12 @@ Start Metro for the dev client:
 npm run start:metro:dev-client
 ```
 
+Run the static webapp with generated data:
+
+```bash
+npm run webapp:serve
+```
+
 Run the local backend:
 
 ```bash
@@ -53,6 +59,7 @@ Notes:
 - Open the `.xcworkspace`, not the `.xcodeproj`.
 - Device builds need local network access if they are expected to talk to Metro or the local sync server.
 - If the app shows `localhost:4000` in a release build, that build was created without the correct EAS public env baked in.
+- Web camera and geolocation features work on `http://localhost`, but public browser deployments should use `https`.
 
 ## Environment
 
@@ -81,6 +88,7 @@ Production-oriented auth notes:
 Deployment docs:
 
 - `docs/server-deployment.md`
+- `docs/webapp-deployment.md`
 - `docs/production-launch-checklist.md`
 - `docs/meta-wearables-companion-plan.md`
 - `deploy/sync-server.env.example`
