@@ -203,7 +203,6 @@ When DAT is enabled, the Android app exposes:
 - native Meta registration / unregistration
 - device-state aware companion status in `PhillyNativeWearables`
 - the same React Native companion surface used by iOS
-
 ## Meta Companion Build Path
 
 The current Meta grant path is a companion-device prototype, not glasses-native AR.
