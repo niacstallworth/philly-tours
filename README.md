@@ -145,6 +145,7 @@ The sync server loads those before `.env`, so client-safe `EXPO_PUBLIC_*` values
 
 EAS preview / release builds do not get your local `.env`, so required public values must be set in `eas.json` or in EAS environment configuration.
 
+<<<<<<< HEAD
 Cloudflare-secured production auth now expects:
 
 - `EXPO_PUBLIC_SYNC_SERVER_URL=https://api.philly-tours.com`
@@ -221,7 +222,6 @@ Primary planning doc:
 - `docs/meta-wearables-companion-plan.md`
 
 That plan now tracks what is already scaffolded in the repo and what still needs to be completed for a credible grant demo.
-
 ## EAS Builds
 
 The project is configured for internal preview builds in `eas.json`.

@@ -396,6 +396,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				META_WEARABLES_APP_ID = meta-app-id-required;
+				META_WEARABLES_APP_LINK_URL_SCHEME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
+				META_WEARABLES_CLIENT_TOKEN = meta-client-token-required;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -431,6 +434,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				META_WEARABLES_APP_ID = meta-app-id-required;
+				META_WEARABLES_APP_LINK_URL_SCHEME = "$(PRODUCT_BUNDLE_IDENTIFIER)";
+				META_WEARABLES_CLIENT_TOKEN = meta-client-token-required;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

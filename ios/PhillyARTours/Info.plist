@@ -39,11 +39,17 @@
 	<true/>
 	<key>MWDAT</key>
 	<dict>
+		<key>AppLinkURLScheme</key>
+		<string>$(META_WEARABLES_APP_LINK_URL_SCHEME)</string>
 		<key>Analytics</key>
 		<dict>
 			<key>OptOut</key>
 			<true/>
 		</dict>
+		<key>ClientToken</key>
+		<string>$(META_WEARABLES_CLIENT_TOKEN)</string>
+		<key>MetaAppID</key>
+		<string>$(META_WEARABLES_APP_ID)</string>
 	</dict>
 	<key>NSAppTransportSecurity</key>
 	<dict>
