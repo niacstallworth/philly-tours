@@ -82,6 +82,7 @@ Deployment docs:
 
 - `docs/server-deployment.md`
 - `docs/production-launch-checklist.md`
+- `docs/meta-wearables-companion-plan.md`
 - `deploy/sync-server.env.example`
 - `deploy/philly-tours-sync.service.example`
 
