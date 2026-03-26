@@ -77,7 +77,6 @@ Build and package an upload-ready release:
 ```bash
 npm run webapp:package
 ```
-
 Run the local backend:
 
 ```bash
@@ -145,7 +144,6 @@ The sync server loads those before `.env`, so client-safe `EXPO_PUBLIC_*` values
 
 EAS preview / release builds do not get your local `.env`, so required public values must be set in `eas.json` or in EAS environment configuration.
 
-<<<<<<< HEAD
 Cloudflare-secured production auth now expects:
 
 - `EXPO_PUBLIC_SYNC_SERVER_URL=https://api.philly-tours.com`
