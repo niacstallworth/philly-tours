@@ -51,6 +51,9 @@ export function CompanionSetupScreen() {
           This is the setup surface for the Meta wearables companion flow. The production target is hands-free narration,
           contextual stop requests, and phone AR handoff.
         </Text>
+        <Text style={styles.copy}>
+          The current iOS DAT build exposes registration, device state, and camera permission. Microphone and glasses-audio routing still need a later integration pass.
+        </Text>
         <View style={styles.chips}>
           <Chip label={status.connectionState.toUpperCase()} tone={status.connectionState === "connected" ? "success" : "warn"} />
           <Chip label={status.supported ? "SDK Ready" : "SDK Missing"} tone={status.supported ? "success" : "danger"} />

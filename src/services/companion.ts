@@ -1,4 +1,6 @@
-import { buildHandoffUrl, type HandoffTarget } from "./deepLinks";
+import { tours } from "../data/tours";
+import { getNarrationState, startNarration, stopNarration } from "./narration";
+import { getCurrentTourContext, openTourStopOnPhone } from "./tourControl";
 import {
   disconnectWearable,
   getWearableStatus,
@@ -21,6 +23,7 @@ export type CompanionCommandResult = {
   ok: boolean;
   message: string;
   deepLink?: string;
+  payload?: Record<string, unknown>;
 };
 
 export function getCompanionStatus() {
@@ -44,29 +47,101 @@ export async function refreshCompanionStatus() {
 }
 
 export async function handleWearableCommand(command: CompanionCommand): Promise<CompanionCommandResult> {
+  const context = getCurrentTourContext();
+
   switch (command.type) {
-    case "start_tour":
-      return { ok: true, message: `Ready to start tour ${command.tourId} once Meta companion transport is wired.` };
-    case "next_stop":
-      return { ok: true, message: "Ready to advance to the next stop once companion routing is wired." };
-    case "repeat_narration":
-      return { ok: true, message: "Ready to repeat narration once wearable audio routing is wired." };
+    case "start_tour": {
+      const targetTour = tours.find((tour) => tour.id === command.tourId);
+      const firstStop = targetTour?.stops[0];
+      if (!targetTour || !firstStop) {
+        return { ok: false, message: `Tour ${command.tourId} could not be opened.` };
+      }
+      openTourStopOnPhone(targetTour.id, firstStop.id, "map");
+      return {
+        ok: true,
+        message: `Opened ${targetTour.title} on the phone.`,
+        deepLink: `phillyartours://tour/${encodeURIComponent(targetTour.id)}/stop/${encodeURIComponent(firstStop.id)}/map`
+      };
+    }
+    case "next_stop": {
+      if (!context?.nextStop) {
+        return { ok: false, message: "There is no next stop ready from the current tour context." };
+      }
+      openTourStopOnPhone(context.tour.id, context.nextStop.id, "map");
+      await startNarration({
+        id: context.nextStop.id,
+        title: context.nextStop.title,
+        lat: context.nextStop.lat,
+        lng: context.nextStop.lng,
+        triggerRadiusM: context.nextStop.triggerRadiusM,
+        audioUrl: context.nextStop.audioUrl,
+        summary: context.nextStop.description.split("|")[0]?.trim() || context.nextStop.description
+      });
+      return {
+        ok: true,
+        message: `Advanced to ${context.nextStop.title}.`,
+        deepLink: `phillyartours://tour/${encodeURIComponent(context.tour.id)}/stop/${encodeURIComponent(context.nextStop.id)}/map`
+      };
+    }
+    case "repeat_narration": {
+      if (!context?.stop) {
+        return { ok: false, message: "No current stop is selected for narration." };
+      }
+      await startNarration({
+        id: context.stop.id,
+        title: context.stop.title,
+        lat: context.stop.lat,
+        lng: context.stop.lng,
+        triggerRadiusM: context.stop.triggerRadiusM,
+        audioUrl: context.stop.audioUrl,
+        summary: context.stop.description.split("|")[0]?.trim() || context.stop.description
+      });
+      return { ok: true, message: `Replaying narration for ${context.stop.title}.` };
+    }
     case "pause_narration":
-      return { ok: true, message: "Ready to pause narration once wearable audio routing is wired." };
-    case "resume_narration":
-      return { ok: true, message: "Ready to resume narration once wearable audio routing is wired." };
+      await stopNarration();
+      return { ok: true, message: "Narration stopped." };
+    case "resume_narration": {
+      const narration = getNarrationState();
+      if (!context?.stop && !narration.stopId) {
+        return { ok: false, message: "No recent stop is available to resume." };
+      }
+      const stop = context?.stop;
+      if (!stop) {
+        return { ok: false, message: "No stop context is available to resume narration." };
+      }
+      await startNarration({
+        id: stop.id,
+        title: stop.title,
+        lat: stop.lat,
+        lng: stop.lng,
+        triggerRadiusM: stop.triggerRadiusM,
+        audioUrl: stop.audioUrl,
+        summary: stop.description.split("|")[0]?.trim() || stop.description
+      });
+      return { ok: true, message: `Resumed narration for ${stop.title}.` };
+    }
     case "get_stop_context":
-      return { ok: true, message: "Ready to fetch stop context once companion context requests are wired." };
+      if (!context?.stop) {
+        return { ok: false, message: "No current stop is selected." };
+      }
+      return {
+        ok: true,
+        message: `${context.stop.title}: ${context.stop.description.split("|")[0]?.trim() || context.stop.description}`,
+        payload: {
+          tourId: context.tour.id,
+          stopId: context.stop.id,
+          title: context.stop.title,
+          index: context.stopIndex + 1,
+          totalStops: context.tour.stops.length
+        }
+      };
     case "open_ar_on_phone": {
-      const deepLink = buildHandoffUrl({
-        tourId: command.tourId,
-        stopId: command.stopId,
-        mode: "map"
-      } satisfies HandoffTarget);
+      openTourStopOnPhone(command.tourId, command.stopId, "map");
       return {
         ok: true,
         message: "Phone AR handoff prepared.",
-        deepLink
+        deepLink: `phillyartours://tour/${encodeURIComponent(command.tourId)}/stop/${encodeURIComponent(command.stopId)}/map`
       };
     }
     default:

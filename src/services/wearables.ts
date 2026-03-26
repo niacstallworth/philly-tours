@@ -1,6 +1,6 @@
 import { NativeModules, Platform } from "react-native";
 
-export type WearablePermission = "camera" | "microphone" | "audio_output" | "device_state";
+export type WearablePermission = "camera" | "device_state";
 export type WearableConnectionState = "unsupported" | "idle" | "pairing" | "connected" | "disconnected" | "error";
 
 export type WearableDevice = {

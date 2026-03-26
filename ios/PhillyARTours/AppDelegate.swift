@@ -148,6 +148,7 @@ final class MetaWearablesManager {
       if wearables.devices.first != nil {
         do {
           _ = try await wearables.requestPermission(.camera)
+          statusNote = "Meta glasses are registered. Camera permission is available for this DAT build."
         } catch {
           lastErrorMessage = error.localizedDescription
         }
@@ -354,7 +355,7 @@ final class MetaWearablesManager {
       return "Meta glasses are known to the app but the current session is not running."
     case .idle:
       return wearables.registrationState == .registered
-        ? "Meta registration is complete. Connect glasses or request camera permission to continue."
+        ? "Meta registration is complete. Connect glasses and grant camera permission to continue."
         : "Meta registration is available for this app."
     case .unavailable:
       return unavailableMessage()
