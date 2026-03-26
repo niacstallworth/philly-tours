@@ -3,10 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#efe5d4" />
     <meta
       name="description"
       content="Explore story-driven Philadelphia tours with route previews, AR highlights, and progress tracking."
     />
+    <meta property="og:title" content="Philly AR Tours" />
+    <meta
+      property="og:description"
+      content="Story-led Philadelphia tours with route previews, narration, and browser AR field mode."
+    />
+    <meta property="og:type" content="website" />
     <title>Philly AR Tours</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -30,8 +37,9 @@
           <h1>Philly AR Tours</h1>
         </div>
         <div class="topbar-actions">
-          <span class="status-pill">Web preview</span>
+          <span id="deploy-status" class="status-pill">Web preview</span>
           <button type="button" class="ghost-button" data-action="jump-featured">Open featured tour</button>
+          <button id="copy-view-button" type="button" class="ghost-button" data-action="copy-view">Copy current view</button>
         </div>
       </header>
 

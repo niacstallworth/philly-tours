@@ -42,6 +42,18 @@ Run the static webapp with generated data:
 npm run webapp:serve
 ```
 
+Build a deployable static bundle:
+
+```bash
+npm run webapp:build
+```
+
+Build and package an upload-ready release:
+
+```bash
+npm run webapp:package
+```
+
 Run the local backend:
 
 ```bash

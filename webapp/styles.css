@@ -90,6 +90,10 @@ button {
   justify-content: flex-end;
 }
 
+.topbar-actions .ghost-button {
+  background: rgba(255, 255, 255, 0.7);
+}
+
 .hero-panel,
 .panel {
   border: 1px solid var(--line);
@@ -221,6 +225,12 @@ button {
   font-size: 0.82rem;
   background: rgba(23, 32, 38, 0.06);
   border: 1px solid rgba(23, 32, 38, 0.08);
+}
+
+.status-pill.is-live {
+  background: rgba(53, 87, 79, 0.14);
+  border-color: rgba(53, 87, 79, 0.2);
+  color: var(--olive);
 }
 
 .chip-row,
@@ -607,6 +617,16 @@ button {
   backdrop-filter: blur(12px);
 }
 
+.ar-artifact-card::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(183, 77, 44, 0.18), rgba(53, 87, 79, 0.12));
+}
+
 .ar-artifact-card h4 {
   margin: 6px 0 10px;
   font-family: "Fraunces", serif;
@@ -616,6 +636,10 @@ button {
 
 .ar-artifact-card p {
   margin: 0 0 10px;
+}
+
+.ar-artifact-card .chip {
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .ar-artifact-card .drawer-copy {
@@ -964,6 +988,10 @@ button {
     justify-content: flex-start;
   }
 
+  .topbar-actions > * {
+    width: fit-content;
+  }
+
   .hero-panel,
   .panel {
     border-radius: 24px;
@@ -988,6 +1016,7 @@ button {
   }
 
   .ar-target-card {
+    left: 18px;
     right: 18px;
     max-width: none;
   }
@@ -999,6 +1028,10 @@ button {
     left: 18px;
     bottom: 148px;
     width: auto;
+  }
+
+  .ar-status-strip {
+    right: 14px;
   }
 
   .progress-row,

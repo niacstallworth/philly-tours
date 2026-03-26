@@ -32,6 +32,16 @@ That command rebuilds:
 - [`webapp/tours-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/tours-data.js)
 - [`webapp/narration-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/narration-data.js)
 
+If you want a fresh upload package for Cloudflare Pages or another static host:
+
+```bash
+npm run webapp:package
+```
+
+That command rebuilds [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist) and creates:
+
+- [`web-release/philly-ar-tours-webapp.zip`](/Users/nia/Documents/GitHub/philly-tours/web-release/philly-ar-tours-webapp.zip)
+
 ## Local Verification
 
 Run the local static server:
@@ -105,6 +115,7 @@ It should include:
 - `narration-data.js`
 - `ar-data.js`
 - `_redirects`
+- `_headers`
 - `assets/audio/...`
 - `assets/models/...`
 
@@ -127,6 +138,19 @@ web-dist
 ### Important Cloudflare Note
 
 Cloudflare Pages publishes one output directory. This repo now uses [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist) so the static app and `/assets/...` paths can ship together.
+
+### Static Upload Shortcut
+
+If you prefer Cloudflare's direct upload flow instead of Git integration:
+
+1. Run:
+
+```bash
+npm run webapp:package
+```
+
+2. In Cloudflare Pages choose the static file upload path.
+3. Upload the contents of [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist) or the packaged archive in [`web-release/`](/Users/nia/Documents/GitHub/philly-tours/web-release).
 
 ## Nginx Example
 

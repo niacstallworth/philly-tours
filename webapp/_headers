@@ -1,0 +1,22 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=*, geolocation=*, autoplay=*
+
+/assets/*
+  Cache-Control: public, max-age=604800, immutable
+
+/app.js
+  Cache-Control: public, max-age=300
+
+/styles.css
+  Cache-Control: public, max-age=300
+
+/tours-data.js
+  Cache-Control: public, max-age=300
+
+/narration-data.js
+  Cache-Control: public, max-age=300
+
+/ar-data.js
+  Cache-Control: public, max-age=300

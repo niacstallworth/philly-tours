@@ -249,6 +249,7 @@ const narrationData = window.PHILLY_TOURS_NARRATION || {
 const arData = window.PHILLY_TOURS_AR || {};
 
 const STORAGE_KEY = "philly-ar-tours-web-progress";
+const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 let routeMap = null;
 let routeMapLayers = null;
 let narrationAudio = null;
@@ -257,6 +258,7 @@ let arStream = null;
 let arLocationWatchId = null;
 const AR_RANGE_HYSTERESIS_M = 15;
 const AR_AUTO_NARRATION_COOLDOWN_MS = 45000;
+let copyButtonResetTimer = null;
 
 const state = {
   activeTab: "home",
@@ -290,6 +292,8 @@ const state = {
 const app = document.getElementById("app");
 const tabs = [...document.querySelectorAll("#tabs button")];
 const tabBar = document.getElementById("tabs");
+const deployStatus = document.getElementById("deploy-status");
+const copyViewButton = document.getElementById("copy-view-button");
 
 document.addEventListener("click", handleClick);
 if (tabBar) {
@@ -509,6 +513,85 @@ function getNarrationLabel(stopId) {
 
 function getArOverlayMeta(stopId) {
   return arData[stopId] || null;
+}
+
+function getResolvedModelUrl(modelUrl) {
+  if (!modelUrl) {
+    return "";
+  }
+
+  return modelUrl.replace(/^\/models\//, "/assets/models/");
+}
+
+function getModelReadinessLabel(meta) {
+  if (meta?.webModelAvailable) {
+    return "web preview ready";
+  }
+
+  if (meta?.iosModelAvailable) {
+    return "ios model ready";
+  }
+
+  if (meta?.modelUrl) {
+    return "web model planned";
+  }
+
+  return "story overlay";
+}
+
+function getDeploymentStatusLabel() {
+  const host = window.location.hostname;
+  if (PRODUCTION_HOSTS.has(host)) {
+    return `Live on ${host}`;
+  }
+
+  if (host === "localhost" || host === "127.0.0.1") {
+    return "Local field preview";
+  }
+
+  if (host.endsWith(".pages.dev")) {
+    return "Pages preview";
+  }
+
+  return "Web preview";
+}
+
+function updateChrome() {
+  if (deployStatus) {
+    deployStatus.textContent = getDeploymentStatusLabel();
+    deployStatus.classList.toggle("is-live", PRODUCTION_HOSTS.has(window.location.hostname));
+  }
+}
+
+function resetCopyButtonLabel() {
+  if (copyViewButton) {
+    copyViewButton.textContent = "Copy current view";
+  }
+}
+
+function setCopyButtonLabel(label) {
+  if (!copyViewButton) {
+    return;
+  }
+
+  copyViewButton.textContent = label;
+  window.clearTimeout(copyButtonResetTimer);
+  copyButtonResetTimer = window.setTimeout(resetCopyButtonLabel, 2200);
+}
+
+async function copyCurrentViewLink() {
+  const url = window.location.href;
+
+  try {
+    if (!navigator.clipboard?.writeText) {
+      throw new Error("Clipboard API unavailable");
+    }
+
+    await navigator.clipboard.writeText(url);
+    setCopyButtonLabel("Link copied");
+  } catch (_error) {
+    setCopyButtonLabel("Copy failed");
+  }
 }
 
 function loadCompletedStops() {
@@ -900,6 +983,11 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "copy-view") {
+    copyCurrentViewLink();
+    return;
+  }
+
   if (action === "select-tour" && tourId) {
     const selectedTour = getTourById(tourId);
     if (!selectedTour) {
@@ -1075,6 +1163,7 @@ function getGlobalStats() {
 
 function render(shouldSyncHash = true) {
   teardownRouteMap();
+  updateChrome();
 
   tabs.forEach((button) => {
     button.classList.toggle("active", button.dataset.tab === state.activeTab);
@@ -1457,8 +1546,9 @@ function renderDrawer() {
     const narrationMode = getNarrationMode(stop.id);
     const narrationScript = getNarrationScript(stop.id) || "No narration transcript is available for this stop yet.";
     const isNarrating = state.narrationState.stopId === stop.id && state.narrationState.status === "playing";
-    const arOverlayMeta = getArOverlayMeta(stop.id);
-    return `
+  const arOverlayMeta = getArOverlayMeta(stop.id);
+  const resolvedModelUrl = getResolvedModelUrl(arOverlayMeta?.modelUrl);
+  return `
       <aside class="detail-drawer-backdrop" data-action="close-drawer">
         <section class="detail-drawer" aria-label="Stop details">
           <div class="drawer-topbar">
@@ -1491,11 +1581,11 @@ function renderDrawer() {
             <strong>Model readiness</strong>
             <p>${
               arOverlayMeta?.webModelAvailable
-                ? `Web preview available at ${arOverlayMeta.modelUrl}`
+                ? `Web preview available at ${resolvedModelUrl}`
                 : arOverlayMeta?.iosModelAvailable
                   ? "An iOS model exists for this stop, but there is no deployed web model yet."
                   : arOverlayMeta?.modelUrl
-                    ? `This stop has a model target (${arOverlayMeta.modelUrl}) but no runtime model file is deployed yet.`
+                    ? `This stop has a planned web model target (${resolvedModelUrl}) but the runtime file has not been deployed yet.`
                     : "No model target is attached to this stop yet."
             }</p>
           </div>
@@ -1549,6 +1639,7 @@ function renderArTab(selectedTour) {
     ? state.narrationState.stopId === effectiveStop.id && state.narrationState.status === "playing"
     : false;
   const arOverlayMeta = effectiveStop ? getArOverlayMeta(effectiveStop.id) : null;
+  const resolvedModelUrl = getResolvedModelUrl(arOverlayMeta?.modelUrl);
   const arDistanceLabel =
     state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m` : "Locating";
   const arRangeLabel = state.ar.inRange ? "Within trigger radius" : "Move closer to trigger";
@@ -1595,7 +1686,7 @@ function renderArTab(selectedTour) {
                         <div class="chip-row">
                           <span class="chip">${arOverlayMeta?.arType || "story_card"}</span>
                           <span class="chip">${arOverlayMeta?.estimatedEffort || "ready"}</span>
-                          <span class="chip">${arOverlayMeta?.webModelAvailable ? "web model ready" : arOverlayMeta?.iosModelAvailable ? "ios model ready" : "model target only"}</span>
+                          <span class="chip">${getModelReadinessLabel(arOverlayMeta)}</span>
                         </div>
                         ${
                           arOverlayMeta?.assetNeeded
@@ -1603,8 +1694,8 @@ function renderArTab(selectedTour) {
                             : ""
                         }
                         ${
-                          arOverlayMeta?.modelUrl
-                            ? `<div class="drawer-copy"><strong>Model target</strong><p>${arOverlayMeta.modelUrl}</p></div>`
+                          resolvedModelUrl
+                            ? `<div class="drawer-copy"><strong>Planned web path</strong><p>${resolvedModelUrl}</p></div>`
                             : ""
                         }
                       </div>
@@ -1628,8 +1719,8 @@ function renderArTab(selectedTour) {
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
         </div>
         <div class="drawer-copy">
-          <strong>Browser requirement</strong>
-          <p>Camera and GPS work on localhost during development, but public deployments should use HTTPS rather than plain HTTP.</p>
+          <strong>Field note</strong>
+          <p>Camera and GPS are allowed on localhost for development, and on secure public deployments like this one over HTTPS.</p>
         </div>
         ${state.ar.error ? `<div class="drawer-copy"><strong>Status</strong><p>${state.ar.error}</p></div>` : ""}
       </article>
