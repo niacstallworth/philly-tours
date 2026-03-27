@@ -1,9 +1,10 @@
 # Philly Tours
 
-Philly Tours is an Expo / React Native app for Philadelphia tour storytelling, hosted checkout, narration, and selective native AR on iOS.
+Philly Tours is a premium Philadelphia cultural touring platform built for beautiful city driving, layered narration, and selective native AR handoff when a stop deserves more than audio alone.
 
 ## Current App Shape
 
+- Premium drive-first touring posture for Philadelphia neighborhoods, corridors, and legacy routes
 - Main shell: Home, Scavenger Hunt, and Profile
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Meta glasses companion scaffolding: `src/services/wearables.ts`, `src/services/companion.ts`, `src/screens/CompanionSetupScreen.tsx`
@@ -22,6 +23,28 @@ Philly Tours is an Expo / React Native app for Philadelphia tour storytelling, h
 - Native AR: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Sync backend: `server/sync-server.js`
 - EAS config: `eas.json`
+
+## Product Positioning
+
+Philly Tours is not just a walking-tour app. The product direction is a luxury cultural driving companion for Philadelphia:
+
+- drive scenic city routes with premium narration
+- hear Black legacy, innovation, and place-based storytelling in motion
+- stay in the car when the route itself is the experience
+- step out when AR, architecture, or site-specific context matters
+
+This is especially strong for:
+
+- luxury and near-luxury drivers
+- visitors who want an elegant Philadelphia experience
+- culturally curious locals
+- Black heritage, innovation, and architecture routes
+
+Supporting docs:
+
+- `docs/vehicle-platform-plan.md`
+- `docs/product-direction.md`
+- `docs/drive-mode-positioning.md`
 
 ## Local Development
 

@@ -1227,24 +1227,24 @@ function render(shouldSyncHash = true) {
   app.innerHTML = `
     <section class="hero-panel">
       <div class="hero-copy">
-        <p class="eyebrow">Story-led city navigation</p>
-        <h2>Explore Philadelphia through layered place, memory, and motion.</h2>
+        <p class="eyebrow">Luxury cultural driving companion</p>
+        <h2>Drive Philadelphia through Black legacy, innovation, and place.</h2>
         <p class="hero-text">
-          Browse routes, preview AR scenes, and keep your progress across neighborhoods from Old City to Germantown.
+          Browse premium routes, hear layered narration, and move through one of America's most drivable and beautiful city regions with purpose.
         </p>
       </div>
       <div class="hero-metrics">
         <article class="metric-card">
           <span>${tours.length}</span>
-          <p>Curated tour collections</p>
+          <p>Curated drive-ready collections</p>
         </article>
         <article class="metric-card">
           <span>${globalStats.totalStops}</span>
-          <p>Story stops mapped in web preview</p>
+          <p>Story stops staged for route listening</p>
         </article>
         <article class="metric-card">
           <span>${globalStats.completedStops}</span>
-          <p>Stops completed on this device</p>
+          <p>Places you've already unlocked</p>
         </article>
       </div>
     </section>
@@ -1302,7 +1302,7 @@ function renderHomeTab(selectedTour) {
       <article class="panel featured-panel" id="featured-tour">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Featured route</p>
+            <p class="eyebrow">Featured drive</p>
             <h3>${selectedTour.title}</h3>
           </div>
           <span class="status-pill">${selectedTour.theme}</span>
@@ -1313,12 +1313,12 @@ function renderHomeTab(selectedTour) {
         </div>
         <div class="stats-row">
           <div><strong>${selectedTour.durationMin} min</strong><span>Estimated duration</span></div>
-          <div><strong>${selectedTour.distanceMiles} mi</strong><span>Walking and drive-ready route</span></div>
-          <div><strong>${selectedTour.rating}</strong><span>Community rating</span></div>
+          <div><strong>${selectedTour.distanceMiles} mi</strong><span>Scenic city route</span></div>
+          <div><strong>${selectedTour.rating}</strong><span>Premium rider rating</span></div>
         </div>
         <div class="button-row">
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Preview route</button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">See AR modes</button>
+          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Start this drive</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">See arrival mode</button>
         </div>
       </article>
 
@@ -1326,7 +1326,7 @@ function renderHomeTab(selectedTour) {
         <div class="panel-header">
           <div>
             <p class="eyebrow">Collections</p>
-            <h3>Choose your lens on the city</h3>
+            <h3>Choose your lens on the road</h3>
           </div>
         </div>
         <div class="filter-row">
@@ -1917,7 +1917,7 @@ function renderProfileTab() {
         <div class="profile-list">
           <div><strong>Preferred style</strong><p>Long-form cultural routes with AR highlights</p></div>
           <div><strong>Saved tours</strong><p>${startedTours.length ? startedTours.map((tour) => tour.title).join(", ") : "No tours started yet"}</p></div>
-          <div><strong>Playback mode</strong><p>Web browse + native handoff</p></div>
+          <div><strong>Playback mode</strong><p>Drive-first narration + native handoff</p></div>
           <div><strong>Meta glasses mode</strong><p>${state.glassesMode ? "Enabled for Bluetooth audio routing" : "Off until glasses are paired over Bluetooth"}</p></div>
         </div>
       </article>
@@ -1929,7 +1929,7 @@ function renderProfileTab() {
           </div>
         </div>
         <p class="lede">
-          Pick a collection, preview the route, then mark stops as you go. This web layer is currently optimized for discovery, planning, and lightweight progress memory.
+          Pick a route, settle into the drive, and let narration carry the city. This web layer is optimized for discovery, premium route planning, and lightweight handoff into the native phone experience.
         </p>
         <div class="button-row">
           <button type="button" class="primary-button" data-action="set-tab" data-tab="home">Browse tours</button>
