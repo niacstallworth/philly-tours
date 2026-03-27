@@ -11,9 +11,15 @@ export function CompanionSetupScreen() {
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const { status, lastCommandResult } = useCompanionSession();
-  const [busy, setBusy] = React.useState<"pair" | "disconnect" | "command" | null>(null);
+  const [busy, setBusy] = React.useState<"pair" | "disconnect" | "refresh" | "command" | null>(null);
   const [message, setMessage] = React.useState<string | null>(status.lastError);
   const context = getCurrentTourContext();
+  const canReconnect =
+    status.supported &&
+    status.pairedDevice != null &&
+    status.connectionState !== "connected" &&
+    status.connectionState !== "pairing";
+  const connectLabel = canReconnect ? "Reconnect Meta Glasses" : "Connect Meta Glasses";
 
   React.useEffect(() => {
     void refreshCompanionStatus();
@@ -40,6 +46,16 @@ export function CompanionSetupScreen() {
     try {
       await disconnectCompanion();
       setMessage("Companion disconnected.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function onRefresh() {
+    setBusy("refresh");
+    try {
+      const nextStatus = await refreshCompanionStatus();
+      setMessage(nextStatus.statusMessage ?? nextStatus.lastError ?? "Companion status refreshed.");
     } finally {
       setBusy(null);
     }
@@ -96,10 +112,16 @@ export function CompanionSetupScreen() {
         <Text style={styles.value}>{status.pairedDevice?.displayName || "No device paired"}</Text>
         <Text style={styles.label}>Permissions</Text>
         <Text style={styles.value}>{status.grantedPermissions.length ? status.grantedPermissions.join(", ") : "None granted"}</Text>
+        {canReconnect ? <Text style={styles.meta}>A previously known Meta device was found. Reconnect to resume the companion flow.</Text> : null}
         {message ? <Text style={styles.message}>{message}</Text> : null}
         <PrimaryButton
-          label={busy === "pair" ? "Connecting..." : "Connect Meta Glasses"}
+          label={busy === "pair" ? "Connecting..." : connectLabel}
           onPress={() => void onPair()}
+          disabled={busy !== null}
+        />
+        <PrimaryButton
+          label={busy === "refresh" ? "Refreshing..." : "Refresh Companion Status"}
+          onPress={() => void onRefresh()}
           disabled={busy !== null}
         />
         <PrimaryButton
