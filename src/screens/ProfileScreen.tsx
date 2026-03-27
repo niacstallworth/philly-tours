@@ -3,6 +3,7 @@ import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, Vie
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useCompanionSession } from "../hooks/useCompanionSession";
+import { connectCompanion, refreshCompanionStatus } from "../services/companion";
 import {
   createCheckoutSession,
   getEntitlements,
@@ -55,6 +56,36 @@ export function ProfileScreen({
     });
     return () => sub.remove();
   }, []);
+
+  const canReconnectCompanion =
+    companionStatus.supported &&
+    companionStatus.pairedDevice != null &&
+    companionStatus.connectionState !== "connected" &&
+    companionStatus.connectionState !== "pairing";
+
+  async function reconnectCompanionFromProfile() {
+    setLoadingAction("companion-reconnect");
+    setStatusMessage(null);
+    try {
+      const nextStatus = await connectCompanion();
+      setStatusMessage(nextStatus.statusMessage ?? "Companion connected.");
+    } catch (error) {
+      setStatusMessage((error as Error).message || "Could not reconnect companion.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function refreshCompanionFromProfile() {
+    setLoadingAction("companion-refresh");
+    setStatusMessage(null);
+    try {
+      const nextStatus = await refreshCompanionStatus();
+      setStatusMessage(nextStatus.statusMessage ?? nextStatus.lastError ?? "Companion status refreshed.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
 
   async function refreshEntitlements(showAlert = true) {
     setLoadingAction("entitlements");
@@ -205,6 +236,9 @@ export function ProfileScreen({
         <Text style={styles.meta}>
           {companionStatus.statusMessage || companionStatus.lastError || "Use the companion setup screen to pair glasses and test commands."}
         </Text>
+        {canReconnectCompanion ? (
+          <Text style={styles.meta}>A remembered Meta device is available. Reconnect to restore the companion flow.</Text>
+        ) : null}
         {lastCommandResult ? (
           <>
             <Text style={styles.meta}>
@@ -213,6 +247,18 @@ export function ProfileScreen({
             <Text style={styles.meta}>{lastCommandResult.result.message}</Text>
           </>
         ) : null}
+        {canReconnectCompanion ? (
+          <PrimaryButton
+            onPress={() => void reconnectCompanionFromProfile()}
+            disabled={loadingAction !== null}
+            label={loadingAction === "companion-reconnect" ? "Reconnecting..." : "Reconnect Meta Glasses"}
+          />
+        ) : null}
+        <PrimaryButton
+          onPress={() => void refreshCompanionFromProfile()}
+          disabled={loadingAction !== null}
+          label={loadingAction === "companion-refresh" ? "Refreshing..." : "Refresh Companion Status"}
+        />
         <PrimaryButton onPress={onOpenCompanion || (() => undefined)} disabled={!onOpenCompanion} label="Open Companion Setup" />
       </Card>
 
