@@ -306,12 +306,14 @@ button {
 }
 
 .narration-panel,
+.companion-panel,
 .variant-toggle {
   display: grid;
   gap: 12px;
 }
 
-.narration-panel {
+.narration-panel,
+.companion-panel {
   margin: 18px 0;
 }
 
@@ -350,6 +352,7 @@ button {
 }
 
 .filter-chip.active,
+.ghost-button.active,
 .tabbar button.active {
   background: var(--olive);
   color: #f9f3e9;

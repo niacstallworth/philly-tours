@@ -95,6 +95,11 @@ android {
         versionCode 1
         versionName "0.1.0"
         multiDexEnabled true
+        buildConfigField "boolean", "META_WEARABLES_DAT_ENABLED", ((findProperty("metaWearablesDatEnabled") ?: "false").toString())
+        buildConfigField "String", "META_WEARABLES_DAT_VERSION", "\"${(findProperty("metaWearablesDatVersion") ?: "0.5.0")}\""
+        manifestPlaceholders = [
+            metaWearablesApplicationId: (findProperty("metaWearablesApplicationId") ?: "0").toString()
+        ]
     }
     signingConfigs {
         debug {
@@ -152,6 +157,10 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation("androidx.multidex:multidex:2.0.1")
+
+    if ((findProperty("metaWearablesDatEnabled") ?: "false").toString().toBoolean()) {
+        implementation("com.meta.wearable:mwdat-core:${findProperty("metaWearablesDatVersion") ?: "0.5.0"}")
+    }
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
