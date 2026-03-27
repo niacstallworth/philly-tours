@@ -1,28 +1,28 @@
 import React from "react";
 import {
   getCompanionStatus,
+  getLastCompanionCommandResult,
   subscribeToCompanionStatus,
-  type CompanionCommand,
-  type CompanionCommandResult
+  subscribeToCompanionCommands,
+  type CompanionCommandLog
 } from "../services/companion";
 import type { WearableStatus } from "../services/wearables";
 
 export function useCompanionSession() {
   const [status, setStatus] = React.useState<WearableStatus>(() => getCompanionStatus());
-  const [lastCommandResult, setLastCommandResult] = React.useState<CompanionCommandResult | null>(null);
+  const [lastCommandResult, setLastCommandResult] = React.useState<CompanionCommandLog>(() => getLastCompanionCommandResult());
 
-  React.useEffect(() => subscribeToCompanionStatus(setStatus), []);
-
-  function recordCommandResult(command: CompanionCommand, result: CompanionCommandResult) {
-    setLastCommandResult({
-      ...result,
-      message: `[${command.type}] ${result.message}`
-    });
-  }
+  React.useEffect(() => {
+    const unsubscribeStatus = subscribeToCompanionStatus(setStatus);
+    const unsubscribeCommands = subscribeToCompanionCommands(setLastCommandResult);
+    return () => {
+      unsubscribeStatus();
+      unsubscribeCommands();
+    };
+  }, []);
 
   return {
     status,
-    lastCommandResult,
-    recordCommandResult
+    lastCommandResult
   };
 }

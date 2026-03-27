@@ -26,6 +26,26 @@ export type CompanionCommandResult = {
   payload?: Record<string, unknown>;
 };
 
+export type CompanionCommandLog = {
+  commandType: CompanionCommand["type"];
+  result: CompanionCommandResult;
+  recordedAt: number;
+} | null;
+
+type CompanionCommandListener = (entry: CompanionCommandLog) => void;
+
+const commandListeners = new Set<CompanionCommandListener>();
+let lastCommandLog: CompanionCommandLog = null;
+
+function emitCommandResult(command: CompanionCommand, result: CompanionCommandResult) {
+  lastCommandLog = {
+    commandType: command.type,
+    result,
+    recordedAt: Date.now()
+  };
+  commandListeners.forEach((listener) => listener(lastCommandLog));
+}
+
 export function getCompanionStatus() {
   return getWearableStatus();
 }
@@ -46,26 +66,42 @@ export async function refreshCompanionStatus() {
   return refreshWearableStatus();
 }
 
+export function getLastCompanionCommandResult() {
+  return lastCommandLog;
+}
+
+export function subscribeToCompanionCommands(listener: CompanionCommandListener) {
+  commandListeners.add(listener);
+  listener(lastCommandLog);
+  return () => {
+    commandListeners.delete(listener);
+  };
+}
+
 export async function handleWearableCommand(command: CompanionCommand): Promise<CompanionCommandResult> {
   const context = getCurrentTourContext();
+  let result: CompanionCommandResult;
 
   switch (command.type) {
     case "start_tour": {
       const targetTour = tours.find((tour) => tour.id === command.tourId);
       const firstStop = targetTour?.stops[0];
       if (!targetTour || !firstStop) {
-        return { ok: false, message: `Tour ${command.tourId} could not be opened.` };
+        result = { ok: false, message: `Tour ${command.tourId} could not be opened.` };
+        break;
       }
       openTourStopOnPhone(targetTour.id, firstStop.id, "map");
-      return {
+      result = {
         ok: true,
         message: `Opened ${targetTour.title} on the phone.`,
         deepLink: `phillyartours://tour/${encodeURIComponent(targetTour.id)}/stop/${encodeURIComponent(firstStop.id)}/map`
       };
+      break;
     }
     case "next_stop": {
       if (!context?.nextStop) {
-        return { ok: false, message: "There is no next stop ready from the current tour context." };
+        result = { ok: false, message: "There is no next stop ready from the current tour context." };
+        break;
       }
       openTourStopOnPhone(context.tour.id, context.nextStop.id, "map");
       await startNarration({
@@ -77,15 +113,17 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
         audioUrl: context.nextStop.audioUrl,
         summary: context.nextStop.description.split("|")[0]?.trim() || context.nextStop.description
       });
-      return {
+      result = {
         ok: true,
         message: `Advanced to ${context.nextStop.title}.`,
         deepLink: `phillyartours://tour/${encodeURIComponent(context.tour.id)}/stop/${encodeURIComponent(context.nextStop.id)}/map`
       };
+      break;
     }
     case "repeat_narration": {
       if (!context?.stop) {
-        return { ok: false, message: "No current stop is selected for narration." };
+        result = { ok: false, message: "No current stop is selected for narration." };
+        break;
       }
       await startNarration({
         id: context.stop.id,
@@ -96,19 +134,23 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
         audioUrl: context.stop.audioUrl,
         summary: context.stop.description.split("|")[0]?.trim() || context.stop.description
       });
-      return { ok: true, message: `Replaying narration for ${context.stop.title}.` };
+      result = { ok: true, message: `Replaying narration for ${context.stop.title}.` };
+      break;
     }
     case "pause_narration":
       await stopNarration();
-      return { ok: true, message: "Narration stopped." };
+      result = { ok: true, message: "Narration stopped." };
+      break;
     case "resume_narration": {
       const narration = getNarrationState();
       if (!context?.stop && !narration.stopId) {
-        return { ok: false, message: "No recent stop is available to resume." };
+        result = { ok: false, message: "No recent stop is available to resume." };
+        break;
       }
       const stop = context?.stop;
       if (!stop) {
-        return { ok: false, message: "No stop context is available to resume narration." };
+        result = { ok: false, message: "No stop context is available to resume narration." };
+        break;
       }
       await startNarration({
         id: stop.id,
@@ -119,13 +161,15 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
         audioUrl: stop.audioUrl,
         summary: stop.description.split("|")[0]?.trim() || stop.description
       });
-      return { ok: true, message: `Resumed narration for ${stop.title}.` };
+      result = { ok: true, message: `Resumed narration for ${stop.title}.` };
+      break;
     }
     case "get_stop_context":
       if (!context?.stop) {
-        return { ok: false, message: "No current stop is selected." };
+        result = { ok: false, message: "No current stop is selected." };
+        break;
       }
-      return {
+      result = {
         ok: true,
         message: `${context.stop.title}: ${context.stop.description.split("|")[0]?.trim() || context.stop.description}`,
         payload: {
@@ -136,15 +180,20 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
           totalStops: context.tour.stops.length
         }
       };
+      break;
     case "open_ar_on_phone": {
       openTourStopOnPhone(command.tourId, command.stopId, "map");
-      return {
+      result = {
         ok: true,
         message: "Phone AR handoff prepared.",
         deepLink: `phillyartours://tour/${encodeURIComponent(command.tourId)}/stop/${encodeURIComponent(command.stopId)}/map`
       };
+      break;
     }
     default:
-      return { ok: false, message: "Unsupported companion command." };
+      result = { ok: false, message: "Unsupported companion command." };
   }
+
+  emitCommandResult(command, result);
+  return result;
 }
