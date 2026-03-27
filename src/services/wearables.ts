@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NativeModules, Platform } from "react-native";
 
 export type WearablePermission = "camera" | "device_state";
@@ -39,6 +40,7 @@ const nativeWearablesModule: NativeWearablesModule | null =
   Platform.OS === "ios" && "PhillyNativeWearables" in NativeModules
     ? (NativeModules.PhillyNativeWearables as NativeWearablesModule)
     : null;
+const WEARABLE_STATUS_KEY = "philly_tours_wearable_status_v1";
 
 type WearableStatusListener = (status: WearableStatus) => void;
 
@@ -51,9 +53,11 @@ let currentStatus: WearableStatus = {
   grantedPermissions: [],
   lastError: nativeWearablesModule != null ? null : "Meta wearables toolkit is not integrated yet."
 };
+let didHydrateStoredStatus = false;
 
 function emit(next: Partial<WearableStatus>) {
   currentStatus = { ...currentStatus, ...next };
+  void persistWearableStatus(currentStatus);
   listeners.forEach((listener) => listener(currentStatus));
 }
 
@@ -68,6 +72,47 @@ function normalizeStatus(status: NativeWearableStatus): WearableStatus {
   };
 }
 
+async function persistWearableStatus(status: WearableStatus) {
+  try {
+    await AsyncStorage.setItem(WEARABLE_STATUS_KEY, JSON.stringify(status));
+  } catch {
+    // Keep live state even if persistence fails.
+  }
+}
+
+async function hydrateStoredWearableStatus() {
+  if (didHydrateStoredStatus) {
+    return currentStatus;
+  }
+
+  didHydrateStoredStatus = true;
+
+  try {
+    const raw = await AsyncStorage.getItem(WEARABLE_STATUS_KEY);
+    if (!raw) {
+      return currentStatus;
+    }
+
+    const parsed = JSON.parse(raw) as WearableStatus;
+    if (!parsed || typeof parsed !== "object") {
+      return currentStatus;
+    }
+
+    currentStatus = {
+      supported: typeof parsed.supported === "boolean" ? parsed.supported : currentStatus.supported,
+      connectionState: parsed.connectionState || currentStatus.connectionState,
+      pairedDevice: parsed.pairedDevice || null,
+      grantedPermissions: Array.isArray(parsed.grantedPermissions) ? parsed.grantedPermissions : [],
+      lastError: typeof parsed.lastError === "string" ? parsed.lastError : null,
+      statusMessage: typeof parsed.statusMessage === "string" ? parsed.statusMessage : null
+    };
+  } catch {
+    // Ignore corrupt persisted state.
+  }
+
+  return currentStatus;
+}
+
 export function getWearableStatus() {
   return currentStatus;
 }
@@ -75,6 +120,9 @@ export function getWearableStatus() {
 export function subscribeToWearableStatus(listener: WearableStatusListener) {
   listeners.add(listener);
   listener(currentStatus);
+  if (!didHydrateStoredStatus) {
+    void hydrateStoredWearableStatus().then((status) => listener(status));
+  }
   if (nativeWearablesModule) {
     void refreshWearableStatus();
   }
@@ -109,9 +157,18 @@ export async function disconnectWearable() {
 }
 
 export async function refreshWearableStatus() {
+  await hydrateStoredWearableStatus();
   if (nativeWearablesModule) {
     emit(normalizeStatus(await nativeWearablesModule.getStatus()));
   }
 
   return currentStatus;
+}
+
+export async function clearPersistedWearableStatus() {
+  try {
+    await AsyncStorage.removeItem(WEARABLE_STATUS_KEY);
+  } catch {
+    // Ignore storage cleanup failures.
+  }
 }
