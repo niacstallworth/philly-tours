@@ -1,6 +1,8 @@
 import React from "react";
+import { AppState } from "react-native";
 import {
   getCompanionStatus,
+  refreshCompanionStatus,
   getLastCompanionCommandResult,
   subscribeToCompanionStatus,
   subscribeToCompanionCommands,
@@ -15,9 +17,15 @@ export function useCompanionSession() {
   React.useEffect(() => {
     const unsubscribeStatus = subscribeToCompanionStatus(setStatus);
     const unsubscribeCommands = subscribeToCompanionCommands(setLastCommandResult);
+    const appStateSubscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "active") {
+        refreshCompanionStatus().catch(() => undefined);
+      }
+    });
     return () => {
       unsubscribeStatus();
       unsubscribeCommands();
+      appStateSubscription.remove();
     };
   }, []);
 
