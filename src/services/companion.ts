@@ -1,4 +1,5 @@
 import { tours } from "../data/tours";
+import { buildHandoffUrl } from "./deepLinks";
 import { getNarrationState, startNarration, stopNarration } from "./narration";
 import { getCurrentTourContext, openTourStopOnPhone } from "./tourControl";
 import {
@@ -78,6 +79,53 @@ export function subscribeToCompanionCommands(listener: CompanionCommandListener)
   };
 }
 
+function getTourById(tourId: string) {
+  return tours.find((tour) => tour.id === tourId) || null;
+}
+
+function getStopForTour(tourId: string, stopId: string) {
+  const tour = getTourById(tourId);
+  if (!tour) {
+    return { tour: null, stop: null };
+  }
+  return {
+    tour,
+    stop: tour.stops.find((candidate) => candidate.id === stopId) || null
+  };
+}
+
+function runPhoneHandoffPreflight(tourId: string, stopId: string) {
+  const { tour, stop } = getStopForTour(tourId, stopId);
+
+  if (!tour) {
+    return {
+      ok: false as const,
+      message: `Tour ${tourId} is no longer available in this build.`
+    };
+  }
+
+  if (!stop) {
+    return {
+      ok: false as const,
+      message: `Stop ${stopId} is not part of ${tour.title}.`
+    };
+  }
+
+  return {
+    ok: true as const,
+    tour,
+    stop,
+    deepLink: buildHandoffUrl({
+      tourId: tour.id,
+      stopId: stop.id,
+      mode: "map"
+    }),
+    hasNarration: Boolean(stop.audioUrl),
+    hasCoordinates: typeof stop.lat === "number" && typeof stop.lng === "number",
+    hasArAssets: Boolean(stop.modelUrl || stop.arType || stop.assetNeeded)
+  };
+}
+
 export async function handleWearableCommand(command: CompanionCommand): Promise<CompanionCommandResult> {
   const context = getCurrentTourContext();
   let result: CompanionCommandResult;
@@ -90,11 +138,21 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
         result = { ok: false, message: `Tour ${command.tourId} could not be opened.` };
         break;
       }
+      const preflight = runPhoneHandoffPreflight(targetTour.id, firstStop.id);
+      if (!preflight.ok) {
+        result = { ok: false, message: preflight.message };
+        break;
+      }
       openTourStopOnPhone(targetTour.id, firstStop.id, "map");
       result = {
         ok: true,
-        message: `Opened ${targetTour.title} on the phone.`,
-        deepLink: `phillyartours://tour/${encodeURIComponent(targetTour.id)}/stop/${encodeURIComponent(firstStop.id)}/map`
+        message: `Opened ${targetTour.title} on the phone at ${firstStop.title}.`,
+        deepLink: preflight.deepLink,
+        payload: {
+          stopId: firstStop.id,
+          hasNarration: preflight.hasNarration,
+          hasCoordinates: preflight.hasCoordinates
+        }
       };
       break;
     }
@@ -103,20 +161,35 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
         result = { ok: false, message: "There is no next stop ready from the current tour context." };
         break;
       }
+      const preflight = runPhoneHandoffPreflight(context.tour.id, context.nextStop.id);
+      if (!preflight.ok) {
+        result = { ok: false, message: preflight.message };
+        break;
+      }
       openTourStopOnPhone(context.tour.id, context.nextStop.id, "map");
-      await startNarration({
-        id: context.nextStop.id,
-        title: context.nextStop.title,
-        lat: context.nextStop.lat,
-        lng: context.nextStop.lng,
-        triggerRadiusM: context.nextStop.triggerRadiusM,
-        audioUrl: context.nextStop.audioUrl,
-        summary: context.nextStop.description.split("|")[0]?.trim() || context.nextStop.description
-      });
+      if (preflight.hasNarration) {
+        await startNarration({
+          id: context.nextStop.id,
+          title: context.nextStop.title,
+          lat: context.nextStop.lat,
+          lng: context.nextStop.lng,
+          triggerRadiusM: context.nextStop.triggerRadiusM,
+          audioUrl: context.nextStop.audioUrl,
+          summary: context.nextStop.description.split("|")[0]?.trim() || context.nextStop.description
+        });
+      }
       result = {
         ok: true,
-        message: `Advanced to ${context.nextStop.title}.`,
-        deepLink: `phillyartours://tour/${encodeURIComponent(context.tour.id)}/stop/${encodeURIComponent(context.nextStop.id)}/map`
+        message: preflight.hasNarration
+          ? `Advanced to ${context.nextStop.title} and started narration.`
+          : `Advanced to ${context.nextStop.title}. Narration is not ready for this stop yet.`,
+        deepLink: preflight.deepLink,
+        payload: {
+          stopId: context.nextStop.id,
+          hasNarration: preflight.hasNarration,
+          hasCoordinates: preflight.hasCoordinates,
+          hasArAssets: preflight.hasArAssets
+        }
       };
       break;
     }
@@ -182,11 +255,26 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
       };
       break;
     case "open_ar_on_phone": {
+      const preflight = runPhoneHandoffPreflight(command.tourId, command.stopId);
+      if (!preflight.ok) {
+        result = { ok: false, message: preflight.message };
+        break;
+      }
+
       openTourStopOnPhone(command.tourId, command.stopId, "map");
       result = {
         ok: true,
-        message: "Phone AR handoff prepared.",
-        deepLink: `phillyartours://tour/${encodeURIComponent(command.tourId)}/stop/${encodeURIComponent(command.stopId)}/map`
+        message: preflight.hasArAssets
+          ? `Phone AR handoff prepared for ${preflight.stop.title}.`
+          : `Opened ${preflight.stop.title} on the phone. AR-specific assets are not ready for this stop yet.`,
+        deepLink: preflight.deepLink,
+        payload: {
+          tourId: preflight.tour.id,
+          stopId: preflight.stop.id,
+          hasNarration: preflight.hasNarration,
+          hasCoordinates: preflight.hasCoordinates,
+          hasArAssets: preflight.hasArAssets
+        }
       };
       break;
     }
