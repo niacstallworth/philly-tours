@@ -249,6 +249,9 @@ export function HomeScreen({
               }
               tone={highlightedStopLocked ? "warn" : highlightedNarrationMeta?.coverageTone || "warn"}
             />
+            {narration.stopId === highlightedStop.id ? (
+              <Chip label={narration.target === "companion" ? "To Meta glasses" : narration.target === "phone" ? "To phone" : "No target"} tone="default" />
+            ) : null}
           </View>
           {highlightedStopLocked ? (
             <Text style={styles.purchaseCopy}>

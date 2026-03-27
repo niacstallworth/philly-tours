@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
+import { useCompanionSession } from "../hooks/useCompanionSession";
 import {
   createCheckoutSession,
   getEntitlements,
@@ -34,6 +35,7 @@ export function ProfileScreen({
   const { appearanceMode, setAppearanceMode, textScale, setTextScale, colors } = useAppTheme();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
+  const { status: companionStatus, lastCommandResult } = useCompanionSession();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [entitlementStatus, setEntitlementStatus] = useState<string>("not_loaded");
@@ -193,6 +195,24 @@ export function ProfileScreen({
         <Text style={styles.copy}>
           Pair Meta glasses, confirm DAT registration, and check camera permission for the hands-free companion flow.
         </Text>
+        <View style={styles.chips}>
+          <Chip
+            label={companionStatus.connectionState === "connected" ? "Connected" : companionStatus.connectionState.replace(/_/g, " ")}
+            tone={companionStatus.connectionState === "connected" ? "success" : companionStatus.connectionState === "error" ? "danger" : "warn"}
+          />
+          <Chip label={companionStatus.pairedDevice?.displayName || "No paired glasses"} tone="default" />
+        </View>
+        <Text style={styles.meta}>
+          {companionStatus.statusMessage || companionStatus.lastError || "Use the companion setup screen to pair glasses and test commands."}
+        </Text>
+        {lastCommandResult ? (
+          <>
+            <Text style={styles.meta}>
+              Last command: {lastCommandResult.commandType} · {lastCommandResult.result.ok ? "ok" : "failed"}
+            </Text>
+            <Text style={styles.meta}>{lastCommandResult.result.message}</Text>
+          </>
+        ) : null}
         <PrimaryButton onPress={onOpenCompanion || (() => undefined)} disabled={!onOpenCompanion} label="Open Companion Setup" />
       </Card>
 

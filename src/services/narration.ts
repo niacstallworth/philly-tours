@@ -3,8 +3,10 @@ import * as Speech from "expo-speech";
 import { narrationAudioMap } from "../data/narrationAudioMap";
 import { narrationCatalogByStopId, type NarrationVariant } from "../data/narrationCatalog";
 import { narrationScriptMapByStopId } from "../data/narrationScriptMap";
+import { getWearableStatus, subscribeToWearableStatus, type WearableStatus } from "./wearables";
 
 type NarrationSource = "audio" | "speech" | "none";
+export type NarrationTarget = "phone" | "companion" | "none";
 export type NarrationStatus = "idle" | "loading" | "playing" | "stopped" | "error";
 export type NarrationCoverage = "full_audio" | "partial_audio" | "script_only" | "basic";
 export type NarrationTone = "default" | "success" | "warn" | "danger";
@@ -12,6 +14,7 @@ export type NarrationTone = "default" | "success" | "warn" | "danger";
 export type NarrationState = {
   status: NarrationStatus;
   source: NarrationSource;
+  target: NarrationTarget;
   stopId: string | null;
   stopTitle: string | null;
   message: string;
@@ -45,9 +48,11 @@ const listeners = new Set<NarrationListener>();
 
 let sound: Audio.Sound | null = null;
 let preferredSpeechVoiceId: string | null | undefined;
+let wearableStatus: WearableStatus = getWearableStatus();
 let currentState: NarrationState = {
   status: "idle",
   source: "none",
+  target: "none",
   stopId: null,
   stopTitle: null,
   message: "Narration is ready."
@@ -57,6 +62,45 @@ function emit(next: Partial<NarrationState>) {
   currentState = { ...currentState, ...next };
   listeners.forEach((listener) => listener(currentState));
 }
+
+function resolveNarrationTarget(status: WearableStatus = wearableStatus): NarrationTarget {
+  return status.connectionState === "connected" ? "companion" : "phone";
+}
+
+function buildNarrationRouteCopy(target: NarrationTarget) {
+  if (target === "companion") {
+    return "Meta glasses when connected";
+  }
+  if (target === "phone") {
+    return "this phone";
+  }
+  return "the current device";
+}
+
+function syncNarrationTarget(status: WearableStatus) {
+  wearableStatus = status;
+
+  if (currentState.source === "none" || currentState.target === "none") {
+    return;
+  }
+
+  const nextTarget = resolveNarrationTarget(status);
+  if (currentState.target === nextTarget) {
+    return;
+  }
+
+  if (currentState.status === "playing" && currentState.target === "companion" && nextTarget === "phone") {
+    emit({
+      target: "phone",
+      message: "Meta glasses disconnected. Narration is continuing on this phone."
+    });
+    return;
+  }
+
+  emit({ target: nextTarget });
+}
+
+subscribeToWearableStatus(syncNarrationTarget);
 
 export function getNarrationCoverage(stopId: string): NarrationCoverage {
   const audioEntry = narrationCatalogByStopId[stopId];
@@ -196,11 +240,13 @@ async function releaseSound() {
 }
 
 function onPlaybackStatus(stop: NarrationStop, status: AVPlaybackStatus) {
+  const target = currentState.target === "none" ? resolveNarrationTarget() : currentState.target;
   if (!status.isLoaded) {
     if (status.error) {
       emit({
         status: "error",
         source: "audio",
+        target,
         stopId: stop.id,
         stopTitle: stop.title,
         message: "Narration file could not be played."
@@ -213,6 +259,7 @@ function onPlaybackStatus(stop: NarrationStop, status: AVPlaybackStatus) {
     emit({
       status: "stopped",
       source: "audio",
+      target,
       stopId: stop.id,
       stopTitle: stop.title,
       message: "Narration finished."
@@ -224,9 +271,12 @@ function onPlaybackStatus(stop: NarrationStop, status: AVPlaybackStatus) {
   emit({
     status: status.isPlaying ? "playing" : "stopped",
     source: "audio",
+    target,
     stopId: stop.id,
     stopTitle: stop.title,
-    message: status.isPlaying ? "Playing recorded narration." : "Recorded narration ready."
+    message: status.isPlaying
+      ? `Playing recorded narration on ${buildNarrationRouteCopy(target)}.`
+      : `Recorded narration ready on ${buildNarrationRouteCopy(target)}.`
   });
 }
 
@@ -235,12 +285,14 @@ export async function startNarration(
   variant: NarrationVariant = "walk",
   options: StartNarrationOptions = {}
 ) {
+  const target = resolveNarrationTarget();
   await stopNarration();
   emit({
     status: "loading",
+    target,
     stopId: stop.id,
     stopTitle: stop.title,
-    message: "Preparing narration..."
+    message: target === "companion" ? "Preparing narration for Meta glasses..." : "Preparing narration..."
   });
 
   const preferredPath = resolveNarrationPath(stop, variant);
@@ -262,9 +314,10 @@ export async function startNarration(
       emit({
         status: "playing",
         source: "audio",
+        target,
         stopId: stop.id,
         stopTitle: stop.title,
-        message: "Playing recorded narration."
+        message: `Playing recorded narration on ${buildNarrationRouteCopy(target)}.`
       });
       return;
     } catch {
@@ -279,9 +332,12 @@ export async function startNarration(
     emit({
       status: "playing",
       source: "speech",
+      target,
       stopId: stop.id,
       stopTitle: stop.title,
-      message: options.preferSpeech ? "Speaking current script text." : "Speaking live stop preview."
+      message: options.preferSpeech
+        ? `Speaking current script text on ${buildNarrationRouteCopy(target)}.`
+        : `Speaking live stop preview on ${buildNarrationRouteCopy(target)}.`
     });
     Speech.speak(speechScript, {
       rate: 0.95,
@@ -292,6 +348,7 @@ export async function startNarration(
         emit({
           status: "stopped",
           source: "speech",
+          target,
           stopId: stop.id,
           stopTitle: stop.title,
           message: "Narration finished."
@@ -301,6 +358,7 @@ export async function startNarration(
         emit({
           status: "stopped",
           source: "speech",
+          target,
           stopId: stop.id,
           stopTitle: stop.title,
           message: "Narration stopped."
@@ -310,6 +368,7 @@ export async function startNarration(
         emit({
           status: "error",
           source: "speech",
+          target,
           stopId: stop.id,
           stopTitle: stop.title,
           message: "Speech preview failed on this device."
@@ -320,6 +379,7 @@ export async function startNarration(
     emit({
       status: "error",
       source: "none",
+      target,
       stopId: stop.id,
       stopTitle: stop.title,
       message: "Narration unavailable right now."
@@ -333,6 +393,7 @@ export async function stopNarration() {
   emit({
     status: "stopped",
     source: currentState.source === "none" ? "none" : currentState.source,
+    target: currentState.target === "none" ? "none" : resolveNarrationTarget(),
     message: "Narration stopped."
   });
 }
