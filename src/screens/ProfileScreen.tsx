@@ -4,6 +4,7 @@ import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useCompanionSession } from "../hooks/useCompanionSession";
 import { connectCompanion, refreshCompanionStatus } from "../services/companion";
+import type { WearableStatus } from "../services/wearables";
 import {
   createCheckoutSession,
   getEntitlements,
@@ -224,7 +225,7 @@ export function ProfileScreen({
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Meta Glasses Companion</Text>
         <Text style={styles.copy}>
-          Pair Meta glasses, confirm DAT registration, and check camera permission for the hands-free companion flow.
+          {getProfileCompanionCopy(companionStatus)}
         </Text>
         <View style={styles.chips}>
           <Chip
@@ -232,12 +233,13 @@ export function ProfileScreen({
             tone={companionStatus.connectionState === "connected" ? "success" : companionStatus.connectionState === "error" ? "danger" : "warn"}
           />
           <Chip label={companionStatus.pairedDevice?.displayName || "No paired glasses"} tone="default" />
+          <Chip label={getProfileIntegrationLabel(companionStatus)} tone={companionStatus.integrationMode === "none" ? "danger" : "success"} />
         </View>
         <Text style={styles.meta}>
           {companionStatus.statusMessage || companionStatus.lastError || "Use the companion setup screen to pair glasses and test commands."}
         </Text>
         {canReconnectCompanion ? (
-          <Text style={styles.meta}>A remembered Meta device is available. Reconnect to restore the companion flow.</Text>
+          <Text style={styles.meta}>{getProfileReconnectCopy(companionStatus)}</Text>
         ) : null}
         {lastCommandResult ? (
           <>
@@ -251,7 +253,7 @@ export function ProfileScreen({
           <PrimaryButton
             onPress={() => void reconnectCompanionFromProfile()}
             disabled={loadingAction !== null}
-            label={loadingAction === "companion-reconnect" ? "Reconnecting..." : "Reconnect Meta Glasses"}
+            label={loadingAction === "companion-reconnect" ? "Reconnecting..." : getProfileReconnectLabel(companionStatus)}
           />
         ) : null}
         <PrimaryButton
@@ -343,6 +345,46 @@ export function ProfileScreen({
 
     </ScrollView>
   );
+}
+
+function getProfileIntegrationLabel(status: WearableStatus) {
+  if (status.integrationMode === "native") {
+    return "Native DAT";
+  }
+
+  if (status.integrationMode === "manual") {
+    return "Bluetooth audio mode";
+  }
+
+  return "Unavailable";
+}
+
+function getProfileCompanionCopy(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "Android can work with Meta glasses today in manual companion mode: pair them over Bluetooth, route narration through the phone, and use the phone for tour and AR handoff.";
+  }
+
+  if (status.integrationMode === "native") {
+    return "Pair Meta glasses, confirm DAT registration, and check camera permission for the hands-free companion flow.";
+  }
+
+  return "This platform does not expose native Meta glasses control in this build yet, but you can still use the phone-side tour and narration flow.";
+}
+
+function getProfileReconnectCopy(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "A remembered Meta glasses audio route is available. Restore it to keep narration pointed at the paired Bluetooth glasses.";
+  }
+
+  return "A remembered Meta device is available. Reconnect to restore the companion flow.";
+}
+
+function getProfileReconnectLabel(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "Restore Meta Glasses Audio Mode";
+  }
+
+  return "Reconnect Meta Glasses";
 }
 
 function createStyles(

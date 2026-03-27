@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { connectCompanion, disconnectCompanion, handleWearableCommand, refreshCompanionStatus } from "../services/companion";
 import { getCurrentTourContext } from "../services/tourControl";
+import type { WearableStatus } from "../services/wearables";
 import { useCompanionSession } from "../hooks/useCompanionSession";
 import { type AppPalette, useTypeScale, useThemeColors } from "../theme/appTheme";
 
@@ -19,7 +20,7 @@ export function CompanionSetupScreen() {
     status.pairedDevice != null &&
     status.connectionState !== "connected" &&
     status.connectionState !== "pairing";
-  const connectLabel = canReconnect ? "Reconnect Meta Glasses" : "Connect Meta Glasses";
+  const connectLabel = getConnectLabel(status, canReconnect);
 
   React.useEffect(() => {
     void refreshCompanionStatus();
@@ -97,22 +98,18 @@ export function CompanionSetupScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Card style={styles.card}>
         <Text style={styles.title}>Meta Glasses Companion</Text>
-        <Text style={styles.copy}>
-          This is the setup surface for the Meta wearables companion flow. The production target is hands-free narration,
-          contextual stop requests, and phone AR handoff.
-        </Text>
-        <Text style={styles.copy}>
-          The current iOS DAT build exposes registration, device state, and camera permission. Microphone and glasses-audio routing still need a later integration pass.
-        </Text>
+        <Text style={styles.copy}>{getCompanionIntroCopy(status)}</Text>
+        <Text style={styles.copy}>{getCompanionDetailCopy(status)}</Text>
         <View style={styles.chips}>
           <Chip label={status.connectionState.toUpperCase()} tone={status.connectionState === "connected" ? "success" : "warn"} />
-          <Chip label={status.supported ? "SDK Ready" : "SDK Missing"} tone={status.supported ? "success" : "danger"} />
+          <Chip label={getIntegrationChipLabel(status)} tone={status.integrationMode === "none" ? "danger" : "success"} />
+          <Chip label={status.platformLabel} tone="default" />
         </View>
         <Text style={styles.label}>Paired device</Text>
         <Text style={styles.value}>{status.pairedDevice?.displayName || "No device paired"}</Text>
         <Text style={styles.label}>Permissions</Text>
         <Text style={styles.value}>{status.grantedPermissions.length ? status.grantedPermissions.join(", ") : "None granted"}</Text>
-        {canReconnect ? <Text style={styles.meta}>A previously known Meta device was found. Reconnect to resume the companion flow.</Text> : null}
+        {canReconnect ? <Text style={styles.meta}>{getReconnectCopy(status)}</Text> : null}
         {message ? <Text style={styles.message}>{message}</Text> : null}
         <PrimaryButton
           label={busy === "pair" ? "Connecting..." : connectLabel}
@@ -175,6 +172,58 @@ export function CompanionSetupScreen() {
       </Card>
     </ScrollView>
   );
+}
+
+function getConnectLabel(status: WearableStatus, canReconnect: boolean) {
+  if (status.integrationMode === "manual") {
+    return canReconnect ? "Restore Meta Glasses Audio Mode" : "Enable Meta Glasses Audio Mode";
+  }
+
+  return canReconnect ? "Reconnect Meta Glasses" : "Connect Meta Glasses";
+}
+
+function getIntegrationChipLabel(status: WearableStatus) {
+  if (status.integrationMode === "native") {
+    return "Native DAT";
+  }
+
+  if (status.integrationMode === "manual") {
+    return "Bluetooth audio mode";
+  }
+
+  return "Integration unavailable";
+}
+
+function getCompanionIntroCopy(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "Android manual Meta glasses mode keeps narration and stop control usable today by relying on the phone as the tour brain and Bluetooth audio as the glasses output.";
+  }
+
+  if (status.integrationMode === "native") {
+    return "This is the setup surface for the Meta wearables companion flow. The production target is hands-free narration, contextual stop requests, and phone AR handoff.";
+  }
+
+  return "This build does not expose native Meta glasses control on this platform yet. Use the phone route and narration flows directly here.";
+}
+
+function getCompanionDetailCopy(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "Pair the glasses in Android Bluetooth settings first, then enable companion mode here so narration and phone-side command tests are framed as Meta glasses sessions.";
+  }
+
+  if (status.integrationMode === "native") {
+    return "The current native DAT build exposes registration, device state, and camera permission. Microphone and glasses-audio routing still need a later integration pass.";
+  }
+
+  return "The web and unsupported-device path is still useful for planning, narration preview, and handoff into the native phone app.";
+}
+
+function getReconnectCopy(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "A remembered Meta glasses audio session was found. Restore it to keep narration routed through your Android audio output.";
+  }
+
+  return "A previously known Meta device was found. Reconnect to resume the companion flow.";
 }
 
 function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>) {

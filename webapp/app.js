@@ -249,6 +249,7 @@ const narrationData = window.PHILLY_TOURS_NARRATION || {
 const arData = window.PHILLY_TOURS_AR || {};
 
 const STORAGE_KEY = "philly-ar-tours-web-progress";
+const GLASSES_MODE_KEY = "philly-ar-tours-web-glasses-mode";
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 let routeMap = null;
 let routeMapLayers = null;
@@ -284,6 +285,7 @@ const state = {
     lastAutoNarratedStopId: null,
     lastAutoNarratedAt: 0
   },
+  glassesMode: loadGlassesMode(),
   search: "",
   themeFilter: "all",
   completedStopIds: loadCompletedStops()
@@ -294,6 +296,7 @@ const tabs = [...document.querySelectorAll("#tabs button")];
 const tabBar = document.getElementById("tabs");
 const deployStatus = document.getElementById("deploy-status");
 const copyViewButton = document.getElementById("copy-view-button");
+const glassesModeButton = document.getElementById("glasses-mode-button");
 
 document.addEventListener("click", handleClick);
 if (tabBar) {
@@ -556,10 +559,35 @@ function getDeploymentStatusLabel() {
   return "Web preview";
 }
 
+function getGlassesModeLabel() {
+  return state.glassesMode ? "Meta glasses mode on" : "Meta glasses mode off";
+}
+
+function getGlassesModeButtonLabel() {
+  return state.glassesMode ? "Disable Meta glasses mode" : "Enable Meta glasses mode";
+}
+
+function getGlassesModeCopy() {
+  if (state.glassesMode) {
+    return "Browser narration will follow this device's current audio output. Pair Meta glasses over Bluetooth to hear the tour hands-free while keeping route and AR handoff on the phone.";
+  }
+
+  return "Turn on Meta glasses mode when your glasses are already paired to this phone or computer over Bluetooth. The webapp cannot use native Meta DAT, but it can still route narration through the active browser audio output.";
+}
+
+function buildPhoneAppHandoffLink(tourId, stopId) {
+  return `phillyartours://tour/${encodeURIComponent(tourId)}/stop/${encodeURIComponent(stopId)}/map`;
+}
+
 function updateChrome() {
   if (deployStatus) {
     deployStatus.textContent = getDeploymentStatusLabel();
     deployStatus.classList.toggle("is-live", PRODUCTION_HOSTS.has(window.location.hostname));
+  }
+
+  if (glassesModeButton) {
+    glassesModeButton.textContent = getGlassesModeLabel();
+    glassesModeButton.classList.toggle("active", state.glassesMode);
   }
 }
 
@@ -604,6 +632,22 @@ function loadCompletedStops() {
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
+  }
+}
+
+function loadGlassesMode() {
+  try {
+    return window.localStorage.getItem(GLASSES_MODE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function saveGlassesMode() {
+  try {
+    window.localStorage.setItem(GLASSES_MODE_KEY, state.glassesMode ? "1" : "0");
+  } catch {
+    // Ignore storage failures for this preference.
   }
 }
 
@@ -985,6 +1029,13 @@ function handleClick(event) {
 
   if (action === "copy-view") {
     copyCurrentViewLink();
+    return;
+  }
+
+  if (action === "toggle-glasses-mode") {
+    state.glassesMode = !state.glassesMode;
+    saveGlassesMode();
+    render(false);
     return;
   }
 
@@ -1405,13 +1456,29 @@ function renderRouteTab(selectedTour, selectedStop) {
             <p>${selectedStop.locationLabel || "Use the route list and map marker to orient on arrival."}</p>
           </div>
         </div>
+        <div class="companion-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Meta glasses</p>
+              <h3>Browser companion mode</h3>
+            </div>
+            <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
+          </div>
+          <p>${getGlassesModeCopy()}</p>
+          <div class="button-row">
+            <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
+              ${getGlassesModeButtonLabel()}
+            </button>
+            <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open in Philly Tours app</a>
+          </div>
+        </div>
         <div class="narration-panel">
           <div class="panel-header">
             <div>
               <p class="eyebrow">Narration</p>
               <h3>Real runtime audio</h3>
             </div>
-            <span class="status-pill">${getNarrationLabel(selectedStop.id)}</span>
+            <span class="status-pill">${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to glasses-ready output` : getNarrationLabel(selectedStop.id)}</span>
           </div>
           <div class="variant-toggle">
             <button type="button" class="filter-chip ${state.narrationVariant === "walk" ? "active" : ""}" data-action="set-narration-variant" data-variant="walk">Walk</button>
@@ -1750,6 +1817,10 @@ function renderArTab(selectedTour) {
         ${
           effectiveStop
             ? `
+              <div class="drawer-copy">
+                <strong>Meta glasses posture</strong>
+                <p>${state.glassesMode ? "Glasses mode is on. Recorded audio or Amy fallback will follow this device's active Bluetooth audio output." : "Enable Meta glasses mode if you want this browser session to behave like a hands-free audio companion while keeping AR and route control on the phone."}</p>
+              </div>
               <div class="drawer-copy emphasis">
                 <strong>Live cue</strong>
                 <p>${state.ar.inRange ? `You are within range of ${effectiveStop.title}.` : `Move toward ${effectiveStop.locationLabel || effectiveStop.title} to unlock the stop.`}</p>
@@ -1770,6 +1841,7 @@ function renderArTab(selectedTour) {
                   ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play stop narration" : "Play Amy fallback"}
                 </button>
                 <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${effectiveStop.id}">Open stop brief</button>
+                <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, effectiveStop.id)}">Open in phone app</a>
               </div>
             `
             : ""
@@ -1846,6 +1918,7 @@ function renderProfileTab() {
           <div><strong>Preferred style</strong><p>Long-form cultural routes with AR highlights</p></div>
           <div><strong>Saved tours</strong><p>${startedTours.length ? startedTours.map((tour) => tour.title).join(", ") : "No tours started yet"}</p></div>
           <div><strong>Playback mode</strong><p>Web browse + native handoff</p></div>
+          <div><strong>Meta glasses mode</strong><p>${state.glassesMode ? "Enabled for Bluetooth audio routing" : "Off until glasses are paired over Bluetooth"}</p></div>
         </div>
       </article>
       <article class="panel">
@@ -1861,6 +1934,7 @@ function renderProfileTab() {
         <div class="button-row">
           <button type="button" class="primary-button" data-action="set-tab" data-tab="home">Browse tours</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Resume route</button>
+          <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">${getGlassesModeButtonLabel()}</button>
         </div>
       </article>
     </section>

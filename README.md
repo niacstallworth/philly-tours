@@ -146,6 +146,33 @@ Important:
 - The current companion setup screen will now explain which Meta DAT values are still placeholders.
 - The real Meta project credentials should come from the Wearables Developer Center, not from the app bundle or backend env.
 
+## Meta Wearables DAT Android Setup
+
+Android now has a safe opt-in DAT wiring path.
+
+By default, the Android build stays in manual Meta glasses mode:
+
+- pair glasses in Android Bluetooth settings
+- route narration through the phone's active audio output
+- use the phone for route control and AR handoff
+
+To enable native Android DAT registration, set the following before building:
+
+- `android/gradle.properties`
+  - `metaWearablesDatEnabled=true`
+  - `metaWearablesApplicationId=<your Meta Wearables app id>`
+- local Android credentials
+  - `GITHUB_TOKEN` in your shell, or
+  - `github_token=<token>` in `android/local.properties`
+
+The DAT Android SDK is fetched from GitHub Packages, so builds will fail if native DAT is enabled without package access.
+
+When DAT is enabled, the Android app exposes:
+
+- native Meta registration / unregistration
+- device-state aware companion status in `PhillyNativeWearables`
+- the same React Native companion surface used by iOS
+
 ## Meta Companion Build Path
 
 The current Meta grant path is a companion-device prototype, not glasses-native AR.
