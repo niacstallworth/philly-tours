@@ -286,6 +286,7 @@ const state = {
     lastAutoNarratedAt: 0
   },
   glassesMode: loadGlassesMode(),
+  glassesModeNotice: "",
   search: "",
   themeFilter: "all",
   completedStopIds: loadCompletedStops()
@@ -569,7 +570,7 @@ function getGlassesModeButtonLabel() {
 
 function getGlassesModeCopy() {
   if (state.glassesMode) {
-    return "Browser narration will follow this device's current audio output. Pair Meta glasses over Bluetooth to hear the tour hands-free while keeping route and AR handoff on the phone.";
+    return "Browser narration will follow this device's current audio output. Pair Meta glasses over Bluetooth to hear the tour hands-free while keeping route and AR handoff on the phone. Turning this off resets the active audio and AR view back to the standard phone posture.";
   }
 
   return "Turn on Meta glasses mode when your glasses are already paired to this phone or computer over Bluetooth. The webapp cannot use native Meta DAT, but it can still route narration through the active browser audio output.";
@@ -1033,7 +1034,15 @@ function handleClick(event) {
   }
 
   if (action === "toggle-glasses-mode") {
-    state.glassesMode = !state.glassesMode;
+    const nextGlassesMode = !state.glassesMode;
+    if (!nextGlassesMode) {
+      stopNarration();
+      stopArLive();
+      state.glassesModeNotice = "Meta glasses mode turned off. Reopen the route or AR screen if you want to continue in standard phone mode.";
+    } else {
+      state.glassesModeNotice = "Meta glasses mode turned on. Narration will follow your active Bluetooth audio output.";
+    }
+    state.glassesMode = nextGlassesMode;
     saveGlassesMode();
     render(false);
     return;
@@ -1503,6 +1512,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
           </div>
           <p>${getGlassesModeCopy()}</p>
+          ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
           <div class="button-row">
             <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
               ${getGlassesModeButtonLabel()}
@@ -1828,6 +1838,7 @@ function renderArTab(selectedTour) {
                 <strong>Audio-only glasses mode</strong>
                 <p>${state.glassesMode ? "Glasses mode is on. Stop stories are told through recorded narration or Amy fallback on the active Bluetooth audio output, not through floating text overlays." : "Enable Meta glasses mode if you want this browser session to behave like a hands-free audio companion while keeping route and AR control on the phone."}</p>
               </div>
+              ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
               <div class="drawer-copy emphasis">
                 <strong>Live cue</strong>
                 <p>${state.ar.inRange ? `You are within range of ${effectiveStop.title}.` : `Move toward ${effectiveStop.locationLabel || effectiveStop.title} to unlock the stop.`}</p>
@@ -1927,6 +1938,7 @@ function renderProfileTab() {
           <div><strong>Playback mode</strong><p>Drive-first narration + native handoff</p></div>
           <div><strong>Meta glasses mode</strong><p>${state.glassesMode ? "Enabled for Bluetooth audio routing" : "Off until glasses are paired over Bluetooth"}</p></div>
         </div>
+        ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Mode status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
       </article>
       <article class="panel">
         <div class="panel-header">
