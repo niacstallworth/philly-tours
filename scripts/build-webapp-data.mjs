@@ -125,7 +125,9 @@ const arBanner = [
 const siteConfig = {
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL || "",
   supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || "",
-  newsletterTable: "newsletter_subscribers"
+  newsletterTable: "newsletter_subscribers",
+  syncServerUrl: process.env.EXPO_PUBLIC_WEB_SYNC_SERVER_URL || process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "",
+  cloudflareTurnstileSiteKey: process.env.EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || ""
 };
 
 const configBanner = [

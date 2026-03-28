@@ -251,6 +251,7 @@ const siteConfig = window.PHILLY_TOURS_CONFIG || {};
 
 const STORAGE_KEY = "philly-ar-tours-web-progress";
 const GLASSES_MODE_KEY = "philly-ar-tours-web-glasses-mode";
+const AUTH_STORAGE_KEY = "philly-ar-tours-web-session";
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 const CONTACT_EMAIL = "info@foundersthreads.org";
 let routeMap = null;
@@ -262,8 +263,19 @@ let arLocationWatchId = null;
 const AR_RANGE_HYSTERESIS_M = 15;
 const AR_AUTO_NARRATION_COOLDOWN_MS = 45000;
 let copyButtonResetTimer = null;
+let webTurnstileMountTimer = null;
 
 const state = {
+  auth: {
+    booting: true,
+    session: null,
+    authToken: "",
+    displayName: "",
+    email: "",
+    status: "idle",
+    message: "",
+    turnstileToken: null
+  },
   activeTab: "home",
   selectedTourId: tours[0].id,
   selectedStopId: tours[0].stops[0].id,
@@ -305,6 +317,7 @@ const tabBar = document.getElementById("tabs");
 const deployStatus = document.getElementById("deploy-status");
 const copyViewButton = document.getElementById("copy-view-button");
 const glassesModeButton = document.getElementById("glasses-mode-button");
+const topbarActions = document.querySelector(".topbar-actions");
 
 document.addEventListener("click", handleClick);
 document.addEventListener("input", handleInput);
@@ -325,6 +338,7 @@ window.addEventListener("hashchange", handleHashChange);
 
 hydrateStateFromLocation();
 render();
+initializeWebAuth();
 
 function normalizeTours(rawTours) {
   if (!Array.isArray(rawTours) || rawTours.length === 0) {
@@ -590,14 +604,30 @@ function buildPhoneAppHandoffLink(tourId, stopId) {
 }
 
 function updateChrome() {
+  const signedIn = !!state.auth.session;
   if (deployStatus) {
-    deployStatus.textContent = getDeploymentStatusLabel();
+    deployStatus.textContent = signedIn ? getDeploymentStatusLabel() : "Cloudflare sign-in";
     deployStatus.classList.toggle("is-live", PRODUCTION_HOSTS.has(window.location.hostname));
   }
 
   if (glassesModeButton) {
     glassesModeButton.textContent = getGlassesModeLabel();
     glassesModeButton.classList.toggle("active", state.glassesMode);
+    glassesModeButton.hidden = !signedIn;
+  }
+
+  if (copyViewButton) {
+    copyViewButton.hidden = !signedIn;
+  }
+
+  if (tabBar) {
+    tabBar.hidden = !signedIn;
+  }
+
+  if (topbarActions && !signedIn) {
+    topbarActions.classList.add("auth-compact");
+  } else if (topbarActions) {
+    topbarActions.classList.remove("auth-compact");
   }
 }
 
@@ -643,6 +673,109 @@ function loadCompletedStops() {
   } catch {
     return [];
   }
+}
+
+function loadWebAuthSession() {
+  try {
+    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    if (!parsed?.authToken || !parsed?.session) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveWebAuthSession(record) {
+  try {
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(record));
+  } catch {
+    // Ignore storage failures for the web-only auth shell.
+  }
+}
+
+function clearWebAuthSession() {
+  try {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures for the web-only auth shell.
+  }
+}
+
+function getSyncServerUrl() {
+  return String(siteConfig.syncServerUrl || "").trim().replace(/\/+$/, "");
+}
+
+function getCloudflareTurnstileSiteKey() {
+  return String(siteConfig.cloudflareTurnstileSiteKey || "").trim();
+}
+
+async function initializeWebAuth() {
+  const stored = loadWebAuthSession();
+  const syncServerUrl = getSyncServerUrl();
+
+  if (!stored) {
+    state.auth.booting = false;
+    render(false);
+    return;
+  }
+
+  state.auth.displayName = stored.session.displayName || "";
+  state.auth.email = stored.session.email || "";
+  state.auth.authToken = stored.authToken || "";
+
+  if (!syncServerUrl) {
+    state.auth.session = stored.session;
+    state.auth.booting = false;
+    render(false);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${syncServerUrl}/api/auth/session`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${stored.authToken}`
+      }
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.session) {
+      throw new Error(payload.error || "Unable to validate web session.");
+    }
+
+    state.auth.session = payload.session;
+    state.auth.authToken = stored.authToken;
+    state.auth.displayName = payload.session.displayName || "";
+    state.auth.email = payload.session.email || "";
+  } catch {
+    clearWebAuthSession();
+    state.auth.session = null;
+    state.auth.authToken = "";
+    state.auth.message = "Your Cloudflare-secured session expired. Sign in again to continue.";
+  } finally {
+    state.auth.booting = false;
+    render(false);
+  }
+}
+
+function resetAuthState() {
+  state.auth = {
+    ...state.auth,
+    booting: false,
+    session: null,
+    authToken: "",
+    displayName: "",
+    email: "",
+    status: "idle",
+    message: "",
+    turnstileToken: null
+  };
 }
 
 function loadGlassesMode() {
@@ -1057,6 +1190,15 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "sign-out-webapp") {
+    stopNarration();
+    stopArLive();
+    clearWebAuthSession();
+    resetAuthState();
+    render(false);
+    return;
+  }
+
   if (action === "select-tour" && tourId) {
     const selectedTour = getTourById(tourId);
     if (!selectedTour) {
@@ -1172,12 +1314,36 @@ function handleInput(event) {
       state.subscription.status = "idle";
       state.subscription.message = "";
     }
+    return;
+  }
+
+  if (target.name === "auth-display-name") {
+    state.auth.displayName = target.value;
+    if (state.auth.status !== "idle") {
+      state.auth.status = "idle";
+      state.auth.message = "";
+    }
+    return;
+  }
+
+  if (target.name === "auth-email") {
+    state.auth.email = target.value;
+    if (state.auth.status !== "idle") {
+      state.auth.status = "idle";
+      state.auth.message = "";
+    }
   }
 }
 
 function handleSubmit(event) {
   const form = event.target;
   if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+
+  if (form.dataset.form === "webapp-auth") {
+    event.preventDefault();
+    submitWebappAuth();
     return;
   }
 
@@ -1273,6 +1439,170 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function renderAuthScreen() {
+  const hasSiteKey = !!getCloudflareTurnstileSiteKey();
+  const hasSyncServer = !!getSyncServerUrl();
+  const canSubmit =
+    state.auth.displayName.trim().length >= 2 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.auth.email.trim()) &&
+    (!hasSiteKey || !!state.auth.turnstileToken) &&
+    hasSyncServer;
+
+  return `
+    <section class="auth-shell">
+      <article class="panel auth-panel">
+        <p class="eyebrow">Cloudflare secured sign-in</p>
+        <h2>Enter the web companion through Founders Threads access.</h2>
+        <p class="hero-text">
+          Sign in once, pass the Cloudflare challenge, and then continue into route planning, AR handoff, and profile tools on this browser.
+        </p>
+        <div class="chip-row">
+          <span class="chip">Cloudflare verification</span>
+          <span class="chip">Founders Threads session</span>
+          <span class="chip">Cross-device touring</span>
+        </div>
+        <form class="auth-form" data-form="webapp-auth">
+          <label class="search-field">
+            <span>Display name</span>
+            <input type="text" name="auth-display-name" placeholder="Founder Name" value="${escapeHtml(state.auth.displayName)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
+          </label>
+          <label class="search-field">
+            <span>Email</span>
+            <input type="email" name="auth-email" placeholder="you@example.com" value="${escapeHtml(state.auth.email)}" autocomplete="email" ${state.auth.status === "submitting" ? "disabled" : ""} />
+          </label>
+          ${
+            hasSiteKey
+              ? state.auth.turnstileToken
+                ? '<div class="subscription-status success">Cloudflare challenge complete. You can continue into the app.</div>'
+                : '<div id="webapp-turnstile" class="turnstile-mount"></div>'
+              : '<div class="subscription-status">Add `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY` to enable the Cloudflare challenge for this web build.</div>'
+          }
+          ${
+            hasSyncServer
+              ? ""
+              : '<div class="subscription-status error">Add `EXPO_PUBLIC_WEB_SYNC_SERVER_URL` so the webapp can create real authenticated sessions.</div>'
+          }
+          ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
+          <div class="button-row">
+            <button type="submit" class="primary-button" ${canSubmit && state.auth.status !== "submitting" ? "" : "disabled"}>
+              ${state.auth.status === "submitting" ? "Signing in..." : "Enter app"}
+            </button>
+            <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Need help?</a>
+          </div>
+        </form>
+      </article>
+    </section>
+  `;
+}
+
+function mountWebTurnstile() {
+  const mountNode = document.getElementById("webapp-turnstile");
+  const siteKey = getCloudflareTurnstileSiteKey();
+  if (!mountNode || !siteKey || state.auth.turnstileToken) {
+    return;
+  }
+
+  if (!window.turnstile) {
+    window.clearTimeout(webTurnstileMountTimer);
+    webTurnstileMountTimer = window.setTimeout(mountWebTurnstile, 150);
+    return;
+  }
+
+  mountNode.innerHTML = "";
+  window.turnstile.render("#webapp-turnstile", {
+    sitekey: siteKey,
+    theme: "light",
+    callback(token) {
+      state.auth.turnstileToken = token;
+      state.auth.status = "idle";
+      state.auth.message = "";
+      render(false);
+    },
+    "expired-callback"() {
+      state.auth.turnstileToken = null;
+      render(false);
+    },
+    "timeout-callback"() {
+      state.auth.turnstileToken = null;
+      render(false);
+    },
+    "error-callback"() {
+      state.auth.turnstileToken = null;
+      state.auth.status = "error";
+      state.auth.message = "Cloudflare verification could not load. Refresh and try again.";
+      render(false);
+    }
+  });
+}
+
+async function submitWebappAuth() {
+  const syncServerUrl = getSyncServerUrl();
+  const displayName = state.auth.displayName.trim();
+  const email = state.auth.email.trim().toLowerCase();
+  const siteKey = getCloudflareTurnstileSiteKey();
+
+  if (!syncServerUrl) {
+    state.auth.status = "error";
+    state.auth.message = "This web build is missing `EXPO_PUBLIC_WEB_SYNC_SERVER_URL`.";
+    render(false);
+    return;
+  }
+
+  if (displayName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    state.auth.status = "error";
+    state.auth.message = "Enter a display name and valid email address.";
+    render(false);
+    return;
+  }
+
+  if (siteKey && !state.auth.turnstileToken) {
+    state.auth.status = "error";
+    state.auth.message = "Complete the Cloudflare challenge before signing in.";
+    render(false);
+    return;
+  }
+
+  state.auth.status = "submitting";
+  state.auth.message = "Creating your secure session...";
+  render(false);
+
+  try {
+    const response = await fetch(`${syncServerUrl}/api/auth/session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        displayName,
+        email,
+        mode: "tourist",
+        turnstileToken: state.auth.turnstileToken || undefined
+      })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.token || !payload.session) {
+      throw new Error(payload.error || "Unable to sign in.");
+    }
+
+    state.auth.session = payload.session;
+    state.auth.authToken = payload.token;
+    state.auth.displayName = payload.session.displayName || displayName;
+    state.auth.email = payload.session.email || email;
+    state.auth.status = "idle";
+    state.auth.message = "";
+    saveWebAuthSession({
+      authToken: payload.token,
+      session: payload.session
+    });
+    render();
+  } catch (error) {
+    state.auth.status = "error";
+    state.auth.message = (error && error.message) || "Unable to sign in.";
+    render(false);
+  }
 }
 
 function getNewsletterApiConfig() {
@@ -1372,6 +1702,25 @@ function render(shouldSyncHash = true) {
   tabs.forEach((button) => {
     button.classList.toggle("active", button.dataset.tab === state.activeTab);
   });
+
+  if (state.auth.booting) {
+    app.innerHTML = `
+      <section class="auth-shell">
+        <article class="panel auth-panel">
+          <p class="eyebrow">Cloudflare secured sign-in</p>
+          <h2>Loading your web session…</h2>
+          <p class="hero-text">Checking whether this browser already has a valid Founders Threads session.</p>
+        </article>
+      </section>
+    `;
+    return;
+  }
+
+  if (!state.auth.session) {
+    app.innerHTML = renderAuthScreen();
+    mountWebTurnstile();
+    return;
+  }
 
   const selectedTour = getSelectedTour();
   const selectedStop = getSelectedStop();
@@ -2058,17 +2407,19 @@ function renderProgressTab(globalStats) {
 
 function renderProfileTab() {
   const startedTours = tours.filter((tour) => getProgressForTour(tour).completed > 0);
+  const activeUser = state.auth.session;
   return `
     <section class="section-grid profile-grid">
       <article class="panel">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Profile</p>
-            <h3>Founder demo rider</h3>
+            <h3>${escapeHtml(activeUser?.displayName || "Founders Threads rider")}</h3>
           </div>
-          <span class="status-pill">Local-only state</span>
+          <span class="status-pill">Cloudflare secured</span>
         </div>
         <div class="profile-list">
+          <div><strong>Signed in email</strong><p>${escapeHtml(activeUser?.email || "No email on session")}</p></div>
           <div><strong>Preferred style</strong><p>Long-form cultural routes with AR highlights</p></div>
           <div><strong>Saved tours</strong><p>${startedTours.length ? startedTours.map((tour) => tour.title).join(", ") : "No tours started yet"}</p></div>
           <div><strong>Playback mode</strong><p>Drive-first narration + native handoff</p></div>
@@ -2115,6 +2466,9 @@ function renderProfileTab() {
         <div class="drawer-copy">
           <strong>Contact email</strong>
           <p>${CONTACT_EMAIL}</p>
+        </div>
+        <div class="button-row compact">
+          <button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>
         </div>
       </article>
     </section>

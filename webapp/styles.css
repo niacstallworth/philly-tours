@@ -94,6 +94,10 @@ button {
   background: rgba(255, 255, 255, 0.7);
 }
 
+.topbar-actions.auth-compact .ghost-button {
+  display: none;
+}
+
 .hero-panel,
 .panel {
   border: 1px solid var(--line);
@@ -169,6 +173,32 @@ button {
   display: grid;
   gap: 18px;
   margin-top: 18px;
+}
+
+.auth-shell {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 220px);
+}
+
+.auth-panel {
+  width: min(620px, 100%);
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.turnstile-mount {
+  min-height: 72px;
+  padding: 12px;
+  border-radius: 20px;
+  background: var(--paper-strong);
+  border: 1px solid rgba(23, 32, 38, 0.08);
+  display: grid;
+  place-items: center;
 }
 
 .home-grid,

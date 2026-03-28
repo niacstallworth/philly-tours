@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { CloudflareTurnstileChallenge } from "../components/auth/CloudflareTurnstileChallenge";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 
@@ -9,6 +10,7 @@ export type OnboardingPayload = {
   displayName: string;
   email: string;
   mode: AppMode;
+  turnstileToken?: string;
 };
 
 type Props = {
@@ -21,14 +23,17 @@ export function OnboardingScreen({ onComplete }: Props) {
   const styles = useMemo(() => createStyles(colors, type), [colors, type]);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const cloudflareSiteKey = process.env.EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY?.trim() || "";
 
   const canContinue = useMemo(() => {
     const hasName = displayName.trim().length >= 2;
     const hasEmail = email.trim().includes("@") && email.trim().includes(".");
-    return hasName && hasEmail;
-  }, [displayName, email]);
+    const passesChallenge = !cloudflareSiteKey || !!turnstileToken;
+    return hasName && hasEmail && passesChallenge;
+  }, [cloudflareSiteKey, displayName, email, turnstileToken]);
 
   async function submit() {
     if (!canContinue) {
@@ -39,7 +44,8 @@ export function OnboardingScreen({ onComplete }: Props) {
     const result = await onComplete({
       displayName: displayName.trim(),
       email: email.trim().toLowerCase(),
-      mode: "tourist"
+      mode: "tourist",
+      turnstileToken: turnstileToken || undefined
     });
     if (result) {
       setError(result);
@@ -90,13 +96,20 @@ export function OnboardingScreen({ onComplete }: Props) {
         <Text style={styles.modeHint}>
           This sign-in opens the public tour experience on this device.
         </Text>
+        {cloudflareSiteKey ? (
+          <CloudflareTurnstileChallenge siteKey={cloudflareSiteKey} onTokenChange={setTurnstileToken} />
+        ) : (
+          <Text style={styles.modeHint}>
+            Cloudflare Turnstile is not configured yet for this build, so secure challenge mode is currently bypassed.
+          </Text>
+        )}
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </Card>
 
       <Card style={styles.noteCard}>
         <Text style={styles.noteTitle}>What happens next</Text>
         <Text style={styles.noteCopy}>
-          You’ll land in the main app shell with Home, Scavenger Hunt, and Profile ready. You can preview the first two stops in each tour for free, then unlock the rest if you want the full collection.
+          You’ll complete a Cloudflare security check, then land in the main app shell with Home, Scavenger Hunt, and Profile ready. You can preview the first two stops in each tour for free, then unlock the rest if you want the full collection.
         </Text>
       </Card>
 

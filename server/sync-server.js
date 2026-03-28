@@ -70,6 +70,7 @@ const APPLE_IAP_ENABLED =
   !!APPLE_IAP_BUNDLE_ID && !!APPLE_IAP_ISSUER_ID && !!APPLE_IAP_KEY_ID && !!APPLE_IAP_PRIVATE_KEY;
 const GOOGLE_IAP_ENABLED =
   !!GOOGLE_PLAY_PACKAGE_NAME && (!!GOOGLE_SERVICE_ACCOUNT_JSON || !!GOOGLE_SERVICE_ACCOUNT_FILE);
+const CLOUDFLARE_TURNSTILE_SECRET_KEY = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY || "";
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
@@ -285,7 +286,8 @@ const authSessionRequestSchema = z.object({
   email: z.string().email(),
   displayName: z.string().min(1).max(120),
   mode: z.enum(["tourist", "builder"]),
-  password: z.string().min(1).max(256).optional()
+  password: z.string().min(1).max(256).optional(),
+  turnstileToken: z.string().min(1).max(4096).optional()
 }).superRefine((value, ctx) => {
   if (value.mode === "builder" && !value.password?.trim()) {
     ctx.addIssue({
@@ -314,6 +316,44 @@ function authConfigured() {
 
 function hasRole(actor, role) {
   return Array.isArray(actor?.roles) && actor.roles.includes(role);
+}
+
+function turnstileConfigured() {
+  return !!CLOUDFLARE_TURNSTILE_SECRET_KEY;
+}
+
+async function verifyTurnstileToken(token, remoteIp) {
+  if (!turnstileConfigured()) {
+    return { ok: true, skipped: true };
+  }
+
+  if (!token?.trim()) {
+    return { ok: false, error: "Complete the Cloudflare security check before signing in." };
+  }
+
+  const body = new URLSearchParams({
+    secret: CLOUDFLARE_TURNSTILE_SECRET_KEY,
+    response: token.trim()
+  });
+  if (remoteIp) {
+    body.set("remoteip", remoteIp);
+  }
+
+  const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.success) {
+    const code = Array.isArray(payload["error-codes"]) ? payload["error-codes"][0] : null;
+    return { ok: false, error: code ? `Cloudflare verification failed (${code}).` : "Cloudflare verification failed." };
+  }
+
+  return { ok: true, skipped: false };
 }
 
 function timingSafeEqualHex(aHex, bHex) {
@@ -950,7 +990,8 @@ app.get("/api/config/status", (_, res) => {
     appleIapEnv: APPLE_IAP_ENV,
     appleBundleId: APPLE_IAP_BUNDLE_ID || null,
     googleIapConfigured: GOOGLE_IAP_ENABLED,
-    googlePackageName: GOOGLE_PLAY_PACKAGE_NAME || null
+    googlePackageName: GOOGLE_PLAY_PACKAGE_NAME || null,
+    turnstileConfigured: turnstileConfigured()
   });
 });
 
@@ -967,6 +1008,11 @@ app.post("/api/auth/session", authLimiter, async (req, res) => {
   }
 
   const body = parsed.data;
+  const turnstileResult = await verifyTurnstileToken(body.turnstileToken, req.ip);
+  if (!turnstileResult.ok) {
+    res.status(403).json({ error: turnstileResult.error });
+    return;
+  }
   const normalizedEmail = normalizeEmail(body.email);
 
   let sessionRecord;
