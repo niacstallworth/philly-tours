@@ -395,6 +395,11 @@ button {
   border-radius: 22px;
 }
 
+.tour-card.selected {
+  border-color: rgba(53, 87, 79, 0.28);
+  box-shadow: 0 16px 36px rgba(53, 87, 79, 0.12);
+}
+
 .tour-card-top {
   display: flex;
   justify-content: space-between;
@@ -421,6 +426,62 @@ button {
   margin-top: 14px;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.tour-card-foot {
+  margin-top: 12px;
+  color: var(--olive);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.button-row.compact .primary-button,
+.button-row.compact .ghost-button {
+  padding: 10px 14px;
+}
+
+.quick-start-grid,
+.stop-summary-grid {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+}
+
+.quick-start-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.quick-start-card,
+.stop-summary-grid div {
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--paper-strong);
+  border: 1px solid rgba(23, 32, 38, 0.08);
+}
+
+.quick-start-card strong,
+.stop-summary-grid strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.quick-start-card p,
+.stop-summary-grid p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.quick-start-step {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: rgba(183, 77, 44, 0.12);
+  color: var(--accent-deep);
+  font-weight: 700;
 }
 
 .tour-card-link {
@@ -587,7 +648,8 @@ button {
 
 .ar-target-card strong,
 .ar-target-card p,
-.ar-target-card span {
+.ar-target-card span,
+.ar-target-card small {
   display: block;
 }
 
@@ -605,48 +667,10 @@ button {
   font-weight: 700;
 }
 
-.ar-artifact-card {
-  position: absolute;
-  right: 18px;
-  top: 88px;
-  z-index: 2;
-  width: min(360px, calc(100% - 36px));
-  padding: 18px;
-  border-radius: 24px;
-  background: rgba(255, 250, 240, 0.82);
-  color: var(--ink);
-  border: 1px solid rgba(23, 32, 38, 0.08);
-  box-shadow: 0 20px 40px rgba(23, 32, 38, 0.18);
-  backdrop-filter: blur(12px);
-}
-
-.ar-artifact-card::after {
-  content: "";
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(183, 77, 44, 0.18), rgba(53, 87, 79, 0.12));
-}
-
-.ar-artifact-card h4 {
-  margin: 6px 0 10px;
-  font-family: "Fraunces", serif;
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-.ar-artifact-card p {
-  margin: 0 0 10px;
-}
-
-.ar-artifact-card .chip {
-  background: rgba(255, 255, 255, 0.82);
-}
-
-.ar-artifact-card .drawer-copy {
-  margin-top: 10px;
+.ar-target-card small {
+  margin-top: 8px;
+  color: rgba(255, 250, 240, 0.72);
+  line-height: 1.4;
 }
 
 .ar-placeholder {
@@ -709,8 +733,7 @@ button {
   color: var(--muted);
 }
 
-.route-highlights,
-.planning-grid {
+.route-highlights {
   display: grid;
   gap: 12px;
   margin-top: 16px;
@@ -720,22 +743,19 @@ button {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.highlight-card,
-.planning-grid div {
+.highlight-card {
   padding: 16px;
   border-radius: 20px;
   background: var(--paper-strong);
   border: 1px solid rgba(23, 32, 38, 0.08);
 }
 
-.highlight-card strong,
-.planning-grid strong {
+.highlight-card strong {
   display: block;
   margin-bottom: 6px;
 }
 
-.highlight-card p,
-.planning-grid p {
+.highlight-card p {
   margin: 0;
   color: var(--muted);
 }
@@ -969,8 +989,9 @@ button {
 
   .hero-metrics,
   .stats-row,
+  .quick-start-grid,
+  .stop-summary-grid,
   .route-highlights,
-  .planning-grid,
   .drawer-stats {
     grid-template-columns: 1fr;
   }

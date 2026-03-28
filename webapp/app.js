@@ -1212,6 +1212,14 @@ function getGlobalStats() {
   return { totalStops, completedStops, toursStarted };
 }
 
+function truncateCopy(value, maxLength = 180) {
+  if (!value || value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, maxLength).trimEnd()}...`;
+}
+
 function render(shouldSyncHash = true) {
   teardownRouteMap();
   updateChrome();
@@ -1296,6 +1304,7 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
 function renderHomeTab(selectedTour) {
   const visibleTours = getVisibleTours();
   const themes = ["all", ...new Set(tours.map((tour) => tour.theme.toLowerCase()))];
+  const featuredNextStop = getRecommendedNextStop(selectedTour);
 
   return `
     <section class="section-grid home-grid">
@@ -1311,6 +1320,23 @@ function renderHomeTab(selectedTour) {
         <div class="chip-row">
           ${selectedTour.tags.map((tag) => `<span class="chip">${tag}</span>`).join("")}
         </div>
+        <div class="quick-start-grid">
+          <article class="quick-start-card">
+            <span class="quick-start-step">1</span>
+            <strong>Pick your drive</strong>
+            <p>${selectedTour.title}</p>
+          </article>
+          <article class="quick-start-card">
+            <span class="quick-start-step">2</span>
+            <strong>Start with</strong>
+            <p>${featuredNextStop.title}</p>
+          </article>
+          <article class="quick-start-card">
+            <span class="quick-start-step">3</span>
+            <strong>Best mode</strong>
+            <p>${state.glassesMode ? "Glasses-ready narration" : "Drive narration on phone"}</p>
+          </article>
+        </div>
         <div class="stats-row">
           <div><strong>${selectedTour.durationMin} min</strong><span>Estimated duration</span></div>
           <div><strong>${selectedTour.distanceMiles} mi</strong><span>Scenic city route</span></div>
@@ -1318,6 +1344,7 @@ function renderHomeTab(selectedTour) {
         </div>
         <div class="button-row">
           <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Start this drive</button>
+          <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${selectedTour.id}">See full route brief</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">See arrival mode</button>
         </div>
       </article>
@@ -1329,6 +1356,7 @@ function renderHomeTab(selectedTour) {
             <h3>Choose your lens on the road</h3>
           </div>
         </div>
+        <p class="lede">Choose one route first. Everything else, including stop context, narration, and AR handoff, gets much easier once a drive is selected.</p>
         <div class="filter-row">
           ${themes
             .map(
@@ -1353,24 +1381,34 @@ function renderHomeTab(selectedTour) {
           ${visibleTours
             .map((tour) => {
               const progress = getProgressForTour(tour);
+              const isSelected = tour.id === selectedTour.id;
+              const nextStop = getRecommendedNextStop(tour);
               return `
-                <button type="button" class="tour-card" data-action="select-tour" data-tour-id="${tour.id}">
+                <article class="tour-card ${isSelected ? "selected" : ""}">
                   <div class="tour-card-top">
                     <div>
                       <p class="eyebrow">${tour.neighborhood}</p>
                       <h4>${tour.title}</h4>
                     </div>
-                    <span class="status-pill">${tour.theme}</span>
+                    <span class="status-pill">${isSelected ? "Selected" : tour.theme}</span>
                   </div>
-                  <p>${tour.summary}</p>
+                  <p>${truncateCopy(tour.summary, 132)}</p>
                   <div class="tour-card-meta">
                     <span>${tour.durationMin} min</span>
                     <span>${tour.distanceMiles} mi</span>
                     <span>${tour.stops.length} stops</span>
                     <span>${progress.percent}% complete</span>
                   </div>
-                  <span class="tour-card-link" data-action="open-tour-drawer" data-tour-id="${tour.id}">Open details</span>
-                </button>
+                  <div class="tour-card-foot">
+                    <span>Start with ${nextStop.title}</span>
+                  </div>
+                  <div class="button-row compact">
+                    <button type="button" class="primary-button" data-action="select-tour" data-tour-id="${tour.id}">
+                      ${isSelected ? "Selected drive" : "Choose drive"}
+                    </button>
+                    <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${tour.id}">Route brief</button>
+                  </div>
+                </article>
               `;
             })
             .join("")}
@@ -1386,6 +1424,7 @@ function renderRouteTab(selectedTour, selectedStop) {
   const highlightStops = selectedTour.stops.slice(0, 3);
   const narrationMode = getNarrationMode(selectedStop.id);
   const narrationScript = getNarrationScript(selectedStop.id) || "No narration script is available for this stop yet.";
+  const narrationPreview = truncateCopy(narrationScript, 180);
   const isNarrating = state.narrationState.stopId === selectedStop.id && state.narrationState.status === "playing";
 
   return `
@@ -1436,25 +1475,24 @@ function renderRouteTab(selectedTour, selectedStop) {
           <span class="status-pill">${selectedStop.radius}m radius</span>
         </div>
         <p class="lede">${selectedStop.description}</p>
-        <div class="stop-meta-row">
-          ${selectedStop.dayLabel ? `<span class="chip">${selectedStop.dayLabel}</span>` : ""}
-          ${selectedStop.timeLabel ? `<span class="chip">${selectedStop.timeLabel}</span>` : ""}
-          ${selectedStop.locationLabel ? `<span class="chip">${selectedStop.locationLabel}</span>` : ""}
-        </div>
-        <div class="stats-row compact">
-          <div><strong>${selectedStop.lat.toFixed(4)}</strong><span>Latitude</span></div>
-          <div><strong>${selectedStop.lng.toFixed(4)}</strong><span>Longitude</span></div>
-          <div><strong>${selectedTour.theme}</strong><span>Collection</span></div>
-        </div>
-        <div class="planning-grid">
+        <div class="stop-summary-grid">
           <div>
-            <strong>Visit window</strong>
+            <strong>Where to aim</strong>
+            <p>${selectedStop.locationLabel || "Use the highlighted marker and stop list."}</p>
+          </div>
+          <div>
+            <strong>Visit posture</strong>
             <p>${selectedStop.dayLabel || "Flexible day"}${selectedStop.timeLabel ? ` · ${selectedStop.timeLabel}` : ""}</p>
           </div>
           <div>
-            <strong>Best arrival cue</strong>
-            <p>${selectedStop.locationLabel || "Use the route list and map marker to orient on arrival."}</p>
+            <strong>Next best move</strong>
+            <p>${state.completedStopIds.includes(selectedStop.id) ? "Mark it upcoming if you want to revisit it." : "Play the stop, open maps, or mark it complete."}</p>
           </div>
+        </div>
+        <div class="stop-meta-row">
+          <span class="chip">${selectedTour.theme}</span>
+          ${selectedStop.locationLabel ? `<span class="chip">${selectedStop.locationLabel}</span>` : ""}
+          <span class="chip">${selectedTour.stops.length} stops on route</span>
         </div>
         <div class="companion-panel">
           <div class="panel-header">
@@ -1494,10 +1532,11 @@ function renderRouteTab(selectedTour, selectedStop) {
             >
               ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
             </button>
+            <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
           </div>
           <div class="drawer-copy">
-            <strong>Transcript</strong>
-            <p>${narrationScript}</p>
+            <strong>Transcript preview</strong>
+            <p>${narrationPreview}</p>
           </div>
         </div>
         <div class="button-row">
@@ -1526,19 +1565,14 @@ function renderRouteTab(selectedTour, selectedStop) {
               >
                 <div>
                   <strong>${index + 1}. ${stop.title}</strong>
-                  <p>${stop.description}</p>
+                  <p>${stop.locationLabel || truncateCopy(stop.description, 88)}</p>
                 </div>
                 <span class="check-badge ${state.completedStopIds.includes(stop.id) ? "done" : ""}">
-                  ${state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
+                  ${selectedStop.id === stop.id ? "Viewing" : state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
                 </span>
               </button>
             `)
             .join("")}
-        </div>
-        <div class="button-row">
-          <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">
-            Expanded stop detail
-          </button>
         </div>
       </article>
     </section>
@@ -1705,8 +1739,6 @@ function renderArTab(selectedTour) {
   const isNarrating = effectiveStop
     ? state.narrationState.stopId === effectiveStop.id && state.narrationState.status === "playing"
     : false;
-  const arOverlayMeta = effectiveStop ? getArOverlayMeta(effectiveStop.id) : null;
-  const resolvedModelUrl = getResolvedModelUrl(arOverlayMeta?.modelUrl);
   const arDistanceLabel =
     state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m` : "Locating";
   const arRangeLabel = state.ar.inRange ? "Within trigger radius" : "Move closer to trigger";
@@ -1742,33 +1774,8 @@ function renderArTab(selectedTour) {
                   <strong>${effectiveStop ? effectiveStop.title : "No stop target yet"}</strong>
                   <p>${effectiveStop?.locationLabel || "Waiting for the nearest story stop."}</p>
                   <span>${arRangeLabel}</span>
+                  <small>Stories play through audio for the glasses only.</small>
                 </div>
-                ${
-                  effectiveStop
-                    ? `
-                      <div class="ar-artifact-card">
-                        <p class="eyebrow">Story overlay</p>
-                        <h4>${effectiveStop.title}</h4>
-                        <p>${effectiveStop.description}</p>
-                        <div class="chip-row">
-                          <span class="chip">${arOverlayMeta?.arType || "story_card"}</span>
-                          <span class="chip">${arOverlayMeta?.estimatedEffort || "ready"}</span>
-                          <span class="chip">${getModelReadinessLabel(arOverlayMeta)}</span>
-                        </div>
-                        ${
-                          arOverlayMeta?.assetNeeded
-                            ? `<div class="drawer-copy"><strong>Artifact cue</strong><p>${arOverlayMeta.assetNeeded}</p></div>`
-                            : ""
-                        }
-                        ${
-                          resolvedModelUrl
-                            ? `<div class="drawer-copy"><strong>Planned web path</strong><p>${resolvedModelUrl}</p></div>`
-                            : ""
-                        }
-                      </div>
-                    `
-                    : ""
-                }
               `
               : `
                 <div class="ar-placeholder">
@@ -1818,8 +1825,8 @@ function renderArTab(selectedTour) {
           effectiveStop
             ? `
               <div class="drawer-copy">
-                <strong>Meta glasses posture</strong>
-                <p>${state.glassesMode ? "Glasses mode is on. Recorded audio or Amy fallback will follow this device's active Bluetooth audio output." : "Enable Meta glasses mode if you want this browser session to behave like a hands-free audio companion while keeping AR and route control on the phone."}</p>
+                <strong>Audio-only glasses mode</strong>
+                <p>${state.glassesMode ? "Glasses mode is on. Stop stories are told through recorded narration or Amy fallback on the active Bluetooth audio output, not through floating text overlays." : "Enable Meta glasses mode if you want this browser session to behave like a hands-free audio companion while keeping route and AR control on the phone."}</p>
               </div>
               <div class="drawer-copy emphasis">
                 <strong>Live cue</strong>
