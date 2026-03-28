@@ -247,10 +247,12 @@ const narrationData = window.PHILLY_TOURS_NARRATION || {
   scriptMapByStopId: {}
 };
 const arData = window.PHILLY_TOURS_AR || {};
+const siteConfig = window.PHILLY_TOURS_CONFIG || {};
 
 const STORAGE_KEY = "philly-ar-tours-web-progress";
 const GLASSES_MODE_KEY = "philly-ar-tours-web-glasses-mode";
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
+const CONTACT_EMAIL = "info@foundersthreads.org";
 let routeMap = null;
 let routeMapLayers = null;
 let narrationAudio = null;
@@ -287,6 +289,11 @@ const state = {
   },
   glassesMode: loadGlassesMode(),
   glassesModeNotice: "",
+  subscription: {
+    email: "",
+    status: "idle",
+    message: ""
+  },
   search: "",
   themeFilter: "all",
   completedStopIds: loadCompletedStops()
@@ -300,6 +307,8 @@ const copyViewButton = document.getElementById("copy-view-button");
 const glassesModeButton = document.getElementById("glasses-mode-button");
 
 document.addEventListener("click", handleClick);
+document.addEventListener("input", handleInput);
+document.addEventListener("submit", handleSubmit);
 if (tabBar) {
   tabBar.addEventListener("click", handleClick);
 }
@@ -1151,6 +1160,35 @@ function handleClick(event) {
   }
 }
 
+function handleInput(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) {
+    return;
+  }
+
+  if (target.name === "subscription-email") {
+    state.subscription.email = target.value;
+    if (state.subscription.status !== "idle") {
+      state.subscription.status = "idle";
+      state.subscription.message = "";
+    }
+  }
+}
+
+function handleSubmit(event) {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+
+  if (form.dataset.form !== "newsletter-subscription") {
+    return;
+  }
+
+  event.preventDefault();
+  subscribeProfileEmail();
+}
+
 function toggleStop(stopId) {
   if (state.completedStopIds.includes(stopId)) {
     state.completedStopIds = state.completedStopIds.filter((id) => id !== stopId);
@@ -1227,6 +1265,104 @@ function truncateCopy(value, maxLength = 180) {
   }
 
   return `${value.slice(0, maxLength).trimEnd()}...`;
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function getNewsletterApiConfig() {
+  const supabaseUrl = String(siteConfig.supabaseUrl || "").trim().replace(/\/+$/, "");
+  const supabaseAnonKey = String(siteConfig.supabaseAnonKey || "").trim();
+  const newsletterTable = String(siteConfig.newsletterTable || "newsletter_subscribers").trim();
+  return { supabaseUrl, supabaseAnonKey, newsletterTable };
+}
+
+function getSubscriptionStatusMarkup() {
+  if (!state.subscription.message) {
+    return "";
+  }
+
+  const statusClass =
+    state.subscription.status === "success"
+      ? "subscription-status success"
+      : state.subscription.status === "error"
+        ? "subscription-status error"
+        : "subscription-status";
+
+  return `<p class="${statusClass}" role="status">${escapeHtml(state.subscription.message)}</p>`;
+}
+
+async function subscribeProfileEmail() {
+  const normalizedEmail = state.subscription.email.trim().toLowerCase();
+  if (!normalizedEmail) {
+    state.subscription.status = "error";
+    state.subscription.message = "Enter an email address before subscribing.";
+    render(false);
+    return;
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(normalizedEmail)) {
+    state.subscription.status = "error";
+    state.subscription.message = "Enter a valid email address.";
+    render(false);
+    return;
+  }
+
+  const { supabaseUrl, supabaseAnonKey, newsletterTable } = getNewsletterApiConfig();
+  if (!supabaseUrl || !supabaseAnonKey) {
+    state.subscription.status = "error";
+    state.subscription.message = "Subscription is not configured yet for this web build.";
+    render(false);
+    return;
+  }
+
+  state.subscription.status = "submitting";
+  state.subscription.message = "Saving your subscription...";
+  render(false);
+
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/${newsletterTable}?on_conflict=email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        Prefer: "resolution=merge-duplicates,return=minimal"
+      },
+      body: JSON.stringify([
+        {
+          email: normalizedEmail,
+          source: "webapp-profile",
+          status: "active",
+          subscribed_at: Date.now(),
+          updated_at: Date.now(),
+          metadata_json: JSON.stringify({
+            host: window.location.hostname,
+            glassesMode: state.glassesMode
+          })
+        }
+      ])
+    });
+
+    if (!response.ok) {
+      throw new Error(`Subscription failed with status ${response.status}`);
+    }
+
+    state.subscription.email = "";
+    state.subscription.status = "success";
+    state.subscription.message = "You're on the Founders Threads email list.";
+    render(false);
+  } catch (error) {
+    state.subscription.status = "error";
+    state.subscription.message = "We couldn't save your email right now. Please try again in a moment.";
+    render(false);
+  }
 }
 
 function render(shouldSyncHash = true) {
@@ -1943,17 +2079,42 @@ function renderProfileTab() {
       <article class="panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Next action</p>
-            <h3>Keep momentum</h3>
+            <p class="eyebrow">Stay connected</p>
+            <h3>Contact and updates</h3>
           </div>
         </div>
         <p class="lede">
-          Pick a route, settle into the drive, and let narration carry the city. This web layer is optimized for discovery, premium route planning, and lightweight handoff into the native phone experience.
+          Reach Founders Threads directly or join the live email list for new routes, pilot drives, and premium launch updates.
         </p>
         <div class="button-row">
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="home">Browse tours</button>
+          <a class="primary-button link-button" href="mailto:${CONTACT_EMAIL}">Contact us</a>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="home">Browse tours</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Resume route</button>
-          <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">${getGlassesModeButtonLabel()}</button>
+        </div>
+        <form class="subscription-form" data-form="newsletter-subscription">
+          <label class="search-field">
+            <span>Email subscription</span>
+            <input
+              type="email"
+              name="subscription-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              inputmode="email"
+              value="${escapeHtml(state.subscription.email)}"
+              ${state.subscription.status === "submitting" ? "disabled" : ""}
+            />
+          </label>
+          <div class="button-row compact">
+            <button type="submit" class="primary-button" ${state.subscription.status === "submitting" ? "disabled" : ""}>
+              ${state.subscription.status === "submitting" ? "Subscribing..." : "Subscribe"}
+            </button>
+            <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">${getGlassesModeButtonLabel()}</button>
+          </div>
+          ${getSubscriptionStatusMarkup()}
+        </form>
+        <div class="drawer-copy">
+          <strong>Contact email</strong>
+          <p>${CONTACT_EMAIL}</p>
         </div>
       </article>
     </section>

@@ -375,6 +375,33 @@ button {
   color: var(--ink);
 }
 
+.subscription-form {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.subscription-status {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(23, 32, 38, 0.05);
+  border: 1px solid rgba(23, 32, 38, 0.08);
+  color: var(--muted);
+}
+
+.subscription-status.success {
+  background: rgba(53, 87, 79, 0.12);
+  border-color: rgba(53, 87, 79, 0.18);
+  color: var(--olive);
+}
+
+.subscription-status.error {
+  background: rgba(183, 77, 44, 0.08);
+  border-color: rgba(183, 77, 44, 0.16);
+  color: var(--accent);
+}
+
 .tour-list,
 .stop-list,
 .progress-list,
