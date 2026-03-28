@@ -35,7 +35,7 @@ Use this checklist before shipping the live backend and store-ready app builds.
 
 Example target:
 
-- `https://api.example.com` -> `http://127.0.0.1:4000`
+- `https://api.philly-tours.com` -> `http://127.0.0.1:4000`
 
 ## 4. Verify Backend Auth
 
@@ -54,7 +54,8 @@ Production app builds must not use `localhost` or your LAN IP.
 
 Make sure production builds use:
 
-- `EXPO_PUBLIC_SYNC_SERVER_URL=https://api.example.com`
+- `EXPO_PUBLIC_SYNC_SERVER_URL=https://api.philly-tours.com`
+- `EXPO_PUBLIC_WEB_SYNC_SERVER_URL=https://api.philly-tours.com`
 - `EXPO_PUBLIC_APP_SCHEME=phillyartours`
 
 Important:

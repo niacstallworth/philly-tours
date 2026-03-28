@@ -57,6 +57,9 @@ At minimum, set:
 - `NODE_ENV=production`
 - `PORT`
 - `EXPO_PUBLIC_SYNC_SERVER_URL`
+- `EXPO_PUBLIC_WEB_SYNC_SERVER_URL`
+- `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`
+- `CLOUDFLARE_TURNSTILE_SECRET_KEY`
 - `AUTH_JWT_SECRET`
 - `BUILDER_ADMIN_ACCOUNTS_JSON`
 - `SUPABASE_DB_URL`
@@ -85,6 +88,6 @@ sudo systemctl status philly-tours-sync
 
 Put the Node server behind HTTPS using Nginx or Caddy and point:
 
-- `api.example.com` -> `http://127.0.0.1:4000`
+- `api.philly-tours.com` -> `http://127.0.0.1:4000`
 
-Then use that HTTPS URL as `EXPO_PUBLIC_SYNC_SERVER_URL` in production app builds.
+Then use that HTTPS URL as both `EXPO_PUBLIC_SYNC_SERVER_URL` and `EXPO_PUBLIC_WEB_SYNC_SERVER_URL` in production app builds.

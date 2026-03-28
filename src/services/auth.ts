@@ -43,6 +43,7 @@ export async function createAuthenticatedSession(payload: {
   email: string;
   mode: AppMode;
   password?: string;
+  turnstileToken?: string;
 }): Promise<AuthenticatedSession> {
   let response: Response;
   try {
