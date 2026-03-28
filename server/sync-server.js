@@ -230,6 +230,14 @@ async function ensureSchema() {
       resolved_by text,
       resolution_note text
     );
+    create table if not exists public.newsletter_subscribers (
+      email text primary key,
+      source text not null,
+      status text not null default 'active',
+      subscribed_at bigint not null,
+      updated_at bigint not null,
+      metadata_json text
+    );
   `);
 }
 
