@@ -126,9 +126,12 @@ Deployment docs:
 - `docs/server-deployment.md`
 - `docs/webapp-deployment.md`
 - `docs/production-launch-checklist.md`
+- `docs/cloudflare-turnstile-and-api-launch.md`
 - `docs/meta-wearables-companion-plan.md`
 - `deploy/sync-server.env.example`
 - `deploy/philly-tours-sync.service.example`
+- `deploy/Caddyfile.api.example`
+- `deploy/nginx-api.philly-tours.conf.example`
 
 Stripe webhook forwarding:
 
@@ -142,6 +145,13 @@ For local backend work, keep server-only secrets in `.env.server.local` or `.env
 The sync server loads those before `.env`, so client-safe `EXPO_PUBLIC_*` values can stay in `.env` without mixing in private server credentials.
 
 EAS preview / release builds do not get your local `.env`, so required public values must be set in `eas.json` or in EAS environment configuration.
+
+Cloudflare-secured production auth now expects:
+
+- `EXPO_PUBLIC_SYNC_SERVER_URL=https://api.philly-tours.com`
+- `EXPO_PUBLIC_WEB_SYNC_SERVER_URL=https://api.philly-tours.com`
+- `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`
+- `CLOUDFLARE_TURNSTILE_SECRET_KEY`
 
 ## Meta Wearables DAT iOS Setup
 
