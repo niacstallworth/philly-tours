@@ -66,6 +66,7 @@ const BUILDER_ADMIN_ACCOUNTS_JSON = process.env.BUILDER_ADMIN_ACCOUNTS_JSON || "
 const SUPABASE_DB_URL = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL || "";
 const SUPABASE_DB_PASSWORD = process.env.SUPABASE_DB_PASSWORD || "";
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
 const APPLE_IAP_ENABLED =
   !!APPLE_IAP_BUNDLE_ID && !!APPLE_IAP_ISSUER_ID && !!APPLE_IAP_KEY_ID && !!APPLE_IAP_PRIVATE_KEY;
 const GOOGLE_IAP_ENABLED =
@@ -113,6 +114,7 @@ function parseBuilderAdminAccounts() {
 const builderAdminAccounts = parseBuilderAdminAccounts();
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(
   cors({
     origin: true
@@ -284,7 +286,7 @@ const deletionRequestSchema = z.object({
 
 const authSessionRequestSchema = z.object({
   email: z.string().email(),
-  displayName: z.string().min(1).max(120),
+  displayName: z.string().min(1).max(120).optional(),
   mode: z.enum(["tourist", "builder"]),
   password: z.string().min(1).max(256).optional(),
   turnstileToken: z.string().min(1).max(4096).optional()
@@ -298,12 +300,31 @@ const authSessionRequestSchema = z.object({
   }
 });
 
+const oauthSessionRequestSchema = z.object({
+  accessToken: z.string().min(1).max(4096),
+  provider: z.enum(["google", "apple"]).optional()
+});
+
 const roomMembers = new Map();
 
 let googleAuthClientPromise = null;
 
 function now() {
   return Date.now();
+}
+
+function defaultDisplayNameFromEmail(email) {
+  const localPart = String(email || "").split("@")[0] || "Guest";
+  const normalized = localPart.replace(/[._-]+/g, " ").trim();
+  if (!normalized) {
+    return "Guest";
+  }
+  return normalized
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ")
+    .slice(0, 120);
 }
 
 function jsonHash(input) {
@@ -314,12 +335,59 @@ function authConfigured() {
   return !!AUTH_JWT_SECRET;
 }
 
+function supabaseAuthConfigured() {
+  return !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
+}
+
 function hasRole(actor, role) {
   return Array.isArray(actor?.roles) && actor.roles.includes(role);
 }
 
 function turnstileConfigured() {
   return !!CLOUDFLARE_TURNSTILE_SECRET_KEY;
+}
+
+async function fetchSupabaseUserProfile(accessToken) {
+  if (!supabaseAuthConfigured()) {
+    throw new Error("Supabase Auth is not configured.");
+  }
+
+  const response = await fetch(`${SUPABASE_URL.replace(/\/+$/, "")}/auth/v1/user`, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${accessToken}`
+    }
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error_description || payload.msg || payload.error || "Unable to verify Supabase session.");
+  }
+
+  return payload;
+}
+
+function buildSessionForVerifiedEmail(email, fallbackDisplayName = "") {
+  const normalizedEmail = normalizeEmail(email);
+  const account = builderAdminAccounts.find((entry) => entry.email === normalizedEmail);
+
+  if (account) {
+    return {
+      userId: toUserId(normalizedEmail),
+      email: normalizedEmail,
+      displayName: account.displayName || fallbackDisplayName || defaultDisplayNameFromEmail(normalizedEmail),
+      mode: "builder",
+      roles: account.roles
+    };
+  }
+
+  return {
+    userId: toUserId(normalizedEmail),
+    email: normalizedEmail,
+    displayName: fallbackDisplayName || defaultDisplayNameFromEmail(normalizedEmail),
+    mode: "tourist",
+    roles: ["tourist"]
+  };
 }
 
 async function verifyTurnstileToken(token, remoteIp) {
@@ -1014,6 +1082,7 @@ app.post("/api/auth/session", authLimiter, async (req, res) => {
     return;
   }
   const normalizedEmail = normalizeEmail(body.email);
+  const fallbackDisplayName = defaultDisplayNameFromEmail(normalizedEmail);
 
   let sessionRecord;
   if (body.mode === "builder") {
@@ -1025,18 +1094,12 @@ app.post("/api/auth/session", authLimiter, async (req, res) => {
     sessionRecord = {
       userId: toUserId(normalizedEmail),
       email: normalizedEmail,
-      displayName: account.displayName || body.displayName.trim(),
+      displayName: account.displayName || body.displayName?.trim() || fallbackDisplayName,
       mode: "builder",
       roles: account.roles
     };
   } else {
-    sessionRecord = {
-      userId: toUserId(normalizedEmail),
-      email: normalizedEmail,
-      displayName: body.displayName.trim(),
-      mode: "tourist",
-      roles: ["tourist"]
-    };
+    sessionRecord = buildSessionForVerifiedEmail(normalizedEmail, body.displayName?.trim() || fallbackDisplayName);
   }
 
   await ensureUser(sessionRecord.userId);
@@ -1048,6 +1111,58 @@ app.post("/api/auth/session", authLimiter, async (req, res) => {
     expiresAt: typeof payload.exp === "number" ? payload.exp * 1000 : null,
     session: sessionRecord
   });
+});
+
+app.post("/api/auth/oauth-session", authLimiter, async (req, res) => {
+  const parsed = oauthSessionRequestSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid OAuth sign-in request." });
+    return;
+  }
+
+  if (!authConfigured()) {
+    res.status(503).json({ error: "Server auth is not configured." });
+    return;
+  }
+
+  if (!supabaseAuthConfigured()) {
+    res.status(503).json({ error: "Supabase Auth is not configured on the server." });
+    return;
+  }
+
+  try {
+    const body = parsed.data;
+    const profile = await fetchSupabaseUserProfile(body.accessToken);
+    const email = normalizeEmail(profile?.email);
+
+    if (!email) {
+      res.status(400).json({ error: "Provider sign-in did not return a verified email address." });
+      return;
+    }
+
+    const metadataDisplayName =
+      String(
+        profile?.user_metadata?.full_name ||
+          profile?.user_metadata?.name ||
+          profile?.user_metadata?.display_name ||
+          ""
+      ).trim() || defaultDisplayNameFromEmail(email);
+
+    const sessionRecord = buildSessionForVerifiedEmail(email, metadataDisplayName);
+    await ensureUser(sessionRecord.userId);
+    const token = signAuthToken(sessionRecord);
+    const payload = decodeAuthToken(token);
+
+    res.json({
+      ok: true,
+      provider: body.provider || null,
+      token,
+      expiresAt: typeof payload.exp === "number" ? payload.exp * 1000 : null,
+      session: sessionRecord
+    });
+  } catch (error) {
+    res.status(401).json({ error: error.message || "Unable to complete provider sign-in." });
+  }
 });
 
 app.get("/api/auth/session", async (req, res) => {

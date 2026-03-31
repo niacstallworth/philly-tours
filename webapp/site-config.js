@@ -5,5 +5,5 @@ window.PHILLY_TOURS_CONFIG = {
   "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlucW9wZXZlc2tvc25mamh1ZWluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNzc2OTQsImV4cCI6MjA4OTg1MzY5NH0.Wlobb-yPJok7ma25XsIIoJE6QWggnlGMETtTT8qpwqc",
   "newsletterTable": "newsletter_subscribers",
   "syncServerUrl": "https://api.philly-tours.com",
-  "cloudflareTurnstileSiteKey": ""
+  "cloudflareTurnstileSiteKey": "0x4AAAAAACyMqxdcuuRnVfpL"
 };

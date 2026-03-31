@@ -252,6 +252,7 @@ const siteConfig = window.PHILLY_TOURS_CONFIG || {};
 const STORAGE_KEY = "philly-ar-tours-web-progress";
 const GLASSES_MODE_KEY = "philly-ar-tours-web-glasses-mode";
 const AUTH_STORAGE_KEY = "philly-ar-tours-web-session";
+const OAUTH_PROVIDER_STORAGE_KEY = "philly-ar-tours-web-oauth-provider";
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 const CONTACT_EMAIL = "info@foundersthreads.org";
 let routeMap = null;
@@ -264,6 +265,7 @@ const AR_RANGE_HYSTERESIS_M = 15;
 const AR_AUTO_NARRATION_COOLDOWN_MS = 45000;
 let copyButtonResetTimer = null;
 let webTurnstileMountTimer = null;
+let supabaseClientPromise = null;
 
 const state = {
   auth: {
@@ -272,6 +274,7 @@ const state = {
     authToken: "",
     displayName: "",
     email: "",
+    password: "",
     status: "idle",
     message: "",
     turnstileToken: null
@@ -606,7 +609,7 @@ function buildPhoneAppHandoffLink(tourId, stopId) {
 function updateChrome() {
   const signedIn = !!state.auth.session;
   if (deployStatus) {
-    deployStatus.textContent = signedIn ? getDeploymentStatusLabel() : "Cloudflare sign-in";
+    deployStatus.textContent = signedIn ? getDeploymentStatusLabel() : "Sign in";
     deployStatus.classList.toggle("is-live", PRODUCTION_HOSTS.has(window.location.hostname));
   }
 
@@ -715,9 +718,177 @@ function getCloudflareTurnstileSiteKey() {
   return String(siteConfig.cloudflareTurnstileSiteKey || "").trim();
 }
 
-async function initializeWebAuth() {
-  const stored = loadWebAuthSession();
+function getSupabaseAuthConfig() {
+  const supabaseUrl = String(siteConfig.supabaseUrl || "").trim().replace(/\/+$/, "");
+  const supabaseAnonKey = String(siteConfig.supabaseAnonKey || "").trim();
+  return {
+    supabaseUrl,
+    supabaseAnonKey
+  };
+}
+
+async function getSupabaseBrowserClient() {
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseAuthConfig();
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  if (!supabaseClientPromise) {
+    supabaseClientPromise = import("https://esm.sh/@supabase/supabase-js@2.49.8").then(({ createClient }) =>
+      createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          flowType: "pkce",
+          detectSessionInUrl: true,
+          persistSession: true,
+          autoRefreshToken: false
+        }
+      })
+    );
+  }
+
+  return supabaseClientPromise;
+}
+
+function getPendingOAuthProvider() {
+  try {
+    return window.localStorage.getItem(OAUTH_PROVIDER_STORAGE_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+function setPendingOAuthProvider(provider) {
+  try {
+    window.localStorage.setItem(OAUTH_PROVIDER_STORAGE_KEY, provider);
+  } catch {
+    // Ignore storage failures for the browser OAuth handoff.
+  }
+}
+
+function clearPendingOAuthProvider() {
+  try {
+    window.localStorage.removeItem(OAUTH_PROVIDER_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures for the browser OAuth handoff.
+  }
+}
+
+function hasOAuthRedirectParams() {
+  const url = new URL(window.location.href);
+  return (
+    url.searchParams.has("code") ||
+    url.searchParams.has("error") ||
+    url.searchParams.has("error_description") ||
+    /access_token=|refresh_token=|provider_token=/.test(url.hash)
+  );
+}
+
+function clearOAuthRedirectParams() {
+  const url = new URL(window.location.href);
+  [
+    "code",
+    "error",
+    "error_code",
+    "error_description",
+    "state",
+    "provider_token",
+    "provider_refresh_token"
+  ].forEach((key) => url.searchParams.delete(key));
+  url.hash = "";
+  window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+}
+
+async function finalizeOAuthSignIn(accessToken, provider) {
   const syncServerUrl = getSyncServerUrl();
+  if (!syncServerUrl) {
+    throw new Error("This web build is missing `EXPO_PUBLIC_WEB_SYNC_SERVER_URL`.");
+  }
+
+  const response = await fetch(`${syncServerUrl}/api/auth/oauth-session`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      accessToken,
+      provider
+    })
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.token || !payload.session) {
+    throw new Error(payload.error || "Unable to complete provider sign-in.");
+  }
+
+  state.auth.session = payload.session;
+  state.auth.authToken = payload.token;
+  state.auth.displayName = payload.session.displayName || "";
+  state.auth.email = payload.session.email || "";
+  state.auth.password = "";
+  state.auth.status = "idle";
+  state.auth.message = "";
+  saveWebAuthSession({
+    authToken: payload.token,
+    session: payload.session
+  });
+}
+
+async function completeOAuthRedirectIfPresent() {
+  const pendingProvider = getPendingOAuthProvider();
+  if (!pendingProvider && !hasOAuthRedirectParams()) {
+    return false;
+  }
+
+  const client = await getSupabaseBrowserClient();
+  if (!client) {
+    clearPendingOAuthProvider();
+    clearOAuthRedirectParams();
+    state.auth.status = "error";
+    state.auth.message = "Supabase Auth is not configured for browser sign-in.";
+    return false;
+  }
+
+  state.auth.status = "submitting";
+  state.auth.message = "Completing provider sign-in...";
+  render(false);
+
+  try {
+    const { data, error } = await client.auth.getSession();
+    if (error) {
+      throw error;
+    }
+    const accessToken = data?.session?.access_token;
+    if (!accessToken) {
+      throw new Error("Provider sign-in did not return a usable session.");
+    }
+
+    await finalizeOAuthSignIn(accessToken, pendingProvider || undefined);
+    await client.auth.signOut().catch(() => {});
+    clearPendingOAuthProvider();
+    clearOAuthRedirectParams();
+    return true;
+  } catch (error) {
+    clearPendingOAuthProvider();
+    clearOAuthRedirectParams();
+    clearWebAuthSession();
+    state.auth.session = null;
+    state.auth.authToken = "";
+    state.auth.status = "error";
+    state.auth.message = (error && error.message) || "Unable to complete provider sign-in.";
+    return false;
+  }
+}
+
+async function initializeWebAuth() {
+  const syncServerUrl = getSyncServerUrl();
+
+  if (await completeOAuthRedirectIfPresent()) {
+    state.auth.booting = false;
+    render(false);
+    return;
+  }
+
+  const stored = loadWebAuthSession();
 
   if (!stored) {
     state.auth.booting = false;
@@ -772,10 +943,49 @@ function resetAuthState() {
     authToken: "",
     displayName: "",
     email: "",
+    password: "",
     status: "idle",
     message: "",
     turnstileToken: null
   };
+}
+
+async function startOAuthSignIn(provider) {
+  const client = await getSupabaseBrowserClient();
+  if (!client) {
+    state.auth.status = "error";
+    state.auth.message = "Supabase Auth is not configured for Google or Apple sign-in.";
+    render(false);
+    return;
+  }
+
+  try {
+    state.auth.status = "submitting";
+    state.auth.message = `Redirecting to ${provider === "apple" ? "Apple" : "Google"}...`;
+    render(false);
+    setPendingOAuthProvider(provider);
+    const redirectTo = `${window.location.origin}${window.location.pathname}`;
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (data?.url) {
+      window.location.assign(data.url);
+      return;
+    }
+  } catch (error) {
+    clearPendingOAuthProvider();
+    state.auth.status = "error";
+    state.auth.message = (error && error.message) || "Unable to start provider sign-in.";
+    render(false);
+  }
 }
 
 function loadGlassesMode() {
@@ -1156,7 +1366,7 @@ function handleClick(event) {
     return;
   }
 
-  const { action, tab, tourId, stopId, theme } = actionTarget.dataset;
+  const { action, tab, tourId, stopId, theme, provider } = actionTarget.dataset;
 
   if (action === "set-tab" && tab) {
     setActiveTab(tab);
@@ -1194,8 +1404,14 @@ function handleClick(event) {
     stopNarration();
     stopArLive();
     clearWebAuthSession();
+    clearPendingOAuthProvider();
     resetAuthState();
     render(false);
+    return;
+  }
+
+  if (action === "oauth-sign-in" && (provider === "google" || provider === "apple")) {
+    startOAuthSignIn(provider);
     return;
   }
 
@@ -1299,7 +1515,9 @@ function handleClick(event) {
   if (action === "set-theme" && theme) {
     state.themeFilter = theme;
     render();
+    return;
   }
+
 }
 
 function handleInput(event) {
@@ -1332,6 +1550,16 @@ function handleInput(event) {
       state.auth.status = "idle";
       state.auth.message = "";
     }
+    return;
+  }
+
+  if (target.name === "auth-password") {
+    state.auth.password = target.value;
+    if (state.auth.status !== "idle") {
+      state.auth.status = "idle";
+      state.auth.message = "";
+    }
+    return;
   }
 }
 
@@ -1444,8 +1672,9 @@ function escapeHtml(value) {
 function renderAuthScreen() {
   const hasSiteKey = !!getCloudflareTurnstileSiteKey();
   const hasSyncServer = !!getSyncServerUrl();
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseAuthConfig();
+  const hasProviderAuth = !!supabaseUrl && !!supabaseAnonKey;
   const canSubmit =
-    state.auth.displayName.trim().length >= 2 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.auth.email.trim()) &&
     (!hasSiteKey || !!state.auth.turnstileToken) &&
     hasSyncServer;
@@ -1453,24 +1682,24 @@ function renderAuthScreen() {
   return `
     <section class="auth-shell">
       <article class="panel auth-panel">
-        <p class="eyebrow">Cloudflare secured sign-in</p>
-        <h2>Enter the web companion through Founders Threads access.</h2>
-        <p class="hero-text">
-          Sign in once, pass the Cloudflare challenge, and then continue into route planning, AR handoff, and profile tools on this browser.
-        </p>
+        <h2>Sign in with your email to open the web companion.</h2>
         <div class="chip-row">
           <span class="chip">Cloudflare verification</span>
-          <span class="chip">Founders Threads session</span>
+          <span class="chip">Email session</span>
           <span class="chip">Cross-device touring</span>
         </div>
         <form class="auth-form" data-form="webapp-auth">
           <label class="search-field">
-            <span>Display name</span>
-            <input type="text" name="auth-display-name" placeholder="Founder Name" value="${escapeHtml(state.auth.displayName)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
+            <span>Name</span>
+            <input type="text" name="auth-display-name" placeholder="Name (optional)" value="${escapeHtml(state.auth.displayName)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
           </label>
           <label class="search-field">
             <span>Email</span>
             <input type="email" name="auth-email" placeholder="you@example.com" value="${escapeHtml(state.auth.email)}" autocomplete="email" ${state.auth.status === "submitting" ? "disabled" : ""} />
+          </label>
+          <label class="search-field">
+            <span>Password</span>
+            <input type="password" name="auth-password" placeholder="Builder password (only if you have one)" autocomplete="current-password" value="${escapeHtml(state.auth.password)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
           </label>
           ${
             hasSiteKey
@@ -1483,6 +1712,19 @@ function renderAuthScreen() {
             hasSyncServer
               ? ""
               : '<div class="subscription-status error">Add `EXPO_PUBLIC_WEB_SYNC_SERVER_URL` so the webapp can create real authenticated sessions.</div>'
+          }
+          <div class="button-row">
+            <button type="button" class="ghost-button" data-action="oauth-sign-in" data-provider="google" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
+              Continue with Google
+            </button>
+            <button type="button" class="ghost-button" data-action="oauth-sign-in" data-provider="apple" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
+              Continue with Apple
+            </button>
+          </div>
+          ${
+            hasProviderAuth
+              ? '<p class="subscription-status">Google and Apple sign-in use Supabase Auth and return to this same page when the provider flow finishes.</p>'
+              : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable Google and Apple sign-in.</p>'
           }
           ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
           <div class="button-row">
@@ -1541,6 +1783,8 @@ async function submitWebappAuth() {
   const syncServerUrl = getSyncServerUrl();
   const displayName = state.auth.displayName.trim();
   const email = state.auth.email.trim().toLowerCase();
+  const password = state.auth.password;
+  const mode = password.trim() ? "builder" : "tourist";
   const siteKey = getCloudflareTurnstileSiteKey();
 
   if (!syncServerUrl) {
@@ -1550,9 +1794,9 @@ async function submitWebappAuth() {
     return;
   }
 
-  if (displayName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     state.auth.status = "error";
-    state.auth.message = "Enter a display name and valid email address.";
+    state.auth.message = "Enter a valid email address.";
     render(false);
     return;
   }
@@ -1577,7 +1821,8 @@ async function submitWebappAuth() {
       body: JSON.stringify({
         displayName,
         email,
-        mode: "tourist",
+        mode,
+        password: mode === "builder" ? password : undefined,
         turnstileToken: state.auth.turnstileToken || undefined
       })
     });
@@ -1707,7 +1952,6 @@ function render(shouldSyncHash = true) {
     app.innerHTML = `
       <section class="auth-shell">
         <article class="panel auth-panel">
-          <p class="eyebrow">Cloudflare secured sign-in</p>
           <h2>Loading your web session…</h2>
           <p class="hero-text">Checking whether this browser already has a valid Founders Threads session.</p>
         </article>
