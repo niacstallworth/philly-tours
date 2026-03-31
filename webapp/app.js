@@ -1681,14 +1681,34 @@ function renderAuthScreen() {
 
   return `
     <section class="auth-shell">
-      <article class="panel auth-panel">
-        <h2>Sign in with your email to open the web companion.</h2>
-        <div class="chip-row">
-          <span class="chip">Cloudflare verification</span>
-          <span class="chip">Email session</span>
-          <span class="chip">Cross-device touring</span>
+      <div class="auth-backdrop"></div>
+      <article class="panel auth-panel auth-panel--cinematic">
+        <div class="auth-panel-hero">
+          <p class="eyebrow">Founders Threads access</p>
+          <h2>Open the city like a living collection.</h2>
+          <p class="hero-text">
+            Routes, AR handoff, audio storytelling, and cross-device access all begin here. The logic is already live. This screen is here to make it feel worthy of the story.
+          </p>
+          <div class="auth-feature-stack">
+            <div class="auth-feature-card">
+              <strong>Guided tours</strong>
+              <span>Move through Philadelphia by theme, district, and legacy.</span>
+            </div>
+            <div class="auth-feature-card">
+              <strong>AR companion</strong>
+              <span>Shift from route planning into camera-first site discovery.</span>
+            </div>
+            <div class="auth-feature-card">
+              <strong>Cross-device access</strong>
+              <span>Start on web, hand off to phone, and keep your progress.</span>
+            </div>
+          </div>
         </div>
-        <form class="auth-form" data-form="webapp-auth">
+        <form class="auth-form auth-form--cinematic" data-form="webapp-auth">
+          <div class="auth-form-top">
+            <span class="status-pill">Private access</span>
+            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Google + Apple ready" : "Email ready"}</span>
+          </div>
           <label class="search-field">
             <span>Name</span>
             <input type="text" name="auth-display-name" placeholder="Name (optional)" value="${escapeHtml(state.auth.displayName)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
@@ -1699,37 +1719,37 @@ function renderAuthScreen() {
           </label>
           <label class="search-field">
             <span>Password</span>
-            <input type="password" name="auth-password" placeholder="Builder password (only if you have one)" autocomplete="current-password" value="${escapeHtml(state.auth.password)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
+            <input type="password" name="auth-password" placeholder="Optional builder password" autocomplete="current-password" value="${escapeHtml(state.auth.password)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
           </label>
+          <div class="auth-provider-row">
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
+              Continue with Google
+            </button>
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="apple" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
+              Continue with Apple
+            </button>
+          </div>
           ${
             hasSiteKey
               ? state.auth.turnstileToken
-                ? '<div class="subscription-status success">Cloudflare challenge complete. You can continue into the app.</div>'
+                ? '<div class="subscription-status success">Verification complete. You can step into the app.</div>'
                 : '<div id="webapp-turnstile" class="turnstile-mount"></div>'
-              : '<div class="subscription-status">Add `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY` to enable the Cloudflare challenge for this web build.</div>'
+              : '<div class="subscription-status">Add `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY` to render the challenge on this build.</div>'
           }
           ${
             hasSyncServer
               ? ""
               : '<div class="subscription-status error">Add `EXPO_PUBLIC_WEB_SYNC_SERVER_URL` so the webapp can create real authenticated sessions.</div>'
           }
-          <div class="button-row">
-            <button type="button" class="ghost-button" data-action="oauth-sign-in" data-provider="google" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
-              Continue with Google
-            </button>
-            <button type="button" class="ghost-button" data-action="oauth-sign-in" data-provider="apple" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
-              Continue with Apple
-            </button>
-          </div>
           ${
             hasProviderAuth
-              ? '<p class="subscription-status">Google and Apple sign-in use Supabase Auth and return to this same page when the provider flow finishes.</p>'
-              : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable Google and Apple sign-in.</p>'
+              ? '<p class="subscription-status">Google and Apple sign-in return to this same screen and complete the session automatically.</p>'
+              : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable provider sign-in.</p>'
           }
           ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
-          <div class="button-row">
+          <div class="button-row auth-button-row">
             <button type="submit" class="primary-button" ${canSubmit && state.auth.status !== "submitting" ? "" : "disabled"}>
-              ${state.auth.status === "submitting" ? "Signing in..." : "Enter app"}
+              ${state.auth.status === "submitting" ? "Opening your session..." : "Enter the web companion"}
             </button>
             <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Need help?</a>
           </div>
@@ -1940,19 +1960,170 @@ async function subscribeProfileEmail() {
   }
 }
 
+function getChromeTabKey() {
+  if (state.activeTab === "map") {
+    return "map";
+  }
+  return state.activeTab;
+}
+
+function getSceneConfig(selectedTour, globalStats) {
+  switch (state.activeTab) {
+    case "map":
+      return {
+        eyebrow: "Route planner",
+        title: "Available Tours",
+        body: "Choose a route, filter the story collections, and move from discovery into a stop-by-stop field plan without leaving the same shell.",
+        metrics: [
+          { value: tours.length, label: "curated routes" },
+          { value: globalStats.totalStops, label: "mapped story stops" },
+          { value: `${getProgressForTour(selectedTour).percent}%`, label: "selected route complete" }
+        ],
+        floatingCard: `
+          <article class="hero-floating-card">
+            <h3>${selectedTour.title}</h3>
+            <p>${truncateCopy(selectedTour.summary, 138)}</p>
+            <div class="hero-floating-meta">
+              <span>${selectedTour.durationMin} min</span>
+              <span>${selectedTour.distanceMiles} mi</span>
+              <span>${selectedTour.theme}</span>
+            </div>
+          </article>
+        `
+      };
+    case "ar":
+      return {
+        eyebrow: "AR heritage viewer",
+        title: "Philadelphia Heritage Viewer",
+        body: "Point your camera at the city, trigger nearby stops, and hand narration across devices like a premium field companion instead of a static browser page.",
+        metrics: [
+          { value: state.ar.mode === "live" ? "live" : "ready", label: "camera posture" },
+          { value: state.ar.autoNarrationEnabled ? "on" : "off", label: "auto narration" },
+          { value: state.glassesMode ? "paired" : "phone", label: "audio route" }
+        ],
+        floatingCard: `
+          <article class="hero-floating-card hero-floating-card--compact">
+            <strong>Selected route</strong>
+            <h3>${selectedTour.title}</h3>
+            <p>${selectedTour.arFocus}</p>
+          </article>
+        `
+      };
+    case "progress":
+      return {
+        eyebrow: "Founders board",
+        title: "Your Collection Board",
+        body: "Track where you've been, what you've unlocked, and which tour narratives are starting to form a real profile of your movement through Philadelphia.",
+        metrics: [
+          { value: globalStats.completedStops, label: "sites unlocked" },
+          { value: globalStats.toursStarted, label: "routes started" },
+          { value: Math.round((globalStats.completedStops / globalStats.totalStops) * 100) || 0, label: "overall progress" }
+        ],
+        floatingCard: `
+          <article class="hero-floating-card hero-floating-card--compact">
+            <strong>Current streak</strong>
+            <h3>${Math.max(globalStats.toursStarted, 1)} active collections</h3>
+            <p>Every completed stop feeds the same cross-device memory of your journey.</p>
+          </article>
+        `
+      };
+    case "profile":
+      return {
+        eyebrow: "Settings",
+        title: "Guest profile, live controls, and access settings",
+        body: "Keep the same portal for tourists and builders while shaping the device posture, communication preferences, and upgrade path around the person using it.",
+        metrics: [
+          { value: state.auth.session?.roles?.includes("admin") ? "admin" : state.auth.session?.roles?.includes("builder") ? "builder" : "tourist", label: "access level" },
+          { value: state.glassesMode ? "on" : "off", label: "glasses mode" },
+          { value: state.auth.session?.provider || "email", label: "sign-in method" }
+        ],
+        floatingCard: `
+          <article class="hero-floating-card hero-floating-card--compact">
+            <strong>Connected email</strong>
+            <h3>${escapeHtml(state.auth.session?.email || "Guest")}</h3>
+            <p>Session security, updates, and route continuity all live here.</p>
+          </article>
+        `
+      };
+    default:
+      return {
+        eyebrow: "Founders Threads",
+        title: "Explore Philadelphia as a living collection.",
+        body: "Routes, AR handoff, story stops, and cultural curation now live inside one premium mobile web companion. The backend has the memory. The front end should feel like the invitation.",
+        metrics: [
+          { value: tours.length, label: "guided routes" },
+          { value: globalStats.totalStops, label: "story sites" },
+          { value: globalStats.completedStops, label: "unlocked so far" }
+        ],
+        floatingCard: `
+          <article class="hero-floating-card">
+            <h3>Welcome to Founders Threads</h3>
+            <ul class="hero-feature-list">
+              <li><strong>Guided tours</strong><span>Move through layered Philadelphia routes.</span></li>
+              <li><strong>Interactive map</strong><span>Plan your next stop and copy the view.</span></li>
+              <li><strong>AR handoff</strong><span>Switch from route planning into live camera mode.</span></li>
+              <li><strong>Progress board</strong><span>Track what you’ve already unlocked.</span></li>
+            </ul>
+            <button type="button" class="primary-button hero-card-button" data-action="set-tab" data-tab="map">Get started</button>
+          </article>
+        `
+      };
+  }
+}
+
+function renderSceneHero(selectedTour, globalStats) {
+  const scene = getSceneConfig(selectedTour, globalStats);
+  return `
+    <section class="scene-hero scene-hero--${getChromeTabKey()}">
+      <div class="scene-hero__veil"></div>
+      <div class="scene-hero__content">
+        <div class="scene-copy">
+          <p class="eyebrow">${scene.eyebrow}</p>
+          <h2>${scene.title}</h2>
+          <p class="hero-text">${scene.body}</p>
+          <div class="hero-button-row">
+            <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Explore tours</button>
+            <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">Open AR mode</button>
+          </div>
+          <div class="hero-social-row">
+            <span>routes</span>
+            <span>heritage</span>
+            <span>audio</span>
+            <span>AR</span>
+          </div>
+        </div>
+        <div class="hero-metrics hero-metrics--cinematic">
+          ${scene.metrics
+            .map(
+              (metric) => `
+                <article class="metric-card">
+                  <span>${metric.value}</span>
+                  <p>${metric.label}</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+      </div>
+      ${scene.floatingCard}
+    </section>
+  `;
+}
+
 function render(shouldSyncHash = true) {
   teardownRouteMap();
   updateChrome();
 
+  const chromeTab = getChromeTabKey();
   tabs.forEach((button) => {
-    button.classList.toggle("active", button.dataset.tab === state.activeTab);
+    button.classList.toggle("active", button.dataset.tab === chromeTab);
   });
 
   if (state.auth.booting) {
     app.innerHTML = `
       <section class="auth-shell">
-        <article class="panel auth-panel">
-          <h2>Loading your web session…</h2>
+        <article class="panel auth-panel auth-panel--loading">
+          <h2>Loading your session…</h2>
           <p class="hero-text">Checking whether this browser already has a valid Founders Threads session.</p>
         </article>
       </section>
@@ -1971,29 +2142,7 @@ function render(shouldSyncHash = true) {
   const globalStats = getGlobalStats();
 
   app.innerHTML = `
-    <section class="hero-panel">
-      <div class="hero-copy">
-        <p class="eyebrow">Luxury cultural driving companion</p>
-        <h2>Drive Philadelphia through Black legacy, innovation, and place.</h2>
-        <p class="hero-text">
-          Browse premium routes, hear layered narration, and move through one of America's most drivable and beautiful city regions with purpose.
-        </p>
-      </div>
-      <div class="hero-metrics">
-        <article class="metric-card">
-          <span>${tours.length}</span>
-          <p>Curated drive-ready collections</p>
-        </article>
-        <article class="metric-card">
-          <span>${globalStats.totalStops}</span>
-          <p>Story stops staged for route listening</p>
-        </article>
-        <article class="metric-card">
-          <span>${globalStats.completedStops}</span>
-          <p>Places you've already unlocked</p>
-        </article>
-      </div>
-    </section>
+    ${renderSceneHero(selectedTour, globalStats)}
     ${renderActiveTab(selectedTour, selectedStop, globalStats)}
     ${renderDrawer()}
   `;
@@ -2040,61 +2189,108 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
 }
 
 function renderHomeTab(selectedTour) {
-  const visibleTours = getVisibleTours();
-  const themes = ["all", ...new Set(tours.map((tour) => tour.theme.toLowerCase()))];
   const featuredNextStop = getRecommendedNextStop(selectedTour);
+  const tags = selectedTour.tags || [];
 
   return `
-    <section class="section-grid home-grid">
-      <article class="panel featured-panel" id="featured-tour">
+    <section class="section-grid home-grid home-grid--cinematic">
+      <article class="panel panel--story" id="featured-tour">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Featured drive</p>
+            <p class="eyebrow">Tonight’s route mood</p>
             <h3>${selectedTour.title}</h3>
           </div>
-          <span class="status-pill">${selectedTour.theme}</span>
+          <span class="status-pill is-live">${selectedTour.theme}</span>
         </div>
         <p class="lede">${selectedTour.summary}</p>
         <div class="chip-row">
-          ${selectedTour.tags.map((tag) => `<span class="chip">${tag}</span>`).join("")}
+          ${tags.map((tag) => `<span class="chip">${tag}</span>`).join("")}
         </div>
         <div class="quick-start-grid">
           <article class="quick-start-card">
             <span class="quick-start-step">1</span>
-            <strong>Pick your drive</strong>
-            <p>${selectedTour.title}</p>
+            <strong>Select the collection</strong>
+            <p>${selectedTour.neighborhood}</p>
           </article>
           <article class="quick-start-card">
             <span class="quick-start-step">2</span>
-            <strong>Start with</strong>
+            <strong>Begin with</strong>
             <p>${featuredNextStop.title}</p>
           </article>
           <article class="quick-start-card">
             <span class="quick-start-step">3</span>
-            <strong>Best mode</strong>
-            <p>${state.glassesMode ? "Glasses-ready narration" : "Drive narration on phone"}</p>
+            <strong>Best posture</strong>
+            <p>${state.glassesMode ? "Bluetooth glasses narration" : "Phone-led route + handoff"}</p>
           </article>
         </div>
         <div class="stats-row">
-          <div><strong>${selectedTour.durationMin} min</strong><span>Estimated duration</span></div>
-          <div><strong>${selectedTour.distanceMiles} mi</strong><span>Scenic city route</span></div>
-          <div><strong>${selectedTour.rating}</strong><span>Premium rider rating</span></div>
+          <div><strong>${selectedTour.durationMin} min</strong><span>estimated route</span></div>
+          <div><strong>${selectedTour.distanceMiles} mi</strong><span>city distance</span></div>
+          <div><strong>${selectedTour.rating}</strong><span>community rating</span></div>
         </div>
         <div class="button-row">
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Start this drive</button>
-          <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${selectedTour.id}">See full route brief</button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">See arrival mode</button>
+          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Open route planner</button>
+          <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${selectedTour.id}">Read the route brief</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">Preview AR handoff</button>
         </div>
       </article>
 
-      <article class="panel spotlight-panel">
+      <article class="panel panel--intro">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Behavior matters</p>
+            <h3>What the web companion should feel like</h3>
+          </div>
+        </div>
+        <div class="story-pulse-grid">
+          <div class="story-pulse-card">
+            <strong>Cinematic first impression</strong>
+            <p>Lead with atmosphere, not just logistics, so the city feels emotional before it feels navigational.</p>
+          </div>
+          <div class="story-pulse-card">
+            <strong>Native-app posture</strong>
+            <p>Tabs, hero modules, and short action loops should feel like a product someone wants to explore.</p>
+          </div>
+          <div class="story-pulse-card">
+            <strong>One shell, many modes</strong>
+            <p>Route planning, AR, progress, and settings should all share the same visual language.</p>
+          </div>
+        </div>
+        <div class="button-row">
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse collections</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="progress">Open board</button>
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function renderRouteTab(selectedTour, selectedStop) {
+  const progress = getProgressForTour(selectedTour);
+  const mapReady = typeof window.L !== "undefined";
+  const themes = ["all", ...new Set(tours.map((tour) => tour.theme.toLowerCase()))];
+  const visibleTours = getVisibleTours();
+  const highlightStops = selectedTour.stops.slice(0, 3);
+  const narrationMode = getNarrationMode(selectedStop.id);
+  const narrationScript = getNarrationScript(selectedStop.id) || "No narration script is available for this stop yet.";
+  const narrationPreview = truncateCopy(narrationScript, 180);
+  const isNarrating = state.narrationState.stopId === selectedStop.id && state.narrationState.status === "playing";
+
+  return `
+    <section class="section-grid route-shell">
+      <article class="panel panel--catalog">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Collections</p>
-            <h3>Choose your lens on the road</h3>
+            <h3>Choose your route lens</h3>
           </div>
+          <span class="status-pill">${visibleTours.length} showing</span>
         </div>
-        <p class="lede">Choose one route first. Everything else, including stop context, narration, and AR handoff, gets much easier once a drive is selected.</p>
+        <div class="route-switcher">
+          <button type="button" class="filter-chip active">Tours</button>
+          <button type="button" class="filter-chip" disabled>Scavenger hunts</button>
+          <button type="button" class="filter-chip ${state.activeTab === "map" ? "active" : ""}" data-action="copy-view">Share view</button>
+        </div>
         <div class="filter-row">
           ${themes
             .map(
@@ -2105,7 +2301,7 @@ function renderHomeTab(selectedTour) {
                   data-action="set-theme"
                   data-theme="${theme}"
                 >
-                  ${theme === "all" ? "All themes" : capitalize(theme)}
+                  ${theme === "all" ? "All categories" : capitalize(theme)}
                 </button>
               `
             )
@@ -2113,38 +2309,47 @@ function renderHomeTab(selectedTour) {
         </div>
         <label class="search-field">
           <span>Search tours</span>
-          <input type="search" placeholder="History, archives, sports..." data-role="tour-search" />
+          <input type="search" placeholder="History, culture, architecture..." data-role="tour-search" />
         </label>
-        <div class="tour-list">
+        <div class="experience-grid">
           ${visibleTours
-            .map((tour) => {
-              const progress = getProgressForTour(tour);
+            .map((tour, index) => {
+              const cardProgress = getProgressForTour(tour);
               const isSelected = tour.id === selectedTour.id;
               const nextStop = getRecommendedNextStop(tour);
+              const palette = [
+                ["#5d42ff", "#a68eff"],
+                ["#ff8b5c", "#ffd38b"],
+                ["#1e2a68", "#6aa5ff"],
+                ["#6c1f52", "#ff7db6"]
+              ][index % 4];
               return `
-                <article class="tour-card ${isSelected ? "selected" : ""}">
-                  <div class="tour-card-top">
-                    <div>
-                      <p class="eyebrow">${tour.neighborhood}</p>
-                      <h4>${tour.title}</h4>
+                <article class="experience-card ${isSelected ? "selected" : ""}" style="--tour-accent:${palette[0]}; --tour-glow:${palette[1]};">
+                  <div class="experience-card-media">
+                    <span class="experience-card-pill">${tour.theme}</span>
+                    <div class="experience-card-gradient"></div>
+                    <div class="experience-card-copy">
+                      <p>${tour.neighborhood}</p>
+                      <strong>${tour.title}</strong>
                     </div>
-                    <span class="status-pill">${isSelected ? "Selected" : tour.theme}</span>
                   </div>
-                  <p>${truncateCopy(tour.summary, 132)}</p>
-                  <div class="tour-card-meta">
-                    <span>${tour.durationMin} min</span>
-                    <span>${tour.distanceMiles} mi</span>
-                    <span>${tour.stops.length} stops</span>
-                    <span>${progress.percent}% complete</span>
-                  </div>
-                  <div class="tour-card-foot">
-                    <span>Start with ${nextStop.title}</span>
-                  </div>
-                  <div class="button-row compact">
-                    <button type="button" class="primary-button" data-action="select-tour" data-tour-id="${tour.id}">
-                      ${isSelected ? "Selected drive" : "Choose drive"}
-                    </button>
-                    <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${tour.id}">Route brief</button>
+                  <div class="experience-card-body">
+                    <p>${truncateCopy(tour.summary, 154)}</p>
+                    <div class="tour-card-meta">
+                      <span>${tour.durationMin} min</span>
+                      <span>${tour.distanceMiles} mi</span>
+                      <span>${tour.stops.length} stops</span>
+                      <span>${cardProgress.percent}% complete</span>
+                    </div>
+                    <div class="tour-card-foot">
+                      <span>Start with ${nextStop.title}</span>
+                    </div>
+                    <div class="button-row compact">
+                      <button type="button" class="primary-button" data-action="select-tour" data-tour-id="${tour.id}">
+                        ${isSelected ? "Selected route" : "Choose route"}
+                      </button>
+                      <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${tour.id}">Explore tour</button>
+                    </div>
                   </div>
                 </article>
               `;
@@ -2152,168 +2357,152 @@ function renderHomeTab(selectedTour) {
             .join("")}
         </div>
       </article>
-    </section>
-  `;
-}
 
-function renderRouteTab(selectedTour, selectedStop) {
-  const progress = getProgressForTour(selectedTour);
-  const mapReady = typeof window.L !== "undefined";
-  const highlightStops = selectedTour.stops.slice(0, 3);
-  const narrationMode = getNarrationMode(selectedStop.id);
-  const narrationScript = getNarrationScript(selectedStop.id) || "No narration script is available for this stop yet.";
-  const narrationPreview = truncateCopy(narrationScript, 180);
-  const isNarrating = state.narrationState.stopId === selectedStop.id && state.narrationState.status === "playing";
-
-  return `
-    <section class="section-grid route-grid">
-      <article class="panel route-map-panel">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Route preview</p>
-            <h3>${selectedTour.title}</h3>
-          </div>
-          <span class="status-pill">${progress.completed}/${selectedTour.stops.length} complete</span>
-        </div>
-        <p class="lede">${selectedTour.guideMode}. ${selectedTour.arFocus}.</p>
-        <div class="route-map-shell">
-          <div class="route-map" id="route-map" aria-label="Interactive route map"></div>
-          ${
-            mapReady
-              ? ""
-              : `<div class="map-fallback">Map library unavailable. The route details are still available below.</div>`
-          }
-        </div>
-        <div class="route-legend">
-          <span><i class="legend-dot active"></i>Selected</span>
-          <span><i class="legend-dot done"></i>Completed</span>
-          <span><i class="legend-dot"></i>Upcoming</span>
-        </div>
-        <div class="route-highlights">
-          ${highlightStops
-            .map(
-              (stop, index) => `
-                <article class="highlight-card">
-                  <span class="highlight-index">0${index + 1}</span>
-                  <strong>${stop.title}</strong>
-                  <p>${stop.locationLabel || "Philadelphia"}</p>
-                </article>
-              `
-            )
-            .join("")}
-        </div>
-      </article>
-
-      <article class="panel stop-panel">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Selected stop</p>
-            <h3>${selectedStop.title}</h3>
-          </div>
-          <span class="status-pill">${selectedStop.radius}m radius</span>
-        </div>
-        <p class="lede">${selectedStop.description}</p>
-        <div class="stop-summary-grid">
-          <div>
-            <strong>Where to aim</strong>
-            <p>${selectedStop.locationLabel || "Use the highlighted marker and stop list."}</p>
-          </div>
-          <div>
-            <strong>Visit posture</strong>
-            <p>${selectedStop.dayLabel || "Flexible day"}${selectedStop.timeLabel ? ` · ${selectedStop.timeLabel}` : ""}</p>
-          </div>
-          <div>
-            <strong>Next best move</strong>
-            <p>${state.completedStopIds.includes(selectedStop.id) ? "Mark it upcoming if you want to revisit it." : "Play the stop, open maps, or mark it complete."}</p>
-          </div>
-        </div>
-        <div class="stop-meta-row">
-          <span class="chip">${selectedTour.theme}</span>
-          ${selectedStop.locationLabel ? `<span class="chip">${selectedStop.locationLabel}</span>` : ""}
-          <span class="chip">${selectedTour.stops.length} stops on route</span>
-        </div>
-        <div class="companion-panel">
+      <section class="section-grid route-grid">
+        <article class="panel route-map-panel">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Meta glasses</p>
-              <h3>Browser companion mode</h3>
+              <p class="eyebrow">Interactive map</p>
+              <h3>${selectedTour.title}</h3>
             </div>
-            <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
+            <span class="status-pill">${progress.completed}/${selectedTour.stops.length} complete</span>
           </div>
-          <p>${getGlassesModeCopy()}</p>
-          ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
-          <div class="button-row">
-            <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
-              ${getGlassesModeButtonLabel()}
-            </button>
-            <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open in Philly Tours app</a>
+          <p class="lede">${selectedTour.guideMode}. ${selectedTour.arFocus}.</p>
+          <div class="route-map-shell">
+            <div class="route-map" id="route-map" aria-label="Interactive route map"></div>
+            ${mapReady ? "" : `<div class="map-fallback">Map library unavailable. The route details are still available below.</div>`}
           </div>
-        </div>
-        <div class="narration-panel">
+          <div class="route-legend">
+            <span><i class="legend-dot active"></i>Selected</span>
+            <span><i class="legend-dot done"></i>Completed</span>
+            <span><i class="legend-dot"></i>Upcoming</span>
+          </div>
+          <div class="route-highlights">
+            ${highlightStops
+              .map(
+                (stop, index) => `
+                  <article class="highlight-card">
+                    <span class="highlight-index">0${index + 1}</span>
+                    <strong>${stop.title}</strong>
+                    <p>${stop.locationLabel || "Philadelphia"}</p>
+                  </article>
+                `
+              )
+              .join("")}
+          </div>
+        </article>
+
+        <article class="panel stop-panel">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Narration</p>
-              <h3>Real runtime audio</h3>
+              <p class="eyebrow">Selected stop</p>
+              <h3>${selectedStop.title}</h3>
             </div>
-            <span class="status-pill">${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to glasses-ready output` : getNarrationLabel(selectedStop.id)}</span>
+            <span class="status-pill">${selectedStop.radius}m radius</span>
           </div>
-          <div class="variant-toggle">
-            <button type="button" class="filter-chip ${state.narrationVariant === "walk" ? "active" : ""}" data-action="set-narration-variant" data-variant="walk">Walk</button>
-            <button type="button" class="filter-chip ${state.narrationVariant === "drive" ? "active" : ""}" data-action="set-narration-variant" data-variant="drive">Drive</button>
+          <p class="lede">${selectedStop.description}</p>
+          <div class="stop-summary-grid">
+            <div>
+              <strong>Where to aim</strong>
+              <p>${selectedStop.locationLabel || "Use the highlighted marker and stop list."}</p>
+            </div>
+            <div>
+              <strong>Visit posture</strong>
+              <p>${selectedStop.dayLabel || "Flexible day"}${selectedStop.timeLabel ? ` · ${selectedStop.timeLabel}` : ""}</p>
+            </div>
+            <div>
+              <strong>Next move</strong>
+              <p>${state.completedStopIds.includes(selectedStop.id) ? "Mark it upcoming if you want to revisit it." : "Play the stop, open maps, or mark it complete."}</p>
+            </div>
           </div>
-          <div class="button-row">
-            <button
-              type="button"
-              class="primary-button"
-              data-action="${isNarrating ? "stop-narration" : "play-narration"}"
-              data-stop-id="${selectedStop.id}"
-              ${narrationMode === "none" ? "disabled" : ""}
-            >
-              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
-            </button>
-            <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
+          <div class="stop-meta-row">
+            <span class="chip">${selectedTour.theme}</span>
+            ${selectedStop.locationLabel ? `<span class="chip">${selectedStop.locationLabel}</span>` : ""}
+            <span class="chip">${selectedTour.stops.length} stops on route</span>
           </div>
-          <div class="drawer-copy">
-            <strong>Transcript preview</strong>
-            <p>${narrationPreview}</p>
+          <div class="companion-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Audio posture</p>
+                <h3>Cross-device companion mode</h3>
+              </div>
+              <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
+            </div>
+            <p>${getGlassesModeCopy()}</p>
+            ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
+            <div class="button-row">
+              <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
+                ${getGlassesModeButtonLabel()}
+              </button>
+              <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open in phone app</a>
+            </div>
           </div>
-        </div>
-        <div class="button-row">
-          <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
-            ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
-          </button>
-          <a class="ghost-button link-button" href="#tab=map&tour=${selectedTour.id}&stop=${selectedStop.id}">Copyable view</a>
-          <a
-            class="ghost-button link-button"
-            href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open in maps
-          </a>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="progress">View progress</button>
-        </div>
-        <div class="stop-list">
-          ${selectedTour.stops
-            .map((stop, index) => `
+          <div class="narration-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Narration</p>
+                <h3>Live runtime audio</h3>
+              </div>
+              <span class="status-pill">${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to glasses-ready output` : getNarrationLabel(selectedStop.id)}</span>
+            </div>
+            <div class="variant-toggle">
+              <button type="button" class="filter-chip ${state.narrationVariant === "walk" ? "active" : ""}" data-action="set-narration-variant" data-variant="walk">Walk</button>
+              <button type="button" class="filter-chip ${state.narrationVariant === "drive" ? "active" : ""}" data-action="set-narration-variant" data-variant="drive">Drive</button>
+            </div>
+            <div class="button-row">
               <button
                 type="button"
-                class="stop-row ${selectedStop.id === stop.id ? "active" : ""}"
-                data-action="select-stop"
-                data-stop-id="${stop.id}"
+                class="primary-button"
+                data-action="${isNarrating ? "stop-narration" : "play-narration"}"
+                data-stop-id="${selectedStop.id}"
+                ${narrationMode === "none" ? "disabled" : ""}
               >
-                <div>
-                  <strong>${index + 1}. ${stop.title}</strong>
-                  <p>${stop.locationLabel || truncateCopy(stop.description, 88)}</p>
-                </div>
-                <span class="check-badge ${state.completedStopIds.includes(stop.id) ? "done" : ""}">
-                  ${selectedStop.id === stop.id ? "Viewing" : state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
-                </span>
+                ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
               </button>
-            `)
-            .join("")}
-        </div>
-      </article>
+              <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
+            </div>
+            <div class="drawer-copy">
+              <strong>Transcript preview</strong>
+              <p>${narrationPreview}</p>
+            </div>
+          </div>
+          <div class="button-row">
+            <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
+              ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
+            </button>
+            <a class="ghost-button link-button" href="#tab=map&tour=${selectedTour.id}&stop=${selectedStop.id}">Copyable view</a>
+            <a
+              class="ghost-button link-button"
+              href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open in maps
+            </a>
+            <button type="button" class="ghost-button" data-action="set-tab" data-tab="progress">Open board</button>
+          </div>
+          <div class="stop-list">
+            ${selectedTour.stops
+              .map((stop, index) => `
+                <button
+                  type="button"
+                  class="stop-row ${selectedStop.id === stop.id ? "active" : ""}"
+                  data-action="select-stop"
+                  data-stop-id="${stop.id}"
+                >
+                  <div>
+                    <strong>${index + 1}. ${stop.title}</strong>
+                    <p>${stop.locationLabel || truncateCopy(stop.description, 88)}</p>
+                  </div>
+                  <span class="check-badge ${state.completedStopIds.includes(stop.id) ? "done" : ""}">
+                    ${selectedStop.id === stop.id ? "Viewing" : state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
+                  </span>
+                </button>
+              `)
+              .join("")}
+          </div>
+        </article>
+      </section>
     </section>
   `;
 }
@@ -2485,7 +2674,35 @@ function renderArTab(selectedTour) {
   const arGpsLabel = state.ar.locationReady ? "GPS locked" : "Acquiring GPS";
 
   return `
-    <section class="section-grid ar-grid">
+    <section class="section-grid ar-grid ar-grid--cinematic">
+      <article class="panel panel--hero-callout">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Launch mode</p>
+            <h3>AR camera handoff</h3>
+          </div>
+          <span class="status-pill ${state.ar.mode === "live" ? "is-live" : ""}">${state.ar.mode === "live" ? "Live now" : "Standby"}</span>
+        </div>
+        <p class="lede">Move from route planning into a purple-tinted field mode that feels more like a product experience than a raw browser utility.</p>
+        <div class="quick-start-grid">
+          <article class="quick-start-card">
+            <span class="quick-start-step">1</span>
+            <strong>Open camera</strong>
+            <p>Turn on camera and location for the selected route.</p>
+          </article>
+          <article class="quick-start-card">
+            <span class="quick-start-step">2</span>
+            <strong>Reach the site</strong>
+            <p>Walk into the trigger radius and let the stop become active.</p>
+          </article>
+          <article class="quick-start-card">
+            <span class="quick-start-step">3</span>
+            <strong>Hear the story</strong>
+            <p>Use phone audio or Bluetooth glasses for the narration handoff.</p>
+          </article>
+        </div>
+      </article>
+
       <article class="panel ar-live-panel">
         <div class="panel-header">
           <div>
@@ -2604,18 +2821,35 @@ function renderArTab(selectedTour) {
 
 function renderProgressTab(globalStats) {
   return `
-    <section class="section-grid progress-grid">
-      <article class="panel">
+    <section class="section-grid progress-grid progress-grid--cinematic">
+      <article class="panel panel--board-summary">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Your footprint</p>
-            <h3>Progress across collections</h3>
+            <p class="eyebrow">Board overview</p>
+            <h3>Your footprint across the collection</h3>
           </div>
         </div>
         <div class="stats-row">
-          <div><strong>${globalStats.completedStops}</strong><span>Stops completed</span></div>
-          <div><strong>${globalStats.toursStarted}</strong><span>Tours started</span></div>
-          <div><strong>${Math.round((globalStats.completedStops / globalStats.totalStops) * 100) || 0}%</strong><span>Overall completion</span></div>
+          <div><strong>${globalStats.completedStops}</strong><span>sites unlocked</span></div>
+          <div><strong>${globalStats.toursStarted}</strong><span>routes started</span></div>
+          <div><strong>${Math.round((globalStats.completedStops / globalStats.totalStops) * 100) || 0}%</strong><span>overall completion</span></div>
+        </div>
+        <div class="button-row">
+          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Continue exploring</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="profile">Open settings</button>
+        </div>
+      </article>
+      <article class="panel panel--board-upgrade">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Elite posture</p>
+            <h3>Upgrade the experience, not just the access</h3>
+          </div>
+        </div>
+        <div class="readiness-list">
+          <div><strong>Unlock premium AR</strong><p>Open up the richer reconstruction layer and exclusive site narratives.</p></div>
+          <div><strong>Cross-device continuity</strong><p>Carry your route, stop state, and session across the same account shell.</p></div>
+          <div><strong>Merch + drops</strong><p>Use the board as a home for products, rewards, and future collection drops.</p></div>
         </div>
       </article>
       <article class="panel">
@@ -2653,14 +2887,14 @@ function renderProfileTab() {
   const startedTours = tours.filter((tour) => getProgressForTour(tour).completed > 0);
   const activeUser = state.auth.session;
   return `
-    <section class="section-grid profile-grid">
-      <article class="panel">
+    <section class="section-grid profile-grid profile-grid--cinematic">
+      <article class="panel panel--profile-card">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Profile</p>
+            <p class="eyebrow">Guest profile</p>
             <h3>${escapeHtml(activeUser?.displayName || "Founders Threads rider")}</h3>
           </div>
-          <span class="status-pill">Cloudflare secured</span>
+          <span class="status-pill is-live">Session secured</span>
         </div>
         <div class="profile-list">
           <div><strong>Signed in email</strong><p>${escapeHtml(activeUser?.email || "No email on session")}</p></div>
@@ -2670,6 +2904,22 @@ function renderProfileTab() {
           <div><strong>Meta glasses mode</strong><p>${state.glassesMode ? "Enabled for Bluetooth audio routing" : "Off until glasses are paired over Bluetooth"}</p></div>
         </div>
         ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Mode status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
+      </article>
+      <article class="panel panel--profile-upgrade">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Upgrade to elite</p>
+            <h3>One shell for tourists and builders</h3>
+          </div>
+        </div>
+        <div class="drawer-copy emphasis">
+          <strong>What the premium layer should unlock</strong>
+          <p>Exclusive Philadelphia history, expanded AR sites, and priority access to new drops without breaking the same portal or account experience.</p>
+        </div>
+        <div class="button-row">
+          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Browse collections</button>
+          <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Talk to Founders</a>
+        </div>
       </article>
       <article class="panel">
         <div class="panel-header">
