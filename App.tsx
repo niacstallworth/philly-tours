@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Linking, Platform, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
 import { createAuthenticatedSession, setAuthToken, validateAuthenticatedSession } from "./src/services/auth";
@@ -180,7 +180,7 @@ export default function App() {
     </AppThemeProvider>
   );
 
-  if (isExpoGo) {
+  if (isExpoGo || Platform.OS === "web") {
     return appBody;
   }
 
