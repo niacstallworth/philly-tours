@@ -96,6 +96,16 @@ export function CompanionSetupScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.heroPanel}>
+        <View style={styles.heroGlowPrimary} />
+        <View style={styles.heroGlowSecondary} />
+        <Text style={styles.heroEyebrow}>AR companion</Text>
+        <Text style={styles.title}>Meta glasses and phone handoff in one control surface.</Text>
+        <Text style={styles.copy}>
+          This is the native layer where route memory, audio routing, and future hands-free AR meet. It should feel like an experience console, not a debug page.
+        </Text>
+      </View>
+
       <Card style={styles.card}>
         <Text style={styles.title}>Meta Glasses Companion</Text>
         <Text style={styles.copy}>{getCompanionIntroCopy(status)}</Text>
@@ -230,10 +240,52 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
   return StyleSheet.create({
     container: {
       padding: 20,
-      gap: 16
+      gap: 18,
+      backgroundColor: colors.background
+    },
+    heroPanel: {
+      position: "relative",
+      overflow: "hidden",
+      backgroundColor: colors.headerBackground,
+      borderRadius: 32,
+      padding: 24,
+      gap: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.14,
+      shadowRadius: 22,
+      shadowOffset: { width: 0, height: 14 },
+      elevation: 4
+    },
+    heroGlowPrimary: {
+      position: "absolute",
+      width: 220,
+      height: 220,
+      borderRadius: 999,
+      backgroundColor: "rgba(91, 56, 245, 0.26)",
+      top: -96,
+      right: -70
+    },
+    heroGlowSecondary: {
+      position: "absolute",
+      width: 180,
+      height: 180,
+      borderRadius: 999,
+      backgroundColor: "rgba(125, 201, 255, 0.14)",
+      bottom: -100,
+      left: -64
+    },
+    heroEyebrow: {
+      color: colors.warn,
+      fontSize: type.font(12),
+      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 1.2
     },
     card: {
-      gap: 12
+      gap: 12,
+      backgroundColor: colors.surfaceRaised
     },
     title: {
       color: colors.text,
@@ -270,8 +322,8 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
     },
     commandButton: {
       paddingHorizontal: 14,
-      paddingVertical: 12,
-      borderRadius: 16,
+      paddingVertical: 14,
+      borderRadius: 18,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.surfaceSoft
@@ -288,7 +340,7 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
       gap: 8,
       padding: 14,
       borderRadius: 18,
-      backgroundColor: colors.surfaceSoft,
+      backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border
     },

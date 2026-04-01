@@ -402,12 +402,17 @@ function createStyles(
     backgroundColor: colors.background
   },
   heroPanel: {
-    backgroundColor: colors.backgroundElevated,
-    borderRadius: 30,
-    padding: 22,
-    gap: 10,
+    backgroundColor: colors.headerBackground,
+    borderRadius: 32,
+    padding: 24,
+    gap: 12,
     borderWidth: 1,
-    borderColor: colors.border
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.14,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 14 },
+    elevation: 4
   },
   heroEyebrow: {
     color: colors.warn,
@@ -428,7 +433,8 @@ function createStyles(
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   card: {
-    gap: 12
+    gap: 12,
+    backgroundColor: colors.surfaceRaised
   },
   sectionTitle: {
     color: colors.text,
@@ -463,16 +469,16 @@ function createStyles(
   },
   appearanceChip: {
     minWidth: 94,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
     borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.borderStrong,
     backgroundColor: colors.surfaceSoft
   },
   appearanceChipActive: {
-    borderColor: "#007eff",
-    backgroundColor: colors.infoSoft
+    borderColor: "#7d63ff",
+    backgroundColor: "rgba(91, 56, 245, 0.18)"
   },
   appearanceChipText: {
     color: colors.textSoft,
@@ -481,7 +487,7 @@ function createStyles(
     fontSize: type.font(14)
   },
   appearanceChipTextActive: {
-    color: colors.info
+    color: "#cfc3ff"
   },
   multilineInput: {
     minHeight: 92,
