@@ -218,11 +218,16 @@ function createStyles(
       position: "relative",
       overflow: "hidden",
       borderRadius: 32,
-      padding: 24,
+      padding: 26,
       gap: 12,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.headerBackground,
       borderWidth: 1,
-      borderColor: colors.border
+      borderColor: colors.border,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.14,
+      shadowRadius: 22,
+      shadowOffset: { width: 0, height: 12 },
+      elevation: 4
     },
     heroHaloA: {
       position: "absolute",
@@ -269,7 +274,8 @@ function createStyles(
     },
     revealCard: {
       gap: 10,
-      borderRadius: 28
+      borderRadius: 28,
+      backgroundColor: colors.surfaceRaised
     },
     revealEyebrow: {
       color: colors.warn,
@@ -289,7 +295,8 @@ function createStyles(
       lineHeight: type.line(21)
     },
     summaryCard: {
-      gap: 12
+      gap: 12,
+      backgroundColor: colors.surfaceRaised
     },
     sectionTitle: {
       color: colors.text,
@@ -310,7 +317,12 @@ function createStyles(
       lineHeight: type.line(19)
     },
     group: {
-      gap: 10
+      gap: 12,
+      backgroundColor: colors.surfaceRaised,
+      borderRadius: 28,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 18
     },
     groupHeader: {
       flexDirection: "row",

@@ -88,32 +88,32 @@ export function SectionTitle({ children }: SectionTitleProps) {
 const styles = StyleSheet.create({
   card: {
     borderWidth: 1,
-    borderRadius: radius.xl,
-    padding: 18,
-    gap: 10,
-    shadowOpacity: 0.18,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
+    borderRadius: 28,
+    padding: 20,
+    gap: 12,
+    shadowOpacity: 0.16,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 14 },
     elevation: 4
   },
   chip: {
     borderRadius: radius.pill,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     fontWeight: "700",
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
     overflow: "hidden"
   },
   button: {
-    borderRadius: 16,
-    minHeight: 50,
-    paddingVertical: 13,
-    paddingHorizontal: 16,
+    borderRadius: 18,
+    minHeight: 54,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
     alignItems: "center",
     justifyContent: "center",
     shadowOpacity: 0.2,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
     elevation: 3
   },
   buttonDisabled: {
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: "800",
-    letterSpacing: 0.2
+    letterSpacing: 0.3
   },
   sectionTitle: {
     fontWeight: "800",

@@ -27,6 +27,7 @@ type Props = {
 export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, fullAppUnlocked, onRefreshEntitlements, onDeleteProfile }: Props) {
   const colors = useThemeColors();
   const type = useTypeScale();
+  const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [tab, setTab] = React.useState<"Home" | "Hunt" | "Profile" | "Companion">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
 
@@ -87,16 +88,25 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
     );
   }
 
-  const tabs: Array<{ key: "Home" | "Hunt" | "Profile"; label: string }> = [
-    { key: "Home", label: "Home" },
-    { key: "Hunt", label: "Scavenger Hunt" },
-    { key: "Profile", label: "Profile" }
+  const tabs: Array<{ key: "Home" | "Hunt" | "Profile"; label: string; glyph: string }> = [
+    { key: "Home", label: "Home", glyph: "⌂" },
+    { key: "Hunt", label: "Hunt", glyph: "◈" },
+    { key: "Profile", label: "Settings", glyph: "⚙" }
   ];
 
   const revealToken = huntSnapshot.latestRevealId ? getScavengerTokenById(huntSnapshot.latestRevealId) : null;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
+      <View style={[styles.topChrome, { backgroundColor: colors.headerBackground, borderColor: colors.headerBorder }]}>
+        <View>
+          <Text style={[styles.chromeEyebrow, { color: colors.textMuted }]}>Founders Threads</Text>
+          <Text style={[styles.chromeTitle, { color: colors.text }]}>Philly AR Tours</Text>
+        </View>
+        <View style={[styles.chromePill, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
+          <Text style={[styles.chromePillText, { color: colors.textSoft }]}>Meta glasses mode off</Text>
+        </View>
+      </View>
       <View style={styles.content}>{renderTab()}</View>
       {revealToken ? (
         <Pressable style={[styles.revealShell, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadow }]} onPress={() => void dismissScavengerReveal()}>
@@ -108,18 +118,33 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
         </Pressable>
       ) : null}
       <View style={[styles.tabShell, { backgroundColor: colors.background }]}>
-        <View style={[styles.tabBar, { backgroundColor: colors.navBackground, borderColor: colors.navBorder }]}>
+        <View style={[styles.tabBar, { backgroundColor: colors.navBackground, borderColor: colors.navBorder, shadowColor: colors.shadow }]}>
           {tabs.map((item) => (
-            <Pressable key={item.key} onPress={() => setTab(item.key)} style={styles.tabItem}>
+            <Pressable
+              key={item.key}
+              onPress={() => setTab(item.key)}
+              style={[
+                styles.tabItem,
+                tab === item.key && styles.tabItemActive,
+                { backgroundColor: tab === item.key ? "#5b38f5" : "transparent" }
+              ]}
+            >
+              <Text
+                style={[
+                  styles.tabGlyph,
+                  { color: tab === item.key ? "#fff8f3" : colors.navText, fontSize: type.font(18) }
+                ]}
+              >
+                {item.glyph}
+              </Text>
               <Text
                 style={[
                   styles.tabText,
-                  { color: tab === item.key ? colors.navTextActive : colors.navText, fontSize: type.font(12) }
+                  { color: tab === item.key ? "#fff8f3" : colors.navText, fontSize: type.font(11) }
                 ]}
               >
                 {item.label}
               </Text>
-              {tab === item.key ? <View style={styles.activePill} /> : null}
             </Pressable>
           ))}
         </View>
@@ -128,71 +153,120 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1
-  },
-  content: {
-    flex: 1
-  },
-  tabShell: {
-    paddingHorizontal: 14,
-    paddingBottom: 14,
-    paddingTop: 8
-  },
-  revealShell: {
-    position: "absolute",
-    right: 16,
-    left: 16,
-    bottom: 104,
-    zIndex: 20,
-    borderWidth: 1,
-    borderRadius: 24,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    shadowOpacity: 0.2,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 6
-  },
-  revealEyebrow: {
-    fontSize: 11,
-    fontWeight: "800",
-    textTransform: "uppercase",
-    letterSpacing: 1
-  },
-  revealTitle: {
-    marginTop: 6,
-    fontSize: 17,
-    fontWeight: "800"
-  },
-  revealCopy: {
-    marginTop: 6,
-    fontSize: 13,
-    lineHeight: 18
-  },
-  tabBar: {
-    borderWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderRadius: 28
-  },
-  tabItem: {
-    alignItems: "center",
-    gap: 6,
-    minWidth: 58,
-    flex: 1
-  },
-  tabText: {
-    fontSize: 12,
-    fontWeight: "700"
-  },
-  activePill: {
-    width: 22,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "#007eff"
-  }
-});
+function createStyles(
+  colors: ReturnType<typeof useThemeColors>,
+  type: ReturnType<typeof useTypeScale>
+) {
+  return StyleSheet.create({
+    root: {
+      flex: 1
+    },
+    topChrome: {
+      paddingTop: 18,
+      paddingHorizontal: 20,
+      paddingBottom: 16,
+      borderBottomWidth: 1,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      gap: 12
+    },
+    chromeEyebrow: {
+      fontSize: type.font(12),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1.8
+    },
+    chromeTitle: {
+      marginTop: 4,
+      fontSize: type.font(20),
+      lineHeight: type.line(24),
+      fontWeight: "800"
+    },
+    chromePill: {
+      borderWidth: 1,
+      borderRadius: 999,
+      paddingHorizontal: 16,
+      paddingVertical: 12
+    },
+    chromePillText: {
+      fontSize: type.font(12),
+      fontWeight: "700"
+    },
+    content: {
+      flex: 1
+    },
+    tabShell: {
+      paddingHorizontal: 14,
+      paddingBottom: 14,
+      paddingTop: 8
+    },
+    revealShell: {
+      position: "absolute",
+      right: 16,
+      left: 16,
+      bottom: 104,
+      zIndex: 20,
+      borderWidth: 1,
+      borderRadius: 24,
+      paddingHorizontal: 18,
+      paddingVertical: 16,
+      shadowOpacity: 0.2,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 6
+    },
+    revealEyebrow: {
+      fontSize: type.font(11),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1.1
+    },
+    revealTitle: {
+      marginTop: 6,
+      fontSize: type.font(17),
+      fontWeight: "800"
+    },
+    revealCopy: {
+      marginTop: 6,
+      fontSize: type.font(13),
+      lineHeight: type.line(18)
+    },
+    tabBar: {
+      borderWidth: 1,
+      flexDirection: "row",
+      justifyContent: "space-around",
+      alignItems: "center",
+      padding: 8,
+      borderRadius: 30,
+      shadowOpacity: 0.14,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 8
+    },
+    tabItem: {
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 4,
+      minWidth: 58,
+      flex: 1,
+      borderRadius: 22,
+      paddingVertical: 10,
+      paddingHorizontal: 8
+    },
+    tabItemActive: {
+      shadowColor: "#5b38f5",
+      shadowOpacity: 0.24,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 4
+    },
+    tabGlyph: {
+      fontWeight: "800"
+    },
+    tabText: {
+      fontWeight: "800",
+      letterSpacing: 0.2
+    }
+  });
+}

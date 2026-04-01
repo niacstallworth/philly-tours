@@ -76,33 +76,33 @@ type AppThemeContextValue = {
 const APP_THEME_STORAGE_KEY = "app.theme.settings";
 const DEFAULT_SURFACE: ThemeSurface = "default";
 const LOGIN_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#007eff",
-  foreground: "#f5fbff",
-  shadow: "#007eff"
+  background: "#5b38f5",
+  foreground: "#fff8f3",
+  shadow: "#5b38f5"
 };
 
 const HOME_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#007eff",
-  foreground: "#f5fbff",
-  shadow: "#007eff"
+  background: "#5b38f5",
+  foreground: "#fff8f3",
+  shadow: "#5b38f5"
 };
 
 const MAP_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#a835f2",
-  foreground: "#fdf7ff",
-  shadow: "#a835f2"
+  background: "#6a49ff",
+  foreground: "#fff8f3",
+  shadow: "#6a49ff"
 };
 
 const HUNT_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#111827",
-  foreground: "#f8fafc",
-  shadow: "#111827"
+  background: "#23134a",
+  foreground: "#fff8f3",
+  shadow: "#23134a"
 };
 
 const PROFILE_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#ffbf00",
-  foreground: "#2a1d00",
-  shadow: "#ffbf00"
+  background: "#5b38f5",
+  foreground: "#fff8f3",
+  shadow: "#5b38f5"
 };
 
 const THEME_SURFACES: ThemeSurface[] = ["default", "login", "home", "map", "hunt", "profile", "builder"];

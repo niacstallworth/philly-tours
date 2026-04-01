@@ -33,6 +33,15 @@ function formatMilesFromMeters(distanceInMeters: number) {
   return `${miles < 0.1 ? miles.toFixed(2) : miles.toFixed(1)} mi`;
 }
 
+function getStopSummary(description: string) {
+  return description.split("|")[0]?.trim() || description;
+}
+
+function getStopAddress(description: string) {
+  const match = description.match(/Location:\s*([^|]+)/i);
+  return match?.[1]?.trim() || "Philadelphia, PA";
+}
+
 export function HomeScreen({
   displayName = "Founder",
   initialSelectedTourId,
@@ -171,10 +180,12 @@ export function HomeScreen({
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
+        <View style={styles.heroGlowPrimary} />
+        <View style={styles.heroGlowSecondary} />
         <Text style={styles.heroEyebrow}>Philly tours by founders</Text>
-        <Text style={styles.heroTitle}>Historic city walks with elegant guided storytelling.</Text>
+        <Text style={styles.heroTitle}>Historic city walks with cinematic guided storytelling.</Text>
         <Text style={styles.heroCopy}>
-          Start with one tour pack and move through Philadelphia one clear stop at a time.
+          The route brain is already here. This screen should feel like the invitation to step into Philadelphia, not just a checklist of stops.
         </Text>
         <View style={styles.heroChips}>
           <Chip label={`${tours.length} tour packs`} tone="default" />
@@ -185,9 +196,10 @@ export function HomeScreen({
       </View>
 
       <Card style={styles.welcomeCard}>
+        <Text style={styles.welcomeEyebrow}>Tonight in Philly</Text>
         <Text style={styles.welcomeTitle}>Good evening, {displayName}</Text>
         <Text style={styles.welcomeCopy}>
-          Choose a tour tab below to open that pack, preview the first two stops for free, and continue through the route one stop at a time.
+          Move between route collections, preview the first two stops for free, and keep the same premium rhythm the web companion now carries.
         </Text>
         <View style={styles.heroChips}>
           <PrimaryButton label={fullAudioOnly ? "Showing Full Audio" : "Showing All Stops"} onPress={() => setFullAudioOnly((value) => !value)} />
@@ -202,11 +214,24 @@ export function HomeScreen({
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.packTabs}>
         {tours.map((tour) => {
           const isActive = tour.id === selectedTourId;
+          const firstStop = tour.stops[0];
           return (
             <Pressable key={tour.id} onPress={() => setSelectedTourId(tour.id)} style={[styles.packTab, isActive && styles.packTabActive]}>
+              <Text style={styles.packTabEyebrow}>{tour.stops.length} stops</Text>
               <Text style={[styles.packTabTitle, isActive && styles.packTabTitleActive]} numberOfLines={2}>
                 {tour.title}
               </Text>
+              <Text style={[styles.packTabMeta, isActive && styles.packTabMetaActive]} numberOfLines={2}>
+                {firstStop ? getStopAddress(firstStop.description) : "Philadelphia, PA"}
+              </Text>
+              <View style={styles.packTabFooter}>
+                <Text style={[styles.packTabFooterText, isActive && styles.packTabFooterTextActive]}>
+                  {tour.durationMin} min
+                </Text>
+                <Text style={[styles.packTabFooterText, isActive && styles.packTabFooterTextActive]}>
+                  {tour.distanceMiles} mi
+                </Text>
+              </View>
             </Pressable>
           );
         })}
@@ -235,7 +260,8 @@ export function HomeScreen({
             {highlightedStopIndex >= 0 ? `Stop ${highlightedStopIndex + 1} of ${visibleStops.length}` : "Tour stop"}
           </Text>
           <Text style={styles.handoffTitle}>{highlightedStop.title}</Text>
-          <Text style={styles.handoffCopy}>{highlightedStop.description.split("|")[0]?.trim() || "Open the stop and start the narration when you're ready."}</Text>
+          <Text style={styles.handoffAddress}>{getStopAddress(highlightedStop.description)}</Text>
+          <Text style={styles.handoffCopy}>{getStopSummary(highlightedStop.description) || "Open the stop and start the narration when you're ready."}</Text>
           <View style={styles.heroChips}>
             <Chip label={selectedTour.title} tone="default" />
             {!highlightedStopLocked && highlightedStopIndex < previewLimit && !hasPaidAudioAccess ? <Chip label="Free preview" tone="success" /> : null}
@@ -298,11 +324,12 @@ export function HomeScreen({
               <View style={styles.routeIndex}><Text style={styles.routeIndexText}>{index + 1}</Text></View>
               <View style={styles.routeContent}>
                 <Text style={styles.routeTitle}>{stop.title}</Text>
+                <Text style={styles.routeAddress}>{getStopAddress(stop.description)}</Text>
                 <View style={styles.routeChips}>
                   <Chip label={index < previewLimit || hasPaidAudioAccess ? "Open now" : "Purchase required"} tone={index < previewLimit || hasPaidAudioAccess ? "success" : "warn"} />
                   <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
                 </View>
-                <Text style={styles.routeMeta} numberOfLines={2}>{stop.description}</Text>
+                <Text style={styles.routeMeta} numberOfLines={3}>{getStopSummary(stop.description)}</Text>
                 {audioHistoryOnlyUnlocked ? (
                   <PrimaryButton
                     label={narration.stopId === stop.id && narration.status === "playing" ? "Replay Stop History" : "Hear Stop History"}
@@ -333,12 +360,32 @@ function createStyles(
       backgroundColor: colors.background
     },
     heroPanel: {
+      position: "relative",
+      overflow: "hidden",
       borderRadius: 30,
-      padding: 22,
+      padding: 24,
       gap: 12,
-      backgroundColor: colors.backgroundElevated,
+      backgroundColor: colors.headerBackground,
       borderWidth: 1,
       borderColor: colors.border
+    },
+    heroGlowPrimary: {
+      position: "absolute",
+      width: 240,
+      height: 240,
+      borderRadius: 999,
+      backgroundColor: "rgba(91, 56, 245, 0.28)",
+      top: -96,
+      right: -72
+    },
+    heroGlowSecondary: {
+      position: "absolute",
+      width: 220,
+      height: 220,
+      borderRadius: 999,
+      backgroundColor: "rgba(255, 188, 138, 0.16)",
+      bottom: -120,
+      left: -84
     },
     heroEyebrow: {
       color: colors.warn,
@@ -364,7 +411,15 @@ function createStyles(
       gap: 8
     },
     welcomeCard: {
-      gap: 6
+      gap: 8,
+      backgroundColor: colors.surfaceRaised
+    },
+    welcomeEyebrow: {
+      color: colors.textMuted,
+      fontSize: type.font(11),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1.4
     },
     welcomeTitle: {
       color: colors.text,
@@ -389,6 +444,11 @@ function createStyles(
       fontSize: type.font(26),
       lineHeight: type.line(31),
       fontWeight: "800"
+    },
+    handoffAddress: {
+      color: colors.warn,
+      fontSize: type.font(13),
+      fontWeight: "700"
     },
     handoffStep: {
       color: colors.textMuted,
@@ -428,18 +488,30 @@ function createStyles(
     },
     packTab: {
       width: 196,
-      minHeight: 86,
-      borderRadius: 22,
+      minHeight: 158,
+      borderRadius: 26,
       paddingHorizontal: 16,
-      paddingVertical: 14,
-      justifyContent: "center",
+      paddingVertical: 16,
+      justifyContent: "space-between",
       backgroundColor: colors.surface,
       borderWidth: 1,
-      borderColor: colors.border
+      borderColor: colors.border,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.14,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 3
     },
     packTabActive: {
-      borderColor: "#007eff",
-      backgroundColor: colors.infoSoft
+      borderColor: "#7d63ff",
+      backgroundColor: colors.surfaceRaised
+    },
+    packTabEyebrow: {
+      color: colors.textMuted,
+      fontSize: type.font(11),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1.1
     },
     packTabTitle: {
       color: colors.text,
@@ -450,8 +522,30 @@ function createStyles(
     packTabTitleActive: {
       color: colors.info
     },
+    packTabMeta: {
+      color: colors.textSoft,
+      fontSize: type.font(13),
+      lineHeight: type.line(18)
+    },
+    packTabMetaActive: {
+      color: colors.text
+    },
+    packTabFooter: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingTop: 8
+    },
+    packTabFooterText: {
+      color: colors.textMuted,
+      fontSize: type.font(12),
+      fontWeight: "700"
+    },
+    packTabFooterTextActive: {
+      color: colors.warn
+    },
     packDetailCard: {
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceRaised,
       borderColor: colors.infoSoft,
       gap: 12
     },
@@ -491,12 +585,15 @@ function createStyles(
     routeRow: {
       flexDirection: "row",
       gap: 14,
-      alignItems: "flex-start"
+      alignItems: "flex-start",
+      paddingVertical: 6
     },
     routeRowActive: {
       padding: 12,
       borderRadius: 18,
-      backgroundColor: colors.surfaceSoft
+      backgroundColor: colors.surfaceSoft,
+      borderWidth: 1,
+      borderColor: colors.border
     },
     routeIndex: {
       width: 30,
@@ -518,6 +615,11 @@ function createStyles(
     routeTitle: {
       color: colors.text,
       fontSize: type.font(16),
+      fontWeight: "700"
+    },
+    routeAddress: {
+      color: colors.warn,
+      fontSize: type.font(12),
       fontWeight: "700"
     },
     routeChips: {
