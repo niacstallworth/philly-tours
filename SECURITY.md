@@ -8,7 +8,7 @@ The current actively maintained branch and the production deployment behind `api
 
 If you find a vulnerability, report it privately to:
 
-- `info@founders.org`
+- `info@foundersthreads.org`
 
 Please include:
 
