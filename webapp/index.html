@@ -27,7 +27,7 @@
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
-    <link rel="stylesheet" href="./styles.css?v=20260401c" />
+    <link rel="stylesheet" href="./styles.css?v=20260401d" />
   </head>
   <body>
     <div class="page-shell">
@@ -67,10 +67,32 @@
       </nav>
     </div>
 
-    <script src="./tours-data.js?v=20260401c"></script>
-    <script src="./narration-data.js?v=20260401c"></script>
-    <script src="./ar-data.js?v=20260401c"></script>
-    <script src="./site-config.js?v=20260401c"></script>
+    <script>
+      (function () {
+        var path = String(window.location.pathname || "").replace(/\/+$/, "");
+        if (path !== "/auth/provider") {
+          return;
+        }
+
+        var target = new URL("phillyartours://auth/provider");
+        var current = new URL(window.location.href);
+
+        current.searchParams.forEach(function (value, key) {
+          target.searchParams.set(key, value);
+        });
+
+        var nextUrl = target.toString();
+        if (current.hash) {
+          nextUrl += current.hash;
+        }
+
+        window.location.replace(nextUrl);
+      })();
+    </script>
+    <script src="./tours-data.js?v=20260401d"></script>
+    <script src="./narration-data.js?v=20260401d"></script>
+    <script src="./ar-data.js?v=20260401d"></script>
+    <script src="./site-config.js?v=20260401d"></script>
     <script
       src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
       async
@@ -81,6 +103,6 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="./app.js?v=20260401c"></script>
+    <script src="./app.js?v=20260401d"></script>
   </body>
 </html>

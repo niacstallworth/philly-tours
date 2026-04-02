@@ -12,6 +12,8 @@ export type AuthenticatedSession = {
 
 let authToken: string | null = null;
 
+export type OAuthProvider = "google" | "apple";
+
 function getServerUrl() {
   const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
   return base.replace(/\/+$/, "");
@@ -72,6 +74,47 @@ export async function createAuthenticatedSession(payload: {
   };
   if (!response.ok || !data.token || !data.session) {
     throw new Error(data.error || "Unable to sign in.");
+  }
+
+  return {
+    ...data.session,
+    roles: data.session.roles || [],
+    authToken: data.token,
+    authExpiresAt: data.expiresAt ?? null
+  };
+}
+
+export async function createOAuthAuthenticatedSession(payload: {
+  accessToken: string;
+  provider?: OAuthProvider;
+}): Promise<AuthenticatedSession> {
+  let response: Response;
+  try {
+    response = await fetch(`${getServerUrl()}/api/auth/oauth-session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    throw toApiError(error, "Unable to complete provider sign-in.");
+  }
+
+  const data = (await response.json().catch(() => ({}))) as {
+    error?: string;
+    token?: string;
+    expiresAt?: number | null;
+    session?: {
+      displayName: string;
+      email: string;
+      mode: AppMode;
+      userId: string;
+      roles?: string[];
+    };
+  };
+  if (!response.ok || !data.token || !data.session) {
+    throw new Error(data.error || "Unable to complete provider sign-in.");
   }
 
   return {

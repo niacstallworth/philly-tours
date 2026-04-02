@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, Platform, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
-import { createAuthenticatedSession, setAuthToken, validateAuthenticatedSession } from "./src/services/auth";
+import { AuthenticatedSession, createAuthenticatedSession, setAuthToken, validateAuthenticatedSession } from "./src/services/auth";
 import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
 import { subscribeToHandoffTarget } from "./src/services/handoffBus";
@@ -31,6 +31,13 @@ export default function App() {
   const [handoffTarget, setHandoffTarget] = useState<HandoffTarget | null>(null);
   const [audioHistoryOnlyUnlocked, setAudioHistoryOnlyUnlocked] = useState(false);
   const [fullAppUnlocked, setFullAppUnlocked] = useState(false);
+
+  function applySession(nextSession: AuthenticatedSession) {
+    setAuthToken(nextSession.authToken);
+    setApiUserId(nextSession.userId);
+    setSession(nextSession);
+    return saveSession(nextSession);
+  }
 
   async function refreshEntitlements() {
     if (!session) {
@@ -66,16 +73,18 @@ export default function App() {
         setApiUserId(stored.userId);
         setAuthToken(stored.authToken);
         if (!stored.authToken) {
+          if (Platform.OS !== "web") {
+            setAuthToken(null);
+            setApiUserId("demo-user");
+            return clearSession();
+          }
           return createAuthenticatedSession({
             displayName: stored.displayName,
             email: stored.email,
             mode: "tourist"
           })
             .then((nextSession) => {
-              setAuthToken(nextSession.authToken);
-              setApiUserId(nextSession.userId);
-              setSession(nextSession);
-              return saveSession(nextSession);
+              return applySession(nextSession);
             })
             .catch(() => {
               setAuthToken(null);
@@ -139,14 +148,15 @@ export default function App() {
   async function completeOnboarding(payload: OnboardingPayload) {
     try {
       const nextSession = await createAuthenticatedSession(payload);
-      setAuthToken(nextSession.authToken);
-      setApiUserId(nextSession.userId);
-      setSession(nextSession);
-      await saveSession(nextSession);
+      await applySession(nextSession);
       return null;
     } catch (error) {
       return (error as Error).message || "Unable to sign in.";
     }
+  }
+
+  async function completeProviderOnboarding(nextSession: AuthenticatedSession) {
+    await applySession(nextSession);
   }
 
   function signOut() {
@@ -174,6 +184,7 @@ export default function App() {
         fullAppUnlocked={fullAppUnlocked}
         onRefreshEntitlements={refreshEntitlements}
         onComplete={completeOnboarding}
+        onProviderComplete={completeProviderOnboarding}
         onDeleteProfile={deleteProfile}
         onSignOut={signOut}
       />
@@ -200,11 +211,23 @@ type AppShellProps = {
   fullAppUnlocked: boolean;
   onRefreshEntitlements: () => Promise<void>;
   onComplete: (payload: OnboardingPayload) => Promise<string | null>;
+  onProviderComplete: (session: AuthenticatedSession) => Promise<void>;
   onDeleteProfile: () => void;
   onSignOut: () => void;
 };
 
-function AppShell({ booting, session, handoffTarget, audioHistoryOnlyUnlocked, fullAppUnlocked, onRefreshEntitlements, onComplete, onDeleteProfile, onSignOut }: AppShellProps) {
+function AppShell({
+  booting,
+  session,
+  handoffTarget,
+  audioHistoryOnlyUnlocked,
+  fullAppUnlocked,
+  onRefreshEntitlements,
+  onComplete,
+  onProviderComplete,
+  onDeleteProfile,
+  onSignOut
+}: AppShellProps) {
   const { colors, resolvedAppearanceMode } = useAppTheme();
   const type = useTypeScale();
 
@@ -231,7 +254,7 @@ function AppShell({ booting, session, handoffTarget, audioHistoryOnlyUnlocked, f
           )}
           {!session ? (
             <ThemeSurfaceProvider surface="login">
-              <OnboardingScreen onComplete={onComplete} />
+              <OnboardingScreen onComplete={onComplete} onProviderComplete={onProviderComplete} />
             </ThemeSurfaceProvider>
           ) : (
             <MainTabs
