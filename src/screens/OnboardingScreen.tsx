@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { CloudflareTurnstileChallenge } from "../components/auth/CloudflareTurnstileChallenge";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
@@ -27,13 +27,14 @@ export function OnboardingScreen({ onComplete }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const cloudflareSiteKey = process.env.EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY?.trim() || "";
+  const requiresTurnstile = Platform.OS === "web" && !!cloudflareSiteKey;
 
   const canContinue = useMemo(() => {
     const hasName = displayName.trim().length >= 2;
     const hasEmail = email.trim().includes("@") && email.trim().includes(".");
-    const passesChallenge = !cloudflareSiteKey || !!turnstileToken;
+    const passesChallenge = !requiresTurnstile || !!turnstileToken;
     return hasName && hasEmail && passesChallenge;
-  }, [cloudflareSiteKey, displayName, email, turnstileToken]);
+  }, [displayName, email, requiresTurnstile, turnstileToken]);
 
   async function submit() {
     if (!canContinue) {
@@ -96,11 +97,13 @@ export function OnboardingScreen({ onComplete }: Props) {
         <Text style={styles.modeHint}>
           This sign-in opens the public tour experience on this device.
         </Text>
-        {cloudflareSiteKey ? (
+        {requiresTurnstile ? (
           <CloudflareTurnstileChallenge siteKey={cloudflareSiteKey} onTokenChange={setTurnstileToken} />
         ) : (
           <Text style={styles.modeHint}>
-            Cloudflare Turnstile is not configured yet for this build, so secure challenge mode is currently bypassed.
+            {Platform.OS === "web"
+              ? "Cloudflare Turnstile is not configured yet for this build, so secure challenge mode is currently bypassed."
+              : "This native Android build uses the app session flow directly, so the Cloudflare browser challenge is skipped here."}
           </Text>
         )}
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -109,7 +112,9 @@ export function OnboardingScreen({ onComplete }: Props) {
       <Card style={styles.noteCard}>
         <Text style={styles.noteTitle}>What happens next</Text>
         <Text style={styles.noteCopy}>
-          You’ll complete a Cloudflare security check, then land in the main app shell with Home, Scavenger Hunt, and Profile ready. You can preview the first two stops in each tour for free, then unlock the rest if you want the full collection.
+          {requiresTurnstile
+            ? "You’ll complete a Cloudflare security check, then land in the main app shell with Home, Scavenger Hunt, and Profile ready. You can preview the first two stops in each tour for free, then unlock the rest if you want the full collection."
+            : "You’ll land in the main app shell with Home, Scavenger Hunt, and Profile ready. You can preview the first two stops in each tour for free, then unlock the rest if you want the full collection."}
         </Text>
       </Card>
 

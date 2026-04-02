@@ -56,6 +56,7 @@ function loadDotEnvFile(filePath) {
   }
 }
 
+loadDotEnvFile(path.join(repoRoot, "server.local.env"));
 loadDotEnvFile(path.join(repoRoot, ".env.server.local"));
 loadDotEnvFile(path.join(repoRoot, ".env.server"));
 loadDotEnvFile(path.join(repoRoot, ".env.local"));

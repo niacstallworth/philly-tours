@@ -182,10 +182,12 @@ export function DriveScreen({ initialTourId }: Props) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
+        <View style={styles.heroGlowPrimary} />
+        <View style={styles.heroGlowSecondary} />
         <Text style={styles.heroEyebrow}>Drive companion</Text>
         <Text style={styles.heroTitle}>Route first. Audio next. Handoff on arrival.</Text>
         <Text style={styles.heroCopy}>
-          This is the phone-side version of the future vehicle experience. It stays short, safe, and built around the next stop.
+          This is the phone-side version of the future vehicle experience. It should feel calm, premium, and glanceable while still keeping the route brain in full control.
         </Text>
       </View>
 
@@ -205,6 +207,9 @@ export function DriveScreen({ initialTourId }: Props) {
                 onPress={() => setSelectedTourId(tour.id)}
                 style={[styles.tourChip, isActive && styles.tourChipActive]}
               >
+                <Text style={[styles.tourChipEyebrow, isActive && styles.tourChipEyebrowActive]}>
+                  {tour.stopCount} stops
+                </Text>
                 <Text style={[styles.tourChipText, isActive && styles.tourChipTextActive]}>
                   {tour.title}{hasSession ? " • live" : ""}
                 </Text>
@@ -335,12 +340,37 @@ const styles = StyleSheet.create({
     backgroundColor: "#060312"
   },
   heroPanel: {
+    position: "relative",
+    overflow: "hidden",
     backgroundColor: "#130a25",
-    borderRadius: 30,
-    padding: 22,
-    gap: 10,
+    borderRadius: 32,
+    padding: 24,
+    gap: 12,
     borderWidth: 1,
-    borderColor: "rgba(255, 191, 173, 0.16)"
+    borderColor: "rgba(255, 191, 173, 0.16)",
+    shadowColor: "#000000",
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 14 },
+    elevation: 5
+  },
+  heroGlowPrimary: {
+    position: "absolute",
+    width: 220,
+    height: 220,
+    borderRadius: 999,
+    backgroundColor: "rgba(91, 56, 245, 0.24)",
+    top: -92,
+    right: -74
+  },
+  heroGlowSecondary: {
+    position: "absolute",
+    width: 180,
+    height: 180,
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 188, 138, 0.12)",
+    bottom: -90,
+    left: -58
   },
   heroEyebrow: {
     color: "#ff9ab2",
@@ -361,7 +391,7 @@ const styles = StyleSheet.create({
   },
   panel: {
     backgroundColor: "#120a22",
-    gap: 12
+    gap: 14
   },
   routeHeader: {
     flexDirection: "row",
@@ -372,12 +402,14 @@ const styles = StyleSheet.create({
   narrationCard: {
     marginTop: 8,
     backgroundColor: "#150d22",
-    borderColor: "rgba(255,255,255,0.06)"
+    borderColor: "rgba(255,255,255,0.06)",
+    borderRadius: 26
   },
   featureCard: {
     backgroundColor: "#2b1530",
     borderColor: "rgba(255, 176, 132, 0.2)",
-    gap: 12
+    gap: 12,
+    borderRadius: 30
   },
   featureEyebrow: {
     color: "#ffbc8a",
@@ -410,20 +442,31 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.08)",
     borderWidth: 1,
     paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 999,
-    overflow: "hidden"
+    paddingVertical: 12,
+    borderRadius: 20,
+    overflow: "hidden",
+    minWidth: 170
   },
   tourChipActive: {
-    backgroundColor: "#ff8ca8",
-    borderColor: "#ff8ca8"
+    backgroundColor: "rgba(91, 56, 245, 0.24)",
+    borderColor: "#7d63ff"
+  },
+  tourChipEyebrow: {
+    color: "#9d8aa8",
+    fontSize: 11,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1
+  },
+  tourChipEyebrowActive: {
+    color: "#cfc3ff"
   },
   tourChipText: {
     color: "#cab6d2",
     fontWeight: "700"
   },
   tourChipTextActive: {
-    color: "#2b1021"
+    color: "#fff4ed"
   },
   tourChipMeta: {
     color: "#9d8aa8",
@@ -431,7 +474,7 @@ const styles = StyleSheet.create({
     fontWeight: "600"
   },
   tourChipMetaActive: {
-    color: "#472034"
+    color: "#d8c7df"
   },
   chips: {
     flexDirection: "row",
@@ -460,10 +503,13 @@ const styles = StyleSheet.create({
     gap: 10
   },
   stopRow: {
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start",
-    paddingVertical: 6
+      flexDirection: "row",
+      gap: 12,
+      alignItems: "flex-start",
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 22,
+      backgroundColor: "rgba(255,255,255,0.02)"
   },
   stopIndexWrap: {
     width: 28,

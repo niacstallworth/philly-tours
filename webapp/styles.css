@@ -1774,6 +1774,15 @@ body {
   flex: 1 1 220px;
 }
 
+.auth-provider-row--waiver {
+  margin-top: -2px;
+  margin-bottom: 4px;
+}
+
+.auth-waiver-box {
+  margin: 0;
+}
+
 .tabbar {
   left: 50%;
   bottom: 12px;
