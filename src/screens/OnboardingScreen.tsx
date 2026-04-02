@@ -220,7 +220,7 @@ export function OnboardingScreen({ onComplete, onProviderComplete }: Props) {
           <Text style={styles.kicker}>Private access</Text>
           <Text style={styles.title}>Continue with Google or Apple.</Text>
           <Text style={styles.subtitle}>
-            The Android app uses provider sign-in only. Your session returns to the app automatically after the secure provider check clears.
+            Sign in with your preferred provider to continue.
           </Text>
           <View style={styles.heroChips}>
             <Chip label="Google ready" tone="success" />
@@ -265,7 +265,7 @@ export function OnboardingScreen({ onComplete, onProviderComplete }: Props) {
       <View style={styles.heroPanel}>
         <Text style={styles.kicker}>Welcome</Text>
         <Text style={styles.title}>Set up your Founders Threads profile.</Text>
-        <Text style={styles.subtitle}>Keep this lightweight. Choose a name, add your email, and enter the touring experience with two free preview stops in every tour pack.</Text>
+        <Text style={styles.subtitle}>Choose a name, add your email, and continue into the app.</Text>
         <View style={styles.heroChips}>
           <Chip label="Elegant city tours" tone="default" />
           <Chip label="Story-first stops" tone="success" />
@@ -276,7 +276,7 @@ export function OnboardingScreen({ onComplete, onProviderComplete }: Props) {
         <Text style={styles.label}>Experience</Text>
         <View style={styles.heroChips}>
           <Chip label="Tourist" tone="success" />
-          <Chip label="Public experience" tone="default" />
+          <Chip label="Tour access" tone="default" />
         </View>
 
         <Text style={styles.label}>Display name</Text>
@@ -301,7 +301,7 @@ export function OnboardingScreen({ onComplete, onProviderComplete }: Props) {
         />
 
         <Text style={styles.modeHint}>
-          This sign-in opens the public tour experience on this device.
+          This sign-in opens the app on this device.
         </Text>
         {requiresTurnstile ? (
           <CloudflareTurnstileChallenge siteKey={cloudflareSiteKey} onTokenChange={setTurnstileToken} />
@@ -317,8 +317,8 @@ export function OnboardingScreen({ onComplete, onProviderComplete }: Props) {
         <Text style={styles.noteTitle}>What happens next</Text>
         <Text style={styles.noteCopy}>
           {requiresTurnstile
-            ? "You’ll complete a Cloudflare security check, then land in the main app shell with Home, Scavenger Hunt, and Profile ready. You can preview the first two stops in each tour for free, then unlock the rest if you want the full collection."
-            : "You’ll land in the main app shell with Home, Scavenger Hunt, and Profile ready. You can preview the first two stops in each tour for free, then unlock the rest if you want the full collection."}
+            ? "Complete the security check, then continue into the app."
+            : "Continue into the app."}
         </Text>
       </Card>
 

@@ -185,7 +185,7 @@ export function HomeScreen({
         <Text style={styles.heroEyebrow}>Philly tours by founders</Text>
         <Text style={styles.heroTitle}>Historic city walks with cinematic guided storytelling.</Text>
         <Text style={styles.heroCopy}>
-          The route brain is already here. This screen should feel like the invitation to step into Philadelphia, not just a checklist of stops.
+          Explore city routes, preview featured stops, and step into guided Philadelphia stories.
         </Text>
         <View style={styles.heroChips}>
           <Chip label={`${tours.length} tour packs`} tone="default" />
@@ -199,7 +199,7 @@ export function HomeScreen({
         <Text style={styles.welcomeEyebrow}>Tonight in Philly</Text>
         <Text style={styles.welcomeTitle}>Good evening, {displayName}</Text>
         <Text style={styles.welcomeCopy}>
-          Move between route collections, preview the first two stops for free, and keep the same premium rhythm the web companion now carries.
+          Browse the tour collection, open a stop, and continue at your own pace.
         </Text>
         <View style={styles.heroChips}>
           <PrimaryButton label={fullAudioOnly ? "Showing Full Audio" : "Showing All Stops"} onPress={() => setFullAudioOnly((value) => !value)} />

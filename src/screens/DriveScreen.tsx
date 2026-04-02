@@ -187,7 +187,7 @@ export function DriveScreen({ initialTourId }: Props) {
         <Text style={styles.heroEyebrow}>Drive companion</Text>
         <Text style={styles.heroTitle}>Route first. Audio next. Handoff on arrival.</Text>
         <Text style={styles.heroCopy}>
-          This is the phone-side version of the future vehicle experience. It should feel calm, premium, and glanceable while still keeping the route brain in full control.
+          Keep the route visible, follow the stop order, and hand off on arrival.
         </Text>
       </View>
 
