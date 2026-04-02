@@ -102,7 +102,7 @@ export function CompanionSetupScreen() {
         <Text style={styles.heroEyebrow}>AR companion</Text>
         <Text style={styles.title}>Meta glasses and phone handoff in one control surface.</Text>
         <Text style={styles.copy}>
-          This is the native layer where route memory, audio routing, and future hands-free AR meet. It should feel like an experience console, not a debug page.
+          Manage glasses connection, audio routing, and handoff controls from one place.
         </Text>
       </View>
 
@@ -141,7 +141,7 @@ export function CompanionSetupScreen() {
       <Card style={styles.card}>
         <Text style={styles.title}>Companion Command Test</Text>
         <Text style={styles.copy}>
-          Use these buttons as a phone-side proxy for the glasses command loop while pairing and narration routing are being refined.
+          Use these controls to test stop context, narration controls, and AR handoff.
         </Text>
         <View style={styles.chips}>
           <Chip label={context?.tour?.title || "No active tour"} tone="default" />
@@ -206,34 +206,34 @@ function getIntegrationChipLabel(status: WearableStatus) {
 
 function getCompanionIntroCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Android manual Meta glasses mode keeps narration and stop control usable today by relying on the phone as the tour brain and Bluetooth audio as the glasses output.";
+    return "Manual Meta glasses mode uses the phone for controls and Bluetooth for audio output.";
   }
 
   if (status.integrationMode === "native") {
-    return "This is the setup surface for the Meta wearables companion flow. The production target is hands-free narration, contextual stop requests, and phone AR handoff.";
+    return "Set up Meta glasses for narration, stop context, and AR handoff.";
   }
 
-  return "This build does not expose native Meta glasses control on this platform yet. Use the phone route and narration flows directly here.";
+  return "Meta glasses controls are not available on this platform yet.";
 }
 
 function getCompanionDetailCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Pair the glasses in Android Bluetooth settings first, then enable companion mode here so narration and phone-side command tests are framed as Meta glasses sessions.";
+    return "Pair the glasses in Android Bluetooth settings first, then enable companion mode here.";
   }
 
   if (status.integrationMode === "native") {
-    return "The current native DAT build exposes registration, device state, and camera permission. Microphone and glasses-audio routing still need a later integration pass.";
+    return "Registration, device state, and camera permission are available here.";
   }
 
-  return "The web and unsupported-device path is still useful for planning, narration preview, and handoff into the native phone app.";
+  return "Use the phone app for route planning, narration, and handoff.";
 }
 
 function getReconnectCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "A remembered Meta glasses audio session was found. Restore it to keep narration routed through your Android audio output.";
+    return "A remembered Meta glasses audio session was found. Restore it to keep narration on your current audio output.";
   }
 
-  return "A previously known Meta device was found. Reconnect to resume the companion flow.";
+  return "A previously known Meta device was found. Reconnect to resume companion access.";
 }
 
 function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>) {

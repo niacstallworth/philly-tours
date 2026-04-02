@@ -236,7 +236,7 @@ export function ProfileScreen({
           <Chip label={getProfileIntegrationLabel(companionStatus)} tone={companionStatus.integrationMode === "none" ? "danger" : "success"} />
         </View>
         <Text style={styles.meta}>
-          {companionStatus.statusMessage || companionStatus.lastError || "Use the companion setup screen to pair glasses and test commands."}
+          {companionStatus.statusMessage || companionStatus.lastError || "Open companion setup to manage glasses connection and status."}
         </Text>
         {canReconnectCompanion ? (
           <Text style={styles.meta}>{getProfileReconnectCopy(companionStatus)}</Text>
@@ -267,7 +267,7 @@ export function ProfileScreen({
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Membership</Text>
         <Text style={styles.copy}>
-          Unlock premium tours, full audio history, and future upgrades with a simple pass instead of cluttering the app with store mechanics.
+          Unlock premium tours and full audio history with one membership.
         </Text>
         <View style={styles.chips}>
           <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
@@ -341,22 +341,22 @@ function getProfileIntegrationLabel(status: WearableStatus) {
 
 function getProfileCompanionCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Android can work with Meta glasses today in manual companion mode: pair them over Bluetooth, route narration through the phone, and use the phone for tour and AR handoff.";
+    return "Pair Meta glasses over Bluetooth to route narration and use phone-based tour controls.";
   }
 
   if (status.integrationMode === "native") {
-    return "Pair Meta glasses, confirm DAT registration, and check camera permission for the hands-free companion flow.";
+    return "Pair Meta glasses, confirm registration, and check camera access.";
   }
 
-  return "This platform does not expose native Meta glasses control in this build yet, but you can still use the phone-side tour and narration flow.";
+  return "Meta glasses controls are not available on this device yet.";
 }
 
 function getProfileReconnectCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "A remembered Meta glasses audio route is available. Restore it to keep narration pointed at the paired Bluetooth glasses.";
+    return "A remembered Meta glasses audio route is available. Restore it to keep narration on the paired Bluetooth glasses.";
   }
 
-  return "A remembered Meta device is available. Reconnect to restore the companion flow.";
+  return "A remembered Meta device is available. Reconnect to restore companion access.";
 }
 
 function getProfileReconnectLabel(status: WearableStatus) {
