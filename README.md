@@ -2,10 +2,17 @@
 
 Philly Tours is a premium Philadelphia cultural touring platform built for beautiful city driving, layered narration, and selective native AR handoff when a stop deserves more than audio alone.
 
+The platform now has two aligned faces:
+
+- a cinematic web companion at `https://api.philly-tours.com`
+- a native iOS / Android app whose shell, navigation, and route posture are being brought into the same visual language
+
 ## Current App Shape
 
 - Premium drive-first touring posture for Philadelphia neighborhoods, corridors, and legacy routes
 - Main shell: Home, Scavenger Hunt, and Profile
+- Cinematic mobile web shell with Google / Apple sign-in and production backend auth
+- Native Android shell now visually aligned with the webapp across tabs, route cards, hunt surfaces, drive mode, and companion setup
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Meta glasses companion scaffolding: `src/services/wearables.ts`, `src/services/companion.ts`, `src/screens/CompanionSetupScreen.tsx`
 - Hosted payments + entitlement sync: `src/services/payments.ts` and `server/sync-server.js`
@@ -95,6 +102,7 @@ Notes:
 - Device builds need local network access if they are expected to talk to Metro or the local sync server.
 - If the app shows `localhost:4000` in a release build, that build was created without the correct EAS public env baked in.
 - Web camera and geolocation features work on `http://localhost`, but public browser deployments should use `https`.
+- Android device builds should avoid root-level server secret files that Metro might try to parse.
 
 ## Environment
 
@@ -139,8 +147,10 @@ npm run stripe:listen
 
 Development builds can read `EXPO_PUBLIC_SYNC_SERVER_URL` from local `.env`.
 
-For local backend work, keep server-only secrets in `.env.server.local` or `.env.server`.
-The sync server loads those before `.env`, so client-safe `EXPO_PUBLIC_*` values can stay in `.env` without mixing in private server credentials.
+For local backend work, keep server-only secrets in `server.local.env` or `.env.server`.
+The sync server and webapp data builder load those before `.env`, so client-safe `EXPO_PUBLIC_*` values can stay in `.env` without mixing in private server credentials.
+
+Do not keep real backend secrets in root-level Expo-facing env filenames such as `.env.server.local` when running native Android builds. Metro can try to parse unexpected root files during bundling.
 
 EAS preview / release builds do not get your local `.env`, so required public values must be set in `eas.json` or in EAS environment configuration.
 
@@ -150,6 +160,30 @@ Cloudflare-secured production auth now expects:
 - `EXPO_PUBLIC_WEB_SYNC_SERVER_URL=https://api.philly-tours.com`
 - `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`
 - `CLOUDFLARE_TURNSTILE_SECRET_KEY`
+
+On native Android, the current onboarding flow bypasses the embedded Cloudflare browser challenge and uses the app session flow directly. The browser/web shell still keeps Cloudflare in front of provider sign-in.
+
+## Android Device Runs
+
+The repo already contains a native Android project at `android/`.
+
+Typical device run flow from this Mac:
+
+```bash
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+npx expo run:android
+```
+
+Useful checks:
+
+```bash
+adb devices -l
+./node_modules/.bin/tsc --noEmit
+```
+
+If the Android app should use production payments and auth, point `EXPO_PUBLIC_SYNC_SERVER_URL` at `https://api.philly-tours.com` and use the live publishable Stripe key in local `.env`.
 
 ## Meta Wearables DAT iOS Setup
 

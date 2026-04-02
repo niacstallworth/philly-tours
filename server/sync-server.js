@@ -40,6 +40,7 @@ function loadDotEnvFile(filePath) {
   }
 }
 
+loadDotEnvFile(path.join(__dirname, "..", "server.local.env"));
 loadDotEnvFile(path.join(__dirname, "..", ".env.server.local"));
 loadDotEnvFile(path.join(__dirname, "..", ".env.server"));
 loadDotEnvFile(path.join(__dirname, "..", ".env"));

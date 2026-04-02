@@ -309,6 +309,10 @@ const state = {
     status: "idle",
     message: ""
   },
+  checkout: {
+    status: "idle",
+    message: ""
+  },
   search: "",
   themeFilter: "all",
   completedStopIds: loadCompletedStops()
@@ -317,7 +321,6 @@ const state = {
 const app = document.getElementById("app");
 const tabs = [...document.querySelectorAll("#tabs button")];
 const tabBar = document.getElementById("tabs");
-const deployStatus = document.getElementById("deploy-status");
 const copyViewButton = document.getElementById("copy-view-button");
 const glassesModeButton = document.getElementById("glasses-mode-button");
 const topbarActions = document.querySelector(".topbar-actions");
@@ -383,7 +386,8 @@ function normalizeStop(stop) {
     description: cleanStopDescription(stop.description),
     dayLabel: metadata.dayLabel,
     timeLabel: metadata.timeLabel,
-    locationLabel: metadata.locationLabel
+    locationLabel: metadata.locationLabel,
+    fullAddress: metadata.fullAddress
   };
 }
 
@@ -418,25 +422,29 @@ function parseStopMetadata(description) {
     return {
       dayLabel: "",
       timeLabel: "",
-      locationLabel: ""
+      locationLabel: "",
+      fullAddress: ""
     };
   }
 
   const parts = description.split("|").map((part) => part.trim());
   const dayLabel = parts.find((part) => /^day:/i.test(part))?.replace(/^day:\s*/i, "").trim() ?? "";
   const timeLabel = parts.find((part) => /^time:/i.test(part))?.replace(/^time:\s*/i, "").trim() ?? "";
-  const locationLabel =
+  const fullAddress =
     parts
       .find((part) => /^location:/i.test(part))
       ?.replace(/^location:\s*/i, "")
+      .trim() ?? "";
+  const locationLabel = fullAddress
       .replace(/,\s*philadelphia,\s*pa$/i, "")
       .replace(/,\s*pa$/i, "")
-      .trim() ?? "";
+      .trim();
 
   return {
     dayLabel,
     timeLabel,
-    locationLabel
+    locationLabel,
+    fullAddress
   };
 }
 
@@ -569,23 +577,6 @@ function getModelReadinessLabel(meta) {
   return "story overlay";
 }
 
-function getDeploymentStatusLabel() {
-  const host = window.location.hostname;
-  if (PRODUCTION_HOSTS.has(host)) {
-    return `Live on ${host}`;
-  }
-
-  if (host === "localhost" || host === "127.0.0.1") {
-    return "Local field preview";
-  }
-
-  if (host.endsWith(".pages.dev")) {
-    return "Pages preview";
-  }
-
-  return "Web preview";
-}
-
 function getGlassesModeLabel() {
   return state.glassesMode ? "Meta glasses mode on" : "Meta glasses mode off";
 }
@@ -608,11 +599,6 @@ function buildPhoneAppHandoffLink(tourId, stopId) {
 
 function updateChrome() {
   const signedIn = !!state.auth.session;
-  if (deployStatus) {
-    deployStatus.textContent = signedIn ? getDeploymentStatusLabel() : "Sign in";
-    deployStatus.classList.toggle("is-live", PRODUCTION_HOSTS.has(window.location.hostname));
-  }
-
   if (glassesModeButton) {
     glassesModeButton.textContent = getGlassesModeLabel();
     glassesModeButton.classList.toggle("active", state.glassesMode);
@@ -955,6 +941,13 @@ async function startOAuthSignIn(provider) {
   if (!client) {
     state.auth.status = "error";
     state.auth.message = "Supabase Auth is not configured for Google or Apple sign-in.";
+    render(false);
+    return;
+  }
+
+  if (getCloudflareTurnstileSiteKey() && !state.auth.turnstileToken) {
+    state.auth.status = "error";
+    state.auth.message = "Complete the Cloudflare verification before continuing with Google or Apple.";
     render(false);
     return;
   }
@@ -1400,6 +1393,11 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "start-upgrade-checkout") {
+    startUpgradeCheckout();
+    return;
+  }
+
   if (action === "sign-out-webapp") {
     stopNarration();
     stopArLive();
@@ -1674,10 +1672,11 @@ function renderAuthScreen() {
   const hasSyncServer = !!getSyncServerUrl();
   const { supabaseUrl, supabaseAnonKey } = getSupabaseAuthConfig();
   const hasProviderAuth = !!supabaseUrl && !!supabaseAnonKey;
-  const canSubmit =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.auth.email.trim()) &&
-    (!hasSiteKey || !!state.auth.turnstileToken) &&
-    hasSyncServer;
+  const providerButtonsEnabled =
+    hasProviderAuth &&
+    hasSyncServer &&
+    state.auth.status !== "submitting" &&
+    (!hasSiteKey || !!state.auth.turnstileToken);
 
   return `
     <section class="auth-shell">
@@ -1685,47 +1684,22 @@ function renderAuthScreen() {
       <article class="panel auth-panel auth-panel--cinematic">
         <div class="auth-panel-hero">
           <p class="eyebrow">Founders Threads access</p>
-          <h2>Open the city like a living collection.</h2>
-          <p class="hero-text">
-            Routes, AR handoff, audio storytelling, and cross-device access all begin here. The logic is already live. This screen is here to make it feel worthy of the story.
-          </p>
-          <div class="auth-feature-stack">
-            <div class="auth-feature-card">
-              <strong>Guided tours</strong>
-              <span>Move through Philadelphia by theme, district, and legacy.</span>
-            </div>
-            <div class="auth-feature-card">
-              <strong>AR companion</strong>
-              <span>Shift from route planning into camera-first site discovery.</span>
-            </div>
-            <div class="auth-feature-card">
-              <strong>Cross-device access</strong>
-              <span>Start on web, hand off to phone, and keep your progress.</span>
-            </div>
-          </div>
+          <h2>Sign in to enter Philly AR Tours.</h2>
         </div>
-        <form class="auth-form auth-form--cinematic" data-form="webapp-auth">
+        <div class="auth-form auth-form--cinematic">
           <div class="auth-form-top">
             <span class="status-pill">Private access</span>
-            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Google + Apple ready" : "Email ready"}</span>
+            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Google + Apple ready" : "Provider setup needed"}</span>
           </div>
-          <label class="search-field">
-            <span>Name</span>
-            <input type="text" name="auth-display-name" placeholder="Name (optional)" value="${escapeHtml(state.auth.displayName)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
-          </label>
-          <label class="search-field">
-            <span>Email</span>
-            <input type="email" name="auth-email" placeholder="you@example.com" value="${escapeHtml(state.auth.email)}" autocomplete="email" ${state.auth.status === "submitting" ? "disabled" : ""} />
-          </label>
-          <label class="search-field">
-            <span>Password</span>
-            <input type="password" name="auth-password" placeholder="Optional builder password" autocomplete="current-password" value="${escapeHtml(state.auth.password)}" ${state.auth.status === "submitting" ? "disabled" : ""} />
-          </label>
-          <div class="auth-provider-row">
-            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
+          <div class="drawer-copy emphasis auth-waiver-box">
+            <strong>Waiver liability</strong>
+            <p>By entering or using Philly AR Tours, you acknowledge and agree that all tours, routes, AR features, maps, audio guidance, prompts, and device handoff tools are used at your own risk. Founders Threads, Philly AR Tours, and affiliated collaborators disclaim liability for injury, death, accident, property damage, theft, loss, data issues, or any other claim arising from use or misuse of the app, its content, or any related physical activity, travel, navigation, or device interaction.</p>
+          </div>
+          <div class="auth-provider-row auth-provider-row--waiver">
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${providerButtonsEnabled ? "" : "disabled"}>
               Continue with Google
             </button>
-            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="apple" ${hasProviderAuth && state.auth.status !== "submitting" ? "" : "disabled"}>
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="apple" ${providerButtonsEnabled ? "" : "disabled"}>
               Continue with Apple
             </button>
           </div>
@@ -1743,20 +1717,32 @@ function renderAuthScreen() {
           }
           ${
             hasProviderAuth
-              ? '<p class="subscription-status">Google and Apple sign-in return to this same screen and complete the session automatically.</p>'
+              ? ""
               : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable provider sign-in.</p>'
           }
           ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
           <div class="button-row auth-button-row">
-            <button type="submit" class="primary-button" ${canSubmit && state.auth.status !== "submitting" ? "" : "disabled"}>
-              ${state.auth.status === "submitting" ? "Opening your session..." : "Enter the web companion"}
-            </button>
             <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Need help?</a>
           </div>
-        </form>
+        </div>
       </article>
     </section>
   `;
+}
+
+function getCheckoutStatusMarkup() {
+  if (!state.checkout.message) {
+    return "";
+  }
+
+  const statusClass =
+    state.checkout.status === "success"
+      ? "subscription-status success"
+      : state.checkout.status === "error"
+        ? "subscription-status error"
+        : "subscription-status";
+
+  return `<p class="${statusClass}" role="status">${escapeHtml(state.checkout.message)}</p>`;
 }
 
 function mountWebTurnstile() {
@@ -1960,6 +1946,62 @@ async function subscribeProfileEmail() {
   }
 }
 
+async function startUpgradeCheckout() {
+  const syncServerUrl = getSyncServerUrl();
+  if (!syncServerUrl) {
+    state.checkout.status = "error";
+    state.checkout.message = "Checkout is not configured for this web build yet.";
+    render(false);
+    return;
+  }
+
+  if (!state.auth.authToken) {
+    state.checkout.status = "error";
+    state.checkout.message = "Sign in before opening checkout.";
+    render(false);
+    return;
+  }
+
+  state.checkout.status = "submitting";
+  state.checkout.message = "Opening secure checkout...";
+  render(false);
+
+  try {
+    const currentUrl = new URL(window.location.href);
+    const successUrl = `${currentUrl.origin}${currentUrl.pathname}#tab=profile&checkout=success`;
+    const cancelUrl = `${currentUrl.origin}${currentUrl.pathname}#tab=profile&checkout=cancelled`;
+    const response = await fetch(`${syncServerUrl}/api/payments/checkout-session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${state.auth.authToken}`
+      },
+      body: JSON.stringify({
+        amount: 999,
+        title: "Full audio experience + unlock all tours",
+        planId: "full-audio-unlock-all-tours",
+        successUrl,
+        cancelUrl,
+        idempotencyKey: `web-upgrade-${state.auth.session?.userId || "guest"}-${Date.now()}`
+      })
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.url) {
+      throw new Error(payload.error || "Unable to start checkout.");
+    }
+
+    state.checkout.status = "success";
+    state.checkout.message = "Redirecting to Stripe checkout...";
+    render(false);
+    window.location.assign(payload.url);
+  } catch (error) {
+    state.checkout.status = "error";
+    state.checkout.message = (error && error.message) || "Unable to start checkout.";
+    render(false);
+  }
+}
+
 function getChromeTabKey() {
   if (state.activeTab === "map") {
     return "map";
@@ -2031,12 +2073,8 @@ function getSceneConfig(selectedTour, globalStats) {
       return {
         eyebrow: "Settings",
         title: "Guest profile, live controls, and access settings",
-        body: "Keep the same portal for tourists and builders while shaping the device posture, communication preferences, and upgrade path around the person using it.",
-        metrics: [
-          { value: state.auth.session?.roles?.includes("admin") ? "admin" : state.auth.session?.roles?.includes("builder") ? "builder" : "tourist", label: "access level" },
-          { value: state.glassesMode ? "on" : "off", label: "glasses mode" },
-          { value: state.auth.session?.provider || "email", label: "sign-in method" }
-        ],
+        body: "",
+        metrics: [],
         floatingCard: `
           <article class="hero-floating-card hero-floating-card--compact">
             <strong>Connected email</strong>
@@ -2049,7 +2087,7 @@ function getSceneConfig(selectedTour, globalStats) {
       return {
         eyebrow: "Founders Threads",
         title: "Explore Philadelphia as a living collection.",
-        body: "Routes, AR handoff, story stops, and cultural curation now live inside one premium mobile web companion. The backend has the memory. The front end should feel like the invitation.",
+        body: "",
         metrics: [
           { value: tours.length, label: "guided routes" },
           { value: globalStats.totalStops, label: "story sites" },
@@ -2092,18 +2130,24 @@ function renderSceneHero(selectedTour, globalStats) {
             <span>AR</span>
           </div>
         </div>
-        <div class="hero-metrics hero-metrics--cinematic">
-          ${scene.metrics
-            .map(
-              (metric) => `
-                <article class="metric-card">
-                  <span>${metric.value}</span>
-                  <p>${metric.label}</p>
-                </article>
-              `
-            )
-            .join("")}
-        </div>
+        ${
+          scene.metrics.length
+            ? `
+              <div class="hero-metrics hero-metrics--cinematic">
+                ${scene.metrics
+                  .map(
+                    (metric) => `
+                      <article class="metric-card">
+                        <span>${metric.value}</span>
+                        <p>${metric.label}</p>
+                      </article>
+                    `
+                  )
+                  .join("")}
+              </div>
+            `
+            : ""
+        }
       </div>
       ${scene.floatingCard}
     </section>
@@ -2197,68 +2241,46 @@ function renderHomeTab(selectedTour) {
       <article class="panel panel--story" id="featured-tour">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Tonight’s route mood</p>
-            <h3>${selectedTour.title}</h3>
+            <p class="eyebrow">Waiver liability</p>
+            <h3>Entering this app means you agree to the disclaimer.</h3>
           </div>
-          <span class="status-pill is-live">${selectedTour.theme}</span>
+          <span class="status-pill is-live">Required</span>
         </div>
-        <p class="lede">${selectedTour.summary}</p>
+        <p class="lede">
+          Philly AR Tours, Founders Threads, and their collaborators are not responsible for injuries, accidents, property damage, navigation issues,
+          or other losses incurred while using any component of this app, including tours, AR features, maps, audio prompts, and device handoff tools.
+        </p>
         <div class="chip-row">
-          ${tags.map((tag) => `<span class="chip">${tag}</span>`).join("")}
+          <span class="chip">Use at your own risk</span>
+          <span class="chip">Stay aware of surroundings</span>
+          <span class="chip">Obey local laws</span>
         </div>
         <div class="quick-start-grid">
           <article class="quick-start-card">
             <span class="quick-start-step">1</span>
-            <strong>Select the collection</strong>
-            <p>${selectedTour.neighborhood}</p>
+            <strong>Know the terms</strong>
+            <p>Entering and using the app means you accept this waiver.</p>
           </article>
           <article class="quick-start-card">
             <span class="quick-start-step">2</span>
-            <strong>Begin with</strong>
-            <p>${featuredNextStop.title}</p>
+            <strong>Move safely</strong>
+            <p>Stay alert, stop if conditions feel unsafe, and never rely on the app over your surroundings.</p>
           </article>
           <article class="quick-start-card">
             <span class="quick-start-step">3</span>
-            <strong>Best posture</strong>
-            <p>${state.glassesMode ? "Bluetooth glasses narration" : "Phone-led route + handoff"}</p>
+            <strong>Use the tools wisely</strong>
+            <p>Maps, AR, narration, and phone or glasses handoff are companion tools, not safety systems.</p>
           </article>
         </div>
         <div class="stats-row">
-          <div><strong>${selectedTour.durationMin} min</strong><span>estimated route</span></div>
-          <div><strong>${selectedTour.distanceMiles} mi</strong><span>city distance</span></div>
-          <div><strong>${selectedTour.rating}</strong><span>community rating</span></div>
+          <div><strong>${featuredNextStop.title}</strong><span>current first stop</span></div>
+          <div><strong>${selectedTour.distanceMiles} mi</strong><span>selected route distance</span></div>
+          <div><strong>${state.glassesMode ? "on" : "off"}</strong><span>audio handoff posture</span></div>
         </div>
         <div class="button-row">
           <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Open route planner</button>
-          <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${selectedTour.id}">Read the route brief</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">Preview AR handoff</button>
-        </div>
-      </article>
-
-      <article class="panel panel--intro">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Behavior matters</p>
-            <h3>What the web companion should feel like</h3>
-          </div>
-        </div>
-        <div class="story-pulse-grid">
-          <div class="story-pulse-card">
-            <strong>Cinematic first impression</strong>
-            <p>Lead with atmosphere, not just logistics, so the city feels emotional before it feels navigational.</p>
-          </div>
-          <div class="story-pulse-card">
-            <strong>Native-app posture</strong>
-            <p>Tabs, hero modules, and short action loops should feel like a product someone wants to explore.</p>
-          </div>
-          <div class="story-pulse-card">
-            <strong>One shell, many modes</strong>
-            <p>Route planning, AR, progress, and settings should all share the same visual language.</p>
-          </div>
-        </div>
-        <div class="button-row">
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse collections</button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="progress">Open board</button>
+          <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Report a safety concern</a>
         </div>
       </article>
     </section>
@@ -2384,7 +2406,7 @@ function renderRouteTab(selectedTour, selectedStop) {
                   <article class="highlight-card">
                     <span class="highlight-index">0${index + 1}</span>
                     <strong>${stop.title}</strong>
-                    <p>${stop.locationLabel || "Philadelphia"}</p>
+                    <p>${stop.fullAddress || stop.locationLabel || "Philadelphia"}</p>
                   </article>
                 `
               )
@@ -2404,7 +2426,7 @@ function renderRouteTab(selectedTour, selectedStop) {
           <div class="stop-summary-grid">
             <div>
               <strong>Where to aim</strong>
-              <p>${selectedStop.locationLabel || "Use the highlighted marker and stop list."}</p>
+              <p>${selectedStop.fullAddress || selectedStop.locationLabel || "Use the highlighted marker and stop list."}</p>
             </div>
             <div>
               <strong>Visit posture</strong>
@@ -2417,7 +2439,7 @@ function renderRouteTab(selectedTour, selectedStop) {
           </div>
           <div class="stop-meta-row">
             <span class="chip">${selectedTour.theme}</span>
-            ${selectedStop.locationLabel ? `<span class="chip">${selectedStop.locationLabel}</span>` : ""}
+            ${selectedStop.fullAddress || selectedStop.locationLabel ? `<span class="chip">${selectedStop.fullAddress || selectedStop.locationLabel}</span>` : ""}
             <span class="chip">${selectedTour.stops.length} stops on route</span>
           </div>
           <div class="companion-panel">
@@ -2492,7 +2514,7 @@ function renderRouteTab(selectedTour, selectedStop) {
                 >
                   <div>
                     <strong>${index + 1}. ${stop.title}</strong>
-                    <p>${stop.locationLabel || truncateCopy(stop.description, 88)}</p>
+                    <p>${stop.fullAddress || stop.locationLabel || truncateCopy(stop.description, 88)}</p>
                   </div>
                   <span class="check-badge ${state.completedStopIds.includes(stop.id) ? "done" : ""}">
                     ${selectedStop.id === stop.id ? "Viewing" : state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
@@ -2554,7 +2576,7 @@ function renderDrawer() {
           </div>
           <div class="drawer-copy emphasis">
             <strong>Recommended next stop</strong>
-            <p>${nextStop.title}${nextStop.locationLabel ? ` · ${nextStop.locationLabel}` : ""}</p>
+            <p>${nextStop.title}${nextStop.fullAddress || nextStop.locationLabel ? ` · ${nextStop.fullAddress || nextStop.locationLabel}` : ""}</p>
           </div>
           <div class="button-row">
             <button type="button" class="primary-button" data-action="open-selected-tour">Open route planner</button>
@@ -2591,7 +2613,7 @@ function renderDrawer() {
           <div class="chip-row">
             ${stop.dayLabel ? `<span class="chip">${stop.dayLabel}</span>` : ""}
             ${stop.timeLabel ? `<span class="chip">${stop.timeLabel}</span>` : ""}
-            ${stop.locationLabel ? `<span class="chip">${stop.locationLabel}</span>` : ""}
+            ${stop.fullAddress || stop.locationLabel ? `<span class="chip">${stop.fullAddress || stop.locationLabel}</span>` : ""}
           </div>
           <div class="drawer-stats">
             <div><strong>${tour.title}</strong><span>Tour collection</span></div>
@@ -2639,7 +2661,7 @@ function renderDrawer() {
           </div>
           <div class="drawer-copy emphasis">
             <strong>Recommended next stop</strong>
-            <p>${nextStop.id === stop.id ? "You are on the next recommended stop." : `${nextStop.title}${nextStop.locationLabel ? ` · ${nextStop.locationLabel}` : ""}`}</p>
+            <p>${nextStop.id === stop.id ? "You are on the next recommended stop." : `${nextStop.title}${nextStop.fullAddress || nextStop.locationLabel ? ` · ${nextStop.fullAddress || nextStop.locationLabel}` : ""}`}</p>
           </div>
           <div class="button-row">
             <button type="button" class="primary-button" data-action="open-selected-tour">Open route planner</button>
@@ -2728,7 +2750,7 @@ function renderArTab(selectedTour) {
                 </div>
                 <div class="ar-target-card">
                   <strong>${effectiveStop ? effectiveStop.title : "No stop target yet"}</strong>
-                  <p>${effectiveStop?.locationLabel || "Waiting for the nearest story stop."}</p>
+                  <p>${effectiveStop?.fullAddress || effectiveStop?.locationLabel || "Waiting for the nearest story stop."}</p>
                   <span>${arRangeLabel}</span>
                   <small>Stories play through audio for the glasses only.</small>
                 </div>
@@ -2787,7 +2809,7 @@ function renderArTab(selectedTour) {
               ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
               <div class="drawer-copy emphasis">
                 <strong>Live cue</strong>
-                <p>${state.ar.inRange ? `You are within range of ${effectiveStop.title}.` : `Move toward ${effectiveStop.locationLabel || effectiveStop.title} to unlock the stop.`}</p>
+                <p>${state.ar.inRange ? `You are within range of ${effectiveStop.title}.` : `Move toward ${effectiveStop.fullAddress || effectiveStop.locationLabel || effectiveStop.title} to unlock the stop.`}</p>
               </div>
               <div class="button-row">
                 <button type="button" class="ghost-button" data-action="toggle-auto-narration">
@@ -2906,20 +2928,19 @@ function renderProfileTab() {
         ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Mode status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
       </article>
       <article class="panel panel--profile-upgrade">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Upgrade to elite</p>
-            <h3>One shell for tourists and builders</h3>
-          </div>
-        </div>
-        <div class="drawer-copy emphasis">
-          <strong>What the premium layer should unlock</strong>
-          <p>Exclusive Philadelphia history, expanded AR sites, and priority access to new drops without breaking the same portal or account experience.</p>
-        </div>
         <div class="button-row">
+          <button
+            type="button"
+            class="primary-button"
+            data-action="start-upgrade-checkout"
+            ${state.checkout.status === "submitting" ? "disabled" : ""}
+          >
+            Upgrade full audio experience + unlock all tours · $9.99
+          </button>
           <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Browse collections</button>
           <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Talk to Founders</a>
         </div>
+        ${getCheckoutStatusMarkup()}
       </article>
       <article class="panel">
         <div class="panel-header">

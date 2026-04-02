@@ -32,6 +32,10 @@ if [[ -f "$SOURCE_ROOT/.env" ]]; then
   cp "$SOURCE_ROOT/.env" "$TARGET_ROOT/.env"
 fi
 
+if [[ -f "$SOURCE_ROOT/server.local.env" ]]; then
+  cp "$SOURCE_ROOT/server.local.env" "$TARGET_ROOT/server.local.env"
+fi
+
 if [[ -f "$SOURCE_ROOT/.env.server.local" ]]; then
   cp "$SOURCE_ROOT/.env.server.local" "$TARGET_ROOT/.env.server.local"
 fi
