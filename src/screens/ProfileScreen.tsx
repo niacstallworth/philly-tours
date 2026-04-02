@@ -267,7 +267,7 @@ export function ProfileScreen({
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Membership</Text>
         <Text style={styles.copy}>
-          Unlock premium tours and future upgrades with a simple pass instead of cluttering the app with store mechanics.
+          Unlock premium tours, full audio history, and future upgrades with a simple pass instead of cluttering the app with store mechanics.
         </Text>
         <View style={styles.chips}>
           <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
@@ -282,33 +282,13 @@ export function ProfileScreen({
             tone={entitlementStatus === "offline" ? "danger" : entitlementStatus.startsWith("active:") ? "success" : "default"}
           />
         </View>
+        <Text style={styles.meta}>Full audio history is included with membership.</Text>
         <Text style={styles.meta}>Status: {entitlementStatus}</Text>
         {statusMessage ? <Text style={styles.warning}>{statusMessage}</Text> : null}
         <PrimaryButton
           disabled={loadingAction !== null || fullAppUnlocked}
           onPress={() => startHostedCheckout(999, "Philly Tours Day Pass", "full_app")}
           label={fullAppUnlocked ? "Full Membership Unlocked" : loadingAction === "hosted" ? "Preparing..." : "Checkout ($9.99)"}
-        />
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Audio History Only</Text>
-        <Text style={styles.copy}>
-          This option is available for guests who are unable to travel but still have a willingness to learn Philadelphia Founders history through the narrated stops.
-        </Text>
-        <Text style={styles.meta}>
-          Purchase audio history only to listen through the tour stories from home, without needing to physically complete the route.
-        </Text>
-        {audioHistoryOnlyUnlocked ? (
-          <View style={styles.chips}>
-            <Chip label="Audio history unlocked" tone="success" />
-            <Chip label="All stops available" tone="default" />
-          </View>
-        ) : null}
-        <PrimaryButton
-          disabled={loadingAction !== null || audioHistoryOnlyUnlocked}
-          onPress={() => startHostedCheckout(999, "Philly Tours Audio History Only", "audio_history_only")}
-          label={audioHistoryOnlyUnlocked ? "Audio History Unlocked" : loadingAction === "hosted" ? "Preparing..." : "Purchase Audio History Only"}
         />
       </Card>
 
