@@ -255,6 +255,41 @@ const AUTH_STORAGE_KEY = "philly-ar-tours-web-session";
 const OAUTH_PROVIDER_STORAGE_KEY = "philly-ar-tours-web-oauth-provider";
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 const CONTACT_EMAIL = "info@foundersthreads.org";
+const SOCIAL_CHANNELS = [
+  {
+    label: "Instagram",
+    handle: "@foundersthreads",
+    href: "https://www.instagram.com/foundersthreads/",
+    icon: "instagram"
+  },
+  {
+    label: "Facebook",
+    handle: "Founders Threads",
+    href: "https://www.facebook.com/foundersthreads/",
+    icon: "facebook"
+  },
+  {
+    label: "LinkedIn",
+    handle: "Founders Threads",
+    href: "https://www.linkedin.com/company/foundersthreads/",
+    icon: "linkedin"
+  }
+];
+const RSS_FEED_PATH = "./rss.xml";
+const RSS_UPDATES = [
+  {
+    title: "New route drops",
+    detail: "Fresh walking and driving story collections as they go live."
+  },
+  {
+    title: "Pilot ride alerts",
+    detail: "Invites for field tests, premium audio launches, and heritage viewer updates."
+  },
+  {
+    title: "Founder notes",
+    detail: "Short product and curation updates pulled into one RSS feed."
+  }
+];
 let routeMap = null;
 let routeMapLayers = null;
 let narrationAudio = null;
@@ -2075,13 +2110,7 @@ function getSceneConfig(selectedTour, globalStats) {
         title: "Guest profile, live controls, and access settings",
         body: "",
         metrics: [],
-        floatingCard: `
-          <article class="hero-floating-card hero-floating-card--compact">
-            <strong>Connected email</strong>
-            <h3>${escapeHtml(state.auth.session?.email || "Guest")}</h3>
-            <p>Session security, updates, and route continuity all live here.</p>
-          </article>
-        `
+        floatingCard: ""
       };
     default:
       return {
@@ -2107,6 +2136,78 @@ function getSceneConfig(selectedTour, globalStats) {
         `
       };
   }
+}
+
+function renderSocialIcon(icon) {
+  switch (icon) {
+    case "instagram":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="3.5" y="3.5" width="17" height="17" rx="5" class="social-icon__stroke"></rect>
+          <circle cx="12" cy="12" r="4.2" class="social-icon__stroke"></circle>
+          <circle cx="17.3" cy="6.8" r="1.2" class="social-icon__fill"></circle>
+        </svg>
+      `;
+    case "facebook":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M13.4 20.5v-7h2.4l.4-3h-2.8V8.7c0-.9.3-1.6 1.7-1.6h1.3V4.4c-.2 0-1-.1-2-.1-2 0-3.4 1.2-3.4 3.6v2.6H8.6v3h2.4v7h2.4Z" class="social-icon__fill"></path>
+        </svg>
+      `;
+    case "linkedin":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6.7 8.6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm-1.2 1.8h2.5v8.1H5.5v-8.1Zm4.1 0h2.4v1.1h0c.3-.6 1.2-1.4 2.5-1.4 2.6 0 3.1 1.7 3.1 4v4.4h-2.5v-3.9c0-.9 0-2.1-1.3-2.1s-1.5 1-1.5 2v4h-2.5v-8.1Z" class="social-icon__fill"></path>
+        </svg>
+      `;
+    default:
+      return "";
+  }
+}
+
+function renderSocialChannels() {
+  return `
+    <div class="social-contact-grid" aria-label="Social media channels">
+      ${SOCIAL_CHANNELS.map(
+        (channel) => `
+          <a class="social-contact-card" href="${channel.href}" target="_blank" rel="noreferrer">
+            <span class="social-contact-card__icon">${renderSocialIcon(channel.icon)}</span>
+            <span class="social-contact-card__copy">
+              <strong>${channel.label}</strong>
+              <span>${channel.handle}</span>
+            </span>
+          </a>
+        `
+      ).join("")}
+    </div>
+  `;
+}
+
+function renderRssUpdates() {
+  return `
+    <div class="rss-updates-card">
+      <div class="rss-updates-card__header">
+        <div>
+          <strong>RSS updates</strong>
+          <p>Subscribe for route drops, launch notes, and pilot alerts.</p>
+        </div>
+        <a class="ghost-button link-button" href="${RSS_FEED_PATH}" target="_blank" rel="noreferrer">Open feed</a>
+      </div>
+      <div class="rss-update-list">
+        ${RSS_UPDATES.map(
+          (item) => `
+            <article class="rss-update-item">
+              <span class="rss-pill">RSS</span>
+              <div>
+                <strong>${item.title}</strong>
+                <p>${item.detail}</p>
+              </div>
+            </article>
+          `
+        ).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function renderSceneHero(selectedTour, globalStats) {
@@ -2908,6 +3009,31 @@ function renderProgressTab(globalStats) {
 function renderProfileTab() {
   const startedTours = tours.filter((tour) => getProgressForTour(tour).completed > 0);
   const activeUser = state.auth.session;
+  const iosAppStoreUrl = String(siteConfig.iosAppStoreUrl || "").trim();
+  const androidPlayStoreUrl = String(siteConfig.androidPlayStoreUrl || "").trim();
+  const renderStoreBadge = ({ label, copy, href, iconMarkup }) => {
+    if (href) {
+      return `
+        <a class="store-launch-card store-launch-card--link" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">
+          <span class="store-launch-card__icon" aria-hidden="true">${iconMarkup}</span>
+          <span class="store-launch-card__copy">
+            <strong>${label}</strong>
+            <span>${copy}</span>
+          </span>
+        </a>
+      `;
+    }
+
+    return `
+      <div class="store-launch-card" aria-disabled="true">
+        <span class="store-launch-card__icon" aria-hidden="true">${iconMarkup}</span>
+        <span class="store-launch-card__copy">
+          <strong>${label}</strong>
+          <span>${copy}</span>
+        </span>
+      </div>
+    `;
+  };
   return `
     <section class="section-grid profile-grid profile-grid--cinematic">
       <article class="panel panel--profile-card">
@@ -2957,7 +3083,39 @@ function renderProfileTab() {
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="home">Browse tours</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Resume route</button>
         </div>
+        <div class="store-launch-grid" aria-label="Mobile apps coming soon">
+          ${renderStoreBadge({
+            label: "App Store",
+            copy: iosAppStoreUrl ? "Download the iPhone + iPad app" : "iPhone + iPad version arriving in a few days",
+            href: iosAppStoreUrl,
+            iconMarkup: `
+              <svg viewBox="0 0 24 24" role="presentation">
+                <path
+                  class="store-launch-card__icon-fill"
+                  d="M16.84 12.04c.02 2.09 1.83 2.79 1.85 2.8-.02.05-.29 1-.96 1.98-.58.85-1.19 1.7-2.13 1.72-.92.02-1.21-.55-2.27-.55-1.06 0-1.39.53-2.25.57-.91.03-1.61-.91-2.19-1.76-1.19-1.72-2.09-4.84-.87-6.96.61-1.05 1.69-1.72 2.86-1.74.89-.02 1.73.6 2.27.6.53 0 1.53-.74 2.58-.63.44.02 1.67.18 2.46 1.34-.06.04-1.47.86-1.45 2.63Zm-1.76-5.49c.48-.58.8-1.39.71-2.19-.69.03-1.52.46-2.02 1.04-.44.5-.82 1.32-.72 2.09.77.06 1.55-.39 2.03-.94Z"
+                />
+              </svg>
+            `
+          })}
+          ${renderStoreBadge({
+            label: "Google Play",
+            copy: androidPlayStoreUrl ? "Download the Android app" : "Android version arriving in a few days",
+            href: androidPlayStoreUrl,
+            iconMarkup: `
+              <svg viewBox="0 0 24 24" role="presentation">
+                <path
+                  class="store-launch-card__icon-fill"
+                  d="M3.2 2.82c-.19.2-.3.5-.3.89v16.58c0 .39.11.69.3.89l.05.05 9.29-9.29v-.12L3.25 2.77l-.05.05Zm13.56 11.9-3.09-3.09v-.12l3.09-3.09.07.04 3.66 2.08c1.05.6 1.05 1.57 0 2.17l-3.66 2.08-.07-.03Zm-.8.45-3.29-3.29-9.34 9.34c.3.32.77.36 1.31.06l11.32-6.44Zm0-6.34L4.64 2.39c-.54-.31-1.01-.26-1.31.06l9.34 9.34 3.29-2.96Z"
+                />
+              </svg>
+            `
+          })}
+        </div>
         <form class="subscription-form" data-form="newsletter-subscription">
+          <div class="drawer-copy">
+            <strong>Join the email list</strong>
+            <p>Get the exact App Store and Google Play launch links the moment the mobile apps go live.</p>
+          </div>
           <label class="search-field">
             <span>Email subscription</span>
             <input
@@ -2979,9 +3137,11 @@ function renderProfileTab() {
           ${getSubscriptionStatusMarkup()}
         </form>
         <div class="drawer-copy">
-          <strong>Contact email</strong>
-          <p>${CONTACT_EMAIL}</p>
+          <strong>Contacts</strong>
+          <p>Follow the live channels and use the contact button when you want a direct reply.</p>
         </div>
+        ${renderSocialChannels()}
+        ${renderRssUpdates()}
         <div class="button-row compact">
           <button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>
         </div>
