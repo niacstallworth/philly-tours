@@ -2,6 +2,7 @@
   "expo": {
     "name": "Philly AR Tours",
     "slug": "philly-ar-tours",
+    "icon": "./assets/icons/philly-app-icon-flat.png",
     "scheme": "phillyartours",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -23,6 +24,11 @@
       }
     },
     "android": {
+      "icon": "./assets/icons/philly-app-icon-flat.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/philly-app-icon-adaptive-foreground.png",
+        "backgroundColor": "#0B2F62"
+      },
       "package": "com.founders.phillyartours",
       "permissions": [
         "BLUETOOTH",

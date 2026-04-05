@@ -9,7 +9,8 @@ import {
   createCheckoutSession,
   getEntitlements,
   getSyncServerUrl,
-  requestBackendDeletion
+  requestBackendDeletion,
+  subscribeToNewsletter
 } from "../services/payments";
 import { AppAppearanceMode, AppPalette, AppTextScale, useAppTheme, useTypeScale } from "../theme/appTheme";
 
@@ -24,6 +25,16 @@ type Props = {
 };
 
 WebBrowser.maybeCompleteAuthSession();
+
+const SOCIAL_LINKS = [
+  { label: "Instagram", detail: "@philly_tours", url: "https://www.instagram.com/philly_tours" },
+  { label: "Facebook", detail: "Founders Threads", url: "https://www.facebook.com/people/Founders-Threads/61581897702529/" },
+  { label: "X", detail: "@FoundrsThreads", url: "https://x.com/FoundrsThreads" },
+  { label: "Bluesky", detail: "@foundersthreads.bsky.social", url: "https://bsky.app/profile/foundersthreads.bsky.social" },
+  { label: "Cash App", detail: "$FoundersThreads", url: "https://cash.app/$FoundersThreads" },
+  { label: "YouTube", detail: "@niathatswhy", url: "https://www.youtube.com/@niathatswhy" },
+  { label: "WhatsApp", detail: "+1 (631) 773-5745", url: "https://api.whatsapp.com/send?phone=16317735745" }
+] as const;
 
 export function ProfileScreen({
   displayName = "Founder Demo",
@@ -44,6 +55,8 @@ export function ProfileScreen({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [deletionReason, setDeletionReason] = useState("");
   const [deletionRequestedAt, setDeletionRequestedAt] = useState<number | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState(email);
+  const [newsletterSubscribedAt, setNewsletterSubscribedAt] = useState<number | null>(null);
 
   React.useEffect(() => {
     refreshEntitlements(false).catch(() => undefined);
@@ -165,6 +178,38 @@ export function ProfileScreen({
       setStatusMessage((error as Error).message || "Could not submit deletion request.");
     } finally {
       setLoadingAction(null);
+    }
+  }
+
+  async function submitNewsletterSignup() {
+    const normalizedEmail = newsletterEmail.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setStatusMessage("Enter an email address for newsletter updates.");
+      return;
+    }
+    setLoadingAction("newsletter");
+    setStatusMessage(null);
+    try {
+      const result = await subscribeToNewsletter({
+        email: normalizedEmail,
+        displayName,
+        source: "profile_settings_socials"
+      });
+      setNewsletterEmail(result.email);
+      setNewsletterSubscribedAt(result.subscribedAt);
+      setStatusMessage(`Subscribed ${result.email}. A confirmation email has been sent.`);
+    } catch (error) {
+      setStatusMessage((error as Error).message || "Could not subscribe to the newsletter.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function openExternalLink(url: string) {
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert("Could not open link", url);
     }
   }
 
@@ -290,6 +335,43 @@ export function ProfileScreen({
           onPress={() => startHostedCheckout(999, "Philly Tours Day Pass", "full_app")}
           label={fullAppUnlocked ? "Full Membership Unlocked" : loadingAction === "hosted" ? "Preparing..." : "Checkout ($9.99)"}
         />
+      </Card>
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Follow + Contact</Text>
+        <Text style={styles.copy}>
+          Keep the Android app connected to the live Founders Threads channels while the native experience continues to grow.
+        </Text>
+        <View style={styles.socialGrid}>
+          {SOCIAL_LINKS.map((link) => (
+            <Pressable key={link.url} onPress={() => void openExternalLink(link.url)} style={styles.socialCard}>
+              <Text style={styles.socialTitle}>{link.label}</Text>
+              <Text style={styles.socialDetail}>{link.detail}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <View style={styles.newsletterBlock}>
+          <Text style={styles.newsletterTitle}>Newsletter</Text>
+          <Text style={styles.copy}>Get Philly Tours updates by email. We&apos;ll send a confirmation email as soon as you subscribe.</Text>
+          <TextInput
+            value={newsletterEmail}
+            onChangeText={setNewsletterEmail}
+            placeholder="you@example.com"
+            placeholderTextColor="#8e7d99"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoCorrect={false}
+            style={styles.input}
+          />
+          {newsletterSubscribedAt ? (
+            <Text style={styles.meta}>Subscribed: {new Date(newsletterSubscribedAt).toLocaleString()}</Text>
+          ) : null}
+          <PrimaryButton
+            disabled={loadingAction !== null}
+            onPress={submitNewsletterSignup}
+            label={loadingAction === "newsletter" ? "Subscribing..." : "Sign Up For Newsletter"}
+          />
+        </View>
       </Card>
 
       <Card style={styles.card}>
@@ -468,6 +550,42 @@ function createStyles(
   },
   appearanceChipTextActive: {
     color: "#cfc3ff"
+  },
+  socialGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  socialCard: {
+    flexGrow: 1,
+    minWidth: 140,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceSoft,
+    gap: 4
+  },
+  socialTitle: {
+    color: colors.text,
+    fontSize: type.font(15),
+    fontWeight: "800"
+  },
+  socialDetail: {
+    color: colors.textSoft,
+    fontSize: type.font(13),
+    lineHeight: type.line(18)
+  },
+  newsletterBlock: {
+    marginTop: 10,
+    gap: 10,
+    paddingTop: 6
+  },
+  newsletterTitle: {
+    color: colors.text,
+    fontSize: type.font(16),
+    fontWeight: "800"
   },
   multilineInput: {
     minHeight: 92,

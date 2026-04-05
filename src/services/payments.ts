@@ -62,6 +62,13 @@ export type DeletionRequestRecord = {
   resolution_note?: string | null;
 };
 
+export type NewsletterSubscribeResult = {
+  ok: boolean;
+  email: string;
+  status: string;
+  subscribedAt: number;
+};
+
 let apiUserId = "demo-user";
 
 export function setApiUserId(userId: string) {
@@ -215,6 +222,10 @@ export async function getBackendConfigStatus() {
 
 export async function requestBackendDeletion(payload: { email?: string; displayName?: string; reason?: string }) {
   return postJson<DeletionRequestResult>("/api/privacy/delete-request", payload);
+}
+
+export async function subscribeToNewsletter(payload: { email?: string; displayName?: string; source?: string }) {
+  return postJson<NewsletterSubscribeResult>("/api/newsletter/subscribe", payload);
 }
 
 async function adminJson<T>(path: string, init: RequestInit) {
