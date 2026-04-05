@@ -258,21 +258,45 @@ const CONTACT_EMAIL = "info@foundersthreads.org";
 const SOCIAL_CHANNELS = [
   {
     label: "Instagram",
-    handle: "@foundersthreads",
-    href: "https://www.instagram.com/foundersthreads/",
+    handle: "@philly_tours",
+    href: "https://www.instagram.com/philly_tours",
     icon: "instagram"
   },
   {
     label: "Facebook",
     handle: "Founders Threads",
-    href: "https://www.facebook.com/foundersthreads/",
+    href: "https://www.facebook.com/people/Founders-Threads/61581897702529/",
     icon: "facebook"
   },
   {
-    label: "LinkedIn",
-    handle: "Founders Threads",
-    href: "https://www.linkedin.com/company/foundersthreads/",
-    icon: "linkedin"
+    label: "X",
+    handle: "@FoundrsThreads",
+    href: "https://x.com/FoundrsThreads",
+    icon: "x"
+  },
+  {
+    label: "Bluesky",
+    handle: "@foundersthreads.bsky.social",
+    href: "https://bsky.app/profile/foundersthreads.bsky.social",
+    icon: "bluesky"
+  },
+  {
+    label: "Cash App",
+    handle: "$FoundersThreads",
+    href: "https://cash.app/$FoundersThreads",
+    icon: "cashapp"
+  },
+  {
+    label: "YouTube",
+    handle: "@niathatswhy",
+    href: "https://www.youtube.com/@niathatswhy",
+    icon: "youtube"
+  },
+  {
+    label: "WhatsApp",
+    handle: "+1 (631) 773-5745",
+    href: "https://api.whatsapp.com/send?phone=16317735745",
+    icon: "whatsapp"
   }
 ];
 const RSS_FEED_PATH = "./rss.xml";
@@ -301,6 +325,7 @@ const AR_AUTO_NARRATION_COOLDOWN_MS = 45000;
 let copyButtonResetTimer = null;
 let webTurnstileMountTimer = null;
 let supabaseClientPromise = null;
+const AUTH_INTEREST_PROVIDERS = new Set(["meta", "instagram", "facebook", "x"]);
 
 const state = {
   auth: {
@@ -874,11 +899,26 @@ async function completeOAuthRedirectIfPresent() {
   render(false);
 
   try {
-    const { data, error } = await client.auth.getSession();
-    if (error) {
-      throw error;
+    const url = new URL(window.location.href);
+    const authCode = url.searchParams.get("code");
+
+    let accessToken = "";
+    if (authCode) {
+      const { data, error } = await client.auth.exchangeCodeForSession(authCode);
+      if (error) {
+        throw error;
+      }
+      accessToken = data?.session?.access_token || "";
     }
-    const accessToken = data?.session?.access_token;
+
+    if (!accessToken) {
+      const { data, error } = await client.auth.getSession();
+      if (error) {
+        throw error;
+      }
+      accessToken = data?.session?.access_token || "";
+    }
+
     if (!accessToken) {
       throw new Error("Provider sign-in did not return a usable session.");
     }
@@ -895,7 +935,7 @@ async function completeOAuthRedirectIfPresent() {
     state.auth.session = null;
     state.auth.authToken = "";
     state.auth.status = "error";
-    state.auth.message = (error && error.message) || "Unable to complete provider sign-in.";
+    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to complete provider sign-in.", pendingProvider || "");
     return false;
   }
 }
@@ -975,7 +1015,7 @@ async function startOAuthSignIn(provider) {
   const client = await getSupabaseBrowserClient();
   if (!client) {
     state.auth.status = "error";
-    state.auth.message = "Supabase Auth is not configured for Google or Apple sign-in.";
+    state.auth.message = withAuthRetryGuidance("Supabase Auth is not configured for Google or Apple sign-in.");
     render(false);
     return;
   }
@@ -1011,7 +1051,7 @@ async function startOAuthSignIn(provider) {
   } catch (error) {
     clearPendingOAuthProvider();
     state.auth.status = "error";
-    state.auth.message = (error && error.message) || "Unable to start provider sign-in.";
+    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to start provider sign-in.", provider);
     render(false);
   }
 }
@@ -1448,6 +1488,11 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "oauth-interest" && AUTH_INTEREST_PROVIDERS.has(provider)) {
+    saveAuthProviderInterest(provider);
+    return;
+  }
+
   if (action === "select-tour" && tourId) {
     const selectedTour = getTourById(tourId);
     if (!selectedTour) {
@@ -1738,6 +1783,40 @@ function renderAuthScreen() {
               Continue with Apple
             </button>
           </div>
+          <div class="drawer-copy auth-helper-box">
+            <strong>Login help</strong>
+            <p>If sign-in fails, refresh the page and try again. New Google users may briefly see a repeat login screen on first access.</p>
+          </div>
+          <label class="search-field auth-interest-field">
+            <span>Email for future sign-in options</span>
+            <input
+              type="email"
+              name="auth-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              inputmode="email"
+              value="${escapeHtml(state.auth.email)}"
+              ${state.auth.status === "submitting" ? "disabled" : ""}
+            />
+          </label>
+          <div class="drawer-copy auth-helper-box">
+            <strong>Future provider interest</strong>
+            <p>Meta, Instagram, Facebook, and X are not live login providers on this build yet. Use the buttons below to save which sign-in option you want us to support.</p>
+          </div>
+          <div class="auth-provider-row auth-provider-row--interest">
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="meta" ${state.auth.status === "submitting" ? "disabled" : ""}>
+              Save Meta interest
+            </button>
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="instagram" ${state.auth.status === "submitting" ? "disabled" : ""}>
+              Save Instagram interest
+            </button>
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="facebook" ${state.auth.status === "submitting" ? "disabled" : ""}>
+              Save Facebook interest
+            </button>
+            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="x" ${state.auth.status === "submitting" ? "disabled" : ""}>
+              Save X interest
+            </button>
+          </div>
           ${
             hasSiteKey
               ? state.auth.turnstileToken
@@ -1886,7 +1965,7 @@ async function submitWebappAuth() {
     render();
   } catch (error) {
     state.auth.status = "error";
-    state.auth.message = (error && error.message) || "Unable to sign in.";
+    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to sign in.");
     render(false);
   }
 }
@@ -1911,6 +1990,84 @@ function getSubscriptionStatusMarkup() {
         : "subscription-status";
 
   return `<p class="${statusClass}" role="status">${escapeHtml(state.subscription.message)}</p>`;
+}
+
+function withAuthRetryGuidance(message, provider = "") {
+  const baseMessage = String(message || "Unable to sign in.");
+  const retryGuidance =
+    provider === "google"
+      ? " If sign-in fails, refresh the page and try again. New Google users may briefly see a repeat login screen on first access."
+      : " If sign-in fails, refresh the page and try again.";
+  return `${baseMessage}${retryGuidance}`;
+}
+
+async function saveAuthProviderInterest(provider) {
+  const normalizedEmail = state.auth.email.trim().toLowerCase();
+  if (!normalizedEmail) {
+    state.auth.status = "error";
+    state.auth.message = "Enter your email first so we can save your preferred sign-in method.";
+    render(false);
+    return;
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(normalizedEmail)) {
+    state.auth.status = "error";
+    state.auth.message = "Enter a valid email address before saving provider interest.";
+    render(false);
+    return;
+  }
+
+  const { supabaseUrl, supabaseAnonKey, newsletterTable } = getNewsletterApiConfig();
+  if (!supabaseUrl || !supabaseAnonKey) {
+    state.auth.status = "error";
+    state.auth.message = "Interest capture is not configured for this web build yet.";
+    render(false);
+    return;
+  }
+
+  state.auth.status = "submitting";
+  state.auth.message = `Saving your ${provider} sign-in interest...`;
+  render(false);
+
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/${newsletterTable}?on_conflict=email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        Prefer: "resolution=merge-duplicates,return=minimal"
+      },
+      body: JSON.stringify([
+        {
+          email: normalizedEmail,
+          source: "webapp-auth-interest",
+          status: "active",
+          subscribed_at: Date.now(),
+          updated_at: Date.now(),
+          metadata_json: JSON.stringify({
+            host: window.location.hostname,
+            preferredProvider: provider,
+            glassesMode: state.glassesMode,
+            collectedFrom: "auth-screen"
+          })
+        }
+      ])
+    });
+
+    if (!response.ok) {
+      throw new Error(`Interest capture failed with status ${response.status}`);
+    }
+
+    state.auth.status = "success";
+    state.auth.message = `${provider.charAt(0).toUpperCase() + provider.slice(1)} interest saved. We will use this to prioritize future sign-in support.`;
+    render(false);
+  } catch (error) {
+    state.auth.status = "error";
+    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to save provider interest.");
+    render(false);
+  }
 }
 
 async function subscribeProfileEmail() {
@@ -2160,6 +2317,36 @@ function renderSocialIcon(icon) {
           <path d="M6.7 8.6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm-1.2 1.8h2.5v8.1H5.5v-8.1Zm4.1 0h2.4v1.1h0c.3-.6 1.2-1.4 2.5-1.4 2.6 0 3.1 1.7 3.1 4v4.4h-2.5v-3.9c0-.9 0-2.1-1.3-2.1s-1.5 1-1.5 2v4h-2.5v-8.1Z" class="social-icon__fill"></path>
         </svg>
       `;
+    case "x":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M5.2 4.5h3.5l3.72 5.33L16.94 4.5h1.95l-5.59 6.39 5.91 8.61h-3.5l-4-5.76-5.04 5.76H4.72l6.16-7.05L5.2 4.5Zm2.44 1.38H6.9l8.47 12.24h.74L7.64 5.88Z" class="social-icon__fill"></path>
+        </svg>
+      `;
+    case "bluesky":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 11.06c1.25-2.44 4.66-6.24 7.83-8.18.91-.56 2.38-1.01 2.38.67 0 .33-.19 2.78-.3 3.18-.37 1.39-1.71 1.75-2.9 1.55 2.08.35 2.61 1.52 1.46 2.69-2.18 2.23-3.13-.56-5.55-.56-2.45 0-3.32 2.84-5.53.56-1.15-1.17-.62-2.34 1.46-2.69-1.19.2-2.53-.16-2.9-1.55-.11-.4-.3-2.85-.3-3.18 0-1.68 1.47-1.23 2.38-.67C7.34 4.82 10.75 8.62 12 11.06Zm0 2.28c-1.02 2.04-3.81 5.2-6.4 6.8-.74.46-1.93.83-1.93-.55 0-.27.15-2.3.24-2.62.3-1.15 1.4-1.45 2.37-1.29-1.7-.29-2.13-1.26-1.18-2.22 1.78-1.82 2.55.46 4.53.46 2 0 2.71-2.31 4.52-.46.95.96.52 1.93-1.18 2.22.97-.16 2.07.14 2.37 1.29.09.32.24 2.35.24 2.62 0 1.38-1.19 1.01-1.93.55-2.59-1.6-5.38-4.76-6.4-6.8Z" class="social-icon__fill"></path>
+        </svg>
+      `;
+    case "cashapp":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M14.58 7.28c0-.87-.73-1.45-1.84-1.45-1.08 0-1.89.44-2.59 1.32l-1.7-1.63c.99-1.23 2.51-1.97 4.44-1.97 2.54 0 4.34 1.3 4.34 3.5 0 2.55-2.12 3.31-3.85 3.82-1.74.5-2.8.81-2.8 1.94 0 .96.8 1.61 2.06 1.61 1.29 0 2.29-.55 3.14-1.6l1.77 1.58c-1.11 1.51-2.86 2.33-4.96 2.33-2.88 0-4.65-1.46-4.65-3.77 0-2.68 2.33-3.39 4.12-3.9 1.57-.45 2.52-.78 2.52-1.78Z" class="social-icon__fill"></path>
+        </svg>
+      `;
+    case "youtube":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M21.2 7.2a2.93 2.93 0 0 0-2.06-2.07C17.28 4.6 12 4.6 12 4.6s-5.28 0-7.14.53A2.93 2.93 0 0 0 2.8 7.2 30.6 30.6 0 0 0 2.27 12c0 1.63.18 3.24.53 4.8a2.93 2.93 0 0 0 2.06 2.07c1.86.53 7.14.53 7.14.53s5.28 0 7.14-.53a2.93 2.93 0 0 0 2.06-2.07c.35-1.56.53-3.17.53-4.8 0-1.63-.18-3.24-.53-4.8ZM10.33 15.01V8.99L15.54 12l-5.21 3.01Z" class="social-icon__fill"></path>
+        </svg>
+      `;
+    case "whatsapp":
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 4.25a7.72 7.72 0 0 0-6.69 11.59L4.25 19.75l4.02-1.05A7.75 7.75 0 1 0 12 4.25Zm0 13.91a6.1 6.1 0 0 1-3.12-.86l-.22-.13-2.38.62.64-2.31-.15-.23A6.12 6.12 0 1 1 12 18.16Zm3.35-4.55c-.18-.09-1.08-.53-1.24-.58-.17-.06-.29-.09-.41.09-.12.17-.47.58-.58.69-.11.12-.21.13-.39.04a4.97 4.97 0 0 1-1.46-.9 5.46 5.46 0 0 1-1.01-1.25c-.11-.19-.01-.29.08-.38.08-.08.18-.21.27-.31.09-.11.12-.18.18-.3.06-.12.03-.23-.02-.32-.05-.09-.41-.99-.57-1.36-.15-.35-.3-.3-.41-.31h-.35c-.12 0-.32.05-.49.23-.17.18-.65.64-.65 1.56s.67 1.82.76 1.94c.09.12 1.31 2 3.17 2.8.44.19.79.31 1.06.4.45.14.86.12 1.18.07.36-.05 1.08-.44 1.23-.87.15-.43.15-.79.11-.87-.04-.08-.15-.13-.33-.22Z" class="social-icon__fill"></path>
+        </svg>
+      `;
     default:
       return "";
   }
@@ -2176,6 +2363,27 @@ function renderSocialChannels() {
               <strong>${channel.label}</strong>
               <span>${channel.handle}</span>
             </span>
+          </a>
+        `
+      ).join("")}
+    </div>
+  `;
+}
+
+function renderSocialIconStrip() {
+  return `
+    <div class="social-icon-strip" aria-label="Follow Founders Threads">
+      ${SOCIAL_CHANNELS.map(
+        (channel) => `
+          <a
+            class="social-icon-button"
+            href="${channel.href}"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="${channel.label} ${channel.handle}"
+            title="${channel.label} ${channel.handle}"
+          >
+            ${renderSocialIcon(channel.icon)}
           </a>
         `
       ).join("")}
@@ -3011,6 +3219,7 @@ function renderProfileTab() {
   const activeUser = state.auth.session;
   const iosAppStoreUrl = String(siteConfig.iosAppStoreUrl || "").trim();
   const androidPlayStoreUrl = String(siteConfig.androidPlayStoreUrl || "").trim();
+  const hasStoreLinks = !!iosAppStoreUrl || !!androidPlayStoreUrl;
   const renderStoreBadge = ({ label, copy, href, iconMarkup }) => {
     if (href) {
       return `
@@ -3036,6 +3245,57 @@ function renderProfileTab() {
   };
   return `
     <section class="section-grid profile-grid profile-grid--cinematic">
+      <article class="panel panel--preview-callout">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Web preview</p>
+            <h3>The browser is the trailer. The native apps are the full experience.</h3>
+          </div>
+          <span class="status-pill ${hasStoreLinks ? "is-live" : ""}">${hasStoreLinks ? "Apps linked" : "Links pending"}</span>
+        </div>
+        <p class="lede">
+          This web build is meant to preview the story world, route design, and sign-in experience. Rich AR, stronger companion controls,
+          and the full mobile handoff loop are designed for the iPhone and Android apps.
+        </p>
+        <div class="readiness-list preview-value-grid">
+          <div><strong>Best in the apps</strong><p>Native AR, deeper audio handoff, and the tighter tour posture live in the actual mobile builds.</p></div>
+          <div><strong>Best on the web</strong><p>Fast preview access, collection browsing, and a lightweight tour shell you can share before install.</p></div>
+          <div><strong>Next step</strong><p>Use the store buttons below to move people from preview mode into the real product as soon as links are live.</p></div>
+        </div>
+        <div class="store-launch-grid" aria-label="Mobile app download links">
+          ${renderStoreBadge({
+            label: "App Store",
+            copy: iosAppStoreUrl ? "Open the full iPhone + iPad app" : "Add the App Store URL in site config to activate this button",
+            href: iosAppStoreUrl,
+            iconMarkup: `
+              <svg viewBox="0 0 24 24" role="presentation">
+                <path
+                  class="store-launch-card__icon-fill"
+                  d="M16.84 12.04c.02 2.09 1.83 2.79 1.85 2.8-.02.05-.29 1-.96 1.98-.58.85-1.19 1.7-2.13 1.72-.92.02-1.21-.55-2.27-.55-1.06 0-1.39.53-2.25.57-.91.03-1.61-.91-2.19-1.76-1.19-1.72-2.09-4.84-.87-6.96.61-1.05 1.69-1.72 2.86-1.74.89-.02 1.73.6 2.27.6.53 0 1.53-.74 2.58-.63.44.02 1.67.18 2.46 1.34-.06.04-1.47.86-1.45 2.63Zm-1.76-5.49c.48-.58.8-1.39.71-2.19-.69.03-1.52.46-2.02 1.04-.44.5-.82 1.32-.72 2.09.77.06 1.55-.39 2.03-.94Z"
+                />
+              </svg>
+            `
+          })}
+          ${renderStoreBadge({
+            label: "Google Play",
+            copy: androidPlayStoreUrl ? "Open the full Android app" : "Add the Google Play URL in site config to activate this button",
+            href: androidPlayStoreUrl,
+            iconMarkup: `
+              <svg viewBox="0 0 24 24" role="presentation">
+                <path
+                  class="store-launch-card__icon-fill"
+                  d="M3.2 2.82c-.19.2-.3.5-.3.89v16.58c0 .39.11.69.3.89l.05.05 9.29-9.29v-.12L3.25 2.77l-.05.05Zm13.56 11.9-3.09-3.09v-.12l3.09-3.09.07.04 3.66 2.08c1.05.6 1.05 1.57 0 2.17l-3.66 2.08-.07-.03Zm-.8.45-3.29-3.29-9.34 9.34c.3.32.77.36 1.31.06l11.32-6.44Zm0-6.34L4.64 2.39c-.54-.31-1.01-.26-1.31.06l9.34 9.34 3.29-2.96Z"
+                />
+              </svg>
+            `
+          })}
+        </div>
+        <div class="drawer-copy">
+          <strong>Founders Threads links</strong>
+          <p>Social buttons stay live here so the preview still works as a polished front door even before every store listing is public.</p>
+        </div>
+        ${renderSocialChannels()}
+      </article>
       <article class="panel panel--profile-card">
         <div class="panel-header">
           <div>
@@ -3052,8 +3312,23 @@ function renderProfileTab() {
           <div><strong>Meta glasses mode</strong><p>${state.glassesMode ? "Enabled for Bluetooth audio routing" : "Off until glasses are paired over Bluetooth"}</p></div>
         </div>
         ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Mode status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
+        <div class="drawer-copy">
+          <strong>Follow Founders Threads</strong>
+          <p>Jump straight to the live social channels from settings.</p>
+        </div>
+        ${renderSocialIconStrip()}
       </article>
       <article class="panel panel--profile-upgrade">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Native app priority</p>
+            <h3>Keep the web preview crisp. Push the richer features to the apps.</h3>
+          </div>
+        </div>
+        <div class="readiness-list">
+          <div><strong>Android + iPhone focus</strong><p>AR, deeper device integration, and companion behavior belong in the native builds.</p></div>
+          <div><strong>Web role</strong><p>Marketing, preview tours, social proof, and clean conversion into the real apps.</p></div>
+        </div>
         <div class="button-row">
           <button
             type="button"
@@ -3083,10 +3358,10 @@ function renderProfileTab() {
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="home">Browse tours</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Resume route</button>
         </div>
-        <div class="store-launch-grid" aria-label="Mobile apps coming soon">
+        <div class="store-launch-grid" aria-label="Mobile app download links">
           ${renderStoreBadge({
             label: "App Store",
-            copy: iosAppStoreUrl ? "Download the iPhone + iPad app" : "iPhone + iPad version arriving in a few days",
+            copy: iosAppStoreUrl ? "Download the iPhone + iPad app" : "App Store link will appear here when the listing is live",
             href: iosAppStoreUrl,
             iconMarkup: `
               <svg viewBox="0 0 24 24" role="presentation">
@@ -3099,7 +3374,7 @@ function renderProfileTab() {
           })}
           ${renderStoreBadge({
             label: "Google Play",
-            copy: androidPlayStoreUrl ? "Download the Android app" : "Android version arriving in a few days",
+            copy: androidPlayStoreUrl ? "Download the Android app" : "Google Play link will appear here when the listing is live",
             href: androidPlayStoreUrl,
             iconMarkup: `
               <svg viewBox="0 0 24 24" role="presentation">

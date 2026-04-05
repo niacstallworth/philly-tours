@@ -298,7 +298,7 @@ export function HomeScreen({
             {narration.stopId === highlightedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
               <PrimaryButton label={highlightedNarrationMeta?.stopLabel || "Stop Narration"} onPress={onStopHighlightedNarration} />
             ) : null}
-            {nextStop ? (
+            {nextStop && !(highlightedStopLocked && nextStopLocked) ? (
               <PrimaryButton
                 label={nextStopLocked ? "Purchase Full App Content" : "Play Next Stop"}
                 onPress={() => void onPlayNextStop()}

@@ -1,7 +1,13 @@
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { connectCompanion, disconnectCompanion, handleWearableCommand, refreshCompanionStatus } from "../services/companion";
+import {
+  connectCompanion,
+  connectMockCompanion,
+  disconnectCompanion,
+  handleWearableCommand,
+  refreshCompanionStatus
+} from "../services/companion";
 import { getCurrentTourContext } from "../services/tourControl";
 import type { WearableStatus } from "../services/wearables";
 import { useCompanionSession } from "../hooks/useCompanionSession";
@@ -12,9 +18,13 @@ export function CompanionSetupScreen() {
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const { status, lastCommandResult } = useCompanionSession();
-  const [busy, setBusy] = React.useState<"pair" | "disconnect" | "refresh" | "command" | null>(null);
+  const [busy, setBusy] = React.useState<"pair" | "pair-mock" | "disconnect" | "refresh" | "command" | null>(null);
   const [message, setMessage] = React.useState<string | null>(status.lastError);
   const context = getCurrentTourContext();
+  const mockPairingAvailable = status.integrationMode === "native" && status.platformLabel === "iOS";
+  const isConnected = status.connectionState === "connected";
+  const isMockConnected = isConnected && !!status.pairedDevice?.isMock;
+  const isNativeRealFlow = status.integrationMode === "native" && !isMockConnected;
   const canReconnect =
     status.supported &&
     status.pairedDevice != null &&
@@ -37,6 +47,18 @@ export function CompanionSetupScreen() {
       setMessage("Companion connected.");
     } catch (error) {
       setMessage((error as Error).message || "Unable to pair Meta glasses.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function onPairMock() {
+    setBusy("pair-mock");
+    try {
+      await connectMockCompanion();
+      setMessage("Mock Ray-Ban Meta connected.");
+    } catch (error) {
+      setMessage((error as Error).message || "Unable to pair mock Meta glasses.");
     } finally {
       setBusy(null);
     }
@@ -119,20 +141,38 @@ export function CompanionSetupScreen() {
         <Text style={styles.value}>{status.pairedDevice?.displayName || "No device paired"}</Text>
         <Text style={styles.label}>Permissions</Text>
         <Text style={styles.value}>{status.grantedPermissions.length ? status.grantedPermissions.join(", ") : "None granted"}</Text>
+        {status.pairedDevice?.isMock ? <Text style={styles.meta}>Mock device mode is active for companion testing on iOS.</Text> : null}
+        {isMockConnected ? <Text style={styles.meta}>Disconnect the mock device before starting real Ray-Ban Meta registration.</Text> : null}
         {canReconnect ? <Text style={styles.meta}>{getReconnectCopy(status)}</Text> : null}
+        {isNativeRealFlow ? <Text style={styles.meta}>{getNativePairingHint(status)}</Text> : null}
         {message ? <Text style={styles.message}>{message}</Text> : null}
-        <PrimaryButton
-          label={busy === "pair" ? "Connecting..." : connectLabel}
-          onPress={() => void onPair()}
-          disabled={busy !== null}
-        />
+        {!isConnected ? (
+          <PrimaryButton
+            label={busy === "pair" ? "Connecting..." : connectLabel}
+            onPress={() => void onPair()}
+            disabled={busy !== null}
+          />
+        ) : null}
+        {mockPairingAvailable && !isConnected ? (
+          <PrimaryButton
+            label={busy === "pair-mock" ? "Connecting Mock..." : "Pair Mock Ray-Ban Meta"}
+            onPress={() => void onPairMock()}
+            disabled={busy !== null}
+          />
+        ) : null}
         <PrimaryButton
           label={busy === "refresh" ? "Refreshing..." : "Refresh Companion Status"}
           onPress={() => void onRefresh()}
           disabled={busy !== null}
         />
         <PrimaryButton
-          label={busy === "disconnect" ? "Disconnecting..." : "Remove Meta Registration"}
+          label={
+            busy === "disconnect"
+              ? "Disconnecting..."
+              : isMockConnected
+                ? "Disconnect Mock Ray-Ban Meta"
+                : "Remove Meta Registration"
+          }
           onPress={() => void onDisconnect()}
           disabled={busy !== null}
         />
@@ -189,6 +229,18 @@ function getConnectLabel(status: WearableStatus, canReconnect: boolean) {
     return canReconnect ? "Restore Meta Glasses Audio Mode" : "Enable Meta Glasses Audio Mode";
   }
 
+  if (status.integrationMode === "native") {
+    if (status.connectionState === "pairing") {
+      return "Continue Ray-Ban Meta Pairing";
+    }
+
+    if (canReconnect) {
+      return "Reconnect Ray-Ban Meta";
+    }
+
+    return status.pairedDevice ? "Activate Ray-Ban Meta Session" : "Start Ray-Ban Meta Registration";
+  }
+
   return canReconnect ? "Reconnect Meta Glasses" : "Connect Meta Glasses";
 }
 
@@ -234,6 +286,18 @@ function getReconnectCopy(status: WearableStatus) {
   }
 
   return "A previously known Meta device was found. Reconnect to resume companion access.";
+}
+
+function getNativePairingHint(status: WearableStatus) {
+  if (status.connectionState === "pairing") {
+    return "Finish the Ray-Ban Meta setup in the Meta AI app, then return here. If the glasses are already paired there, tap refresh after the callback completes.";
+  }
+
+  if (status.pairedDevice) {
+    return "Your Ray-Ban Meta registration is already known to this app. Power on the glasses, open the companion flow, and grant camera access when prompted.";
+  }
+
+  return "Start registration here, complete the handoff in the Meta AI app, then come back to this screen to confirm the glasses session is active.";
 }
 
 function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>) {

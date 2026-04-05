@@ -411,6 +411,18 @@ button {
   margin: 18px 0;
 }
 
+.auth-interest-field {
+  margin: 8px 0 0;
+}
+
+.auth-helper-box {
+  margin-top: 8px;
+}
+
+.auth-provider-row--interest {
+  margin-top: 4px;
+}
+
 .store-launch-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -428,6 +440,10 @@ button {
   border: 1px solid rgba(110, 122, 255, 0.18);
   box-shadow: 0 14px 30px rgba(7, 7, 13, 0.18);
   color: #f6efe3;
+}
+
+.store-launch-card[aria-disabled="true"] {
+  opacity: 0.78;
 }
 
 .store-launch-card--link {
@@ -483,6 +499,50 @@ button {
   margin: 18px 0;
 }
 
+.social-icon-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.social-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #292a80 0%, #5e3cff 100%);
+  color: #fff;
+  border: 1px solid rgba(94, 60, 255, 0.16);
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+.social-icon-button:hover,
+.social-icon-button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(34, 24, 99, 0.16);
+  opacity: 0.96;
+}
+
+.social-icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.social-icon-button .social-icon__stroke {
+  stroke: currentColor;
+  stroke-width: 1.8;
+  fill: none;
+}
+
+.social-icon-button .social-icon__fill {
+  fill: currentColor;
+  stroke: none;
+}
+
 .social-contact-card {
   display: flex;
   align-items: center;
@@ -501,6 +561,10 @@ button {
   transform: translateY(-1px);
   border-color: rgba(94, 60, 255, 0.24);
   box-shadow: 0 14px 28px rgba(34, 24, 99, 0.1);
+}
+
+.preview-value-grid {
+  margin: 18px 0;
 }
 
 .social-contact-card__icon {
@@ -1870,6 +1934,26 @@ body {
   background:
     linear-gradient(180deg, rgba(92, 69, 255, 0.1), rgba(255, 255, 255, 0) 20%),
     #fff;
+}
+
+.panel--preview-callout {
+  background:
+    radial-gradient(circle at top right, rgba(255, 184, 77, 0.18), transparent 26%),
+    linear-gradient(135deg, rgba(17, 29, 43, 0.96), rgba(30, 43, 75, 0.94), rgba(48, 64, 112, 0.92));
+  color: #f6efe3;
+}
+
+.panel--preview-callout .eyebrow,
+.panel--preview-callout .lede,
+.panel--preview-callout p,
+.panel--preview-callout .drawer-copy p {
+  color: rgba(246, 239, 227, 0.8);
+}
+
+.panel--preview-callout .readiness-list div,
+.panel--preview-callout .drawer-copy {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 640px) {

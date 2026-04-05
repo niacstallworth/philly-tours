@@ -50,7 +50,9 @@
     "sync-server": "node server/sync-server.js",
     "sync-server:deploy": "zsh scripts/deploy-sync-server-runtime.sh",
     "sync-server:deploy:remote": "zsh scripts/deploy-sync-server-remote.sh",
-    "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook"
+    "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook",
+    "deploy": "npx expo export -p web && wrangler deploy",
+    "preview": "npx expo export -p web && wrangler dev"
   },
   "dependencies": {
     "@aws-sdk/client-polly": "^3.1009.0",
@@ -59,6 +61,8 @@
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/native": "^7.1.33",
     "@react-navigation/native-stack": "^7.14.4",
+    "@stripe/react-stripe-js": "^6.1.0",
+    "@stripe/stripe-js": "^9.0.1",
     "@stripe/stripe-react-native": "0.45.0",
     "@supabase/supabase-js": "^2.101.1",
     "better-sqlite3": "^12.6.2",

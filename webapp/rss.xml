@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Founders Threads Updates</title>
+    <link>https://philly-tours.com/</link>
+    <description>Route launches, pilot drive alerts, and product updates from Founders Threads.</description>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 02 Apr 2026 12:00:00 GMT</lastBuildDate>
+    <item>
+      <title>New route drops</title>
+      <link>https://philly-tours.com/#tab=map</link>
+      <guid>https://philly-tours.com/rss/new-route-drops</guid>
+      <pubDate>Thu, 02 Apr 2026 12:00:00 GMT</pubDate>
+      <description>Fresh walking and driving story collections as they go live.</description>
+    </item>
+    <item>
+      <title>Pilot ride alerts</title>
+      <link>https://philly-tours.com/#tab=ar</link>
+      <guid>https://philly-tours.com/rss/pilot-ride-alerts</guid>
+      <pubDate>Thu, 02 Apr 2026 12:00:00 GMT</pubDate>
+      <description>Invites for field tests, premium audio launches, and heritage viewer updates.</description>
+    </item>
+    <item>
+      <title>Founder notes</title>
+      <link>https://philly-tours.com/#tab=profile</link>
+      <guid>https://philly-tours.com/rss/founder-notes</guid>
+      <pubDate>Thu, 02 Apr 2026 12:00:00 GMT</pubDate>
+      <description>Short product and curation updates pulled into one RSS feed.</description>
+    </item>
+  </channel>
+</rss>

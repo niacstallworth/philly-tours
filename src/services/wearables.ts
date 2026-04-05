@@ -11,6 +11,7 @@ export type WearableDevice = {
   displayName: string;
   platform: "meta_glasses";
   capabilities: WearablePermission[];
+  isMock?: boolean;
 };
 
 export type WearableStatus = {
@@ -38,6 +39,7 @@ type NativeWearableStatus = {
 type NativeWearablesModule = {
   getStatus(): Promise<NativeWearableStatus>;
   pairWearable(): Promise<NativeWearableStatus>;
+  pairMockWearable?(): Promise<NativeWearableStatus>;
   disconnectWearable(): Promise<NativeWearableStatus>;
 };
 
@@ -194,6 +196,15 @@ export async function pairWearable() {
     lastError: "Meta Wearables Device Access Toolkit integration is not wired in this build yet."
   });
   throw new Error("Meta Wearables Device Access Toolkit integration is not wired in this build yet.");
+}
+
+export async function pairMockWearable() {
+  if (nativeWearablesModule?.pairMockWearable) {
+    emit(normalizeStatus(await nativeWearablesModule.pairMockWearable()));
+    return currentStatus;
+  }
+
+  throw new Error("Mock Meta glasses pairing is not available in this build.");
 }
 
 export async function disconnectWearable() {

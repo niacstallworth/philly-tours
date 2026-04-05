@@ -5,6 +5,7 @@ import { getCurrentTourContext, openTourStopOnPhone } from "./tourControl";
 import {
   disconnectWearable,
   getWearableStatus,
+  pairMockWearable,
   pairWearable,
   refreshWearableStatus,
   subscribeToWearableStatus,
@@ -57,6 +58,10 @@ export function subscribeToCompanionStatus(listener: (status: WearableStatus) =>
 
 export async function connectCompanion() {
   return pairWearable();
+}
+
+export async function connectMockCompanion() {
+  return pairMockWearable();
 }
 
 export async function disconnectCompanion() {

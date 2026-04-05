@@ -8,6 +8,9 @@ RCT_EXTERN_METHOD(getStatus:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(pairWearable:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(pairMockWearable:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(disconnectWearable:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

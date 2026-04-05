@@ -29,6 +29,25 @@ export function useCompanionSession() {
     };
   }, []);
 
+  React.useEffect(() => {
+    const shouldPollNativePairing =
+      status.integrationMode === "native" &&
+      !status.pairedDevice?.isMock &&
+      (status.connectionState === "pairing" || (status.connectionState === "disconnected" && status.pairedDevice != null));
+
+    if (!shouldPollNativePairing) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      refreshCompanionStatus().catch(() => undefined);
+    }, 2500);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [status.connectionState, status.integrationMode, status.pairedDevice]);
+
   return {
     status,
     lastCommandResult

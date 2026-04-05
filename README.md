@@ -158,6 +158,8 @@ Cloudflare-secured production auth now expects:
 
 - `EXPO_PUBLIC_SYNC_SERVER_URL=https://api.philly-tours.com`
 - `EXPO_PUBLIC_WEB_SYNC_SERVER_URL=https://api.philly-tours.com`
+- `EXPO_PUBLIC_IOS_APP_STORE_URL=https://apps.apple.com/...`
+- `EXPO_PUBLIC_ANDROID_PLAY_STORE_URL=https://play.google.com/store/apps/details?id=...`
 - `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`
 - `CLOUDFLARE_TURNSTILE_SECRET_KEY`
 

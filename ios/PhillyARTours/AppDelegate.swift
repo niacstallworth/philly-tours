@@ -1,5 +1,6 @@
 import Expo
 import MWDATCore
+import MWDATMockDevice
 import React
 import ReactAppDependencyProvider
 
@@ -103,6 +104,10 @@ final class MetaWearablesManager {
     ObjC_Wearables.sharedInstance
   }
 
+  private var mockDeviceKit: ObjC_MockDeviceKit {
+    ObjC_MockDeviceKit.sharedInstance
+  }
+
   private init() {}
 
   func configureIfAvailable() {
@@ -169,9 +174,28 @@ final class MetaWearablesManager {
     return await statusPayload()
   }
 
+  func beginMockPairing() async throws -> [String: Any] {
+    configureIfAvailable()
+    lastErrorMessage = nil
+
+    let device = mockDeviceKit.pairRaybanMeta()
+    device.powerOn()
+    device.don()
+    device.unfold()
+    statusNote = "Mock Ray-Ban Meta connected."
+
+    return await statusPayload()
+  }
+
   func disconnect() async throws -> [String: Any] {
     await syncFromToolkit()
     lastErrorMessage = nil
+
+    if let mockDevice = mockDeviceKit.pairedDevices.first {
+      mockDeviceKit.unpairDevice(mockDevice)
+      statusNote = "Mock Ray-Ban Meta disconnected."
+      return await statusPayload()
+    }
 
     guard wearables.registrationState == .registered else {
       statusNote = "No active Meta registration to remove."
@@ -279,6 +303,12 @@ final class MetaWearablesManager {
   private func grantedPermissions() async -> [String] {
     var permissions: [String] = []
 
+    if mockDeviceKit.pairedDevices.first != nil {
+      permissions.append("camera")
+      permissions.append("device_state")
+      return permissions
+    }
+
     do {
       if try await wearables.checkPermissionStatus(.camera) == .granted {
         permissions.append("camera")
@@ -293,6 +323,17 @@ final class MetaWearablesManager {
   }
 
   private func devicePayload() -> [String: Any]? {
+    if let mockDevice = mockDeviceKit.pairedDevices.first {
+      return [
+        "id": mockDevice.deviceIdentifier,
+        "model": "Ray-Ban Meta Mock",
+        "displayName": "Mock Ray-Ban Meta",
+        "platform": "meta_glasses",
+        "capabilities": ["camera", "device_state"],
+        "isMock": true
+      ]
+    }
+
     guard let deviceId = wearables.devices.first,
           let device = wearables.deviceForIdentifier(deviceId) else {
       return nil
@@ -303,11 +344,16 @@ final class MetaWearablesManager {
       "model": device.deviceType().rawValue,
       "displayName": device.nameOrId(),
       "platform": "meta_glasses",
-      "capabilities": ["camera", "device_state"]
+      "capabilities": ["camera", "device_state"],
+      "isMock": false
     ]
   }
 
   private func currentConnectionState() -> MetaWearablesConnectionState {
+    if mockDeviceKit.pairedDevices.first != nil {
+      return .connected
+    }
+
     if wearables.registrationState == .registering {
       return .pairing
     }
@@ -344,6 +390,10 @@ final class MetaWearablesManager {
 
     if let statusNote {
       return statusNote
+    }
+
+    if mockDeviceKit.pairedDevices.first != nil {
+      return "Mock Ray-Ban Meta is active."
     }
 
     switch connectionState {
@@ -434,6 +484,17 @@ class PhillyNativeWearables: NSObject {
         resolve(try await MetaWearablesManager.shared.beginPairing())
       } catch {
         reject("META_WEARABLE_PAIR_FAILED", error.localizedDescription, error)
+      }
+    }
+  }
+
+  @objc(pairMockWearable:rejecter:)
+  func pairMockWearable(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      do {
+        resolve(try await MetaWearablesManager.shared.beginMockPairing())
+      } catch {
+        reject("META_WEARABLE_MOCK_PAIR_FAILED", error.localizedDescription, error)
       }
     }
   }

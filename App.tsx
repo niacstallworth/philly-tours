@@ -3,11 +3,12 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Linking, Platform, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
+import { StripeProvider } from "./src/providers/StripeProvider";
 import { AuthenticatedSession, createAuthenticatedSession, setAuthToken, validateAuthenticatedSession } from "./src/services/auth";
-import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
 import { subscribeToHandoffTarget } from "./src/services/handoffBus";
 import { getEntitlements, setApiUserId } from "./src/services/payments";
+import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
 import { AppThemeProvider, ThemeSurfaceProvider, useAppTheme, useTypeScale } from "./src/theme/appTheme";
 
@@ -195,7 +196,6 @@ export default function App() {
     return appBody;
   }
 
-  const { StripeProvider } = require("@stripe/stripe-react-native") as typeof import("@stripe/stripe-react-native");
   return (
     <StripeProvider publishableKey={publishableKey} merchantIdentifier="merchant.com.founders.phillyartours">
       {appBody}
