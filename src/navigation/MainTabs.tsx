@@ -2,10 +2,12 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { CompanionSetupScreen } from "../screens/CompanionSetupScreen";
 import { HomeScreen } from "../screens/HomeScreen";
+import { useCompanionSession } from "../hooks/useCompanionSession";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { ScavengerHuntScreen } from "../screens/ScavengerHuntScreen";
 import { HandoffTarget } from "../services/deepLinks";
+import { ensureMediaButtonsStarted, stopMediaButtons } from "../services/mediaButtons";
 import { dismissScavengerReveal, ensureScavengerHuntCollectorStarted, getScavengerHuntSnapshot, getScavengerTokenById, subscribeToScavengerHunt } from "../services/scavengerHunt";
 import { ThemeSurfaceProvider, useThemeColors, useTypeScale } from "../theme/appTheme";
 
@@ -30,11 +32,19 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [tab, setTab] = React.useState<"Home" | "Hunt" | "Profile" | "Companion">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
+  const { status: companionStatus } = useCompanionSession();
 
   React.useEffect(() => {
     const unsubscribe = subscribeToScavengerHunt(setHuntSnapshot);
     void ensureScavengerHuntCollectorStarted();
+    void ensureMediaButtonsStarted();
     return unsubscribe;
+  }, []);
+
+  React.useEffect(() => {
+    return () => {
+      void stopMediaButtons();
+    };
   }, []);
 
   React.useEffect(() => {
@@ -69,7 +79,10 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
     if (tab === "Companion") {
       return (
         <ThemeSurfaceProvider surface="profile">
-          <CompanionSetupScreen />
+          <CompanionSetupScreen
+            audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+            fullAppUnlocked={fullAppUnlocked}
+          />
         </ThemeSurfaceProvider>
       );
     }
@@ -104,7 +117,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
           <Text style={[styles.chromeTitle, { color: colors.text }]}>Philly AR Tours</Text>
         </View>
         <View style={[styles.chromePill, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
-          <Text style={[styles.chromePillText, { color: colors.textSoft }]}>Meta glasses mode off</Text>
+          <Text style={[styles.chromePillText, { color: colors.textSoft }]}>{getChromeCompanionLabel(companionStatus.integrationMode, companionStatus.connectionState)}</Text>
         </View>
       </View>
       <View style={styles.content}>{renderTab()}</View>
@@ -151,6 +164,18 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
       </View>
     </View>
   );
+}
+
+function getChromeCompanionLabel(integrationMode: "native" | "manual" | "none", connectionState: string) {
+  if (integrationMode === "manual") {
+    return connectionState === "connected" ? "Universal audio on" : "Universal audio ready";
+  }
+
+  if (integrationMode === "native") {
+    return connectionState === "connected" ? "Meta companion on" : "Meta companion ready";
+  }
+
+  return "Phone audio mode";
 }
 
 function createStyles(

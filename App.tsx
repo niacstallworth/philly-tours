@@ -185,7 +185,6 @@ export default function App() {
         fullAppUnlocked={fullAppUnlocked}
         onRefreshEntitlements={refreshEntitlements}
         onComplete={completeOnboarding}
-        onProviderComplete={completeProviderOnboarding}
         onDeleteProfile={deleteProfile}
         onSignOut={signOut}
       />
@@ -211,7 +210,6 @@ type AppShellProps = {
   fullAppUnlocked: boolean;
   onRefreshEntitlements: () => Promise<void>;
   onComplete: (payload: OnboardingPayload) => Promise<string | null>;
-  onProviderComplete: (session: AuthenticatedSession) => Promise<void>;
   onDeleteProfile: () => void;
   onSignOut: () => void;
 };
@@ -224,7 +222,6 @@ function AppShell({
   fullAppUnlocked,
   onRefreshEntitlements,
   onComplete,
-  onProviderComplete,
   onDeleteProfile,
   onSignOut
 }: AppShellProps) {
@@ -254,7 +251,7 @@ function AppShell({
           )}
           {!session ? (
             <ThemeSurfaceProvider surface="login">
-              <OnboardingScreen onComplete={onComplete} onProviderComplete={onProviderComplete} />
+              <OnboardingScreen onComplete={onComplete} />
             </ThemeSurfaceProvider>
           ) : (
             <MainTabs

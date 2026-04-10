@@ -6,6 +6,11 @@ window.PHILLY_TOURS_CONFIG = {
   "newsletterTable": "newsletter_subscribers",
   "syncServerUrl": "https://api.philly-tours.com",
   "cloudflareTurnstileSiteKey": "0x4AAAAAACyMqxdcuuRnVfpL",
+  "googleMapsProjectUrl": "https://www.google.com/maps/d/edit?mid=1ea-gv-cbR6gROsZXeYitu86fokfFGsw&ll=39.964376774626835%2C-75.17661126896972&z=13",
+  "googleMapsJsApiKey": "",
+  "googleMapsMapId": "",
+  "inPersonTourGuidePriceCents": "",
+  "inPersonTourGuideLabel": "In-person tour guide",
   "iosAppStoreUrl": "",
   "androidPlayStoreUrl": ""
 };

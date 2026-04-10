@@ -14,6 +14,7 @@ import {
 
 export type CompanionCommand =
   | { type: "start_tour"; tourId: string }
+  | { type: "previous_stop" }
   | { type: "next_stop" }
   | { type: "repeat_narration" }
   | { type: "pause_narration" }
@@ -157,6 +158,44 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
           stopId: firstStop.id,
           hasNarration: preflight.hasNarration,
           hasCoordinates: preflight.hasCoordinates
+        }
+      };
+      break;
+    }
+    case "previous_stop": {
+      if (!context?.tour || !context?.stop || context.stopIndex <= 0) {
+        result = { ok: false, message: "There is no previous stop ready from the current tour context." };
+        break;
+      }
+      const previousStop = context.tour.stops[context.stopIndex - 1];
+      const preflight = runPhoneHandoffPreflight(context.tour.id, previousStop.id);
+      if (!preflight.ok) {
+        result = { ok: false, message: preflight.message };
+        break;
+      }
+      openTourStopOnPhone(context.tour.id, previousStop.id, "map");
+      if (preflight.hasNarration) {
+        await startNarration({
+          id: previousStop.id,
+          title: previousStop.title,
+          lat: previousStop.lat,
+          lng: previousStop.lng,
+          triggerRadiusM: previousStop.triggerRadiusM,
+          audioUrl: previousStop.audioUrl,
+          summary: previousStop.description.split("|")[0]?.trim() || previousStop.description
+        });
+      }
+      result = {
+        ok: true,
+        message: preflight.hasNarration
+          ? `Moved back to ${previousStop.title} and started narration.`
+          : `Moved back to ${previousStop.title}. Narration is not ready for this stop yet.`,
+        deepLink: preflight.deepLink,
+        payload: {
+          stopId: previousStop.id,
+          hasNarration: preflight.hasNarration,
+          hasCoordinates: preflight.hasCoordinates,
+          hasArAssets: preflight.hasArAssets
         }
       };
       break;

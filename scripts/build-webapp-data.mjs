@@ -59,6 +59,8 @@ function loadDotEnvFile(filePath) {
 loadDotEnvFile(path.join(repoRoot, "server.local.env"));
 loadDotEnvFile(path.join(repoRoot, ".env.server.local"));
 loadDotEnvFile(path.join(repoRoot, ".env.server"));
+loadDotEnvFile(path.join(repoRoot, ".env.production.local"));
+loadDotEnvFile(path.join(repoRoot, ".env.web.local"));
 loadDotEnvFile(path.join(repoRoot, ".env.local"));
 loadDotEnvFile(path.join(repoRoot, ".env"));
 
@@ -129,6 +131,11 @@ const siteConfig = {
   newsletterTable: "newsletter_subscribers",
   syncServerUrl: process.env.EXPO_PUBLIC_WEB_SYNC_SERVER_URL || process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "",
   cloudflareTurnstileSiteKey: process.env.EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY || "",
+  googleMapsProjectUrl: process.env.EXPO_PUBLIC_GOOGLE_MAPS_EMBED_URL || "",
+  googleMapsJsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY || "",
+  googleMapsMapId: process.env.EXPO_PUBLIC_GOOGLE_MAPS_MAP_ID || "",
+  inPersonTourGuidePriceCents: process.env.EXPO_PUBLIC_IN_PERSON_TOUR_GUIDE_PRICE_CENTS || "",
+  inPersonTourGuideLabel: process.env.EXPO_PUBLIC_IN_PERSON_TOUR_GUIDE_LABEL || "In-person tour guide",
   iosAppStoreUrl: process.env.EXPO_PUBLIC_IOS_APP_STORE_URL || "",
   androidPlayStoreUrl: process.env.EXPO_PUBLIC_ANDROID_PLAY_STORE_URL || ""
 };

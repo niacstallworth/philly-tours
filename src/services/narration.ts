@@ -69,10 +69,10 @@ function resolveNarrationTarget(status: WearableStatus = wearableStatus): Narrat
 
 function buildNarrationRouteCopy(target: NarrationTarget) {
   if (target === "companion") {
-    return "Meta glasses when connected";
+    return "the connected glasses or Bluetooth audio device";
   }
   if (target === "phone") {
-    return "this phone";
+    return "the current audio output";
   }
   return "the current device";
 }
@@ -92,7 +92,7 @@ function syncNarrationTarget(status: WearableStatus) {
   if (currentState.status === "playing" && currentState.target === "companion" && nextTarget === "phone") {
     emit({
       target: "phone",
-      message: "Meta glasses disconnected. Narration is continuing on this phone."
+      message: "The connected audio companion disconnected. Narration is continuing on the current audio output."
     });
     return;
   }
@@ -292,7 +292,7 @@ export async function startNarration(
     target,
     stopId: stop.id,
     stopTitle: stop.title,
-    message: target === "companion" ? "Preparing narration for Meta glasses..." : "Preparing narration..."
+    message: target === "companion" ? "Preparing narration for the connected audio device..." : "Preparing narration..."
   });
 
   const preferredPath = resolveNarrationPath(stop, variant);

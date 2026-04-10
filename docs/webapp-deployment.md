@@ -1,6 +1,6 @@
 # Webapp Deployment
 
-This repo now includes a static browser webapp in [`webapp/`](/Users/nia/Documents/GitHub/philly-tours/webapp) backed by generated tour and narration data.
+This repo now includes a static browser webapp in `webapp/` backed by generated tour and narration data.
 
 Use this guide when you want to deploy the webapp to your own server instead of opening local files directly.
 
@@ -8,13 +8,13 @@ Use this guide when you want to deploy the webapp to your own server instead of 
 
 At minimum, your web host needs to serve:
 
-- [`webapp/index.html`](/Users/nia/Documents/GitHub/philly-tours/webapp/index.html)
-- [`webapp/styles.css`](/Users/nia/Documents/GitHub/philly-tours/webapp/styles.css)
-- [`webapp/app.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/app.js)
-- [`webapp/tours-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/tours-data.js)
-- [`webapp/narration-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/narration-data.js)
-- [`assets/audio/`](/Users/nia/Documents/GitHub/philly-tours/assets/audio)
-- [`assets/models/`](/Users/nia/Documents/GitHub/philly-tours/assets/models) if you want web 3D model previews
+- `webapp/index.html`
+- `webapp/styles.css`
+- `webapp/app.js`
+- `webapp/tours-data.js`
+- `webapp/narration-data.js`
+- `assets/audio/`
+- `assets/models/` if you want web 3D model previews
 
 The webapp expects narration files at `/assets/audio/...`.
 Web model previews should be deployed at `/assets/models/...`.
@@ -29,8 +29,8 @@ npm run webapp:data
 
 That command rebuilds:
 
-- [`webapp/tours-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/tours-data.js)
-- [`webapp/narration-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/narration-data.js)
+- `webapp/tours-data.js`
+- `webapp/narration-data.js`
 
 If you want a fresh upload package for Cloudflare Pages or another static host:
 
@@ -38,9 +38,9 @@ If you want a fresh upload package for Cloudflare Pages or another static host:
 npm run webapp:package
 ```
 
-That command rebuilds [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist) and creates:
+That command rebuilds `web-dist/` and creates:
 
-- [`web-release/philly-ar-tours-webapp.zip`](/Users/nia/Documents/GitHub/philly-tours/web-release/philly-ar-tours-webapp.zip)
+- `web-release/philly-ar-tours-webapp.zip`
 
 ## Local Verification
 
@@ -89,9 +89,9 @@ For this repo, Cloudflare Pages is the easiest production path because:
 
 Recommended structure for Cloudflare:
 
-- use [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist) as the publish directory
-- keep [`webapp/_redirects`](/Users/nia/Documents/GitHub/philly-tours/webapp/_redirects) so SPA routes fall back to `index.html`
-- let the build step copy [`assets/audio/`](/Users/nia/Documents/GitHub/philly-tours/assets/audio) and [`assets/models/`](/Users/nia/Documents/GitHub/philly-tours/assets/models) into the deploy output
+- use `web-dist/` as the publish directory
+- keep `webapp/_redirects` so SPA routes fall back to `index.html`
+- let the build step copy `assets/audio/` and `assets/models/` into the deploy output
 
 ### Cloudflare Pages Deploy Flow
 
@@ -104,7 +104,7 @@ npm run webapp:build
 
 2. Make sure this deploy directory exists:
 
-- [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist)
+- `web-dist/`
 
 It should include:
 
@@ -135,9 +135,32 @@ npm run webapp:build
 web-dist
 ```
 
+4. Add browser-safe environment variables in Cloudflare Pages before the build runs:
+
+- `EXPO_PUBLIC_WEB_SYNC_SERVER_URL`
+- `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`
+- `EXPO_PUBLIC_GOOGLE_MAPS_EMBED_URL`
+- `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY`
+- optional `EXPO_PUBLIC_GOOGLE_MAPS_MAP_ID`
+
+Keep the browser key restricted in Google Cloud:
+
+- restrict it to the `Maps JavaScript API`
+- restrict referrers to your actual domains, such as `https://philly-tours.com/*` and any preview host you intentionally use
+- do not reuse the server-only `GOOGLE_MAPS_API_KEY` in the browser build
+
 ### Important Cloudflare Note
 
-Cloudflare Pages publishes one output directory. This repo now uses [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist) so the static app and `/assets/...` paths can ship together.
+Cloudflare Pages publishes one output directory. This repo now uses `web-dist/` so the static app and `/assets/...` paths can ship together.
+
+### Production Google Maps Note
+
+The Home tab and route views can render in two different ways:
+
+- with `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY`, the shell uses the interactive Google Maps JavaScript API
+- without that browser key, the Home tab falls back to a Google-hosted embed so production does not show a blank map shell
+
+If you want full in-shell map interactivity on production, publish a browser-restricted `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY` through your deploy environment rather than committing it into `webapp/site-config.js`.
 
 ### Static Upload Shortcut
 
@@ -150,7 +173,7 @@ npm run webapp:package
 ```
 
 2. In Cloudflare Pages choose the static file upload path.
-3. Upload the contents of [`web-dist/`](/Users/nia/Documents/GitHub/philly-tours/web-dist) or the packaged archive in [`web-release/`](/Users/nia/Documents/GitHub/philly-tours/web-release).
+3. Upload the contents of `web-dist/` or the packaged archive in `web-release/`.
 
 ## Nginx Example
 
@@ -202,20 +225,22 @@ tours.example.com {
 }
 ```
 
-If you use Caddy, make sure `/assets/audio/...` resolves to files under [`assets/audio/`](/Users/nia/Documents/GitHub/philly-tours/assets/audio).
+If you use Caddy, make sure `/assets/audio/...` resolves to files under `assets/audio/`.
 
 ## Deploy Checklist
 
 1. Pull the latest repo on the server.
 2. Run `npm install`.
-3. Run `npm run webapp:data`.
-4. Confirm [`webapp/tours-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/tours-data.js) and [`webapp/narration-data.js`](/Users/nia/Documents/GitHub/philly-tours/webapp/narration-data.js) were regenerated.
-5. Point your web server root at [`webapp/`](/Users/nia/Documents/GitHub/philly-tours/webapp).
-6. Expose [`assets/audio/`](/Users/nia/Documents/GitHub/philly-tours/assets/audio) at `/assets/audio/`.
-7. If you have `.glb` files, expose [`assets/models/`](/Users/nia/Documents/GitHub/philly-tours/assets/models) at `/assets/models/`.
-8. Serve the site on HTTPS.
-9. Verify:
+3. Provide browser-safe deploy env values, either in your host's build settings or in an ignored local file such as `.env.production.local`.
+4. Run `npm run webapp:data`.
+5. Confirm `webapp/tours-data.js`, `webapp/narration-data.js`, and `webapp/site-config.js` were regenerated with the expected browser-safe config.
+6. Point your web server root at `webapp/`.
+7. Expose `assets/audio/` at `/assets/audio/`.
+8. If you have `.glb` files, expose `assets/models/` at `/assets/models/`.
+9. Serve the site on HTTPS.
+10. Verify:
    - homepage loads
+   - Home tab shows a Google map
    - route map loads
    - recorded narration plays
    - AR live can request camera permission

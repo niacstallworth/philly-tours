@@ -276,7 +276,7 @@ export function HomeScreen({
               tone={highlightedStopLocked ? "warn" : highlightedNarrationMeta?.coverageTone || "warn"}
             />
             {narration.stopId === highlightedStop.id ? (
-              <Chip label={narration.target === "companion" ? "To Meta glasses" : narration.target === "phone" ? "To phone" : "No target"} tone="default" />
+              <Chip label={narration.target === "companion" ? "To connected audio" : narration.target === "phone" ? "To current output" : "No target"} tone="default" />
             ) : null}
           </View>
           {highlightedStopLocked ? (

@@ -52,6 +52,7 @@ Supporting docs:
 - `docs/vehicle-platform-plan.md`
 - `docs/product-direction.md`
 - `docs/drive-mode-positioning.md`
+- `docs/google-maps-platform-plan.md`
 
 ## Local Development
 
@@ -114,8 +115,17 @@ Important groups:
 - Server auth + builder/admin accounts
 - Stripe checkout + webhooks
 - Apple / Google purchase verification
+- Google Maps Platform server access
+- Google Maps browser shell rendering
 - AWS Polly narration generation
 - Image generation providers for AR asset work
+
+For production web deploys, keep the browser Google Maps key out of git and inject it at build time with:
+
+- `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY` for the Google Maps JavaScript API
+- `GOOGLE_MAPS_API_KEY` for server-side `Routes`, `Places`, and `Geocoding`
+
+The web build now also reads optional ignored files such as `.env.production.local` and `.env.web.local`, so you can keep the browser key local while still generating a production-ready `web-dist`.
 
 ## Payments / Backend
 

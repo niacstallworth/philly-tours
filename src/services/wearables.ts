@@ -66,7 +66,7 @@ let currentStatus: WearableStatus = {
     nativeWearablesModule != null
       ? "Meta wearables native toolkit is ready."
       : supportsManualCompanionMode
-        ? "Android can use Meta glasses in manual Bluetooth-audio mode. Pair the glasses in system Bluetooth settings, then connect here."
+        ? "Universal audio mode is available on Android. Pair any Bluetooth glasses, headset, or speaker in system settings, then connect here to keep narration on that output."
         : "This build does not expose Meta glasses integration on this platform."
 };
 let didHydrateStoredStatus = false;
@@ -94,11 +94,11 @@ function getManualAndroidStatus(connectionState: WearableConnectionState = "conn
   const connected = connectionState === "connected";
   const rememberedDevice =
     currentStatus.pairedDevice && currentStatus.integrationMode === "manual"
-      ? currentStatus.pairedDevice
-      : {
-          id: "meta-glasses-manual-android",
-          model: "Meta AI Glasses",
-          displayName: "Meta Glasses (Bluetooth audio)",
+        ? currentStatus.pairedDevice
+        : {
+          id: "bluetooth-audio-manual-android",
+          model: "Bluetooth Audio Device",
+          displayName: "Bluetooth audio device",
           platform: "meta_glasses" as const,
           capabilities: []
         };
@@ -111,8 +111,8 @@ function getManualAndroidStatus(connectionState: WearableConnectionState = "conn
     integrationMode: "manual",
     platformLabel: "Android",
     statusMessage: connected
-      ? "Manual Meta glasses mode is active. Narration will follow Android audio routing to the paired glasses."
-      : "Manual Meta glasses mode is available. Pair the glasses in Bluetooth settings, then connect here to route narration through them."
+      ? "Universal audio mode is active. Narration will follow Android audio routing to the connected Bluetooth audio device."
+      : "Universal audio mode is available. Pair any Bluetooth glasses, headset, or speaker in Android settings, then connect here to keep narration on that audio output."
   };
 }
 

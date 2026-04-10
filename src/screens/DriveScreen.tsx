@@ -278,7 +278,7 @@ export function DriveScreen({ initialTourId }: Props) {
             <View style={styles.chips}>
               <Chip label={`State ${narration.status}`} tone={narration.status === "playing" ? "success" : narration.status === "error" ? "danger" : "default"} />
               <Chip label={narration.source === "audio" ? "Recorded audio" : narration.source === "speech" ? "Live voice preview" : "No source yet"} tone="warn" />
-              <Chip label={narration.target === "companion" ? "To Meta glasses" : narration.target === "phone" ? "To phone" : "No target"} tone="default" />
+              <Chip label={narration.target === "companion" ? "To connected audio" : narration.target === "phone" ? "To current output" : "No target"} tone="default" />
             </View>
             <View style={styles.actions}>
               <PrimaryButton label={narration.status === "playing" ? "Replay Narration" : "Play Narration"} onPress={onPlayNarration} />

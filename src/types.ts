@@ -26,11 +26,19 @@ export type Stop = {
   estimatedEffort?: "low" | "medium" | "high";
 };
 
+export type TourCardMedia = {
+  type: "image" | "video";
+  src: string;
+  poster?: string;
+  alt?: string;
+};
+
 export type Tour = {
   id: string;
   title: string;
   durationMin: number;
   distanceMiles: number;
   rating: number;
+  cardMedia?: TourCardMedia;
   stops: Stop[];
 };

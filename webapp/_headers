@@ -1,7 +1,10 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=*, geolocation=*, autoplay=*
+  Permissions-Policy: camera=*, geolocation=*, autoplay=*, xr-spatial-tracking=*
+
+/index.html
+  Cache-Control: no-store
 
 /assets/*
   Cache-Control: public, max-age=604800, immutable

@@ -97,9 +97,25 @@ android {
         multiDexEnabled true
         buildConfigField "boolean", "META_WEARABLES_DAT_ENABLED", ((findProperty("metaWearablesDatEnabled") ?: "false").toString())
         buildConfigField "String", "META_WEARABLES_DAT_VERSION", "\"${(findProperty("metaWearablesDatVersion") ?: "0.5.0")}\""
+        buildConfigField "String", "VUZIX_ULTRALITE_SDK_VERSION", "\"${(findProperty("vuzixUltraliteSdkVersion") ?: "1.9")}\""
         manifestPlaceholders = [
             metaWearablesApplicationId: (findProperty("metaWearablesApplicationId") ?: "0").toString()
         ]
+    }
+    flavorDimensions "hardware"
+    productFlavors {
+        standard {
+            dimension "hardware"
+            minSdkVersion rootProject.ext.minSdkVersion
+            buildConfigField "boolean", "VUZIX_ULTRALITE_SDK_ENABLED", "false"
+        }
+        vuzix {
+            dimension "hardware"
+            minSdkVersion 30
+            applicationIdSuffix ".vuzix"
+            versionNameSuffix "-vuzix"
+            buildConfigField "boolean", "VUZIX_ULTRALITE_SDK_ENABLED", "true"
+        }
     }
     signingConfigs {
         debug {
@@ -161,6 +177,8 @@ dependencies {
     if ((findProperty("metaWearablesDatEnabled") ?: "false").toString().toBoolean()) {
         implementation("com.meta.wearable:mwdat-core:${findProperty("metaWearablesDatVersion") ?: "0.5.0"}")
     }
+
+    vuzixImplementation("com.vuzix:ultralite-sdk-android:${findProperty("vuzixUltraliteSdkVersion") ?: "1.9"}")
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

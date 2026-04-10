@@ -123,7 +123,7 @@ final class MetaWearablesManager {
       lastErrorMessage = configurationError.localizedDescription
     } else {
       lastErrorMessage = nil
-      statusNote = "Meta DAT configured for this build."
+      statusNote = "Meta DAT configured for this build. Phone and Bluetooth audio narration remain available either way."
     }
 
     configurationIssues = metaConfigurationIssues()
@@ -138,7 +138,7 @@ final class MetaWearablesManager {
     case .available:
       do {
         try await wearables.startRegistration()
-        statusNote = "Meta registration started. Complete the flow in the Meta AI app, then return here."
+        statusNote = "Meta registration started. Complete the flow in the Meta AI app, then return here. Narration can still play through your current iPhone audio output in the meantime."
       } catch {
         lastErrorMessage = error.localizedDescription
         throw error
@@ -204,7 +204,7 @@ final class MetaWearablesManager {
 
     do {
       try await wearables.startUnregistration()
-      statusNote = "Meta wearables unregistration started in the Meta AI app."
+      statusNote = "Meta wearables unregistration started in the Meta AI app. Narration will continue to use your current iPhone audio output."
     } catch {
       lastErrorMessage = error.localizedDescription
       throw error
@@ -405,8 +405,8 @@ final class MetaWearablesManager {
       return "Meta glasses are known to the app but the current session is not running."
     case .idle:
       return wearables.registrationState == .registered
-        ? "Meta registration is complete. Connect glasses and grant camera permission to continue."
-        : "Meta registration is available for this app."
+        ? "Meta registration is complete. You can keep using iPhone or Bluetooth audio, or connect glasses and grant camera permission for the full companion flow."
+        : "Meta registration is available for this app. Narration also works through the current iPhone audio output, including Bluetooth headphones and glasses."
     case .unavailable:
       return unavailableMessage()
     case .error:
@@ -416,10 +416,10 @@ final class MetaWearablesManager {
 
   private func unavailableMessage() -> String {
     if configurationIssues.isEmpty {
-      return "Meta DAT is installed, but registration is unavailable until the Meta AI app is installed and the project is configured."
+      return "Meta DAT is installed, but registration is unavailable until the Meta AI app is installed and the project is configured. Narration can still use the current iPhone audio output."
     }
 
-    return "Meta DAT is missing project configuration: \(configurationIssues.joined(separator: ", ")). Replace the placeholder build settings in the iOS target before pairing."
+    return "Meta DAT is missing project configuration: \(configurationIssues.joined(separator: ", ")). Replace the placeholder build settings in the iOS target before pairing. Narration can still use the current iPhone audio output."
   }
 
   private func metaConfigurationIssues() -> [String] {
@@ -454,7 +454,7 @@ final class MetaWearablesManager {
     case .paused:
       return "Meta glasses session is paused."
     case .waitingForDevice:
-      return "Waiting for paired Meta glasses to become available."
+      return "Waiting for paired Meta glasses to become available. Narration can still play through the current iPhone audio output."
     case .stopped:
       return "Meta glasses session is stopped."
     case .unknown:

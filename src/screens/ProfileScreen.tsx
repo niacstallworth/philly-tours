@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useCompanionSession } from "../hooks/useCompanionSession";
+import { openAuthSessionWithFallback } from "../services/browser";
 import { connectCompanion, refreshCompanionStatus } from "../services/companion";
 import type { WearableStatus } from "../services/wearables";
 import {
@@ -136,7 +137,7 @@ export function ProfileScreen({
       if (!session.url) {
         throw new Error("Stripe Checkout URL was not returned.");
       }
-      const result = await WebBrowser.openAuthSessionAsync(session.url, "phillyartours://checkout/success");
+      const result = await openAuthSessionWithFallback(session.url, "phillyartours://checkout/success");
       if (result.type === "success" || result.type === "dismiss" || result.type === "cancel") {
         refreshEntitlements(false).catch(() => undefined);
       }
@@ -207,6 +208,10 @@ export function ProfileScreen({
 
   async function openExternalLink(url: string) {
     try {
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
       await Linking.openURL(url);
     } catch {
       Alert.alert("Could not open link", url);
@@ -268,7 +273,7 @@ export function ProfileScreen({
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Meta Glasses Companion</Text>
+        <Text style={styles.sectionTitle}>Audio and Glasses Companion</Text>
         <Text style={styles.copy}>
           {getProfileCompanionCopy(companionStatus)}
         </Text>
@@ -340,11 +345,18 @@ export function ProfileScreen({
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Follow + Contact</Text>
         <Text style={styles.copy}>
-          Keep the Android app connected to the live Founders Threads channels while the native experience continues to grow.
+          {Platform.OS === "web"
+            ? "Keep up with Founders Threads and Philly Tours from the web app with direct links to every live social channel."
+            : "Keep the app connected to the live Founders Threads channels while the native experience continues to grow."}
         </Text>
         <View style={styles.socialGrid}>
           {SOCIAL_LINKS.map((link) => (
-            <Pressable key={link.url} onPress={() => void openExternalLink(link.url)} style={styles.socialCard}>
+            <Pressable
+              key={link.url}
+              onPress={() => void openExternalLink(link.url)}
+              style={styles.socialCard}
+              accessibilityRole="link"
+            >
               <Text style={styles.socialTitle}>{link.label}</Text>
               <Text style={styles.socialDetail}>{link.detail}</Text>
             </Pressable>
@@ -415,7 +427,7 @@ function getProfileIntegrationLabel(status: WearableStatus) {
   }
 
   if (status.integrationMode === "manual") {
-    return "Bluetooth audio mode";
+    return "Universal audio mode";
   }
 
   return "Unavailable";
@@ -423,19 +435,19 @@ function getProfileIntegrationLabel(status: WearableStatus) {
 
 function getProfileCompanionCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Pair Meta glasses over Bluetooth to route narration and use phone-based tour controls.";
+    return "Pair any Bluetooth glasses, headset, or speaker to route narration while keeping tour controls on the phone.";
   }
 
   if (status.integrationMode === "native") {
-    return "Pair Meta glasses, confirm registration, and check camera access.";
+    return "Your iPhone can route narration to its current audio output, including Bluetooth headphones and glasses. Pair Meta glasses here when you want registration, camera access, and deeper companion controls.";
   }
 
-  return "Meta glasses controls are not available on this device yet.";
+  return "Use phone-first touring here, with premium glasses integrations available on supported devices.";
 }
 
 function getProfileReconnectCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "A remembered Meta glasses audio route is available. Restore it to keep narration on the paired Bluetooth glasses.";
+    return "A remembered Bluetooth audio route is available. Restore it to keep narration on the paired audio device.";
   }
 
   return "A remembered Meta device is available. Reconnect to restore companion access.";
@@ -443,10 +455,10 @@ function getProfileReconnectCopy(status: WearableStatus) {
 
 function getProfileReconnectLabel(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Restore Meta Glasses Audio Mode";
+    return "Restore Universal Audio Mode";
   }
 
-  return "Reconnect Meta Glasses";
+  return "Reconnect Companion Device";
 }
 
 function createStyles(

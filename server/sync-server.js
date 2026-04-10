@@ -75,6 +75,9 @@ const GOOGLE_IAP_ENABLED =
 const CLOUDFLARE_TURNSTILE_SECRET_KEY = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const NEWSLETTER_FROM_EMAIL = process.env.NEWSLETTER_FROM_EMAIL || "Philly Tours <newsletter@philly-tours.com>";
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
+const GOOGLE_MAPS_DEFAULT_REGION = (process.env.GOOGLE_MAPS_DEFAULT_REGION || "us").trim();
+const GOOGLE_MAPS_DEFAULT_LANGUAGE = (process.env.GOOGLE_MAPS_DEFAULT_LANGUAGE || "en").trim();
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
@@ -329,6 +332,54 @@ const oauthSessionRequestSchema = z.object({
   provider: z.enum(["google", "apple"]).optional()
 });
 
+const latLngSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180)
+});
+
+const mapsRoutePreviewSchema = z.object({
+  stops: z.array(latLngSchema.extend({
+    title: z.string().min(1).max(160).optional()
+  })).min(2).max(25),
+  travelMode: z.enum(["DRIVE", "BICYCLE", "WALK", "TWO_WHEELER"]).default("DRIVE"),
+  routingPreference: z.enum(["TRAFFIC_AWARE", "TRAFFIC_AWARE_OPTIMAL", "TRAFFIC_UNAWARE"]).default("TRAFFIC_AWARE"),
+  computeAlternativeRoutes: z.boolean().optional().default(false),
+  languageCode: z.string().min(2).max(10).optional(),
+  regionCode: z.string().min(2).max(3).optional()
+});
+
+const mapsPlaceSearchSchema = z.object({
+  textQuery: z.string().min(1).max(200),
+  locationBias: latLngSchema.optional(),
+  radiusMeters: z.number().int().min(1).max(50_000).optional(),
+  includedType: z.string().min(1).max(64).optional(),
+  maxResultCount: z.number().int().min(1).max(20).optional().default(8),
+  languageCode: z.string().min(2).max(10).optional(),
+  regionCode: z.string().min(2).max(3).optional()
+});
+
+const mapsPlaceDetailsSchema = z.object({
+  placeId: z.string().min(1).max(256),
+  languageCode: z.string().min(2).max(10).optional(),
+  regionCode: z.string().min(2).max(3).optional()
+});
+
+const mapsGeocodeSchema = z.object({
+  address: z.string().min(1).max(240).optional(),
+  placeId: z.string().min(1).max(256).optional(),
+  location: latLngSchema.optional(),
+  language: z.string().min(2).max(10).optional(),
+  region: z.string().min(2).max(3).optional()
+}).superRefine((value, ctx) => {
+  const provided = [value.address, value.placeId, value.location].filter(Boolean);
+  if (provided.length !== 1) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Provide exactly one of address, placeId, or location."
+    });
+  }
+});
+
 const roomMembers = new Map();
 
 let googleAuthClientPromise = null;
@@ -359,8 +410,125 @@ function authConfigured() {
   return !!AUTH_JWT_SECRET;
 }
 
+function googleMapsConfigured() {
+  return !!GOOGLE_MAPS_API_KEY;
+}
+
 function supabaseAuthConfigured() {
   return !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
+}
+
+async function readJsonResponse(response, fallbackMessage) {
+  const raw = await response.text().catch(() => "");
+  if (!raw.trim()) {
+    return {};
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new Error(fallbackMessage || `Unable to parse upstream JSON response: ${raw.slice(0, 300)}`);
+  }
+}
+
+function requireGoogleMaps(res) {
+  if (!googleMapsConfigured()) {
+    res.status(503).json({ error: "Google Maps Platform is not configured on the server." });
+    return false;
+  }
+  return true;
+}
+
+async function fetchGoogleMapsJson(url, { method = "GET", headers = {}, body, fieldMask } = {}) {
+  const response = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+      ...(fieldMask ? { "X-Goog-FieldMask": fieldMask } : {}),
+      ...headers
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+
+  const payload = await readJsonResponse(response, "Unable to parse Google Maps response.");
+  if (!response.ok) {
+    throw new Error(
+      payload?.error?.message ||
+        payload?.message ||
+        `Google Maps request failed (${response.status}).`
+    );
+  }
+  return payload;
+}
+
+function buildRoutesWaypoint(stop) {
+  return {
+    location: {
+      latLng: {
+        latitude: stop.lat,
+        longitude: stop.lng
+      }
+    }
+  };
+}
+
+function buildLocationBiasCircle(location, radiusMeters) {
+  return {
+    circle: {
+      center: {
+        latitude: location.lat,
+        longitude: location.lng
+      },
+      radius: radiusMeters
+    }
+  };
+}
+
+function mapRouteLegs(route, stops) {
+  const legs = Array.isArray(route?.legs) ? route.legs : [];
+  return legs.map((leg, index) => ({
+    startLocation: leg?.startLocation?.latLng
+      ? {
+          lat: leg.startLocation.latLng.latitude,
+          lng: leg.startLocation.latLng.longitude
+        }
+      : null,
+    endLocation: leg?.endLocation?.latLng
+      ? {
+          lat: leg.endLocation.latLng.latitude,
+          lng: leg.endLocation.latLng.longitude
+        }
+      : null,
+    distanceMeters: Number(leg?.distanceMeters || 0),
+    duration: String(leg?.duration || ""),
+    staticDuration: String(leg?.staticDuration || ""),
+    startTitle: stops[index]?.title || null,
+    endTitle: stops[index + 1]?.title || null
+  }));
+}
+
+function summarizeRoute(route, stops) {
+  return {
+    distanceMeters: Number(route?.distanceMeters || 0),
+    duration: String(route?.duration || ""),
+    staticDuration: String(route?.staticDuration || ""),
+    viewport: route?.viewport || null,
+    polyline: route?.polyline?.encodedPolyline || "",
+    legs: mapRouteLegs(route, stops)
+  };
+}
+
+function normalizeGeocodeResult(result) {
+  const location = result?.geometry?.location;
+  return {
+    formattedAddress: result?.formatted_address || "",
+    placeId: result?.place_id || null,
+    location:
+      typeof location?.lat === "number" && typeof location?.lng === "number"
+        ? { lat: location.lat, lng: location.lng }
+        : null,
+    types: Array.isArray(result?.types) ? result.types : []
+  };
 }
 
 async function sendNewsletterConfirmationEmail({ email, displayName }) {
@@ -841,6 +1009,37 @@ async function ensureUser(input) {
   );
 }
 
+function getPendingCheckoutUserId(sessionId) {
+  return `pending-checkout-${String(sessionId || "").trim() || "unknown"}`;
+}
+
+function resolveCheckoutSessionActor(session) {
+  const metadataUserId = String(session?.metadata?.userId || "").trim();
+  if (metadataUserId) {
+    return {
+      userId: metadataUserId,
+      email: normalizeEmail(session?.customer_details?.email || session?.customer_email || ""),
+      displayName: String(session?.customer_details?.name || "").trim() || null
+    };
+  }
+
+  const checkoutEmail = normalizeEmail(session?.customer_details?.email || session?.customer_email || "");
+  if (!checkoutEmail) {
+    return null;
+  }
+
+  const inferred = buildSessionForVerifiedEmail(
+    checkoutEmail,
+    String(session?.customer_details?.name || "").trim() || defaultDisplayNameFromEmail(checkoutEmail)
+  );
+
+  return {
+    userId: inferred.userId,
+    email: inferred.email,
+    displayName: inferred.displayName
+  };
+}
+
 async function getOrCreateStripeCustomer(userId) {
   const { rows } = await dbQuery(
     `select id, stripe_customer_id
@@ -942,9 +1141,29 @@ function normalizeCheckoutStatus(session) {
 
 async function upsertStripeCheckoutEntitlementFromSession(session) {
   const planId = String(session?.metadata?.planId || "").trim();
-  const userId = String(session?.metadata?.userId || "").trim();
+  const actor = resolveCheckoutSessionActor(session);
+  const userId = String(actor?.userId || "").trim();
   if (!planId || !userId) {
     return;
+  }
+
+  await ensureUser(actor);
+  await dbQuery(
+    `update public.payment_orders
+     set user_id = $1, updated_at = $2
+     where stripe_checkout_session_id = $3`,
+    [userId, now(), session.id || ""]
+  );
+
+  if (String(session?.customer || "").trim()) {
+    await dbQuery(
+      `update public.users
+       set stripe_customer_id = $1,
+           updated_at = $2,
+           last_seen_at = $2
+       where id = $3`,
+      [String(session.customer).trim(), now(), userId]
+    );
   }
 
   await dbQuery(
@@ -1038,6 +1257,14 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many sign-in attempts. Please wait and try again." }
+});
+
+const mapsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many map requests. Please wait and try again." }
 });
 
 app.use("/api", apiLimiter);
@@ -1142,8 +1369,254 @@ app.get("/api/config/status", (_, res) => {
     appleBundleId: APPLE_IAP_BUNDLE_ID || null,
     googleIapConfigured: GOOGLE_IAP_ENABLED,
     googlePackageName: GOOGLE_PLAY_PACKAGE_NAME || null,
-    turnstileConfigured: turnstileConfigured()
+    turnstileConfigured: turnstileConfigured(),
+    googleMapsConfigured: googleMapsConfigured(),
+    googleMapsDefaultRegion: GOOGLE_MAPS_DEFAULT_REGION || null,
+    googleMapsDefaultLanguage: GOOGLE_MAPS_DEFAULT_LANGUAGE || null
   });
+});
+
+app.post("/api/maps/route-preview", mapsLimiter, async (req, res) => {
+  if (!requireGoogleMaps(res)) {
+    return;
+  }
+
+  const parsed = mapsRoutePreviewSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid route preview request." });
+    return;
+  }
+
+  try {
+    const body = parsed.data;
+    const [origin, ...rest] = body.stops;
+    const destination = rest[rest.length - 1];
+    const intermediates = rest.slice(0, -1);
+    const payload = await fetchGoogleMapsJson("https://routes.googleapis.com/directions/v2:computeRoutes", {
+      method: "POST",
+      fieldMask:
+        "routes.distanceMeters,routes.duration,routes.staticDuration,routes.polyline.encodedPolyline,routes.legs.distanceMeters,routes.legs.duration,routes.legs.staticDuration,routes.legs.startLocation,routes.legs.endLocation,routes.viewport",
+      body: {
+        origin: buildRoutesWaypoint(origin),
+        destination: buildRoutesWaypoint(destination),
+        intermediates: intermediates.map(buildRoutesWaypoint),
+        travelMode: body.travelMode,
+        routingPreference: body.routingPreference,
+        computeAlternativeRoutes: body.computeAlternativeRoutes,
+        languageCode: body.languageCode || GOOGLE_MAPS_DEFAULT_LANGUAGE,
+        regionCode: body.regionCode || GOOGLE_MAPS_DEFAULT_REGION,
+        polylineQuality: "OVERVIEW",
+        polylineEncoding: "ENCODED_POLYLINE"
+      }
+    });
+
+    const routes = Array.isArray(payload?.routes) ? payload.routes : [];
+    res.json({
+      ok: true,
+      mode: body.travelMode,
+      stopCount: body.stops.length,
+      routeCount: routes.length,
+      routes: routes.map((route) => summarizeRoute(route, body.stops)),
+      primaryRoute: routes[0] ? summarizeRoute(routes[0], body.stops) : null
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Unable to load route preview." });
+  }
+});
+
+app.post("/api/maps/place-search", mapsLimiter, async (req, res) => {
+  if (!requireGoogleMaps(res)) {
+    return;
+  }
+
+  const parsed = mapsPlaceSearchSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid place search request." });
+    return;
+  }
+
+  try {
+    const body = parsed.data;
+    const payload = await fetchGoogleMapsJson("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      fieldMask:
+        "places.id,places.displayName,places.formattedAddress,places.location,places.googleMapsUri,places.websiteUri,places.rating,places.userRatingCount,places.primaryType,places.primaryTypeDisplayName,places.businessStatus,places.photos,places.regularOpeningHours.openNow,nextPageToken,searchUri",
+      body: {
+        textQuery: body.textQuery,
+        includedType: body.includedType,
+        maxResultCount: body.maxResultCount,
+        languageCode: body.languageCode || GOOGLE_MAPS_DEFAULT_LANGUAGE,
+        regionCode: body.regionCode || GOOGLE_MAPS_DEFAULT_REGION,
+        ...(body.locationBias
+          ? {
+              locationBias: buildLocationBiasCircle(
+                body.locationBias,
+                body.radiusMeters || 5_000
+              )
+            }
+          : {})
+      }
+    });
+
+    res.json({
+      ok: true,
+      places: Array.isArray(payload?.places) ? payload.places : [],
+      nextPageToken: payload?.nextPageToken || null,
+      searchUri: payload?.searchUri || null
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Unable to search places." });
+  }
+});
+
+app.post("/api/maps/place-details", mapsLimiter, async (req, res) => {
+  if (!requireGoogleMaps(res)) {
+    return;
+  }
+
+  const parsed = mapsPlaceDetailsSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid place details request." });
+    return;
+  }
+
+  try {
+    const body = parsed.data;
+    const query = new URLSearchParams();
+    query.set("languageCode", body.languageCode || GOOGLE_MAPS_DEFAULT_LANGUAGE);
+    query.set("regionCode", body.regionCode || GOOGLE_MAPS_DEFAULT_REGION);
+    const payload = await fetchGoogleMapsJson(
+      `https://places.googleapis.com/v1/places/${encodeURIComponent(body.placeId)}?${query.toString()}`,
+      {
+        method: "GET",
+        fieldMask:
+          "id,displayName,formattedAddress,location,googleMapsUri,websiteUri,nationalPhoneNumber,rating,userRatingCount,primaryType,primaryTypeDisplayName,businessStatus,regularOpeningHours,currentOpeningHours,photos"
+      }
+    );
+
+    res.json({
+      ok: true,
+      place: payload || null
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Unable to load place details." });
+  }
+});
+
+app.post("/api/maps/geocode", mapsLimiter, async (req, res) => {
+  if (!requireGoogleMaps(res)) {
+    return;
+  }
+
+  const parsed = mapsGeocodeSchema.safeParse(req.body || {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid geocoding request." });
+    return;
+  }
+
+  try {
+    const body = parsed.data;
+    const query = new URLSearchParams({
+      key: GOOGLE_MAPS_API_KEY,
+      language: body.language || GOOGLE_MAPS_DEFAULT_LANGUAGE,
+      region: body.region || GOOGLE_MAPS_DEFAULT_REGION
+    });
+
+    if (body.address) {
+      query.set("address", body.address);
+    } else if (body.placeId) {
+      query.set("place_id", body.placeId);
+    } else if (body.location) {
+      query.set("latlng", `${body.location.lat},${body.location.lng}`);
+    }
+
+    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${query.toString()}`);
+    const payload = await readJsonResponse(response, "Unable to parse Geocoding API response.");
+    if (!response.ok || (payload?.status && payload.status !== "OK" && payload.status !== "ZERO_RESULTS")) {
+      throw new Error(payload?.error_message || payload?.status || "Geocoding request failed.");
+    }
+
+    const results = Array.isArray(payload?.results) ? payload.results.map(normalizeGeocodeResult) : [];
+    res.json({
+      ok: true,
+      status: payload?.status || "OK",
+      results
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Unable to geocode location." });
+  }
+});
+
+app.get("/api/maps/static-map", mapsLimiter, async (req, res) => {
+  if (!requireGoogleMaps(res)) {
+    return;
+  }
+
+  try {
+    const size = String(req.query.size || "1200x800").trim();
+    const scale = String(req.query.scale || "2").trim();
+    const maptype = String(req.query.maptype || "roadmap").trim();
+    const pathValue = String(req.query.path || "").trim();
+    const markerValues = Array.isArray(req.query.markers)
+      ? req.query.markers.map((value) => String(value || "").trim()).filter(Boolean)
+      : String(req.query.markers || "")
+          .split("||")
+          .map((value) => value.trim())
+          .filter(Boolean);
+
+    if (!/^\d+x\d+$/i.test(size)) {
+      res.status(400).json({ error: "Invalid static map size." });
+      return;
+    }
+
+    if (!/^[12]$/.test(scale)) {
+      res.status(400).json({ error: "Invalid static map scale." });
+      return;
+    }
+
+    if (!["roadmap", "satellite", "terrain", "hybrid"].includes(maptype)) {
+      res.status(400).json({ error: "Invalid static map type." });
+      return;
+    }
+
+    if (!pathValue && markerValues.length === 0) {
+      res.status(400).json({ error: "Static map requires a path or at least one marker." });
+      return;
+    }
+
+    if (markerValues.length > 60) {
+      res.status(400).json({ error: "Too many static map markers requested." });
+      return;
+    }
+
+    const query = new URLSearchParams({
+      key: GOOGLE_MAPS_API_KEY,
+      size,
+      scale,
+      maptype
+    });
+
+    if (pathValue) {
+      query.append("path", pathValue);
+    }
+
+    markerValues.forEach((marker) => {
+      query.append("markers", marker);
+    });
+
+    const response = await fetch(`https://maps.googleapis.com/maps/api/staticmap?${query.toString()}`);
+    if (!response.ok) {
+      const message = await response.text().catch(() => "");
+      throw new Error(message || `Static Maps request failed with status ${response.status}.`);
+    }
+
+    const bytes = Buffer.from(await response.arrayBuffer());
+    res.setHeader("Content-Type", response.headers.get("content-type") || "image/png");
+    res.setHeader("Cache-Control", "public, max-age=300");
+    res.send(bytes);
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Unable to load static Google map." });
+  }
 });
 
 app.post("/api/auth/session", authLimiter, async (req, res) => {
@@ -1348,10 +1821,7 @@ app.post("/api/payments/intent", async (req, res) => {
 });
 
 app.post("/api/payments/checkout-session", async (req, res) => {
-  const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
-  if (!actor) {
-    return;
-  }
+  const actor = getAuthenticatedActor(req);
   if (!requireStripe(res)) {
     return;
   }
@@ -1368,20 +1838,28 @@ app.post("/api/payments/checkout-session", async (req, res) => {
     return;
   }
 
-  const userId = actor.userId;
-  await ensureUser(userId);
+  const userId = actor?.userId ? String(actor.userId).trim() : "";
+  const pendingUserId = userId || getPendingCheckoutUserId(idem.key || body.idempotencyKey || `guest-${Date.now()}`);
+  if (userId) {
+    await ensureUser(actor);
+  }
 
-  let customerId = await getOrCreateStripeCustomer(userId);
-  if (!customerId) {
-    try {
-      const customer = await stripe.customers.create({
-        metadata: { userId }
-      });
-      customerId = customer.id;
-      await dbQuery(`update public.users set stripe_customer_id = $1 where id = $2`, [customerId, userId]);
-    } catch (error) {
-      res.status(500).json({ error: error.message || "Unable to create Stripe customer." });
-      return;
+  let customerId = null;
+  if (userId) {
+    customerId = await getOrCreateStripeCustomer(userId);
+    if (!customerId) {
+      try {
+        const customer = await stripe.customers.create({
+          email: actor?.email || undefined,
+          name: actor?.displayName || undefined,
+          metadata: { userId }
+        });
+        customerId = customer.id;
+        await dbQuery(`update public.users set stripe_customer_id = $1 where id = $2`, [customerId, userId]);
+      } catch (error) {
+        res.status(500).json({ error: error.message || "Unable to create Stripe customer." });
+        return;
+      }
     }
   }
 
@@ -1389,12 +1867,12 @@ app.post("/api/payments/checkout-session", async (req, res) => {
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment",
-        customer: customerId,
+        ...(customerId ? { customer: customerId } : { customer_creation: "always" }),
         success_url: body.successUrl,
         cancel_url: body.cancelUrl,
         metadata: {
           source: "hosted_checkout",
-          userId,
+          ...(userId ? { userId } : {}),
           ...(body.planId ? { planId: body.planId } : {})
         },
         line_items: [
@@ -1419,7 +1897,7 @@ app.post("/api/payments/checkout-session", async (req, res) => {
         amount, currency, status, description, metadata_json, created_at, updated_at
       ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
-        userId,
+        pendingUserId,
         "stripe_checkout_session",
         null,
         session.id,

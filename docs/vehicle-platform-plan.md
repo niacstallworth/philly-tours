@@ -232,6 +232,19 @@ Instead it should provide:
 
 The phone app remains the detailed exploration surface.
 
+### Google Maps platform choices
+
+For the vehicle companion, the right first routing upgrade is `Routes API`.
+
+Keep these additional options on the wire for later phases:
+
+- `Roads API`
+  - for snapping noisy live breadcrumb traces onto the road network if we later record actual driven paths
+- `Maps 3D SDK for Android` and `Maps 3D SDK for iOS`
+  - for premium immersive map views only if 3D map presentation becomes a validated product feature
+
+See `docs/google-maps-platform-plan.md` for the full now-vs-later decision.
+
 ## Repo implementation plan
 
 ### Phase 1: data preparation

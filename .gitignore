@@ -31,3 +31,4 @@ server.local.env
 server/payments.db
 server/payments.db-shm
 server/payments.db-wal
+webapp/site-config.local.js

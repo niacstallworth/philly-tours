@@ -247,12 +247,16 @@ const narrationData = window.PHILLY_TOURS_NARRATION || {
   scriptMapByStopId: {}
 };
 const arData = window.PHILLY_TOURS_AR || {};
-const siteConfig = window.PHILLY_TOURS_CONFIG || {};
+const siteConfig = {
+  ...(window.PHILLY_TOURS_CONFIG || {}),
+  ...(window.PHILLY_TOURS_LOCAL_CONFIG || {})
+};
 
 const STORAGE_KEY = "philly-ar-tours-web-progress";
 const GLASSES_MODE_KEY = "philly-ar-tours-web-glasses-mode";
 const AUTH_STORAGE_KEY = "philly-ar-tours-web-session";
 const OAUTH_PROVIDER_STORAGE_KEY = "philly-ar-tours-web-oauth-provider";
+const TOUR_ORDER_STORAGE_KEY = "philly-ar-tours-web-tour-order-v1";
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 const CONTACT_EMAIL = "info@foundersthreads.org";
 const SOCIAL_CHANNELS = [
@@ -264,19 +268,19 @@ const SOCIAL_CHANNELS = [
   },
   {
     label: "Facebook",
-    handle: "Founders Threads",
+    handle: "@FoundersThreads",
     href: "https://www.facebook.com/people/Founders-Threads/61581897702529/",
     icon: "facebook"
   },
   {
     label: "X",
-    handle: "@FoundrsThreads",
+    handle: "@FoundersThreads",
     href: "https://x.com/FoundrsThreads",
     icon: "x"
   },
   {
     label: "Bluesky",
-    handle: "@foundersthreads.bsky.social",
+    handle: "@foundersthreads",
     href: "https://bsky.app/profile/foundersthreads.bsky.social",
     icon: "bluesky"
   },
@@ -316,16 +320,25 @@ const RSS_UPDATES = [
 ];
 let routeMap = null;
 let routeMapLayers = null;
+let googleMapsApiPromise = null;
+let activeMapViewportCleanup = null;
+let googleMapsAuthFailed = false;
 let narrationAudio = null;
 let preferredSpeechVoice = null;
 let arStream = null;
 let arLocationWatchId = null;
+let mapLocationWatchId = null;
+let xrSession = null;
+let xrCanvas = null;
+let xrGl = null;
+let xrReferenceSpace = null;
 const AR_RANGE_HYSTERESIS_M = 15;
 const AR_AUTO_NARRATION_COOLDOWN_MS = 45000;
+const AUDIO_PREVIEW_LIMIT = 2;
 let copyButtonResetTimer = null;
 let webTurnstileMountTimer = null;
+let authRefreshTimer = null;
 let supabaseClientPromise = null;
-const AUTH_INTEREST_PROVIDERS = new Set(["meta", "instagram", "facebook", "x"]);
 
 const state = {
   auth: {
@@ -339,7 +352,7 @@ const state = {
     message: "",
     turnstileToken: null
   },
-  activeTab: "home",
+  activeTab: "map",
   selectedTourId: tours[0].id,
   selectedStopId: tours[0].stops[0].id,
   drawer: null,
@@ -362,6 +375,24 @@ const state = {
     lastAutoNarratedStopId: null,
     lastAutoNarratedAt: 0
   },
+  xr: {
+    checked: false,
+    supported: false,
+    sessionType: "",
+    mode: "idle",
+    deviceLabel: "",
+    error: ""
+  },
+  map: {
+    tracking: false,
+    requested: false,
+    locationReady: false,
+    error: "",
+    userLocation: null,
+    nearestStopId: null,
+    distanceToSelectedM: null,
+    followNearestStop: true
+  },
   glassesMode: loadGlassesMode(),
   glassesModeNotice: "",
   subscription: {
@@ -373,9 +404,24 @@ const state = {
     status: "idle",
     message: ""
   },
+  audioAccess: {
+    fullUnlocked: loadAudioUnlocked(),
+    previewedStopIds: loadAudioPreviewedStopIds()
+  },
+  draggingTourId: "",
+  expandedTourCardId: tours[0].id,
+  routePageTourId: null,
+  home: {
+    focusTourId: null
+  },
+  maps: {
+    routePreviewsByTourId: {}
+  },
   search: "",
   themeFilter: "all",
-  completedStopIds: loadCompletedStops()
+  tourOrderIds: loadTourOrderIds(),
+  completedStopIds: loadCompletedStops(),
+  tourCardImages: loadTourCardImages()
 };
 
 const app = document.getElementById("app");
@@ -384,10 +430,15 @@ const tabBar = document.getElementById("tabs");
 const copyViewButton = document.getElementById("copy-view-button");
 const glassesModeButton = document.getElementById("glasses-mode-button");
 const topbarActions = document.querySelector(".topbar-actions");
+const topbar = document.querySelector(".topbar");
 
 document.addEventListener("click", handleClick);
 document.addEventListener("input", handleInput);
 document.addEventListener("submit", handleSubmit);
+document.addEventListener("dragstart", handleDragStart);
+document.addEventListener("dragover", handleDragOver);
+document.addEventListener("drop", handleDrop);
+document.addEventListener("dragend", handleDragEnd);
 if (tabBar) {
   tabBar.addEventListener("click", handleClick);
 }
@@ -401,10 +452,30 @@ tabs.forEach((button) => {
   });
 });
 window.addEventListener("hashchange", handleHashChange);
+window.addEventListener("scroll", updateTopbarScrollState, { passive: true });
+if ("scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
 
 hydrateStateFromLocation();
+scrollViewportToTop();
+updateTopbarScrollState();
 render();
+initializeWebXRSupport().catch(() => undefined);
 initializeWebAuth();
+
+function scrollViewportToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
+function updateTopbarScrollState() {
+  if (!topbar) {
+    return;
+  }
+  topbar.classList.toggle("topbar--scrolled", window.scrollY > 16);
+}
 
 function normalizeTours(rawTours) {
   if (!Array.isArray(rawTours) || rawTours.length === 0) {
@@ -431,7 +502,27 @@ function normalizeTour(tour) {
     summary: deriveSummary(tour, stops),
     arFocus: deriveArFocus(stops),
     guideMode: deriveGuideMode(tour, stops),
+    cardMedia: normalizeCardMedia(tour.cardMedia),
     stops
+  };
+}
+
+function normalizeCardMedia(cardMedia) {
+  if (!cardMedia || typeof cardMedia !== "object") {
+    return null;
+  }
+
+  const type = cardMedia.type === "video" ? "video" : cardMedia.type === "image" ? "image" : "";
+  const src = String(cardMedia.src || "").trim();
+  if (!type || !src) {
+    return null;
+  }
+
+  return {
+    type,
+    src,
+    poster: String(cardMedia.poster || "").trim(),
+    alt: String(cardMedia.alt || "").trim()
   };
 }
 
@@ -609,6 +700,638 @@ function getNarrationLabel(stopId) {
   return "No narration yet";
 }
 
+function canPlayNarration(stopId) {
+  if (state.audioAccess.fullUnlocked) {
+    return true;
+  }
+  if (!stopId) {
+    return false;
+  }
+  if (state.audioAccess.previewedStopIds.includes(stopId)) {
+    return true;
+  }
+  return state.audioAccess.previewedStopIds.length < AUDIO_PREVIEW_LIMIT;
+}
+
+function getRemainingAudioPreviews() {
+  return Math.max(AUDIO_PREVIEW_LIMIT - state.audioAccess.previewedStopIds.length, 0);
+}
+
+function getAudioAccessSummary(stopId) {
+  if (state.audioAccess.fullUnlocked) {
+    return {
+      locked: false,
+      pill: "Full audio unlocked",
+      message: "All stop narration is unlocked on this device.",
+      cta: ""
+    };
+  }
+
+  const alreadyPreviewed = !!stopId && state.audioAccess.previewedStopIds.includes(stopId);
+  const remaining = getRemainingAudioPreviews();
+
+  if (alreadyPreviewed) {
+    return {
+      locked: false,
+      pill: "Preview saved",
+      message: `This stop is already one of your ${AUDIO_PREVIEW_LIMIT} free narration previews on this device.`,
+      cta: `You have ${remaining} new preview${remaining === 1 ? "" : "s"} left before full audio purchase is required.`
+    };
+  }
+
+  if (remaining > 0) {
+    return {
+      locked: false,
+      pill: `${remaining} free ${remaining === 1 ? "preview" : "previews"} left`,
+      message: `You can play this stop now as part of your ${AUDIO_PREVIEW_LIMIT} free narration previews.`,
+      cta: "After the free previews are used, full audio unlock is required for new stops."
+    };
+  }
+
+  return {
+    locked: true,
+    pill: "Purchase required",
+    message: `You have used your ${AUDIO_PREVIEW_LIMIT} free narration previews on this device.`,
+    cta: "Upgrade to full audio to unlock narration for every stop and every route."
+  };
+}
+
+function normalizeGoogleMapsProjectUrl(rawUrl) {
+  const trimmed = String(rawUrl || "").trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(trimmed);
+    const mid = parsed.searchParams.get("mid")?.trim();
+    const hasGoogleHost = /(^|\.)google\.[a-z.]+$/i.test(parsed.hostname);
+    const isViewerPath = /\/maps\/d\/(?:u\/\d+\/)?viewer$/i.test(parsed.pathname);
+    const isEditPath = /\/maps\/d\/edit$/i.test(parsed.pathname);
+    const isEmbedPath = /\/maps\/d\/embed$/i.test(parsed.pathname);
+
+    if (hasGoogleHost && mid && (isViewerPath || isEditPath || parsed.pathname === "/maps")) {
+      const embedUrl = new URL("https://www.google.com/maps/d/embed");
+      embedUrl.searchParams.set("mid", mid);
+      return {
+        embedUrl: embedUrl.toString(),
+        publicUrl: trimmed
+      };
+    }
+
+    if (hasGoogleHost && isEmbedPath) {
+      return {
+        embedUrl: trimmed,
+        publicUrl: trimmed.replace("/maps/d/embed", "/maps/d/viewer")
+      };
+    }
+
+    return {
+      embedUrl: trimmed,
+      publicUrl: trimmed
+    };
+  } catch {
+    return null;
+  }
+}
+
+function getGoogleMapsProjectConfig() {
+  return normalizeGoogleMapsProjectUrl(siteConfig.googleMapsProjectUrl || "");
+}
+
+function getGoogleMapsJsApiKey() {
+  return String(siteConfig.googleMapsJsApiKey || "").trim();
+}
+
+function getGoogleMapsMapId() {
+  return String(siteConfig.googleMapsMapId || "").trim();
+}
+
+function buildGoogleShellMapStyles() {
+  return [
+    {
+      elementType: "geometry",
+      stylers: [{ color: "#f6eadf" }]
+    },
+    {
+      elementType: "labels.text.fill",
+      stylers: [{ color: "#6b4d45" }]
+    },
+    {
+      elementType: "labels.text.stroke",
+      stylers: [{ color: "#fff7f1" }]
+    },
+    {
+      featureType: "administrative",
+      elementType: "geometry.stroke",
+      stylers: [{ color: "#d9c3bc" }]
+    },
+    {
+      featureType: "landscape.natural",
+      elementType: "geometry",
+      stylers: [{ color: "#eadfd6" }]
+    },
+    {
+      featureType: "poi",
+      elementType: "geometry",
+      stylers: [{ color: "#f1dfd3" }]
+    },
+    {
+      featureType: "poi.park",
+      elementType: "geometry",
+      stylers: [{ color: "#dce7d5" }]
+    },
+    {
+      featureType: "road",
+      elementType: "geometry",
+      stylers: [{ color: "#fffaf5" }]
+    },
+    {
+      featureType: "road.arterial",
+      elementType: "geometry",
+      stylers: [{ color: "#f8e5da" }]
+    },
+    {
+      featureType: "road.highway",
+      elementType: "geometry",
+      stylers: [{ color: "#f0d3c6" }]
+    },
+    {
+      featureType: "transit.line",
+      elementType: "geometry",
+      stylers: [{ color: "#dcc4d7" }]
+    },
+    {
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [{ color: "#d8e6ee" }]
+    }
+  ];
+}
+
+function loadGoogleMapsApi() {
+  if (window.google?.maps) {
+    return Promise.resolve(window.google.maps);
+  }
+
+  if (googleMapsApiPromise) {
+    return googleMapsApiPromise;
+  }
+
+  const apiKey = getGoogleMapsJsApiKey();
+  if (!apiKey) {
+    return Promise.reject(new Error("Add `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY` to render Google Maps inside the web shell."));
+  }
+
+  googleMapsApiPromise = new Promise((resolve, reject) => {
+    const callbackName = "__phillyToursGoogleMapsInit";
+    const script = document.createElement("script");
+    let settled = false;
+    const cleanup = () => {
+      window.clearTimeout(timeoutId);
+      delete window[callbackName];
+      if (window.gm_authFailure === handleAuthFailure) {
+        delete window.gm_authFailure;
+      }
+    };
+    const fail = (message) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      googleMapsApiPromise = null;
+      reject(new Error(message));
+    };
+    const succeed = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      googleMapsAuthFailed = false;
+      resolve(window.google.maps);
+    };
+    const timeoutId = window.setTimeout(() => {
+      fail("Google Maps JavaScript API timed out before rendering.");
+    }, 12000);
+    const handleAuthFailure = () => {
+      googleMapsAuthFailed = true;
+      fail("Google Maps authorization failed for this browser.");
+    };
+
+    window.gm_authFailure = handleAuthFailure;
+    window[callbackName] = () => {
+      succeed();
+    };
+
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=weekly&loading=async&callback=${callbackName}`;
+    script.async = true;
+    script.defer = true;
+    script.referrerPolicy = "origin";
+    script.onerror = () => {
+      fail("Unable to load Google Maps JavaScript API.");
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return googleMapsApiPromise;
+}
+
+function buildGoogleLatLngEmbedMarkup(position, title, zoom = 14) {
+  const src = new URL("https://www.google.com/maps");
+  src.searchParams.set("q", `${position.lat},${position.lng}`);
+  src.searchParams.set("z", String(zoom));
+  src.searchParams.set("output", "embed");
+
+  return `
+    <iframe
+      class="google-map-embed"
+      src="${escapeHtml(src.toString())}"
+      title="${escapeHtml(title || "Google map")}"
+      loading="lazy"
+      allowfullscreen
+      referrerpolicy="origin"
+    ></iframe>
+  `;
+}
+
+function installGoogleMapHealthFallback({
+  mapElement,
+  fallbackPosition,
+  title,
+  zoom = 14,
+  maps,
+  map,
+  mobileOnly = true
+}) {
+  if (!mapElement || !fallbackPosition) {
+    return;
+  }
+
+  const shouldAllowFallback = !mobileOnly || window.matchMedia("(max-width: 720px)").matches;
+  if (!shouldAllowFallback) {
+    return;
+  }
+
+  const checkAndFallback = () => {
+    if (document.getElementById(mapElement.id) !== mapElement) {
+      return true;
+    }
+
+    const mapText = String(mapElement.innerText || "");
+    const hasGoogleErrorBanner =
+      googleMapsAuthFailed ||
+      mapText.includes("Oops! Something went wrong.") ||
+      mapText.includes("This page didn't load Google Maps correctly.");
+    const hasRenderedMap = !!mapElement.querySelector(".gm-style");
+
+    if (hasGoogleErrorBanner || !hasRenderedMap) {
+      clearMapViewportStabilizer();
+      if (routeMap === map) {
+        routeMap = null;
+        routeMapLayers = [];
+      }
+      mapElement.innerHTML = buildGoogleLatLngEmbedMarkup(fallbackPosition, title, zoom);
+      return true;
+    }
+
+    return false;
+  };
+
+  [2200, 6000].forEach((delay) => {
+    window.setTimeout(() => {
+      checkAndFallback();
+    }, delay);
+  });
+}
+
+function clearMapViewportStabilizer() {
+  if (typeof activeMapViewportCleanup === "function") {
+    activeMapViewportCleanup();
+  }
+  activeMapViewportCleanup = null;
+}
+
+function installMapViewportStabilizer({ map, maps, mapElement, restoreView }) {
+  clearMapViewportStabilizer();
+
+  if (!map || !maps || !mapElement || typeof restoreView !== "function") {
+    return;
+  }
+
+  let disposed = false;
+  let rafId = 0;
+  const timeoutIds = new Set();
+
+  const runRefresh = () => {
+    if (disposed || routeMap !== map || document.getElementById(mapElement.id) !== mapElement) {
+      return;
+    }
+
+    if (!mapElement.offsetWidth || !mapElement.offsetHeight) {
+      return;
+    }
+
+    if (rafId) {
+      window.cancelAnimationFrame(rafId);
+    }
+
+    rafId = window.requestAnimationFrame(() => {
+      if (disposed || routeMap !== map || document.getElementById(mapElement.id) !== mapElement) {
+        return;
+      }
+
+      maps.event.trigger(map, "resize");
+      restoreView();
+    });
+  };
+
+  const scheduleRefresh = (delay = 0) => {
+    if (delay <= 0) {
+      runRefresh();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      timeoutIds.delete(timeoutId);
+      runRefresh();
+    }, delay);
+    timeoutIds.add(timeoutId);
+  };
+
+  const handleViewportShift = () => scheduleRefresh(90);
+  const handleVisibilityChange = () => {
+    if (!document.hidden) {
+      scheduleRefresh(120);
+    }
+  };
+
+  window.addEventListener("resize", handleViewportShift, { passive: true });
+  window.addEventListener("orientationchange", handleViewportShift, { passive: true });
+  window.addEventListener("pageshow", handleViewportShift);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  let resizeObserver = null;
+  if ("ResizeObserver" in window) {
+    resizeObserver = new ResizeObserver(() => {
+      scheduleRefresh(60);
+    });
+    resizeObserver.observe(mapElement);
+  }
+
+  const visualViewport = window.visualViewport || null;
+  if (visualViewport) {
+    visualViewport.addEventListener("resize", handleViewportShift, { passive: true });
+    visualViewport.addEventListener("scroll", handleViewportShift, { passive: true });
+  }
+
+  [0, 120, 320, 900].forEach((delay) => {
+    scheduleRefresh(delay);
+  });
+
+  activeMapViewportCleanup = () => {
+    disposed = true;
+
+    if (rafId) {
+      window.cancelAnimationFrame(rafId);
+    }
+
+    timeoutIds.forEach((timeoutId) => {
+      window.clearTimeout(timeoutId);
+    });
+    timeoutIds.clear();
+
+    window.removeEventListener("resize", handleViewportShift);
+    window.removeEventListener("orientationchange", handleViewportShift);
+    window.removeEventListener("pageshow", handleViewportShift);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+    if (visualViewport) {
+      visualViewport.removeEventListener("resize", handleViewportShift);
+      visualViewport.removeEventListener("scroll", handleViewportShift);
+    }
+
+    if (resizeObserver) {
+      resizeObserver.disconnect();
+    }
+  };
+}
+
+function buildProjectMapEmbedMarkup(label) {
+  const googleMapProject = getGoogleMapsProjectConfig();
+  if (!googleMapProject?.embedUrl) {
+    return `
+      <div class="route-map-fallback">
+        <div>
+          <strong>Google map unavailable</strong>
+          <span>Add a browser Google Maps key or publish a public Google map project URL to render the map here.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <iframe
+      class="google-map-embed"
+      src="${escapeHtml(googleMapProject.embedUrl)}"
+      loading="lazy"
+      height="420"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
+      aria-label="${escapeHtml(label || "Google map")}"
+    ></iframe>
+  `;
+}
+
+function buildStaticMapMarker(point, options = {}) {
+  const lat = Number(point?.lat);
+  const lng = Number(point?.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return "";
+  }
+
+  const parts = [];
+  if (options.size) {
+    parts.push(`size:${options.size}`);
+  }
+  if (options.color) {
+    parts.push(`color:${options.color}`);
+  }
+  if (options.label) {
+    parts.push(`label:${String(options.label).slice(0, 1).toUpperCase()}`);
+  }
+  parts.push(`${lat},${lng}`);
+  return parts.join("|");
+}
+
+function getRenderableLatLng(point) {
+  const lat = Number(point?.lat);
+  const lng = Number(point?.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+    return null;
+  }
+  if (lat === 0 && lng === 0) {
+    return null;
+  }
+  return { lat, lng };
+}
+
+function hasRenderableCoordinates(point) {
+  return Boolean(getRenderableLatLng(point));
+}
+
+function getRenderableStops(stops) {
+  return Array.isArray(stops)
+    ? stops
+        .map((stop, index) => {
+          const position = getRenderableLatLng(stop);
+          if (!position) {
+            return null;
+          }
+          return {
+            ...stop,
+            ...position,
+            originalIndex: index
+          };
+        })
+        .filter(Boolean)
+    : [];
+}
+
+function getPrimaryRenderableStop(tour) {
+  return getRenderableStops(tour?.stops || [])[0] ?? null;
+}
+
+function projectLatLngsToPreview(points) {
+  const validPoints = points
+    .map((point) => {
+      const position = getRenderableLatLng(point);
+      return position ? { ...point, ...position } : null;
+    })
+    .filter(Boolean);
+  if (!validPoints.length) {
+    return [];
+  }
+
+  const lats = validPoints.map((point) => Number(point.lat));
+  const lngs = validPoints.map((point) => Number(point.lng));
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  const latRange = Math.max(maxLat - minLat, 0.0015);
+  const lngRange = Math.max(maxLng - minLng, 0.0015);
+
+  return validPoints.map((point) => ({
+    ...point,
+    x: 34 + ((Number(point.lng) - minLng) / lngRange) * 732,
+    y: 34 + (1 - (Number(point.lat) - minLat) / latRange) * 352
+  }));
+}
+
+function buildHomeInlineMapFallback(selectedTour) {
+  const focusedTour = state.home.focusTourId ? getTourById(state.home.focusTourId) : null;
+
+  if (!focusedTour) {
+    const leadStops = tours
+      .map((tour, index) => {
+        const leadStop = getPrimaryRenderableStop(tour);
+        if (!leadStop) {
+          return null;
+        }
+        return {
+          ...leadStop,
+          accent: getTourAccent(index)[0] || "#5c45ff",
+          label: String(index + 1)
+        };
+      })
+      .filter(Boolean);
+    const projectedStops = projectLatLngsToPreview(leadStops);
+
+    return `
+      <div class="home-inline-map home-inline-map--overview" aria-label="Tour collection overview">
+        <svg viewBox="0 0 800 420" role="img" aria-hidden="true">
+          <rect x="0" y="0" width="800" height="420" rx="28" fill="rgba(15,22,38,0.9)"></rect>
+          <path d="M48 332 C172 288, 258 312, 392 238 S636 136, 752 168" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2" stroke-dasharray="8 12"></path>
+          <path d="M78 92 C188 132, 270 86, 384 116 S592 212, 724 188" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="2" stroke-dasharray="10 14"></path>
+          ${projectedStops
+            .map(
+              (stop) => `
+                <g transform="translate(${stop.x}, ${stop.y})">
+                  <circle r="18" fill="${stop.accent}" opacity="0.22"></circle>
+                  <circle r="11" fill="${stop.accent}" stroke="#fffaf5" stroke-width="2"></circle>
+                  <text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="#fffaf5">${stop.label}</text>
+                </g>
+              `
+            )
+            .join("")}
+        </svg>
+        <div class="home-inline-map__caption">
+          <strong>Collection overview</strong>
+          <span>Select a tour card below to isolate its route.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  const routePreview = getRoutePreviewRecord(focusedTour.id);
+  const renderableStops = getRenderableStops(focusedTour.stops);
+  const previewLatLngs = decodeEncodedPolyline(routePreview?.route?.polyline)
+    .map(([lat, lng]) => ({ lat, lng }))
+    .filter(hasRenderableCoordinates);
+  const routePoints =
+    previewLatLngs.length >= 2 ? previewLatLngs : renderableStops.map((stop) => ({ lat: stop.lat, lng: stop.lng }));
+  const projectedRoute = projectLatLngsToPreview(routePoints);
+  const projectedStops = projectLatLngsToPreview(
+    renderableStops.map((stop) => ({
+      ...stop,
+      label: String(stop.originalIndex + 1),
+      active: stop.id === state.selectedStopId
+    }))
+  );
+
+  return `
+    <div class="home-inline-map home-inline-map--focused" aria-label="${escapeHtml(focusedTour.title)} overview">
+      <svg viewBox="0 0 800 420" role="img" aria-hidden="true">
+        <rect x="0" y="0" width="800" height="420" rx="28" fill="rgba(15,22,38,0.92)"></rect>
+        <path d="${buildRoutePath(projectedRoute)}" fill="none" stroke="rgba(255,250,245,0.2)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="${buildRoutePath(projectedRoute)}" fill="none" stroke="#a64f38" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.96"></path>
+        ${projectedStops
+          .map(
+            (stop) => `
+              <g transform="translate(${stop.x}, ${stop.y})">
+                <circle r="${stop.active ? 18 : 14}" fill="${stop.active ? "#f1d1b2" : "#172026"}" stroke="${stop.active ? "#b45b3d" : "#fffaf5"}" stroke-width="${stop.active ? 4 : 2}"></circle>
+                <text y="4" text-anchor="middle" font-size="10" font-weight="700" fill="${stop.active ? "#6b3b2f" : "#fffaf5"}">${stop.label}</text>
+              </g>
+            `
+          )
+          .join("")}
+      </svg>
+      <div class="home-inline-map__caption">
+        <strong>${escapeHtml(focusedTour.title)}</strong>
+        <span>Fallback overview showing only this tour’s stop pattern.</span>
+      </div>
+    </div>
+  `;
+}
+
+function buildHomeMapFallbackMarkup(selectedTour) {
+  return buildHomeInlineMapFallback(selectedTour);
+}
+
+function getInPersonTourGuideConfig() {
+  const amountCents = Number(siteConfig.inPersonTourGuidePriceCents || 0);
+  return {
+    amountCents: Number.isFinite(amountCents) && amountCents > 0 ? Math.round(amountCents) : 0,
+    label: String(siteConfig.inPersonTourGuideLabel || "In-person tour guide").trim() || "In-person tour guide"
+  };
+}
+
 function getArOverlayMeta(stopId) {
   return arData[stopId] || null;
 }
@@ -638,44 +1361,318 @@ function getModelReadinessLabel(meta) {
 }
 
 function getGlassesModeLabel() {
-  return state.glassesMode ? "Meta glasses mode on" : "Meta glasses mode off";
+  return state.glassesMode ? "Bluetooth audio mode on" : "Bluetooth audio mode off";
 }
 
 function getGlassesModeButtonLabel() {
-  return state.glassesMode ? "Disable Meta glasses mode" : "Enable Meta glasses mode";
+  return state.glassesMode ? "Disable Bluetooth audio mode" : "Enable Bluetooth audio mode";
 }
 
 function getGlassesModeCopy() {
   if (state.glassesMode) {
-    return "Browser narration will follow this device's current audio output. Pair Meta glasses over Bluetooth to hear the tour hands-free while keeping route and AR handoff on the phone. Turning this off resets the active audio and AR view back to the standard phone posture.";
+    return "Browser narration will follow this device's current audio output. Use this when you want tour audio to play through your connected Bluetooth headphones or glasses while keeping route and AR controls on the phone.";
   }
 
-  return "Turn on Meta glasses mode when your glasses are already paired to this phone or computer over Bluetooth. The webapp cannot use native Meta DAT, but it can still route narration through the active browser audio output.";
+  return "Turn this on when your Bluetooth headphones or glasses are already paired to this phone or computer and you want the tour audio routed there.";
+}
+
+function formatCoordinateDegrees(value, positiveSuffix, negativeSuffix) {
+  if (!Number.isFinite(value)) {
+    return "--";
+  }
+
+  const suffix = value >= 0 ? positiveSuffix : negativeSuffix;
+  return `${Math.abs(value).toFixed(5)}° ${suffix}`;
+}
+
+function getArCoordinateLabel() {
+  return state.ar.userLocation
+    ? `${formatCoordinateDegrees(Number(state.ar.userLocation.lat), "N", "S")} | ${formatCoordinateDegrees(Number(state.ar.userLocation.lng), "E", "W")}`
+    : "Lat -- | Lng --";
+}
+
+function syncArLiveReadout() {
+  const readout = document.querySelector("[data-role='ar-coordinate-readout']");
+  if (readout) {
+    readout.textContent = getArCoordinateLabel();
+  }
+}
+
+function getTourCardArtwork(tour) {
+  if (tour?.cardMedia?.src) {
+    return {
+      status: "ready",
+      url: tour.cardMedia.src,
+      title: tour.cardMedia.alt || tour.title,
+      source: tour.cardMedia.type,
+      mediaType: tour.cardMedia.type,
+      poster: tour.cardMedia.poster || ""
+    };
+  }
+
+  return {
+    status: "disabled",
+    url: "",
+    title: tour.title,
+    source: "",
+    mediaType: "",
+    poster: ""
+  };
+}
+
+function renderTourCardArtwork(tour) {
+  const artwork = getTourCardArtwork(tour);
+  const featuredStop = getRecommendedNextStop(tour);
+
+  if (artwork.status === "ready" && artwork.url) {
+    if (artwork.mediaType === "video") {
+      return `
+        <div class="experience-card-artwork" data-tour-image-id="${tour.id}">
+          <video
+            src="${escapeHtml(artwork.url)}"
+            ${artwork.poster ? `poster="${escapeHtml(artwork.poster)}"` : ""}
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-label="${escapeHtml(artwork.title)}"
+          ></video>
+          <div class="experience-card-gradient"></div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="experience-card-artwork" data-tour-image-id="${tour.id}">
+        <img src="${escapeHtml(artwork.url)}" alt="${escapeHtml(artwork.title)}" loading="lazy" />
+        <div class="experience-card-gradient"></div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="experience-card-artwork experience-card-artwork--placeholder" data-tour-image-id="${tour.id}">
+      <div class="experience-card-gradient"></div>
+    </div>
+  `;
 }
 
 function buildPhoneAppHandoffLink(tourId, stopId) {
   return `phillyartours://tour/${encodeURIComponent(tourId)}/stop/${encodeURIComponent(stopId)}/map`;
 }
 
+function getRoutePreviewRecord(tourId) {
+  return state.maps.routePreviewsByTourId[tourId] || {
+    status: "idle",
+    route: null,
+    message: ""
+  };
+}
+
+function parseDurationSeconds(value) {
+  const match = String(value || "").trim().match(/^([0-9]+(?:\.[0-9]+)?)s$/i);
+  if (!match) {
+    return null;
+  }
+  const seconds = Number(match[1]);
+  return Number.isFinite(seconds) ? seconds : null;
+}
+
+function formatDurationMinutesFromSeconds(seconds, fallbackMinutes) {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return `${fallbackMinutes} min`;
+  }
+  return `${Math.max(1, Math.round(seconds / 60))} min`;
+}
+
+function formatMilesFromMeters(meters, fallbackMiles) {
+  if (!Number.isFinite(meters) || meters <= 0) {
+    return `${Number(fallbackMiles || 0).toFixed(1)} mi`;
+  }
+  return `${(meters / 1609.344).toFixed(1)} mi`;
+}
+
+function createRoutePreviewRequest(tour) {
+  const renderableStops = getRenderableStops(tour?.stops || []);
+  return {
+    stops: renderableStops.map((stop) => ({
+      title: stop.title,
+      lat: stop.lat,
+      lng: stop.lng
+    })),
+    travelMode: "DRIVE",
+    routingPreference: "TRAFFIC_AWARE"
+  };
+}
+
+async function ensureRoutePreviewLoaded(tour) {
+  if (!tour || !tour.id) {
+    return;
+  }
+
+  const requestBody = createRoutePreviewRequest(tour);
+  if (requestBody.stops.length < 2) {
+    state.maps.routePreviewsByTourId[tour.id] = {
+      status: "unavailable",
+      route: null,
+      message: "This tour needs at least two mapped stops before a route can render."
+    };
+    return;
+  }
+
+  const existing = getRoutePreviewRecord(tour.id);
+  if (
+    existing.status === "loading" ||
+    existing.status === "ready" ||
+    existing.status === "unavailable" ||
+    existing.status === "error"
+  ) {
+    return;
+  }
+
+  const syncServerUrl = getSyncServerUrl();
+  if (!syncServerUrl) {
+    state.maps.routePreviewsByTourId[tour.id] = {
+      status: "unavailable",
+      route: null,
+      message: "Add the sync server URL to enable live route previews."
+    };
+    return;
+  }
+
+  state.maps.routePreviewsByTourId[tour.id] = {
+    status: "loading",
+    route: null,
+    message: ""
+  };
+
+  render(false);
+
+  try {
+    const response = await fetch(`${syncServerUrl}/api/maps/route-preview`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(state.auth.authToken ? { Authorization: `Bearer ${state.auth.authToken}` } : {})
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "Unable to load route preview.");
+    }
+
+    state.maps.routePreviewsByTourId[tour.id] = {
+      status: "ready",
+      route: payload.primaryRoute || null,
+      message: ""
+    };
+  } catch (error) {
+    state.maps.routePreviewsByTourId[tour.id] = {
+      status: "error",
+      route: null,
+      message: (error && error.message) || "Unable to load route preview."
+    };
+  }
+
+  render(false);
+}
+
+function getRoutePreviewDisplay(tour) {
+  const preview = getRoutePreviewRecord(tour.id);
+  const route = preview.route;
+  const liveDurationSeconds = parseDurationSeconds(route?.duration);
+  const liveStaticDurationSeconds = parseDurationSeconds(route?.staticDuration);
+
+  return {
+    status: preview.status,
+    statusLabel:
+      preview.status === "ready"
+        ? "Live route"
+        : preview.status === "loading"
+          ? "Loading route"
+          : preview.status === "error"
+            ? "Static fallback"
+            : "Tour plan",
+    durationLabel: formatDurationMinutesFromSeconds(liveDurationSeconds ?? liveStaticDurationSeconds, tour.durationMin),
+    distanceLabel: formatMilesFromMeters(route?.distanceMeters, tour.distanceMiles),
+    legsLabel:
+      route?.legs && route.legs.length
+        ? `${route.legs.length} live leg${route.legs.length === 1 ? "" : "s"}`
+        : `${tour.stops.length} story stops`,
+    message:
+      preview.status === "ready"
+        ? "Google route preview is live for this stop order."
+        : preview.status === "loading"
+          ? "Checking live drive distance and ETA for this route."
+          : preview.status === "error"
+            ? preview.message || "Live route preview is unavailable right now, so this page is showing the saved tour estimate."
+            : preview.message || "Static route estimate from the tour catalog."
+  };
+}
+
+function decodeEncodedPolyline(encoded) {
+  const source = String(encoded || "").trim();
+  if (!source) {
+    return [];
+  }
+
+  const coordinates = [];
+  let index = 0;
+  let lat = 0;
+  let lng = 0;
+
+  while (index < source.length) {
+    let result = 0;
+    let shift = 0;
+    let byte = null;
+
+    do {
+      byte = source.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20 && index < source.length + 1);
+
+    const latDelta = result & 1 ? ~(result >> 1) : result >> 1;
+    lat += latDelta;
+
+    result = 0;
+    shift = 0;
+
+    do {
+      byte = source.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20 && index < source.length + 1);
+
+    const lngDelta = result & 1 ? ~(result >> 1) : result >> 1;
+    lng += lngDelta;
+
+    coordinates.push([lat / 1e5, lng / 1e5]);
+  }
+
+  return coordinates;
+}
+
 function updateChrome() {
-  const signedIn = !!state.auth.session;
+  const showingHiddenRoutePage = !!state.routePageTourId;
   if (glassesModeButton) {
     glassesModeButton.textContent = getGlassesModeLabel();
     glassesModeButton.classList.toggle("active", state.glassesMode);
-    glassesModeButton.hidden = !signedIn;
+    glassesModeButton.hidden = showingHiddenRoutePage;
   }
 
   if (copyViewButton) {
-    copyViewButton.hidden = !signedIn;
+    copyViewButton.hidden = showingHiddenRoutePage;
   }
 
   if (tabBar) {
-    tabBar.hidden = !signedIn;
+    tabBar.hidden = showingHiddenRoutePage;
   }
 
-  if (topbarActions && !signedIn) {
-    topbarActions.classList.add("auth-compact");
-  } else if (topbarActions) {
+  if (topbarActions) {
     topbarActions.classList.remove("auth-compact");
   }
 }
@@ -684,6 +1681,17 @@ function resetCopyButtonLabel() {
   if (copyViewButton) {
     copyViewButton.textContent = "Copy current view";
   }
+}
+
+function schedulePostSignInRefresh() {
+  window.clearTimeout(authRefreshTimer);
+  authRefreshTimer = window.setTimeout(() => {
+    if (state.activeTab !== "profile") {
+      state.activeTab = "profile";
+    }
+    syncLocationHash();
+    render(false);
+  }, 3000);
 }
 
 function setCopyButtonLabel(label) {
@@ -724,25 +1732,134 @@ function loadCompletedStops() {
   }
 }
 
-function loadWebAuthSession() {
+function loadTourCardImages() {
   try {
-    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    window.localStorage.removeItem("philly-ar-tours-web-tour-card-images-v2");
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function saveTourCardImages() {
+  return;
+}
+
+function loadTourOrderIds() {
+  try {
+    const raw = window.localStorage.getItem(TOUR_ORDER_STORAGE_KEY);
     if (!raw) {
-      return null;
+      return tours.map((tour) => tour.id);
     }
     const parsed = JSON.parse(raw);
-    if (!parsed?.authToken || !parsed?.session) {
+    if (!Array.isArray(parsed)) {
+      return tours.map((tour) => tour.id);
+    }
+    const validIds = new Set(tours.map((tour) => tour.id));
+    const ordered = parsed.filter((id) => typeof id === "string" && validIds.has(id));
+    const missing = tours.map((tour) => tour.id).filter((id) => !ordered.includes(id));
+    return [...ordered, ...missing];
+  } catch {
+    return tours.map((tour) => tour.id);
+  }
+}
+
+function loadAudioUnlocked() {
+  try {
+    return window.localStorage.getItem("philly-ar-tours-web-audio-unlocked-v1") === "1";
+  } catch {
+    return false;
+  }
+}
+
+function saveAudioUnlocked() {
+  try {
+    window.localStorage.setItem("philly-ar-tours-web-audio-unlocked-v1", state.audioAccess.fullUnlocked ? "1" : "0");
+  } catch {
+    // Ignore storage failures for local audio unlock state.
+  }
+}
+
+function loadAudioPreviewedStopIds() {
+  try {
+    const raw = window.localStorage.getItem("philly-ar-tours-web-audio-preview-stops-v1");
+    if (!raw) {
+      return [];
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((value) => typeof value === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAudioPreviewedStopIds() {
+  try {
+    window.localStorage.setItem(
+      "philly-ar-tours-web-audio-preview-stops-v1",
+      JSON.stringify(state.audioAccess.previewedStopIds || [])
+    );
+  } catch {
+    // Ignore storage failures for local audio preview tracking.
+  }
+}
+
+function loadPendingCheckoutPlanId() {
+  try {
+    return window.localStorage.getItem("philly-ar-tours-web-pending-checkout-plan-v1") || "";
+  } catch {
+    return "";
+  }
+}
+
+function savePendingCheckoutPlanId(planId) {
+  try {
+    if (planId) {
+      window.localStorage.setItem("philly-ar-tours-web-pending-checkout-plan-v1", planId);
+    } else {
+      window.localStorage.removeItem("philly-ar-tours-web-pending-checkout-plan-v1");
+    }
+  } catch {
+    // Ignore storage failures for local checkout tracking.
+  }
+}
+
+function saveTourOrderIds() {
+  try {
+    window.localStorage.setItem(TOUR_ORDER_STORAGE_KEY, JSON.stringify(state.tourOrderIds || []));
+  } catch {
+    // Ignore storage failures for local route order.
+  }
+}
+
+function loadWebAuthSession() {
+  const readRecord = (storage) => {
+    try {
+      const raw = storage.getItem(AUTH_STORAGE_KEY);
+      if (!raw) {
+        return null;
+      }
+      const parsed = JSON.parse(raw);
+      if (!parsed?.session) {
+        return null;
+      }
+      return parsed;
+    } catch {
       return null;
     }
-    return parsed;
-  } catch {
-    return null;
-  }
+  };
+
+  return readRecord(window.localStorage) || readRecord(window.sessionStorage) || null;
 }
 
 function saveWebAuthSession(record) {
   try {
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(record));
+  } catch {
+    // Ignore storage failures for the web-only auth shell.
+  }
+  try {
+    window.sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(record));
   } catch {
     // Ignore storage failures for the web-only auth shell.
   }
@@ -754,6 +1871,22 @@ function clearWebAuthSession() {
   } catch {
     // Ignore storage failures for the web-only auth shell.
   }
+  try {
+    window.sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  } catch {
+    // Ignore storage failures for the web-only auth shell.
+  }
+}
+
+function buildGuestWebSession() {
+  return {
+    userId: "web-guest-preview",
+    displayName: "Guest preview",
+    email: "guest@preview.local",
+    roles: ["guest"],
+    mode: "preview",
+    isGuest: true
+  };
 }
 
 function getSyncServerUrl() {
@@ -783,7 +1916,7 @@ async function getSupabaseBrowserClient() {
     supabaseClientPromise = import("https://esm.sh/@supabase/supabase-js@2.49.8").then(({ createClient }) =>
       createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
-          flowType: "pkce",
+          flowType: "implicit",
           detectSessionInUrl: true,
           persistSession: true,
           autoRefreshToken: false
@@ -871,12 +2004,14 @@ async function finalizeOAuthSignIn(accessToken, provider) {
   state.auth.displayName = payload.session.displayName || "";
   state.auth.email = payload.session.email || "";
   state.auth.password = "";
-  state.auth.status = "idle";
-  state.auth.message = "";
+  state.auth.status = "success";
+  state.auth.message = "Sign-in complete.";
   saveWebAuthSession({
     authToken: payload.token,
     session: payload.session
   });
+  setActiveTab("profile");
+  schedulePostSignInRefresh();
 }
 
 async function completeOAuthRedirectIfPresent() {
@@ -903,16 +2038,14 @@ async function completeOAuthRedirectIfPresent() {
     const authCode = url.searchParams.get("code");
 
     let accessToken = "";
-    if (authCode) {
-      const { data, error } = await client.auth.exchangeCodeForSession(authCode);
-      if (error) {
-        throw error;
-      }
-      accessToken = data?.session?.access_token || "";
+    const { data: existingSessionData, error: existingSessionError } = await client.auth.getSession();
+    if (existingSessionError) {
+      throw existingSessionError;
     }
+    accessToken = existingSessionData?.session?.access_token || "";
 
-    if (!accessToken) {
-      const { data, error } = await client.auth.getSession();
+    if (!accessToken && authCode) {
+      const { data, error } = await client.auth.exchangeCodeForSession(authCode);
       if (error) {
         throw error;
       }
@@ -924,7 +2057,6 @@ async function completeOAuthRedirectIfPresent() {
     }
 
     await finalizeOAuthSignIn(accessToken, pendingProvider || undefined);
-    await client.auth.signOut().catch(() => {});
     clearPendingOAuthProvider();
     clearOAuthRedirectParams();
     return true;
@@ -960,13 +2092,22 @@ async function initializeWebAuth() {
   state.auth.displayName = stored.session.displayName || "";
   state.auth.email = stored.session.email || "";
   state.auth.authToken = stored.authToken || "";
+  state.auth.session = stored.session;
 
-  if (!syncServerUrl) {
-    state.auth.session = stored.session;
+  if (!stored.authToken) {
     state.auth.booting = false;
     render(false);
     return;
   }
+
+  if (!syncServerUrl) {
+    state.auth.booting = false;
+    render(false);
+    return;
+  }
+
+  state.auth.booting = false;
+  render(false);
 
   try {
     const response = await fetch(`${syncServerUrl}/api/auth/session`, {
@@ -985,18 +2126,19 @@ async function initializeWebAuth() {
     state.auth.authToken = stored.authToken;
     state.auth.displayName = payload.session.displayName || "";
     state.auth.email = payload.session.email || "";
+    saveWebAuthSession({
+      authToken: stored.authToken,
+      session: payload.session
+    });
+    render(false);
   } catch {
-    clearWebAuthSession();
-    state.auth.session = null;
-    state.auth.authToken = "";
-    state.auth.message = "Your Cloudflare-secured session expired. Sign in again to continue.";
-  } finally {
-    state.auth.booting = false;
+    state.auth.message = "Saved web session loaded. If Google actions fail, sign out and try once more.";
     render(false);
   }
 }
 
 function resetAuthState() {
+  window.clearTimeout(authRefreshTimer);
   state.auth = {
     ...state.auth,
     booting: false,
@@ -1032,7 +2174,7 @@ async function startOAuthSignIn(provider) {
     state.auth.message = `Redirecting to ${provider === "apple" ? "Apple" : "Google"}...`;
     render(false);
     setPendingOAuthProvider(provider);
-    const redirectTo = `${window.location.origin}${window.location.pathname}`;
+    const redirectTo = `${window.location.origin}/auth/provider`;
     const { data, error } = await client.auth.signInWithOAuth({
       provider,
       options: {
@@ -1076,6 +2218,246 @@ function saveCompletedStops() {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.completedStopIds));
 }
 
+function isQuestBrowser() {
+  const userAgent = navigator.userAgent || "";
+  return /OculusBrowser|Quest/i.test(userAgent);
+}
+
+async function initializeWebXRSupport() {
+  if (state.xr.checked) {
+    return state.xr;
+  }
+
+  state.xr.checked = true;
+
+  if (!window.isSecureContext) {
+    state.xr = {
+      ...state.xr,
+      supported: false,
+      sessionType: "",
+      deviceLabel: "Quest WebXR requires HTTPS.",
+      error: ""
+    };
+    render(false);
+    return state.xr;
+  }
+
+  if (!isQuestBrowser()) {
+    state.xr = {
+      ...state.xr,
+      supported: false,
+      sessionType: "",
+      deviceLabel: "WebXR is reserved for Quest Browser in this build.",
+      error: ""
+    };
+    render(false);
+    return state.xr;
+  }
+
+  if (!("xr" in navigator) || !navigator.xr) {
+    state.xr = {
+      ...state.xr,
+      supported: false,
+      sessionType: "",
+      deviceLabel: "Quest Browser is open, but WebXR is unavailable on this device.",
+      error: ""
+    };
+    render(false);
+    return state.xr;
+  }
+
+  try {
+    const supportsImmersiveAr = await navigator.xr.isSessionSupported("immersive-ar");
+    const supportsImmersiveVr = !supportsImmersiveAr && (await navigator.xr.isSessionSupported("immersive-vr"));
+    state.xr = {
+      ...state.xr,
+      supported: supportsImmersiveAr || supportsImmersiveVr,
+      sessionType: supportsImmersiveAr ? "immersive-ar" : supportsImmersiveVr ? "immersive-vr" : "",
+      deviceLabel: supportsImmersiveAr
+        ? "Quest passthrough WebXR is available."
+        : supportsImmersiveVr
+          ? "Quest immersive WebXR is available."
+          : "Quest Browser is open, but immersive WebXR is not available right now.",
+      error: ""
+    };
+  } catch (error) {
+    state.xr = {
+      ...state.xr,
+      supported: false,
+      sessionType: "",
+      deviceLabel: "Quest Browser detected.",
+      error: error instanceof Error ? error.message : "Could not detect WebXR support."
+    };
+  }
+
+  render(false);
+  return state.xr;
+}
+
+function getWebXROverlayRoot() {
+  let overlayRoot = document.getElementById("webxr-overlay-root");
+  if (overlayRoot) {
+    return overlayRoot;
+  }
+
+  overlayRoot = document.createElement("div");
+  overlayRoot.id = "webxr-overlay-root";
+  overlayRoot.className = "webxr-overlay-root";
+  overlayRoot.hidden = true;
+  document.body.appendChild(overlayRoot);
+  overlayRoot.addEventListener("click", (event) => {
+    const rawTarget = event.target;
+    if (!(rawTarget instanceof Element)) {
+      return;
+    }
+    const action = rawTarget.closest("[data-webxr-action]")?.getAttribute("data-webxr-action");
+    if (action === "stop-webxr") {
+      stopWebXRMode().catch(() => undefined);
+    }
+  });
+  return overlayRoot;
+}
+
+function syncWebXROverlay() {
+  const overlayRoot = getWebXROverlayRoot();
+  if (state.xr.mode !== "live") {
+    overlayRoot.hidden = true;
+    overlayRoot.innerHTML = "";
+    return;
+  }
+
+  const selectedTour = getSelectedTour();
+  const selectedStop = getSelectedStop();
+  overlayRoot.hidden = false;
+  overlayRoot.innerHTML = `
+    <div class="webxr-overlay-panel">
+      <p class="eyebrow">Quest WebXR</p>
+      <h3>${escapeHtml(selectedStop.title)}</h3>
+      <p>${escapeHtml(selectedStop.fullAddress || selectedStop.locationLabel || selectedTour.title)}</p>
+      <div class="webxr-overlay-meta">
+        <span>${escapeHtml(selectedTour.title)}</span>
+        <span>${escapeHtml(state.xr.sessionType === "immersive-ar" ? "Passthrough mode" : "Immersive mode")}</span>
+      </div>
+      <button type="button" class="ghost-button" data-webxr-action="stop-webxr">Exit Quest WebXR</button>
+    </div>
+  `;
+}
+
+function onWebXRFrame(_time, frame) {
+  if (!xrSession || !xrGl) {
+    return;
+  }
+
+  xrSession.requestAnimationFrame(onWebXRFrame);
+  const pose = xrReferenceSpace ? frame.getViewerPose(xrReferenceSpace) : null;
+  const baseLayer = xrSession.renderState.baseLayer;
+  if (!baseLayer || !pose) {
+    return;
+  }
+
+  xrGl.bindFramebuffer(xrGl.FRAMEBUFFER, baseLayer.framebuffer);
+  xrGl.clearColor(0.03, 0.04, 0.08, 0.0);
+  xrGl.clear(xrGl.COLOR_BUFFER_BIT | xrGl.DEPTH_BUFFER_BIT);
+}
+
+async function startWebXRMode() {
+  await initializeWebXRSupport();
+
+  if (!state.xr.supported || !state.xr.sessionType || !navigator.xr) {
+    state.xr.error = state.xr.error || "Quest WebXR is not available in this browser.";
+    render(false);
+    return;
+  }
+
+  if (xrSession) {
+    return;
+  }
+
+  stopArLive();
+  const overlayRoot = getWebXROverlayRoot();
+  state.xr = {
+    ...state.xr,
+    mode: "starting",
+    error: ""
+  };
+  render(false);
+
+  try {
+    xrSession = await navigator.xr.requestSession(state.xr.sessionType, {
+      optionalFeatures: ["local-floor", "dom-overlay", "hit-test"],
+      domOverlay: { root: overlayRoot }
+    });
+    xrCanvas = document.createElement("canvas");
+    xrGl = xrCanvas.getContext("webgl", { xrCompatible: true, alpha: true, antialias: true });
+    if (!xrGl) {
+      throw new Error("WebGL is unavailable for WebXR.");
+    }
+    if (typeof xrGl.makeXRCompatible === "function") {
+      await xrGl.makeXRCompatible();
+    }
+    xrSession.updateRenderState({
+      baseLayer: new XRWebGLLayer(xrSession, xrGl)
+    });
+
+    try {
+      xrReferenceSpace = await xrSession.requestReferenceSpace("local-floor");
+    } catch {
+      xrReferenceSpace = await xrSession.requestReferenceSpace("local");
+    }
+
+    xrSession.addEventListener("end", () => {
+      xrSession = null;
+      xrCanvas = null;
+      xrGl = null;
+      xrReferenceSpace = null;
+      state.xr = {
+        ...state.xr,
+        mode: "idle",
+        error: ""
+      };
+      syncWebXROverlay();
+      render(false);
+    });
+
+    state.xr = {
+      ...state.xr,
+      mode: "live",
+      error: ""
+    };
+    syncWebXROverlay();
+    xrSession.requestAnimationFrame(onWebXRFrame);
+    render(false);
+  } catch (error) {
+    xrSession = null;
+    xrCanvas = null;
+    xrGl = null;
+    xrReferenceSpace = null;
+    state.xr = {
+      ...state.xr,
+      mode: "idle",
+      error: error instanceof Error ? error.message : "Could not start Quest WebXR."
+    };
+    syncWebXROverlay();
+    render(false);
+  }
+}
+
+async function stopWebXRMode() {
+  if (!xrSession) {
+    state.xr = {
+      ...state.xr,
+      mode: "idle",
+      error: ""
+    };
+    syncWebXROverlay();
+    render(false);
+    return;
+  }
+  const activeSession = xrSession;
+  xrSession = null;
+  await activeSession.end().catch(() => undefined);
+}
+
 function stopNarration() {
   if (narrationAudio) {
     narrationAudio.pause();
@@ -1093,6 +2475,9 @@ function stopNarration() {
 }
 
 function stopArLive() {
+  if (xrSession) {
+    void stopWebXRMode();
+  }
   if (arStream) {
     arStream.getTracks().forEach((track) => track.stop());
     arStream = null;
@@ -1115,6 +2500,14 @@ function stopArLive() {
     lastAutoNarratedStopId: state.ar.lastAutoNarratedStopId,
     lastAutoNarratedAt: state.ar.lastAutoNarratedAt
   };
+}
+
+function stopHomeMapLive() {
+  if (mapLocationWatchId !== null && navigator.geolocation) {
+    navigator.geolocation.clearWatch(mapLocationWatchId);
+    mapLocationWatchId = null;
+  }
+  state.map.tracking = false;
 }
 
 function haversineDistanceMeters(a, b) {
@@ -1181,6 +2574,80 @@ function updateArNearestStop(positionCoords) {
   }
 }
 
+function updateHomeMapLocation(positionCoords) {
+  const selectedTour = getSelectedTour();
+  const selectedStop = getSelectedStop();
+  let nearestStop = null;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+
+  for (const stop of selectedTour.stops) {
+    const distance = haversineDistanceMeters(positionCoords, { lat: stop.lat, lng: stop.lng });
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestStop = stop;
+    }
+  }
+
+  state.map.userLocation = positionCoords;
+  state.map.locationReady = true;
+  state.map.error = "";
+  state.map.nearestStopId = nearestStop?.id ?? null;
+  state.map.distanceToSelectedM = Math.round(
+    haversineDistanceMeters(positionCoords, { lat: selectedStop.lat, lng: selectedStop.lng })
+  );
+
+  if (nearestStop && state.map.followNearestStop && nearestStop.id !== state.selectedStopId) {
+    state.selectedStopId = nearestStop.id;
+    state.map.distanceToSelectedM = Math.round(
+      haversineDistanceMeters(positionCoords, { lat: nearestStop.lat, lng: nearestStop.lng })
+    );
+  }
+}
+
+function startHomeMapLive() {
+  state.map.requested = true;
+
+  if (!navigator.geolocation) {
+    state.map.error = "Location is not available in this browser.";
+    state.map.tracking = false;
+    state.map.locationReady = false;
+    render(false);
+    return;
+  }
+
+  if (mapLocationWatchId !== null) {
+    return;
+  }
+
+  state.map.tracking = true;
+  state.map.error = "";
+
+  mapLocationWatchId = navigator.geolocation.watchPosition(
+    (position) => {
+      updateHomeMapLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      });
+      if (state.activeTab === "home") {
+        render(false);
+      }
+    },
+    () => {
+      stopHomeMapLive();
+      state.map.locationReady = false;
+      state.map.error = "Location access is blocked. Turn it on to make the map follow you.";
+      if (state.activeTab === "home") {
+        render(false);
+      }
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 5000,
+      timeout: 10000
+    }
+  );
+}
+
 async function startArLive() {
   stopArLive();
   state.ar.mode = "starting";
@@ -1205,11 +2672,23 @@ async function startArLive() {
     if (navigator.geolocation) {
       arLocationWatchId = navigator.geolocation.watchPosition(
         (position) => {
+          const previousNearestStopId = state.ar.nearestStopId;
+          const previousInRange = state.ar.inRange;
+          const previousLocationReady = state.ar.locationReady;
           updateArNearestStop({
             lat: position.coords.latitude,
             lng: position.coords.longitude
           });
-          render(false);
+          if (state.activeTab === "ar" && state.ar.mode === "live") {
+            syncArLiveReadout();
+          }
+          if (
+            state.ar.nearestStopId !== previousNearestStopId ||
+            state.ar.inRange !== previousInRange ||
+            state.ar.locationReady !== previousLocationReady
+          ) {
+            render(false);
+          }
         },
         () => {
           state.ar.error = "Location is unavailable right now. Camera mode still works.";
@@ -1250,6 +2729,18 @@ function startNarration(stopId) {
   const stop = getStopById(stopId);
   if (!stop) {
     return;
+  }
+
+  if (!canPlayNarration(stopId)) {
+    state.checkout.status = "error";
+    state.checkout.message = "Your 2 free narration previews are used. Purchase full audio to unlock the rest.";
+    render(false);
+    return;
+  }
+
+  if (!state.audioAccess.fullUnlocked && !state.audioAccess.previewedStopIds.includes(stopId)) {
+    state.audioAccess.previewedStopIds = [...state.audioAccess.previewedStopIds, stopId];
+    saveAudioPreviewedStopIds();
   }
 
   stopNarration();
@@ -1346,6 +2837,7 @@ function startSpeechNarration(stopId) {
 
 function handleHashChange() {
   hydrateStateFromLocation();
+  scrollViewportToTop();
   render(false);
 }
 
@@ -1353,6 +2845,7 @@ function hydrateStateFromLocation() {
   const hash = window.location.hash.replace(/^#/, "");
   if (!hash) {
     state.drawer = null;
+    state.routePageTourId = null;
     return;
   }
 
@@ -1360,8 +2853,12 @@ function hydrateStateFromLocation() {
   const tab = params.get("tab");
   const tourId = params.get("tour");
   const stopId = params.get("stop");
+  const routePage = params.get("routePage");
+  const homeTour = params.get("homeTour");
   const drawerTour = params.get("drawerTour");
   const drawerStop = params.get("drawerStop");
+  const checkoutState = params.get("checkout");
+  const pendingCheckoutPlanId = loadPendingCheckoutPlanId();
 
   if (tab && ["home", "map", "ar", "progress", "profile"].includes(tab)) {
     state.activeTab = tab;
@@ -1381,11 +2878,31 @@ function hydrateStateFromLocation() {
     }
   }
 
+  state.routePageTourId = routePage && getTourById(routePage) ? routePage : null;
+  state.home.focusTourId = homeTour && getTourById(homeTour) ? homeTour : null;
+
   state.drawer = null;
   if (drawerTour && getTourById(drawerTour)) {
     state.drawer = { type: "tour", id: drawerTour };
   } else if (drawerStop && getStopById(drawerStop)) {
     state.drawer = { type: "stop", id: drawerStop };
+  }
+
+  if (checkoutState === "success") {
+    if (pendingCheckoutPlanId === "full-audio-unlock-all-tours") {
+      state.audioAccess.fullUnlocked = true;
+      saveAudioUnlocked();
+      state.checkout.status = "success";
+      state.checkout.message = "Full audio unlocked on this device.";
+    } else {
+      state.checkout.status = "success";
+      state.checkout.message = "Checkout completed successfully.";
+    }
+    savePendingCheckoutPlanId("");
+  } else if (checkoutState === "cancelled") {
+    state.checkout.status = "error";
+    state.checkout.message = "Checkout was cancelled.";
+    savePendingCheckoutPlanId("");
   }
 }
 
@@ -1393,12 +2910,20 @@ function syncLocationHash() {
   const params = new URLSearchParams();
   params.set("tab", state.activeTab);
 
-  if (state.activeTab === "map" || state.activeTab === "ar" || state.activeTab === "home") {
+  if (state.activeTab === "home" || state.activeTab === "map" || state.activeTab === "ar") {
     params.set("tour", state.selectedTourId);
   }
 
   if (state.activeTab === "map") {
     params.set("stop", state.selectedStopId);
+  }
+
+  if (state.routePageTourId) {
+    params.set("routePage", state.routePageTourId);
+  }
+
+  if (state.home.focusTourId) {
+    params.set("homeTour", state.home.focusTourId);
   }
 
   if (state.drawer?.type === "tour") {
@@ -1418,6 +2943,13 @@ function setActiveTab(nextTab) {
     stopArLive();
   }
   state.activeTab = nextTab;
+  if (nextTab !== "map") {
+    state.routePageTourId = null;
+  }
+  if (nextTab === "home") {
+    state.routePageTourId = null;
+  }
+  scrollViewportToTop();
   render();
 }
 
@@ -1458,9 +2990,9 @@ function handleClick(event) {
     if (!nextGlassesMode) {
       stopNarration();
       stopArLive();
-      state.glassesModeNotice = "Meta glasses mode turned off. Reopen the route or AR screen if you want to continue in standard phone mode.";
+      state.glassesModeNotice = "Bluetooth audio mode turned off. Reopen the route or AR screen if you want to continue in standard phone mode.";
     } else {
-      state.glassesModeNotice = "Meta glasses mode turned on. Narration will follow your active Bluetooth audio output.";
+      state.glassesModeNotice = "Bluetooth audio mode turned on. Narration will follow your active Bluetooth audio output.";
     }
     state.glassesMode = nextGlassesMode;
     saveGlassesMode();
@@ -1470,6 +3002,11 @@ function handleClick(event) {
 
   if (action === "start-upgrade-checkout") {
     startUpgradeCheckout();
+    return;
+  }
+
+  if (action === "start-tour-guide-checkout") {
+    startTourGuideCheckout();
     return;
   }
 
@@ -1488,11 +3025,6 @@ function handleClick(event) {
     return;
   }
 
-  if (action === "oauth-interest" && AUTH_INTEREST_PROVIDERS.has(provider)) {
-    saveAuthProviderInterest(provider);
-    return;
-  }
-
   if (action === "select-tour" && tourId) {
     const selectedTour = getTourById(tourId);
     if (!selectedTour) {
@@ -1500,6 +3032,61 @@ function handleClick(event) {
     }
     state.selectedTourId = selectedTour.id;
     state.selectedStopId = selectedTour.stops[0]?.id ?? "";
+    if (state.activeTab === "home") {
+      state.home.focusTourId = selectedTour.id;
+    }
+    state.expandedTourCardId = selectedTour.id;
+    render();
+    return;
+  }
+
+  if (action === "focus-home-tour" && tourId) {
+    const selectedTour = getTourById(tourId);
+    if (!selectedTour) {
+      return;
+    }
+    state.activeTab = "home";
+    state.routePageTourId = null;
+    state.home.focusTourId = selectedTour.id;
+    state.selectedTourId = selectedTour.id;
+    state.selectedStopId = selectedTour.stops[0]?.id ?? "";
+    scrollViewportToTop();
+    render();
+    return;
+  }
+
+  if (action === "show-all-home-tours") {
+    state.activeTab = "home";
+    state.routePageTourId = null;
+    state.home.focusTourId = null;
+    scrollViewportToTop();
+    render();
+    return;
+  }
+
+  if (action === "open-route-page" && tourId) {
+    const selectedTour = getTourById(tourId);
+    if (!selectedTour) {
+      return;
+    }
+    state.selectedTourId = selectedTour.id;
+    state.selectedStopId = selectedTour.stops[0]?.id ?? "";
+    state.routePageTourId = selectedTour.id;
+    scrollViewportToTop();
+    render();
+    return;
+  }
+
+  if (action === "close-route-page") {
+    state.routePageTourId = null;
+    state.activeTab = "map";
+    scrollViewportToTop();
+    render();
+    return;
+  }
+
+  if (action === "toggle-tour-card" && tourId) {
+    state.expandedTourCardId = state.expandedTourCardId === tourId ? "" : tourId;
     render();
     return;
   }
@@ -1517,8 +3104,43 @@ function handleClick(event) {
   }
 
   if (action === "select-stop" && stopId) {
+    state.map.followNearestStop = false;
     state.selectedStopId = stopId;
     render();
+    return;
+  }
+
+  if (action === "select-prev-stop" || action === "select-next-stop") {
+    const selectedTour = getSelectedTour();
+    const currentIndex = Math.max(getStopIndexForTour(selectedTour, state.selectedStopId), 0);
+    const nextIndex = action === "select-next-stop"
+      ? Math.min(currentIndex + 1, selectedTour.stops.length - 1)
+      : Math.max(currentIndex - 1, 0);
+    const nextStop = selectedTour.stops[nextIndex];
+    if (nextStop) {
+      state.map.followNearestStop = false;
+      state.selectedStopId = nextStop.id;
+      render();
+    }
+    return;
+  }
+
+  if (action === "start-map-live") {
+    startHomeMapLive();
+    render(false);
+    return;
+  }
+
+  if (action === "resume-map-follow") {
+    state.map.followNearestStop = true;
+    if (!state.map.tracking) {
+      startHomeMapLive();
+    } else if (state.map.userLocation) {
+      updateHomeMapLocation(state.map.userLocation);
+      render(false);
+    } else {
+      render(false);
+    }
     return;
   }
 
@@ -1565,6 +3187,16 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "start-webxr") {
+    void startWebXRMode();
+    return;
+  }
+
+  if (action === "stop-webxr") {
+    void stopWebXRMode();
+    return;
+  }
+
   if (action === "toggle-auto-narration") {
     state.ar.autoNarrationEnabled = !state.ar.autoNarrationEnabled;
     render();
@@ -1596,6 +3228,66 @@ function handleClick(event) {
     return;
   }
 
+}
+
+function handleDragStart(event) {
+  const rawTarget = event.target;
+  if (!(rawTarget instanceof Element)) {
+    return;
+  }
+
+  const card = rawTarget.closest("[data-tour-drag-id]");
+  const tourId = card?.getAttribute("data-tour-drag-id") || "";
+  if (!tourId || !(event.dataTransfer instanceof DataTransfer)) {
+    return;
+  }
+
+  state.draggingTourId = tourId;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", tourId);
+}
+
+function handleDragOver(event) {
+  const rawTarget = event.target;
+  if (!(rawTarget instanceof Element)) {
+    return;
+  }
+
+  const card = rawTarget.closest("[data-tour-drag-id]");
+  if (!card || !state.draggingTourId) {
+    return;
+  }
+
+  event.preventDefault();
+  if (event.dataTransfer instanceof DataTransfer) {
+    event.dataTransfer.dropEffect = "move";
+  }
+}
+
+function handleDrop(event) {
+  const rawTarget = event.target;
+  if (!(rawTarget instanceof Element)) {
+    return;
+  }
+
+  const card = rawTarget.closest("[data-tour-drag-id]");
+  const targetTourId = card?.getAttribute("data-tour-drag-id") || "";
+  const movedTourId =
+    (event.dataTransfer instanceof DataTransfer && event.dataTransfer.getData("text/plain")) || state.draggingTourId;
+
+  if (!movedTourId || !targetTourId) {
+    return;
+  }
+
+  event.preventDefault();
+  state.draggingTourId = "";
+  if (reorderTourIds(movedTourId, targetTourId)) {
+    render();
+  }
+}
+
+function handleDragEnd() {
+  state.draggingTourId = "";
 }
 
 function handleInput(event) {
@@ -1678,9 +3370,27 @@ function getSelectedTour() {
   return getTourById(state.selectedTourId) ?? tours[0];
 }
 
+function getTourAccent(index) {
+  return [
+    ["#b45b3d", "#f0ceb5"],
+    ["#6d4bc3", "#d8c7ff"],
+    ["#35574f", "#d6eadf"],
+    ["#204b74", "#c9dff3"],
+    ["#8a4f63", "#f3d2dd"],
+    ["#8e6b1f", "#f6e1a8"]
+  ][index % 6];
+}
+
 function getSelectedStop() {
   const selectedTour = getSelectedTour();
   return selectedTour.stops.find((stop) => stop.id === state.selectedStopId) ?? selectedTour.stops[0];
+}
+
+function getStopIndexForTour(tour, stopId) {
+  if (!tour || !stopId) {
+    return -1;
+  }
+  return tour.stops.findIndex((stop) => stop.id === stopId);
 }
 
 function getStopById(stopId) {
@@ -1699,12 +3409,37 @@ function getTourForStop(stopId) {
 
 function getVisibleTours() {
   const query = state.search.trim().toLowerCase();
-  return tours.filter((tour) => {
+  const orderedTours = [...tours].sort((left, right) => {
+    const leftIndex = state.tourOrderIds.indexOf(left.id);
+    const rightIndex = state.tourOrderIds.indexOf(right.id);
+    return (leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex) - (rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex);
+  });
+
+  return orderedTours.filter((tour) => {
     const matchesTheme = state.themeFilter === "all" || tour.theme.toLowerCase() === state.themeFilter;
     const haystack = [tour.title, tour.theme, tour.neighborhood, tour.summary, ...tour.tags].join(" ").toLowerCase();
     const matchesSearch = !query || haystack.includes(query);
     return matchesTheme && matchesSearch;
   });
+}
+
+function reorderTourIds(movedTourId, targetTourId) {
+  if (!movedTourId || !targetTourId || movedTourId === targetTourId) {
+    return false;
+  }
+
+  const next = [...state.tourOrderIds];
+  const fromIndex = next.indexOf(movedTourId);
+  const targetIndex = next.indexOf(targetTourId);
+  if (fromIndex === -1 || targetIndex === -1) {
+    return false;
+  }
+
+  next.splice(fromIndex, 1);
+  next.splice(targetIndex, 0, movedTourId);
+  state.tourOrderIds = next;
+  saveTourOrderIds();
+  return true;
 }
 
 function getProgressForTour(tour) {
@@ -1771,10 +3506,6 @@ function renderAuthScreen() {
             <span class="status-pill">Private access</span>
             <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Google + Apple ready" : "Provider setup needed"}</span>
           </div>
-          <div class="drawer-copy emphasis auth-waiver-box">
-            <strong>Waiver liability</strong>
-            <p>By entering or using Philly AR Tours, you acknowledge and agree that all tours, routes, AR features, maps, audio guidance, prompts, and device handoff tools are used at your own risk. Founders Threads, Philly AR Tours, and affiliated collaborators disclaim liability for injury, death, accident, property damage, theft, loss, data issues, or any other claim arising from use or misuse of the app, its content, or any related physical activity, travel, navigation, or device interaction.</p>
-          </div>
           <div class="auth-provider-row auth-provider-row--waiver">
             <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${providerButtonsEnabled ? "" : "disabled"}>
               Continue with Google
@@ -1784,38 +3515,12 @@ function renderAuthScreen() {
             </button>
           </div>
           <div class="drawer-copy auth-helper-box">
-            <strong>Login help</strong>
-            <p>If sign-in fails, refresh the page and try again. New Google users may briefly see a repeat login screen on first access.</p>
+            <strong>Google sign-in note</strong>
+            <p>Google users may have to sign in twice to activate the token. This is expected behavior. If the app gets stuck, refresh the page.</p>
           </div>
-          <label class="search-field auth-interest-field">
-            <span>Email for future sign-in options</span>
-            <input
-              type="email"
-              name="auth-email"
-              placeholder="you@example.com"
-              autocomplete="email"
-              inputmode="email"
-              value="${escapeHtml(state.auth.email)}"
-              ${state.auth.status === "submitting" ? "disabled" : ""}
-            />
-          </label>
           <div class="drawer-copy auth-helper-box">
-            <strong>Future provider interest</strong>
-            <p>Meta, Instagram, Facebook, and X are not live login providers on this build yet. Use the buttons below to save which sign-in option you want us to support.</p>
-          </div>
-          <div class="auth-provider-row auth-provider-row--interest">
-            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="meta" ${state.auth.status === "submitting" ? "disabled" : ""}>
-              Save Meta interest
-            </button>
-            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="instagram" ${state.auth.status === "submitting" ? "disabled" : ""}>
-              Save Instagram interest
-            </button>
-            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="facebook" ${state.auth.status === "submitting" ? "disabled" : ""}>
-              Save Facebook interest
-            </button>
-            <button type="button" class="ghost-button auth-provider-button" data-action="oauth-interest" data-provider="x" ${state.auth.status === "submitting" ? "disabled" : ""}>
-              Save X interest
-            </button>
+            <strong>Login help</strong>
+            <p>If sign-in fails, refresh the page and try again.</p>
           </div>
           ${
             hasSiteKey
@@ -1835,12 +3540,96 @@ function renderAuthScreen() {
               : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable provider sign-in.</p>'
           }
           ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
+          <div class="drawer-copy">
+            <strong>Follow Founders Threads</strong>
+            <p>The socials live on the front door too, not buried lower in settings.</p>
+          </div>
+          ${renderSocialChannels()}
           <div class="button-row auth-button-row">
             <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Need help?</a>
           </div>
         </div>
       </article>
     </section>
+  `;
+}
+
+function renderSettingsSignInCard() {
+  const hasSiteKey = !!getCloudflareTurnstileSiteKey();
+  const hasSyncServer = !!getSyncServerUrl();
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseAuthConfig();
+  const hasProviderAuth = !!supabaseUrl && !!supabaseAnonKey;
+  const activeUser = state.auth.session;
+  const providerButtonsEnabled =
+    hasProviderAuth &&
+    hasSyncServer &&
+    state.auth.status !== "submitting" &&
+    (!hasSiteKey || !!state.auth.turnstileToken);
+
+  return `
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Sign in</p>
+          <h3>${activeUser ? "Manage web access from settings" : "Connect Google or Apple from settings"}</h3>
+        </div>
+        <span class="status-pill ${activeUser || hasProviderAuth ? "is-live" : ""}">${
+          activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Setup needed"
+        }</span>
+      </div>
+      ${
+        activeUser
+          ? `<div class="drawer-copy auth-helper-box">
+              <strong>${escapeHtml(activeUser.displayName || activeUser.email || "Web session active")}</strong>
+              <p>${escapeHtml(activeUser.email || "Your browser session is active on this device.")}</p>
+            </div>`
+          : ""
+      }
+      <div class="auth-provider-row auth-provider-row--waiver">
+        <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${providerButtonsEnabled ? "" : "disabled"}>
+          Continue with Google
+        </button>
+        <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="apple" ${providerButtonsEnabled ? "" : "disabled"}>
+          Continue with Apple
+        </button>
+      </div>
+      <div class="drawer-copy auth-helper-box">
+        <strong>Google sign-in note</strong>
+        <p>Google users may have to sign in twice to activate the token. This is expected behavior. If the app gets stuck, refresh the page.</p>
+      </div>
+      ${
+        hasSiteKey
+          ? state.auth.turnstileToken
+            ? '<div class="subscription-status success">Verification complete. You can sign in from settings.</div>'
+            : '<div id="webapp-turnstile" class="turnstile-mount"></div>'
+          : '<div class="subscription-status">Add `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY` to render the challenge on this build.</div>'
+      }
+      ${
+        hasSyncServer
+          ? ""
+          : '<div class="subscription-status error">Add `EXPO_PUBLIC_WEB_SYNC_SERVER_URL` so the webapp can create real authenticated sessions.</div>'
+      }
+      ${
+        hasProviderAuth
+          ? ""
+          : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable provider sign-in.</p>'
+      }
+      ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
+      <div class="button-row">
+        ${activeUser ? '<button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>' : ""}
+        <button
+          type="button"
+          class="primary-button"
+          data-action="start-upgrade-checkout"
+          ${state.checkout.status === "submitting" ? "disabled" : ""}
+        >
+          Upgrade full audio experience + unlock all tours · $9.99
+        </button>
+        <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse tours</button>
+        <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Talk to Founders</a>
+      </div>
+      ${getCheckoutStatusMarkup()}
+    </article>
   `;
 }
 
@@ -1857,6 +3646,104 @@ function getCheckoutStatusMarkup() {
         : "subscription-status";
 
   return `<p class="${statusClass}" role="status">${escapeHtml(state.checkout.message)}</p>`;
+}
+
+function getAppleStoreIconMarkup() {
+  return '<img class="store-launch-card__badge-image" src="/assets/app-store-badge.png" alt="Download on the App Store" loading="lazy" />';
+}
+
+function getGooglePlayIconMarkup() {
+  return '<img class="store-launch-card__badge-image" src="/assets/google-play-store-badge.png" alt="Get it on Google Play" loading="lazy" />';
+}
+
+function renderStoreBadge({ label, copy, href, iconMarkup, hideCopy = false }) {
+  if (href) {
+    return `
+      <a class="store-launch-card store-launch-card--link ${hideCopy ? "store-launch-card--badge-only" : ""}" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">
+        <span class="store-launch-card__icon" aria-hidden="true">${iconMarkup}</span>
+        ${hideCopy ? "" : `
+        <span class="store-launch-card__copy">
+          <strong>${label}</strong>
+          <span>${copy}</span>
+        </span>`}
+      </a>
+    `;
+  }
+
+  return `
+    <div class="store-launch-card ${hideCopy ? "store-launch-card--badge-only" : ""}" aria-disabled="true">
+      <span class="store-launch-card__icon" aria-hidden="true">${iconMarkup}</span>
+      ${hideCopy ? "" : `
+      <span class="store-launch-card__copy">
+        <strong>${label}</strong>
+        <span>${copy}</span>
+      </span>`}
+    </div>
+  `;
+}
+
+function renderPlatformBadgeGrid() {
+  const iosAppStoreUrl = String(siteConfig.iosAppStoreUrl || "").trim();
+  const androidPlayStoreUrl = String(siteConfig.androidPlayStoreUrl || "").trim();
+
+  return `
+    <div class="store-launch-grid" aria-label="Platform links">
+      ${renderStoreBadge({
+        label: "Web app",
+        copy: "Open in browser",
+        href: "https://philly-tours.com",
+        iconMarkup: `<span class="platform-glyph">⌂</span>`
+      })}
+      ${renderStoreBadge({
+        label: "App Store",
+        copy: iosAppStoreUrl ? "Download on iPhone and iPad" : "iPhone + iPad listing coming soon",
+        href: iosAppStoreUrl,
+        iconMarkup: getAppleStoreIconMarkup()
+      })}
+      ${renderStoreBadge({
+        label: "Google Play",
+        copy: androidPlayStoreUrl ? "Get it on Android" : "Android listing coming soon",
+        href: androidPlayStoreUrl,
+        iconMarkup: getGooglePlayIconMarkup(),
+        hideCopy: true
+      })}
+      ${renderStoreBadge({
+        label: "AR field mode",
+        copy: "Camera handoff for on-site tours",
+        href: "",
+        iconMarkup: `<span class="platform-glyph">◌</span>`
+      })}
+    </div>
+  `;
+}
+
+function renderNewsletterSignup(copy = "Get launch notes, route drops, and platform updates by email.") {
+  return `
+    <form class="subscription-form" data-form="newsletter-subscription">
+      <div class="drawer-copy">
+        <strong>Join the newsletter</strong>
+        <p>${copy}</p>
+      </div>
+      <label class="search-field">
+        <span>Email subscription</span>
+        <input
+          type="email"
+          name="subscription-email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          inputmode="email"
+          value="${escapeHtml(state.subscription.email)}"
+          ${state.subscription.status === "submitting" ? "disabled" : ""}
+        />
+      </label>
+      <div class="button-row compact">
+        <button type="submit" class="primary-button" ${state.subscription.status === "submitting" ? "disabled" : ""}>
+          ${state.subscription.status === "submitting" ? "Subscribing..." : "Subscribe"}
+        </button>
+      </div>
+      ${getSubscriptionStatusMarkup()}
+    </form>
+  `;
 }
 
 function mountWebTurnstile() {
@@ -1956,13 +3843,15 @@ async function submitWebappAuth() {
     state.auth.authToken = payload.token;
     state.auth.displayName = payload.session.displayName || displayName;
     state.auth.email = payload.session.email || email;
-    state.auth.status = "idle";
-    state.auth.message = "";
+    state.auth.status = "success";
+    state.auth.message = "Sign-in complete.";
     saveWebAuthSession({
       authToken: payload.token,
       session: payload.session
     });
+    setActiveTab("profile");
     render();
+    schedulePostSignInRefresh();
   } catch (error) {
     state.auth.status = "error";
     state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to sign in.");
@@ -1994,80 +3883,8 @@ function getSubscriptionStatusMarkup() {
 
 function withAuthRetryGuidance(message, provider = "") {
   const baseMessage = String(message || "Unable to sign in.");
-  const retryGuidance =
-    provider === "google"
-      ? " If sign-in fails, refresh the page and try again. New Google users may briefly see a repeat login screen on first access."
-      : " If sign-in fails, refresh the page and try again.";
+  const retryGuidance = " If sign-in fails, refresh the page and try again.";
   return `${baseMessage}${retryGuidance}`;
-}
-
-async function saveAuthProviderInterest(provider) {
-  const normalizedEmail = state.auth.email.trim().toLowerCase();
-  if (!normalizedEmail) {
-    state.auth.status = "error";
-    state.auth.message = "Enter your email first so we can save your preferred sign-in method.";
-    render(false);
-    return;
-  }
-
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(normalizedEmail)) {
-    state.auth.status = "error";
-    state.auth.message = "Enter a valid email address before saving provider interest.";
-    render(false);
-    return;
-  }
-
-  const { supabaseUrl, supabaseAnonKey, newsletterTable } = getNewsletterApiConfig();
-  if (!supabaseUrl || !supabaseAnonKey) {
-    state.auth.status = "error";
-    state.auth.message = "Interest capture is not configured for this web build yet.";
-    render(false);
-    return;
-  }
-
-  state.auth.status = "submitting";
-  state.auth.message = `Saving your ${provider} sign-in interest...`;
-  render(false);
-
-  try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/${newsletterTable}?on_conflict=email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        Prefer: "resolution=merge-duplicates,return=minimal"
-      },
-      body: JSON.stringify([
-        {
-          email: normalizedEmail,
-          source: "webapp-auth-interest",
-          status: "active",
-          subscribed_at: Date.now(),
-          updated_at: Date.now(),
-          metadata_json: JSON.stringify({
-            host: window.location.hostname,
-            preferredProvider: provider,
-            glassesMode: state.glassesMode,
-            collectedFrom: "auth-screen"
-          })
-        }
-      ])
-    });
-
-    if (!response.ok) {
-      throw new Error(`Interest capture failed with status ${response.status}`);
-    }
-
-    state.auth.status = "success";
-    state.auth.message = `${provider.charAt(0).toUpperCase() + provider.slice(1)} interest saved. We will use this to prioritize future sign-in support.`;
-    render(false);
-  } catch (error) {
-    state.auth.status = "error";
-    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to save provider interest.");
-    render(false);
-  }
 }
 
 async function subscribeProfileEmail() {
@@ -2139,6 +3956,34 @@ async function subscribeProfileEmail() {
 }
 
 async function startUpgradeCheckout() {
+  await startCheckoutProduct({
+    amount: 999,
+    title: "Full audio experience + unlock all tours",
+    planId: "full-audio-unlock-all-tours",
+    successTab: "profile",
+    idempotencyKeyPrefix: "web-upgrade"
+  });
+}
+
+async function startTourGuideCheckout() {
+  const guideConfig = getInPersonTourGuideConfig();
+  if (!guideConfig.amountCents) {
+    state.checkout.status = "error";
+    state.checkout.message = "In-person tour guide checkout is not configured yet for this build.";
+    render(false);
+    return;
+  }
+
+  await startCheckoutProduct({
+    amount: guideConfig.amountCents,
+    title: guideConfig.label,
+    planId: "in-person-tour-guide",
+    successTab: "map",
+    idempotencyKeyPrefix: "web-tour-guide"
+  });
+}
+
+async function startCheckoutProduct({ amount, title, planId, successTab, idempotencyKeyPrefix }) {
   const syncServerUrl = getSyncServerUrl();
   if (!syncServerUrl) {
     state.checkout.status = "error";
@@ -2147,34 +3992,28 @@ async function startUpgradeCheckout() {
     return;
   }
 
-  if (!state.auth.authToken) {
-    state.checkout.status = "error";
-    state.checkout.message = "Sign in before opening checkout.";
-    render(false);
-    return;
-  }
-
   state.checkout.status = "submitting";
   state.checkout.message = "Opening secure checkout...";
+  savePendingCheckoutPlanId(planId);
   render(false);
 
   try {
     const currentUrl = new URL(window.location.href);
-    const successUrl = `${currentUrl.origin}${currentUrl.pathname}#tab=profile&checkout=success`;
-    const cancelUrl = `${currentUrl.origin}${currentUrl.pathname}#tab=profile&checkout=cancelled`;
+    const successUrl = `${currentUrl.origin}${currentUrl.pathname}#tab=${successTab}&checkout=success`;
+    const cancelUrl = `${currentUrl.origin}${currentUrl.pathname}#tab=${successTab}&checkout=cancelled`;
     const response = await fetch(`${syncServerUrl}/api/payments/checkout-session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${state.auth.authToken}`
+        ...(state.auth.authToken ? { Authorization: `Bearer ${state.auth.authToken}` } : {})
       },
       body: JSON.stringify({
-        amount: 999,
-        title: "Full audio experience + unlock all tours",
-        planId: "full-audio-unlock-all-tours",
+        amount,
+        title,
+        planId,
         successUrl,
         cancelUrl,
-        idempotencyKey: `web-upgrade-${state.auth.session?.userId || "guest"}-${Date.now()}`
+        idempotencyKey: `${idempotencyKeyPrefix}-${state.auth.session?.userId || "email-checkout"}-${Date.now()}`
       })
     });
 
@@ -2188,6 +4027,7 @@ async function startUpgradeCheckout() {
     render(false);
     window.location.assign(payload.url);
   } catch (error) {
+    savePendingCheckoutPlanId("");
     state.checkout.status = "error";
     state.checkout.message = (error && error.message) || "Unable to start checkout.";
     render(false);
@@ -2195,24 +4035,31 @@ async function startUpgradeCheckout() {
 }
 
 function getChromeTabKey() {
-  if (state.activeTab === "map") {
-    return "map";
-  }
   return state.activeTab;
 }
 
 function getSceneConfig(selectedTour, globalStats) {
   switch (state.activeTab) {
+    case "home":
+      return {
+        eyebrow: "Home atlas",
+        title: "See every available tour at once, then isolate the one you want.",
+        body: "The home tab keeps the city overview calm: start with the full collection, then focus one route without leaving the shell.",
+        metrics: [],
+        floatingCard: `
+          <article class="hero-floating-card hero-floating-card--compact">
+            <strong>${state.home.focusTourId ? "Focused tour" : "Collection overview"}</strong>
+            <h3>${state.home.focusTourId ? selectedTour.title : `${tours.length} tours available`}</h3>
+            <p>${state.home.focusTourId ? truncateCopy(selectedTour.summary, 136) : "Choose a tour below to isolate only its stops and route line on the map."}</p>
+          </article>
+        `
+      };
     case "map":
       return {
         eyebrow: "Route planner",
-        title: "Available Tours",
-        body: "Choose a route, filter the story collections, and move from discovery into a stop-by-stop field plan without leaving the same shell.",
-        metrics: [
-          { value: tours.length, label: "curated routes" },
-          { value: globalStats.totalStops, label: "mapped story stops" },
-          { value: `${getProgressForTour(selectedTour).percent}%`, label: "selected route complete" }
-        ],
+        title: "Pick the right Philadelphia tour without guessing where to start.",
+        body: "Choose by neighborhood, time, or story theme, then open a dedicated route page when you are ready to move from browsing into a real plan.",
+        metrics: [],
         floatingCard: `
           <article class="hero-floating-card">
             <h3>${selectedTour.title}</h3>
@@ -2227,14 +4074,10 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "ar":
       return {
-        eyebrow: "AR heritage viewer",
-        title: "Philadelphia Heritage Viewer",
-        body: "Point your camera at the city, trigger nearby stops, and hand narration across devices like a premium field companion instead of a static browser page.",
-        metrics: [
-          { value: state.ar.mode === "live" ? "live" : "ready", label: "camera posture" },
-          { value: state.ar.autoNarrationEnabled ? "on" : "off", label: "auto narration" },
-          { value: state.glassesMode ? "paired" : "phone", label: "audio route" }
-        ],
+        eyebrow: "AR field mode",
+        title: "Use AR when you are already near a stop and need a calm field companion.",
+        body: "The AR tab is built for on-site use: camera, distance awareness, narration handoff, and lightweight stop guidance without losing your selected route.",
+        metrics: [],
         floatingCard: `
           <article class="hero-floating-card hero-floating-card--compact">
             <strong>Selected route</strong>
@@ -2247,12 +4090,8 @@ function getSceneConfig(selectedTour, globalStats) {
       return {
         eyebrow: "Founders board",
         title: "Your Collection Board",
-        body: "Track where you've been, what you've unlocked, and which tour narratives are starting to form a real profile of your movement through Philadelphia.",
-        metrics: [
-          { value: globalStats.completedStops, label: "sites unlocked" },
-          { value: globalStats.toursStarted, label: "routes started" },
-          { value: Math.round((globalStats.completedStops / globalStats.totalStops) * 100) || 0, label: "overall progress" }
-        ],
+        body: "Keep a clean record of what you have started and what still deserves a visit, without turning the experience into a cluttered dashboard.",
+        metrics: [],
         floatingCard: `
           <article class="hero-floating-card hero-floating-card--compact">
             <strong>Current streak</strong>
@@ -2264,33 +4103,18 @@ function getSceneConfig(selectedTour, globalStats) {
     case "profile":
       return {
         eyebrow: "Settings",
-        title: "Guest profile, live controls, and access settings",
-        body: "",
+        title: "Settings, sign-in, contact, and platform access",
+        body: "Use Settings to sign in, stay connected, and move between the web experience and the mobile apps.",
         metrics: [],
         floatingCard: ""
       };
     default:
       return {
-        eyebrow: "Founders Threads",
-        title: "Explore Philadelphia as a living collection.",
+        eyebrow: "",
+        title: "",
         body: "",
-        metrics: [
-          { value: tours.length, label: "guided routes" },
-          { value: globalStats.totalStops, label: "story sites" },
-          { value: globalStats.completedStops, label: "unlocked so far" }
-        ],
-        floatingCard: `
-          <article class="hero-floating-card">
-            <h3>Welcome to Founders Threads</h3>
-            <ul class="hero-feature-list">
-              <li><strong>Guided tours</strong><span>Move through layered Philadelphia routes.</span></li>
-              <li><strong>Interactive map</strong><span>Plan your next stop and copy the view.</span></li>
-              <li><strong>AR handoff</strong><span>Switch from route planning into live camera mode.</span></li>
-              <li><strong>Progress board</strong><span>Track what you’ve already unlocked.</span></li>
-            </ul>
-            <button type="button" class="primary-button hero-card-button" data-action="set-tab" data-tab="map">Get started</button>
-          </article>
-        `
+        metrics: [],
+        floatingCard: ""
       };
   }
 }
@@ -2419,7 +4243,13 @@ function renderRssUpdates() {
 }
 
 function renderSceneHero(selectedTour, globalStats) {
+  if (state.routePageTourId) {
+    return "";
+  }
   const scene = getSceneConfig(selectedTour, globalStats);
+  if (!scene.eyebrow && !scene.title && !scene.body && !scene.metrics.length && !scene.floatingCard) {
+    return "";
+  }
   return `
     <section class="scene-hero scene-hero--${getChromeTabKey()}">
       <div class="scene-hero__veil"></div>
@@ -2472,27 +4302,13 @@ function render(shouldSyncHash = true) {
     button.classList.toggle("active", button.dataset.tab === chromeTab);
   });
 
-  if (state.auth.booting) {
-    app.innerHTML = `
-      <section class="auth-shell">
-        <article class="panel auth-panel auth-panel--loading">
-          <h2>Loading your session…</h2>
-          <p class="hero-text">Checking whether this browser already has a valid Founders Threads session.</p>
-        </article>
-      </section>
-    `;
-    return;
-  }
-
-  if (!state.auth.session) {
-    app.innerHTML = renderAuthScreen();
-    mountWebTurnstile();
-    return;
-  }
-
   const selectedTour = getSelectedTour();
   const selectedStop = getSelectedStop();
   const globalStats = getGlobalStats();
+
+  if (state.activeTab === "map" || state.routePageTourId) {
+    void ensureRoutePreviewLoaded(state.routePageTourId ? getTourById(state.routePageTourId) || selectedTour : selectedTour);
+  }
 
   app.innerHTML = `
     ${renderSceneHero(selectedTour, globalStats)}
@@ -2513,8 +4329,16 @@ function render(shouldSyncHash = true) {
     });
   }
 
-  if (state.activeTab === "map") {
-    initRouteMap(selectedTour, selectedStop);
+  mountWebTurnstile();
+
+  const routeMapElement = document.getElementById("route-map");
+  if (routeMapElement) {
+    void initRouteMap(selectedTour, selectedStop, "route-map");
+  }
+
+  const homeMapElement = document.getElementById("home-map");
+  if (homeMapElement) {
+    void initHomeMap(selectedTour, "home-map");
   }
 
   if (state.activeTab === "ar" && state.ar.mode === "live" && arStream) {
@@ -2524,12 +4348,19 @@ function render(shouldSyncHash = true) {
       video.play().catch(() => undefined);
     }
   }
+
+  syncWebXROverlay();
 }
 
 function renderActiveTab(selectedTour, selectedStop, globalStats) {
+  if (state.routePageTourId) {
+    return renderRouteProductPage(getTourById(state.routePageTourId) || selectedTour, selectedStop);
+  }
   switch (state.activeTab) {
+    case "home":
+      return renderHomeTab(selectedTour);
     case "map":
-      return renderRouteTab(selectedTour, selectedStop);
+      return renderRouteCatalogTab(selectedTour);
     case "ar":
       return renderArTab(selectedTour);
     case "progress":
@@ -2537,59 +4368,89 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
     case "profile":
       return renderProfileTab();
     default:
-      return renderHomeTab(selectedTour);
+      return renderRouteCatalogTab(selectedTour);
   }
 }
 
 function renderHomeTab(selectedTour) {
-  const featuredNextStop = getRecommendedNextStop(selectedTour);
-  const tags = selectedTour.tags || [];
+  const focusedTour = state.home.focusTourId ? getTourById(state.home.focusTourId) : null;
+  const previewTour = focusedTour || selectedTour;
+  const routePreview = getRoutePreviewDisplay(previewTour);
 
   return `
     <section class="section-grid home-grid home-grid--cinematic">
-      <article class="panel panel--story" id="featured-tour">
+      <article class="panel panel--map-host home-hero-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Waiver liability</p>
-            <h3>Entering this app means you agree to the disclaimer.</h3>
+            <p class="eyebrow">City-wide collection map</p>
+            <h3>${focusedTour ? focusedTour.title : "All available tours in one map view"}</h3>
           </div>
-          <span class="status-pill is-live">Required</span>
+          <span class="status-pill ${focusedTour ? "is-live" : ""}">${focusedTour ? "Tour isolated" : `${tours.length} tours live`}</span>
         </div>
         <p class="lede">
-          Philly AR Tours, Founders Threads, and their collaborators are not responsible for injuries, accidents, property damage, navigation issues,
-          or other losses incurred while using any component of this app, including tours, AR features, maps, audio prompts, and device handoff tools.
+          ${focusedTour
+            ? "This view isolates the selected tour only, so the stop pattern and route shape stay clean and readable."
+            : "Start wide with the full Philadelphia collection, then choose one route to isolate its individual stops inside the shell."}
         </p>
-        <div class="chip-row">
-          <span class="chip">Use at your own risk</span>
-          <span class="chip">Stay aware of surroundings</span>
-          <span class="chip">Obey local laws</span>
+        <div class="panel panel--map-host route-pack-map">
+          <div class="route-map-shell">
+            <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
+          </div>
         </div>
-        <div class="quick-start-grid">
-          <article class="quick-start-card">
-            <span class="quick-start-step">1</span>
-            <strong>Know the terms</strong>
-            <p>Entering and using the app means you accept this waiver.</p>
-          </article>
-          <article class="quick-start-card">
-            <span class="quick-start-step">2</span>
-            <strong>Move safely</strong>
-            <p>Stay alert, stop if conditions feel unsafe, and never rely on the app over your surroundings.</p>
-          </article>
-          <article class="quick-start-card">
-            <span class="quick-start-step">3</span>
-            <strong>Use the tools wisely</strong>
-            <p>Maps, AR, narration, and phone or glasses handoff are companion tools, not safety systems.</p>
-          </article>
+        <div class="stop-summary-grid">
+          <div>
+            <strong>Visible map mode</strong>
+            <p>${focusedTour ? `Only ${focusedTour.title}` : "All tours overview"}</p>
+          </div>
+          <div>
+            <strong>Next step</strong>
+            <p>${focusedTour ? `Open ${focusedTour.title} or return to the full collection view.` : "Choose any tour below to isolate its individual stop pattern."}</p>
+          </div>
+          <div>
+            <strong>Route preview</strong>
+            <p>${
+              focusedTour
+                ? routePreview.status === "ready"
+                  ? "This tour is isolated with its route line and individual stops."
+                  : "This tour is isolated with its saved stop order and individual stops."
+                : "Overview mode keeps one marker per tour so the city view stays readable."
+            }</p>
+          </div>
         </div>
-        <div class="stats-row">
-          <div><strong>${featuredNextStop.title}</strong><span>current first stop</span></div>
-          <div><strong>${selectedTour.distanceMiles} mi</strong><span>selected route distance</span></div>
-          <div><strong>${state.glassesMode ? "on" : "off"}</strong><span>audio handoff posture</span></div>
-        </div>
-        <div class="button-row">
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Open route planner</button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">Preview AR handoff</button>
-          <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Report a safety concern</a>
+        <div class="home-tour-grid">
+          ${tours
+            .map((tour) => {
+              const progress = getProgressForTour(tour);
+              const isFocused = focusedTour?.id === tour.id;
+              return `
+                <article class="home-tour-card ${isFocused ? "active" : ""}">
+                  <div>
+                    <p class="eyebrow">${tour.theme}</p>
+                    <strong>${tour.title}</strong>
+                    <p>${truncateCopy(tour.summary, 120)}</p>
+                  </div>
+                  <div class="tour-card-meta">
+                    <span>${tour.stops.length} stops</span>
+                    <span>${tour.distanceMiles} mi</span>
+                    <span>${progress.percent}% complete</span>
+                  </div>
+                  <div class="button-row compact">
+                    <button
+                      type="button"
+                      class="primary-button"
+                      data-action="${isFocused ? "show-all-home-tours" : "focus-home-tour"}"
+                      ${isFocused ? "" : `data-tour-id="${tour.id}"`}
+                    >
+                      ${isFocused ? "Show all tours" : "Focus tour"}
+                    </button>
+                    <button type="button" class="ghost-button" data-action="open-route-page" data-tour-id="${tour.id}">
+                      Open route page
+                    </button>
+                  </div>
+                </article>
+              `;
+            })
+            .join("")}
         </div>
       </article>
     </section>
@@ -2597,15 +4458,18 @@ function renderHomeTab(selectedTour) {
 }
 
 function renderRouteTab(selectedTour, selectedStop) {
-  const progress = getProgressForTour(selectedTour);
-  const mapReady = typeof window.L !== "undefined";
   const themes = ["all", ...new Set(tours.map((tour) => tour.theme.toLowerCase()))];
   const visibleTours = getVisibleTours();
-  const highlightStops = selectedTour.stops.slice(0, 3);
+  const googleMapProject = getGoogleMapsProjectConfig();
+  const guideConfig = getInPersonTourGuideConfig();
+  const routeProgress = getProgressForTour(selectedTour);
+  const routePreview = getRoutePreviewDisplay(selectedTour);
+  const recommendedStop = getRecommendedNextStop(selectedTour);
   const narrationMode = getNarrationMode(selectedStop.id);
   const narrationScript = getNarrationScript(selectedStop.id) || "No narration script is available for this stop yet.";
   const narrationPreview = truncateCopy(narrationScript, 180);
   const isNarrating = state.narrationState.stopId === selectedStop.id && state.narrationState.status === "playing";
+  const audioAccess = getAudioAccessSummary(selectedStop.id);
 
   return `
     <section class="section-grid route-shell">
@@ -2647,6 +4511,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             .map((tour, index) => {
               const cardProgress = getProgressForTour(tour);
               const isSelected = tour.id === selectedTour.id;
+              const isExpanded = state.expandedTourCardId === tour.id;
               const nextStop = getRecommendedNextStop(tour);
               const palette = [
                 ["#5d42ff", "#a68eff"],
@@ -2655,16 +4520,18 @@ function renderRouteTab(selectedTour, selectedStop) {
                 ["#6c1f52", "#ff7db6"]
               ][index % 4];
               return `
-                <article class="experience-card ${isSelected ? "selected" : ""}" style="--tour-accent:${palette[0]}; --tour-glow:${palette[1]};">
-                  <div class="experience-card-media">
+                <article class="experience-card ${isSelected ? "selected" : ""} ${isExpanded ? "expanded" : "collapsed"}" style="--tour-accent:${palette[0]}; --tour-glow:${palette[1]};" data-tour-drag-id="${tour.id}" draggable="true">
+                  <button type="button" class="experience-card-media experience-card-toggle" data-action="toggle-tour-card" data-tour-id="${tour.id}">
                     <span class="experience-card-pill">${tour.theme}</span>
+                    <span class="experience-card-drag-hint">Move</span>
                     <div class="experience-card-gradient"></div>
                     <div class="experience-card-copy">
                       <p>${tour.neighborhood}</p>
                       <strong>${tour.title}</strong>
+                      <span class="experience-card-inline-meta">${tour.stops.length} stops · ${tour.distanceMiles} mi · ${cardProgress.percent}% complete</span>
                     </div>
-                  </div>
-                  <div class="experience-card-body">
+                  </button>
+                  <div class="experience-card-body ${isExpanded ? "" : "is-hidden"}">
                     <p>${truncateCopy(tour.summary, 154)}</p>
                     <div class="tour-card-meta">
                       <span>${tour.durationMin} min</span>
@@ -2677,9 +4544,9 @@ function renderRouteTab(selectedTour, selectedStop) {
                     </div>
                     <div class="button-row compact">
                       <button type="button" class="primary-button" data-action="select-tour" data-tour-id="${tour.id}">
-                        ${isSelected ? "Selected route" : "Choose route"}
+                        ${isSelected ? "Open route page" : "Select route"}
                       </button>
-                      <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${tour.id}">Explore tour</button>
+                      <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${tour.id}">Quick view</button>
                     </div>
                   </div>
                 </article>
@@ -2690,66 +4557,81 @@ function renderRouteTab(selectedTour, selectedStop) {
       </article>
 
       <section class="section-grid route-grid">
-        <article class="panel route-map-panel">
+        <article class="panel panel--map-host route-detail-page">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Interactive map</p>
+              <p class="eyebrow">Selected route page</p>
               <h3>${selectedTour.title}</h3>
             </div>
-            <span class="status-pill">${progress.completed}/${selectedTour.stops.length} complete</span>
+            <span class="status-pill">${selectedTour.theme}</span>
           </div>
-          <p class="lede">${selectedTour.guideMode}. ${selectedTour.arFocus}.</p>
-          <div class="route-map-shell">
-            <div class="route-map" id="route-map" aria-label="Interactive route map"></div>
-            ${mapReady ? "" : `<div class="map-fallback">Map library unavailable. The route details are still available below.</div>`}
+          <p class="lede">${selectedTour.summary}</p>
+          <div class="route-page-stats">
+            <div><strong>${routePreview.durationLabel}</strong><span>estimated time</span></div>
+            <div><strong>${routePreview.distanceLabel}</strong><span>route distance</span></div>
+            <div><strong>${selectedTour.stops.length}</strong><span>story stops</span></div>
+            <div><strong>${routeProgress.percent}%</strong><span>current progress</span></div>
           </div>
-          <div class="route-legend">
-            <span><i class="legend-dot active"></i>Selected</span>
-            <span><i class="legend-dot done"></i>Completed</span>
-            <span><i class="legend-dot"></i>Upcoming</span>
+          <div class="drawer-copy ${routePreview.status === "error" ? "emphasis" : ""}">
+            <strong>${routePreview.statusLabel}</strong>
+            <p>${routePreview.message}</p>
           </div>
-          <div class="route-highlights">
-            ${highlightStops
-              .map(
-                (stop, index) => `
-                  <article class="highlight-card">
-                    <span class="highlight-index">0${index + 1}</span>
-                    <strong>${stop.title}</strong>
-                    <p>${stop.fullAddress || stop.locationLabel || "Philadelphia"}</p>
-                  </article>
-                `
-              )
-              .join("")}
-          </div>
-        </article>
-
-        <article class="panel stop-panel">
-          <div class="panel-header">
-            <div>
-              <p class="eyebrow">Selected stop</p>
-              <h3>${selectedStop.title}</h3>
-            </div>
-            <span class="status-pill">${selectedStop.radius}m radius</span>
-          </div>
-          <p class="lede">${selectedStop.description}</p>
           <div class="stop-summary-grid">
             <div>
-              <strong>Where to aim</strong>
-              <p>${selectedStop.fullAddress || selectedStop.locationLabel || "Use the highlighted marker and stop list."}</p>
+              <strong>Neighborhood span</strong>
+              <p>${selectedTour.neighborhood}</p>
             </div>
             <div>
-              <strong>Visit posture</strong>
-              <p>${selectedStop.dayLabel || "Flexible day"}${selectedStop.timeLabel ? ` · ${selectedStop.timeLabel}` : ""}</p>
+              <strong>Recommended first stop</strong>
+              <p>${recommendedStop.title}${recommendedStop.fullAddress || recommendedStop.locationLabel ? ` · ${recommendedStop.fullAddress || recommendedStop.locationLabel}` : ""}</p>
             </div>
             <div>
-              <strong>Next move</strong>
-              <p>${state.completedStopIds.includes(selectedStop.id) ? "Mark it upcoming if you want to revisit it." : "Play the stop, open maps, or mark it complete."}</p>
+              <strong>Suggested flow</strong>
+              <p>${buildTourNarrative(selectedTour)}</p>
+            </div>
+            <div>
+              <strong>Route preview</strong>
+              <p>${routePreview.legsLabel}</p>
             </div>
           </div>
           <div class="stop-meta-row">
             <span class="chip">${selectedTour.theme}</span>
-            ${selectedStop.fullAddress || selectedStop.locationLabel ? `<span class="chip">${selectedStop.fullAddress || selectedStop.locationLabel}</span>` : ""}
+            <span class="chip">${selectedTour.neighborhood}</span>
             <span class="chip">${selectedTour.stops.length} stops on route</span>
+          </div>
+          <div class="panel panel--map-host route-pack-map">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Route preview</p>
+                <h3>Live route line and stop order</h3>
+              </div>
+              <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
+            </div>
+            <div class="route-map-shell">
+              <div id="route-map" class="route-map" aria-label="Route map preview"></div>
+            </div>
+          </div>
+          <div class="panel panel--preview-callout route-guide-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">In-person tour guide</p>
+                <h3>Purchase a guided version of this route</h3>
+              </div>
+              <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Avalible on May 1st"}</span>
+            </div>
+            <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
+            <div class="button-row">
+              <button
+                type="button"
+                class="primary-button"
+                data-action="start-tour-guide-checkout"
+                ${state.checkout.status === "submitting" || !guideConfig.amountCents ? "disabled" : ""}
+              >
+                ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Configure guide checkout"}
+              </button>
+              ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open Google map pack</a>` : ""}
+            </div>
+            ${getCheckoutStatusMarkup()}
           </div>
           <div class="companion-panel">
             <div class="panel-header">
@@ -2774,7 +4656,11 @@ function renderRouteTab(selectedTour, selectedStop) {
                 <p class="eyebrow">Narration</p>
                 <h3>Live runtime audio</h3>
               </div>
-              <span class="status-pill">${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to glasses-ready output` : getNarrationLabel(selectedStop.id)}</span>
+              <span class="status-pill ${state.audioAccess.fullUnlocked ? "is-live" : ""}">${audioAccess.pill}</span>
+            </div>
+            <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
+              <strong>${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to Bluetooth audio output` : getNarrationLabel(selectedStop.id)}</strong>
+              <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
             </div>
             <div class="variant-toggle">
               <button type="button" class="filter-chip ${state.narrationVariant === "walk" ? "active" : ""}" data-action="set-narration-variant" data-variant="walk">Walk</button>
@@ -2786,11 +4672,12 @@ function renderRouteTab(selectedTour, selectedStop) {
                 class="primary-button"
                 data-action="${isNarrating ? "stop-narration" : "play-narration"}"
                 data-stop-id="${selectedStop.id}"
-                ${narrationMode === "none" ? "disabled" : ""}
+                ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
               >
                 ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
               </button>
               <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
+              ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
             </div>
             <div class="drawer-copy">
               <strong>Transcript preview</strong>
@@ -2801,7 +4688,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
               ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
             </button>
-            <a class="ghost-button link-button" href="#tab=map&tour=${selectedTour.id}&stop=${selectedStop.id}">Copyable view</a>
+            <a class="ghost-button link-button" href="#tab=map&tour=${selectedTour.id}&stop=${selectedStop.id}">Copy route page</a>
             <a
               class="ghost-button link-button"
               href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
@@ -2811,6 +4698,10 @@ function renderRouteTab(selectedTour, selectedStop) {
               Open in maps
             </a>
             <button type="button" class="ghost-button" data-action="set-tab" data-tab="progress">Open board</button>
+          </div>
+          <div class="drawer-copy emphasis">
+            <strong>Stops in this route</strong>
+            <p>Select a stop below to update the route page details, narration controls, and phone handoff target.</p>
           </div>
           <div class="stop-list">
             ${selectedTour.stops
@@ -2834,6 +4725,296 @@ function renderRouteTab(selectedTour, selectedStop) {
           </div>
         </article>
       </section>
+    </section>
+  `;
+}
+
+function renderRouteCatalogTab(selectedTour) {
+  const themes = ["all", ...new Set(tours.map((tour) => tour.theme.toLowerCase()))];
+  const visibleTours = getVisibleTours();
+
+  return `
+    <section class="section-grid route-shell">
+      <article class="panel panel--catalog">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Collections</p>
+            <h3>Find the route that matches the day you want</h3>
+          </div>
+          <span class="status-pill">${visibleTours.length} showing</span>
+        </div>
+        <div class="route-switcher">
+          <button type="button" class="filter-chip active">Tours</button>
+          <button type="button" class="filter-chip" disabled>Scavenger hunts</button>
+          <button type="button" class="filter-chip ${state.activeTab === "map" ? "active" : ""}" data-action="copy-view">Share view</button>
+        </div>
+        <div class="filter-row">
+          ${themes
+            .map(
+              (theme) => `
+                <button
+                  type="button"
+                  class="filter-chip ${state.themeFilter === theme ? "active" : ""}"
+                  data-action="set-theme"
+                  data-theme="${theme}"
+                >
+                  ${theme === "all" ? "All categories" : capitalize(theme)}
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+        <label class="search-field">
+          <span>Search tours</span>
+          <input type="search" placeholder="History, culture, architecture..." data-role="tour-search" />
+        </label>
+        <div class="experience-grid">
+          ${visibleTours
+            .map((tour, index) => {
+              const cardProgress = getProgressForTour(tour);
+              const isSelected = tour.id === selectedTour.id;
+              const isExpanded = state.expandedTourCardId === tour.id;
+              const nextStop = getRecommendedNextStop(tour);
+              const artwork = renderTourCardArtwork(tour);
+              const palette = [
+                ["#5d42ff", "#a68eff"],
+                ["#ff8b5c", "#ffd38b"],
+                ["#1e2a68", "#6aa5ff"],
+                ["#6c1f52", "#ff7db6"]
+              ][index % 4];
+              return `
+                <article class="experience-card ${isSelected ? "selected" : ""} ${isExpanded ? "expanded" : "collapsed"}" style="--tour-accent:${palette[0]}; --tour-glow:${palette[1]};" data-tour-drag-id="${tour.id}" draggable="true">
+                  <button type="button" class="experience-card-media experience-card-toggle" data-action="toggle-tour-card" data-tour-id="${tour.id}">
+                    <span class="experience-card-pill">${tour.theme}</span>
+                    <span class="experience-card-drag-hint">Move</span>
+                    ${artwork}
+                    <div class="experience-card-copy">
+                      <p>${tour.neighborhood}</p>
+                      <strong>${tour.title}</strong>
+                      <span class="experience-card-inline-meta">${tour.durationMin} min · ${tour.distanceMiles} mi · ${tour.stops.length} stops</span>
+                    </div>
+                  </button>
+                  <div class="experience-card-body ${isExpanded ? "" : "is-hidden"}">
+                    <p>${truncateCopy(tour.summary, 154)}</p>
+                    <div class="tour-card-meta">
+                      <span>${tour.durationMin} min</span>
+                      <span>${tour.distanceMiles} mi</span>
+                      <span>${tour.stops.length} stops</span>
+                      <span>${tour.rating.toFixed(1)} rating</span>
+                    </div>
+                    <div class="tour-card-foot">
+                      <span>Start with ${nextStop.title}</span>
+                    </div>
+                    <div class="button-row compact">
+                      <button type="button" class="primary-button" data-action="open-route-page" data-tour-id="${tour.id}">
+                        Open route page
+                      </button>
+                      <button type="button" class="ghost-button" data-action="select-tour" data-tour-id="${tour.id}">
+                        ${isSelected ? "Selected" : "Select route"}
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              `;
+            })
+            .join("")}
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function renderRouteProductPage(selectedTour, selectedStop) {
+  const googleMapProject = getGoogleMapsProjectConfig();
+  const guideConfig = getInPersonTourGuideConfig();
+  const routeProgress = getProgressForTour(selectedTour);
+  const routePreview = getRoutePreviewDisplay(selectedTour);
+  const recommendedStop = getRecommendedNextStop(selectedTour);
+  const artwork = getTourCardArtwork(selectedTour);
+  const narrationMode = getNarrationMode(selectedStop.id);
+  const narrationScript = getNarrationScript(selectedStop.id) || "No narration script is available for this stop yet.";
+  const narrationPreview = truncateCopy(narrationScript, 180);
+  const isNarrating = state.narrationState.stopId === selectedStop.id && state.narrationState.status === "playing";
+  const audioAccess = getAudioAccessSummary(selectedStop.id);
+
+  return `
+    <section class="section-grid route-product-page">
+      <article class="panel panel--map-host route-product-shell">
+        <div class="route-page-backbar">
+          <button type="button" class="ghost-button route-page-back" data-action="close-route-page">← Back to routes</button>
+        </div>
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Tour pack page</p>
+            <h3>${selectedTour.title}</h3>
+          </div>
+          <span class="status-pill">${selectedTour.theme}</span>
+        </div>
+        <div class="route-product-hero-media" data-tour-image-id="${selectedTour.id}">
+          ${
+            artwork.status === "ready" && artwork.url
+              ? `<img src="${escapeHtml(artwork.url)}" alt="${escapeHtml(artwork.title)}" loading="lazy" />`
+              : `<div class="route-product-hero-media__placeholder"><span>${selectedTour.neighborhood}</span></div>`
+          }
+        </div>
+        <p class="lede">${selectedTour.summary}</p>
+        <div class="route-page-stats">
+          <div><strong>${routePreview.durationLabel}</strong><span>estimated time</span></div>
+          <div><strong>${routePreview.distanceLabel}</strong><span>route distance</span></div>
+          <div><strong>${selectedTour.stops.length}</strong><span>story stops</span></div>
+          <div><strong>${routeProgress.percent}%</strong><span>current progress</span></div>
+        </div>
+        <div class="drawer-copy ${routePreview.status === "error" ? "emphasis" : ""}">
+          <strong>${routePreview.statusLabel}</strong>
+          <p>${routePreview.message}</p>
+        </div>
+        <div class="stop-summary-grid">
+          <div>
+            <strong>Neighborhood span</strong>
+            <p>${selectedTour.neighborhood}</p>
+          </div>
+          <div>
+            <strong>Recommended first stop</strong>
+            <p>${recommendedStop.title}${recommendedStop.fullAddress || recommendedStop.locationLabel ? ` · ${recommendedStop.fullAddress || recommendedStop.locationLabel}` : ""}</p>
+          </div>
+          <div>
+            <strong>Suggested flow</strong>
+            <p>${buildTourNarrative(selectedTour)}</p>
+          </div>
+          <div>
+            <strong>Route preview</strong>
+            <p>${routePreview.legsLabel}</p>
+          </div>
+        </div>
+        <div class="stop-meta-row">
+          <span class="chip">${selectedTour.theme}</span>
+          <span class="chip">${selectedTour.neighborhood}</span>
+          <span class="chip">${selectedTour.stops.length} stops on route</span>
+        </div>
+        <div class="panel panel--map-host route-pack-map">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Route preview</p>
+              <h3>Live route line and stop order</h3>
+            </div>
+            <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
+          </div>
+          <div class="route-map-shell">
+            <div id="route-map" class="route-map" aria-label="Route map preview"></div>
+          </div>
+        </div>
+        <div class="panel panel--preview-callout route-guide-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">In-person tour guide</p>
+              <h3>Purchase a guided version of this route</h3>
+            </div>
+            <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Avalible on May 1st"}</span>
+          </div>
+          <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
+          <div class="button-row">
+            <button
+              type="button"
+              class="primary-button"
+              data-action="start-tour-guide-checkout"
+              ${state.checkout.status === "submitting" || !guideConfig.amountCents ? "disabled" : ""}
+            >
+              ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Configure guide checkout"}
+            </button>
+            ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open Google map pack</a>` : ""}
+          </div>
+          ${getCheckoutStatusMarkup()}
+        </div>
+        <div class="companion-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Audio posture</p>
+              <h3>Cross-device companion mode</h3>
+            </div>
+            <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
+          </div>
+          <p>${getGlassesModeCopy()}</p>
+          ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
+          <div class="button-row">
+            <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
+              ${getGlassesModeButtonLabel()}
+            </button>
+            <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open in phone app</a>
+          </div>
+        </div>
+        <div class="narration-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Narration</p>
+              <h3>Selected stop audio</h3>
+            </div>
+            <span class="status-pill ${state.audioAccess.fullUnlocked ? "is-live" : ""}">${audioAccess.pill}</span>
+          </div>
+          <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
+            <strong>${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to Bluetooth audio output` : getNarrationLabel(selectedStop.id)}</strong>
+            <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
+          </div>
+          <div class="variant-toggle">
+            <button type="button" class="filter-chip ${state.narrationVariant === "walk" ? "active" : ""}" data-action="set-narration-variant" data-variant="walk">Walk</button>
+            <button type="button" class="filter-chip ${state.narrationVariant === "drive" ? "active" : ""}" data-action="set-narration-variant" data-variant="drive">Drive</button>
+          </div>
+          <div class="button-row">
+            <button
+              type="button"
+              class="primary-button"
+              data-action="${isNarrating ? "stop-narration" : "play-narration"}"
+              data-stop-id="${selectedStop.id}"
+              ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
+            >
+              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
+            </button>
+            <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
+            ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
+          </div>
+          <div class="drawer-copy">
+            <strong>Transcript preview</strong>
+            <p>${narrationPreview}</p>
+          </div>
+        </div>
+        <div class="button-row">
+          <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
+            ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
+          </button>
+          <a class="ghost-button link-button" href="#tab=map&tour=${selectedTour.id}&routePage=${selectedTour.id}&stop=${selectedStop.id}">Copy route page</a>
+          <a
+            class="ghost-button link-button"
+            href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open in maps
+          </a>
+        </div>
+        <div class="drawer-copy emphasis">
+          <strong>Stops in this route</strong>
+          <p>Select a stop below to update the route page details, narration controls, and phone handoff target.</p>
+        </div>
+        <div class="stop-list">
+          ${selectedTour.stops
+            .map((stop, index) => `
+              <button
+                type="button"
+                class="stop-row ${selectedStop.id === stop.id ? "active" : ""}"
+                data-action="select-stop"
+                data-stop-id="${stop.id}"
+              >
+                <div>
+                  <strong>${index + 1}. ${stop.title}</strong>
+                  <p>${stop.fullAddress || stop.locationLabel || truncateCopy(stop.description, 88)}</p>
+                </div>
+                <span class="check-badge ${state.completedStopIds.includes(stop.id) ? "done" : ""}">
+                  ${selectedStop.id === stop.id ? "Viewing" : state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
+                </span>
+              </button>
+            `)
+            .join("")}
+        </div>
+      </article>
     </section>
   `;
 }
@@ -2906,6 +5087,7 @@ function renderDrawer() {
     const narrationMode = getNarrationMode(stop.id);
     const narrationScript = getNarrationScript(stop.id) || "No narration transcript is available for this stop yet.";
     const isNarrating = state.narrationState.stopId === stop.id && state.narrationState.status === "playing";
+    const audioAccess = getAudioAccessSummary(stop.id);
   const arOverlayMeta = getArOverlayMeta(stop.id);
   const resolvedModelUrl = getResolvedModelUrl(arOverlayMeta?.modelUrl);
   return `
@@ -2937,6 +5119,10 @@ function renderDrawer() {
             <strong>Narration source</strong>
             <p>${getNarrationLabel(stop.id)}${state.narrationState.source === "speech" ? " using Amy when available" : ""}</p>
           </div>
+          <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
+            <strong>${audioAccess.pill}</strong>
+            <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
+          </div>
           <div class="drawer-copy">
             <strong>Model readiness</strong>
             <p>${
@@ -2959,10 +5145,11 @@ function renderDrawer() {
               class="primary-button"
               data-action="${isNarrating ? "stop-narration" : "play-narration"}"
               data-stop-id="${stop.id}"
-              ${narrationMode === "none" ? "disabled" : ""}
+              ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
             >
               ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
             </button>
+            ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
           </div>
           <div class="drawer-copy">
             <strong>Transcript</strong>
@@ -2993,16 +5180,28 @@ function renderDrawer() {
 
 function renderArTab(selectedTour) {
   const nearestStop = state.ar.nearestStopId ? getStopById(state.ar.nearestStopId) : null;
-  const effectiveStop = nearestStop || selectedTour.stops[0];
+  const selectedTourStop = selectedTour.stops.find((stop) => stop.id === state.selectedStopId) ?? selectedTour.stops[0];
+  const nearestStopTour = nearestStop ? getTourForStop(nearestStop.id) : null;
+  const effectiveStop = nearestStop && nearestStopTour?.id === selectedTour.id ? nearestStop : selectedTourStop;
+  const activeStopIndex = effectiveStop ? getStopIndexForTour(selectedTour, effectiveStop.id) : -1;
+  const previousStop = activeStopIndex > 0 ? selectedTour.stops[activeStopIndex - 1] : null;
+  const nextStop = activeStopIndex !== -1 && activeStopIndex < selectedTour.stops.length - 1 ? selectedTour.stops[activeStopIndex + 1] : null;
   const narrationMode = effectiveStop ? getNarrationMode(effectiveStop.id) : "none";
   const isNarrating = effectiveStop
     ? state.narrationState.stopId === effectiveStop.id && state.narrationState.status === "playing"
     : false;
   const arDistanceLabel =
-    state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m` : "Locating";
+    state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m` : effectiveStop && state.ar.locationReady ? "Located" : "Locating";
   const arRangeLabel = state.ar.inRange ? "Within trigger radius" : "Move closer to trigger";
   const arCameraLabel = state.ar.cameraReady ? "Camera live" : "Camera pending";
   const arGpsLabel = state.ar.locationReady ? "GPS locked" : "Acquiring GPS";
+  const arCoordinateLabel = getArCoordinateLabel();
+  const focusStateLabel = state.ar.inRange ? "Ready to trigger" : effectiveStop && state.ar.locationReady ? "Located" : state.ar.locationReady ? "Navigating" : "Scanning";
+  const focusAutomationLabel = state.ar.autoNarrationEnabled ? "Auto narration armed" : "Manual narration";
+  const focusSourceLabel =
+    nearestStop && nearestStopTour?.id === selectedTour.id ? "Following nearest live stop" : "Following selected route stop";
+  const audioAccess = effectiveStop ? getAudioAccessSummary(effectiveStop.id) : getAudioAccessSummary("");
+  const questXrStatusLabel = state.xr.mode === "live" ? "Quest WebXR live" : state.xr.supported ? "Quest WebXR ready" : "Quest WebXR unavailable";
 
   return `
     <section class="section-grid ar-grid ar-grid--cinematic">
@@ -3010,11 +5209,11 @@ function renderArTab(selectedTour) {
         <div class="panel-header">
           <div>
             <p class="eyebrow">Launch mode</p>
-            <h3>AR camera handoff</h3>
+            <h3>AR camera handoff for when you are already on location</h3>
           </div>
           <span class="status-pill ${state.ar.mode === "live" ? "is-live" : ""}">${state.ar.mode === "live" ? "Live now" : "Standby"}</span>
         </div>
-        <p class="lede">Move from route planning into a purple-tinted field mode that feels more like a product experience than a raw browser utility.</p>
+        <p class="lede">Use the AR tab after you have chosen a route and reached the area. It helps you orient, trigger nearby stops, and keep narration moving without guessing what to do next.</p>
         <div class="quick-start-grid">
           <article class="quick-start-card">
             <span class="quick-start-step">1</span>
@@ -3049,20 +5248,8 @@ function renderArTab(selectedTour) {
                 <video id="ar-camera-feed" class="ar-camera-feed" autoplay playsinline muted></video>
                 <div class="ar-grid-overlay"></div>
                 <div class="ar-reticle"></div>
-                <div class="ar-badge top-left">AR Live</div>
+                <div class="ar-coordinate-readout" data-role="ar-coordinate-readout">${escapeHtml(arCoordinateLabel)}</div>
                 <button type="button" class="ar-close" data-action="stop-ar-live" aria-label="Stop AR live mode">×</button>
-                <div class="ar-stop-pill">${effectiveStop ? effectiveStop.title : "Searching for stop"}</div>
-                <div class="ar-status-strip">
-                  <span class="ar-badge">${arCameraLabel}</span>
-                  <span class="ar-badge">${arGpsLabel}</span>
-                  <span class="ar-badge">${arDistanceLabel}</span>
-                </div>
-                <div class="ar-target-card">
-                  <strong>${effectiveStop ? effectiveStop.title : "No stop target yet"}</strong>
-                  <p>${effectiveStop?.fullAddress || effectiveStop?.locationLabel || "Waiting for the nearest story stop."}</p>
-                  <span>${arRangeLabel}</span>
-                  <small>Stories play through audio for the glasses only.</small>
-                </div>
               `
               : `
                 <div class="ar-placeholder">
@@ -3079,11 +5266,23 @@ function renderArTab(selectedTour) {
           </button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
         </div>
-        <div class="drawer-copy">
-          <strong>Field note</strong>
-          <p>Camera and GPS are allowed on localhost for development, and on secure public deployments like this one over HTTPS.</p>
-        </div>
         ${state.ar.error ? `<div class="drawer-copy"><strong>Status</strong><p>${state.ar.error}</p></div>` : ""}
+        <div class="drawer-copy ${state.xr.supported ? "" : "emphasis"}">
+          <strong>Quest-only WebXR</strong>
+          <p>${escapeHtml(state.xr.deviceLabel || "Quest Browser detection is still running.")}</p>
+        </div>
+        <div class="button-row">
+          <button
+            type="button"
+            class="ghost-button ${state.xr.mode === "live" ? "active" : ""}"
+            data-action="${state.xr.mode === "live" ? "stop-webxr" : "start-webxr"}"
+            ${state.xr.supported ? "" : "disabled"}
+          >
+            ${state.xr.mode === "live" ? "Exit Quest WebXR" : "Enter Quest WebXR"}
+          </button>
+          <span class="status-pill ${state.xr.mode === "live" ? "is-live" : ""}">${escapeHtml(questXrStatusLabel)}</span>
+        </div>
+        ${state.xr.error ? `<div class="drawer-copy"><strong>Quest WebXR status</strong><p>${escapeHtml(state.xr.error)}</p></div>` : ""}
       </article>
 
       <article class="panel readiness-panel">
@@ -3092,11 +5291,26 @@ function renderArTab(selectedTour) {
             <p class="eyebrow">Current focus</p>
             <h3>${selectedTour.title}</h3>
           </div>
-          <span class="status-pill">${state.ar.inRange ? "In range" : "Tracking"}</span>
+          <span class="status-pill ${state.ar.inRange ? "is-live" : ""}">${state.ar.inRange ? "In range" : "Tracking"}</span>
         </div>
-        <div class="readiness-list">
+        <div class="focus-command-bar">
+          <div class="focus-command-chip focus-command-chip--live">
+            <span class="signal-dot signal-dot--small" aria-hidden="true"></span>
+            <strong>${focusStateLabel}</strong>
+            <span>${arDistanceLabel}</span>
+          </div>
+          <div class="focus-command-chip">
+            <strong>${focusAutomationLabel}</strong>
+            <span>${state.ar.autoNarrationEnabled ? "Story starts when you enter range" : "Use play when you want control"}</span>
+          </div>
+          <div class="focus-command-chip">
+            <strong>${focusSourceLabel}</strong>
+            <span>${arCameraLabel} · ${arGpsLabel}</span>
+          </div>
+        </div>
+        <div class="readiness-list readiness-list--focus">
           <div>
-            <strong>Nearest stop</strong>
+            <strong>Active stop</strong>
             <p>${effectiveStop ? effectiveStop.title : "Waiting for a nearby stop"}</p>
           </div>
           <div>
@@ -3111,31 +5325,92 @@ function renderArTab(selectedTour) {
         ${
           effectiveStop
             ? `
-              <div class="drawer-copy">
-                <strong>Audio-only glasses mode</strong>
-                <p>${state.glassesMode ? "Glasses mode is on. Stop stories are told through recorded narration or Amy fallback on the active Bluetooth audio output, not through floating text overlays." : "Enable Meta glasses mode if you want this browser session to behave like a hands-free audio companion while keeping route and AR control on the phone."}</p>
+              <div class="focus-stop-rail">
+                <div class="focus-stop-rail__header">
+                  <strong>Route controls</strong>
+                  <span>Stop ${activeStopIndex + 1} of ${selectedTour.stops.length}</span>
+                </div>
+                <div class="focus-stop-rail__actions">
+                  <button type="button" class="ghost-button" data-action="select-prev-stop" ${previousStop ? "" : "disabled"}>
+                    ${previousStop ? `Previous: ${previousStop.title}` : "At first stop"}
+                  </button>
+                  <button type="button" class="ghost-button" data-action="select-next-stop" ${nextStop ? "" : "disabled"}>
+                    ${nextStop ? `Next: ${nextStop.title}` : "At final stop"}
+                  </button>
+                </div>
+                <div class="focus-stop-rail__list">
+                  ${selectedTour.stops
+                    .map(
+                      (stop, index) => `
+                        <button
+                          type="button"
+                          class="focus-stop-pill ${effectiveStop.id === stop.id ? "active" : ""}"
+                          data-action="select-stop"
+                          data-stop-id="${stop.id}"
+                        >
+                          <span>${index + 1}</span>
+                          <strong>${stop.title}</strong>
+                        </button>
+                      `
+                    )
+                    .join("")}
+                </div>
+              </div>
+              <div class="drawer-copy emphasis live-cue-card">
+                <strong>Next action</strong>
+                <p>${state.ar.inRange ? `You are in range. Play ${narrationMode === "recorded" ? "recorded narration" : "audio"} or open the stop brief now.` : `Move toward ${effectiveStop.fullAddress || effectiveStop.locationLabel || effectiveStop.title} until you enter the ${effectiveStop.radius}m trigger zone.`}</p>
+              </div>
+              <div class="focus-automation-panel">
+                <div>
+                  <strong>Target address</strong>
+                  <p>${effectiveStop.fullAddress || effectiveStop.locationLabel || effectiveStop.title}</p>
+                </div>
+                <div>
+                  <strong>Coordinates</strong>
+                  <p>${effectiveStop.lat.toFixed(5)}, ${effectiveStop.lng.toFixed(5)}</p>
+                </div>
+                <div>
+                  <strong>Route status</strong>
+                  <p>${state.ar.inRange ? "Stop is live and ready." : "Tracking this stop live."}</p>
+                </div>
+              </div>
+              <div class="focus-quick-actions">
+                <a
+                  class="ghost-button link-button"
+                  href="https://www.google.com/maps/search/?api=1&query=${effectiveStop.lat},${effectiveStop.lng}"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open in maps
+                </a>
+                <button type="button" class="ghost-button" data-action="select-stop" data-stop-id="${effectiveStop.id}">Lock this stop</button>
+                <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
               </div>
               ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
-              <div class="drawer-copy emphasis">
-                <strong>Live cue</strong>
-                <p>${state.ar.inRange ? `You are within range of ${effectiveStop.title}.` : `Move toward ${effectiveStop.fullAddress || effectiveStop.locationLabel || effectiveStop.title} to unlock the stop.`}</p>
-              </div>
               <div class="button-row">
-                <button type="button" class="ghost-button" data-action="toggle-auto-narration">
+                <button type="button" class="ghost-button ${state.ar.autoNarrationEnabled ? "active" : ""}" data-action="toggle-auto-narration">
                   ${state.ar.autoNarrationEnabled ? "Auto narration on" : "Auto narration off"}
                 </button>
+                <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
+                  ${state.glassesMode ? "Glasses audio on" : "Glasses audio off"}
+                </button>
+              </div>
+              <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
+                <strong>${audioAccess.pill}</strong>
+                <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
               </div>
               <div class="button-row">
                 <button
                   type="button"
-                  class="primary-button"
+                  class="primary-button cta-beacon"
                   data-action="${isNarrating ? "stop-narration" : "play-narration"}"
                   data-stop-id="${effectiveStop.id}"
-                  ${narrationMode === "none" ? "disabled" : ""}
+                  ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
                 >
                   ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play stop narration" : "Play Amy fallback"}
                 </button>
                 <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${effectiveStop.id}">Open stop brief</button>
+                ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
                 <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, effectiveStop.id)}">Open in phone app</a>
               </div>
             `
@@ -3153,36 +5428,6 @@ function renderArTab(selectedTour) {
 function renderProgressTab(globalStats) {
   return `
     <section class="section-grid progress-grid progress-grid--cinematic">
-      <article class="panel panel--board-summary">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Board overview</p>
-            <h3>Your footprint across the collection</h3>
-          </div>
-        </div>
-        <div class="stats-row">
-          <div><strong>${globalStats.completedStops}</strong><span>sites unlocked</span></div>
-          <div><strong>${globalStats.toursStarted}</strong><span>routes started</span></div>
-          <div><strong>${Math.round((globalStats.completedStops / globalStats.totalStops) * 100) || 0}%</strong><span>overall completion</span></div>
-        </div>
-        <div class="button-row">
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Continue exploring</button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="profile">Open settings</button>
-        </div>
-      </article>
-      <article class="panel panel--board-upgrade">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Elite posture</p>
-            <h3>Upgrade the experience, not just the access</h3>
-          </div>
-        </div>
-        <div class="readiness-list">
-          <div><strong>Unlock premium AR</strong><p>Open up the richer reconstruction layer and exclusive site narratives.</p></div>
-          <div><strong>Cross-device continuity</strong><p>Carry your route, stop state, and session across the same account shell.</p></div>
-          <div><strong>Merch + drops</strong><p>Use the board as a home for products, rewards, and future collection drops.</p></div>
-        </div>
-      </article>
       <article class="panel">
         <div class="panel-header">
           <div>
@@ -3220,129 +5465,34 @@ function renderProfileTab() {
   const iosAppStoreUrl = String(siteConfig.iosAppStoreUrl || "").trim();
   const androidPlayStoreUrl = String(siteConfig.androidPlayStoreUrl || "").trim();
   const hasStoreLinks = !!iosAppStoreUrl || !!androidPlayStoreUrl;
-  const renderStoreBadge = ({ label, copy, href, iconMarkup }) => {
+  const renderStoreBadge = ({ label, copy, href, iconMarkup, hideCopy = false }) => {
     if (href) {
       return `
-        <a class="store-launch-card store-launch-card--link" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">
+        <a class="store-launch-card store-launch-card--link ${hideCopy ? "store-launch-card--badge-only" : ""}" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">
           <span class="store-launch-card__icon" aria-hidden="true">${iconMarkup}</span>
+          ${hideCopy ? "" : `
           <span class="store-launch-card__copy">
             <strong>${label}</strong>
             <span>${copy}</span>
-          </span>
+          </span>`}
         </a>
       `;
     }
 
     return `
-      <div class="store-launch-card" aria-disabled="true">
+      <div class="store-launch-card ${hideCopy ? "store-launch-card--badge-only" : ""}" aria-disabled="true">
         <span class="store-launch-card__icon" aria-hidden="true">${iconMarkup}</span>
+        ${hideCopy ? "" : `
         <span class="store-launch-card__copy">
           <strong>${label}</strong>
           <span>${copy}</span>
-        </span>
+        </span>`}
       </div>
     `;
   };
   return `
     <section class="section-grid profile-grid profile-grid--cinematic">
-      <article class="panel panel--preview-callout">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Web preview</p>
-            <h3>The browser is the trailer. The native apps are the full experience.</h3>
-          </div>
-          <span class="status-pill ${hasStoreLinks ? "is-live" : ""}">${hasStoreLinks ? "Apps linked" : "Links pending"}</span>
-        </div>
-        <p class="lede">
-          This web build is meant to preview the story world, route design, and sign-in experience. Rich AR, stronger companion controls,
-          and the full mobile handoff loop are designed for the iPhone and Android apps.
-        </p>
-        <div class="readiness-list preview-value-grid">
-          <div><strong>Best in the apps</strong><p>Native AR, deeper audio handoff, and the tighter tour posture live in the actual mobile builds.</p></div>
-          <div><strong>Best on the web</strong><p>Fast preview access, collection browsing, and a lightweight tour shell you can share before install.</p></div>
-          <div><strong>Next step</strong><p>Use the store buttons below to move people from preview mode into the real product as soon as links are live.</p></div>
-        </div>
-        <div class="store-launch-grid" aria-label="Mobile app download links">
-          ${renderStoreBadge({
-            label: "App Store",
-            copy: iosAppStoreUrl ? "Open the full iPhone + iPad app" : "Add the App Store URL in site config to activate this button",
-            href: iosAppStoreUrl,
-            iconMarkup: `
-              <svg viewBox="0 0 24 24" role="presentation">
-                <path
-                  class="store-launch-card__icon-fill"
-                  d="M16.84 12.04c.02 2.09 1.83 2.79 1.85 2.8-.02.05-.29 1-.96 1.98-.58.85-1.19 1.7-2.13 1.72-.92.02-1.21-.55-2.27-.55-1.06 0-1.39.53-2.25.57-.91.03-1.61-.91-2.19-1.76-1.19-1.72-2.09-4.84-.87-6.96.61-1.05 1.69-1.72 2.86-1.74.89-.02 1.73.6 2.27.6.53 0 1.53-.74 2.58-.63.44.02 1.67.18 2.46 1.34-.06.04-1.47.86-1.45 2.63Zm-1.76-5.49c.48-.58.8-1.39.71-2.19-.69.03-1.52.46-2.02 1.04-.44.5-.82 1.32-.72 2.09.77.06 1.55-.39 2.03-.94Z"
-                />
-              </svg>
-            `
-          })}
-          ${renderStoreBadge({
-            label: "Google Play",
-            copy: androidPlayStoreUrl ? "Open the full Android app" : "Add the Google Play URL in site config to activate this button",
-            href: androidPlayStoreUrl,
-            iconMarkup: `
-              <svg viewBox="0 0 24 24" role="presentation">
-                <path
-                  class="store-launch-card__icon-fill"
-                  d="M3.2 2.82c-.19.2-.3.5-.3.89v16.58c0 .39.11.69.3.89l.05.05 9.29-9.29v-.12L3.25 2.77l-.05.05Zm13.56 11.9-3.09-3.09v-.12l3.09-3.09.07.04 3.66 2.08c1.05.6 1.05 1.57 0 2.17l-3.66 2.08-.07-.03Zm-.8.45-3.29-3.29-9.34 9.34c.3.32.77.36 1.31.06l11.32-6.44Zm0-6.34L4.64 2.39c-.54-.31-1.01-.26-1.31.06l9.34 9.34 3.29-2.96Z"
-                />
-              </svg>
-            `
-          })}
-        </div>
-        <div class="drawer-copy">
-          <strong>Founders Threads links</strong>
-          <p>Social buttons stay live here so the preview still works as a polished front door even before every store listing is public.</p>
-        </div>
-        ${renderSocialChannels()}
-      </article>
-      <article class="panel panel--profile-card">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Guest profile</p>
-            <h3>${escapeHtml(activeUser?.displayName || "Founders Threads rider")}</h3>
-          </div>
-          <span class="status-pill is-live">Session secured</span>
-        </div>
-        <div class="profile-list">
-          <div><strong>Signed in email</strong><p>${escapeHtml(activeUser?.email || "No email on session")}</p></div>
-          <div><strong>Preferred style</strong><p>Long-form cultural routes with AR highlights</p></div>
-          <div><strong>Saved tours</strong><p>${startedTours.length ? startedTours.map((tour) => tour.title).join(", ") : "No tours started yet"}</p></div>
-          <div><strong>Playback mode</strong><p>Drive-first narration + native handoff</p></div>
-          <div><strong>Meta glasses mode</strong><p>${state.glassesMode ? "Enabled for Bluetooth audio routing" : "Off until glasses are paired over Bluetooth"}</p></div>
-        </div>
-        ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Mode status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
-        <div class="drawer-copy">
-          <strong>Follow Founders Threads</strong>
-          <p>Jump straight to the live social channels from settings.</p>
-        </div>
-        ${renderSocialIconStrip()}
-      </article>
-      <article class="panel panel--profile-upgrade">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Native app priority</p>
-            <h3>Keep the web preview crisp. Push the richer features to the apps.</h3>
-          </div>
-        </div>
-        <div class="readiness-list">
-          <div><strong>Android + iPhone focus</strong><p>AR, deeper device integration, and companion behavior belong in the native builds.</p></div>
-          <div><strong>Web role</strong><p>Marketing, preview tours, social proof, and clean conversion into the real apps.</p></div>
-        </div>
-        <div class="button-row">
-          <button
-            type="button"
-            class="primary-button"
-            data-action="start-upgrade-checkout"
-            ${state.checkout.status === "submitting" ? "disabled" : ""}
-          >
-            Upgrade full audio experience + unlock all tours · $9.99
-          </button>
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Browse collections</button>
-          <a class="ghost-button link-button" href="mailto:${CONTACT_EMAIL}">Talk to Founders</a>
-        </div>
-        ${getCheckoutStatusMarkup()}
-      </article>
+      ${renderSettingsSignInCard()}
       <article class="panel">
         <div class="panel-header">
           <div>
@@ -3353,9 +5503,13 @@ function renderProfileTab() {
         <p class="lede">
           Reach Founders Threads directly or join the live email list for new routes, pilot drives, and premium launch updates.
         </p>
+        <div class="drawer-copy">
+          <strong>Follow Founders Threads</strong>
+        </div>
+        ${renderSocialChannels()}
         <div class="button-row">
           <a class="primary-button link-button" href="mailto:${CONTACT_EMAIL}">Contact us</a>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="home">Browse tours</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse tours</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Resume route</button>
         </div>
         <div class="store-launch-grid" aria-label="Mobile app download links">
@@ -3363,27 +5517,15 @@ function renderProfileTab() {
             label: "App Store",
             copy: iosAppStoreUrl ? "Download the iPhone + iPad app" : "App Store link will appear here when the listing is live",
             href: iosAppStoreUrl,
-            iconMarkup: `
-              <svg viewBox="0 0 24 24" role="presentation">
-                <path
-                  class="store-launch-card__icon-fill"
-                  d="M16.84 12.04c.02 2.09 1.83 2.79 1.85 2.8-.02.05-.29 1-.96 1.98-.58.85-1.19 1.7-2.13 1.72-.92.02-1.21-.55-2.27-.55-1.06 0-1.39.53-2.25.57-.91.03-1.61-.91-2.19-1.76-1.19-1.72-2.09-4.84-.87-6.96.61-1.05 1.69-1.72 2.86-1.74.89-.02 1.73.6 2.27.6.53 0 1.53-.74 2.58-.63.44.02 1.67.18 2.46 1.34-.06.04-1.47.86-1.45 2.63Zm-1.76-5.49c.48-.58.8-1.39.71-2.19-.69.03-1.52.46-2.02 1.04-.44.5-.82 1.32-.72 2.09.77.06 1.55-.39 2.03-.94Z"
-                />
-              </svg>
-            `
+            iconMarkup: getAppleStoreIconMarkup(),
+            hideCopy: true
           })}
           ${renderStoreBadge({
             label: "Google Play",
             copy: androidPlayStoreUrl ? "Download the Android app" : "Google Play link will appear here when the listing is live",
             href: androidPlayStoreUrl,
-            iconMarkup: `
-              <svg viewBox="0 0 24 24" role="presentation">
-                <path
-                  class="store-launch-card__icon-fill"
-                  d="M3.2 2.82c-.19.2-.3.5-.3.89v16.58c0 .39.11.69.3.89l.05.05 9.29-9.29v-.12L3.25 2.77l-.05.05Zm13.56 11.9-3.09-3.09v-.12l3.09-3.09.07.04 3.66 2.08c1.05.6 1.05 1.57 0 2.17l-3.66 2.08-.07-.03Zm-.8.45-3.29-3.29-9.34 9.34c.3.32.77.36 1.31.06l11.32-6.44Zm0-6.34L4.64 2.39c-.54-.31-1.01-.26-1.31.06l9.34 9.34 3.29-2.96Z"
-                />
-              </svg>
-            `
+            iconMarkup: getGooglePlayIconMarkup(),
+            hideCopy: true
           })}
         </div>
         <form class="subscription-form" data-form="newsletter-subscription">
@@ -3411,15 +5553,12 @@ function renderProfileTab() {
           </div>
           ${getSubscriptionStatusMarkup()}
         </form>
-        <div class="drawer-copy">
-          <strong>Contacts</strong>
-          <p>Follow the live channels and use the contact button when you want a direct reply.</p>
-        </div>
-        ${renderSocialChannels()}
         ${renderRssUpdates()}
-        <div class="button-row compact">
-          <button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>
-        </div>
+        ${activeUser ? `
+          <div class="button-row compact">
+            <button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>
+          </div>
+        ` : ""}
       </article>
     </section>
   `;
@@ -3443,68 +5582,374 @@ function buildRouteDots(stops) {
 }
 
 function teardownRouteMap() {
-  if (routeMap) {
-    routeMap.remove();
-    routeMap = null;
-    routeMapLayers = null;
+  clearMapViewportStabilizer();
+  if (Array.isArray(routeMapLayers)) {
+    routeMapLayers.forEach((overlay) => {
+      if (overlay && typeof overlay.setMap === "function") {
+        overlay.setMap(null);
+      }
+    });
   }
+  routeMap = null;
+  routeMapLayers = [];
 }
 
-function initRouteMap(selectedTour, selectedStop) {
-  if (typeof window.L === "undefined") {
-    return;
-  }
-
-  const mapElement = document.getElementById("route-map");
+async function initRouteMap(selectedTour, selectedStop, elementId = "route-map") {
+  const mapElement = document.getElementById(elementId);
   if (!mapElement) {
     return;
   }
 
-  routeMap = window.L.map(mapElement, {
+  const renderableStops = getRenderableStops(selectedTour?.stops || []);
+  const activeRenderableStop = renderableStops.find((stop) => stop.id === selectedStop?.id) ?? renderableStops[0] ?? null;
+
+  let maps;
+  try {
+    maps = await loadGoogleMapsApi();
+  } catch (error) {
+    if (document.getElementById(elementId) === mapElement) {
+      mapElement.innerHTML = `<div class="route-map-fallback"><div><strong>Google map unavailable</strong><span>${escapeHtml((error && error.message) || "Unable to load the map.")}</span></div></div>`;
+    }
+    return;
+  }
+
+  if (document.getElementById(elementId) !== mapElement) {
+    return;
+  }
+
+  routeMap = new maps.Map(mapElement, {
+    disableDefaultUI: true,
     zoomControl: true,
-    scrollWheelZoom: false
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: false,
+    gestureHandling: "cooperative",
+    clickableIcons: false,
+    styles: buildGoogleShellMapStyles(),
+    ...(getGoogleMapsMapId() ? { mapId: getGoogleMapsMapId() } : {})
   });
 
-  window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "&copy; OpenStreetMap"
-  }).addTo(routeMap);
+  routeMapLayers = [];
 
-  routeMapLayers = window.L.featureGroup().addTo(routeMap);
+  const bounds = new maps.LatLngBounds();
+  const routePreview = getRoutePreviewRecord(selectedTour.id);
+  const previewLatLngs = decodeEncodedPolyline(routePreview?.route?.polyline)
+    .map(([lat, lng]) => ({ lat, lng }))
+    .filter(hasRenderableCoordinates);
+  const routePath =
+    previewLatLngs.length >= 2 ? previewLatLngs : renderableStops.map((stop) => ({ lat: stop.lat, lng: stop.lng }));
+  const fallbackCenter = activeRenderableStop
+    ? { lat: activeRenderableStop.lat, lng: activeRenderableStop.lng }
+    : { lat: 39.9526, lng: -75.1652 };
 
-  const latLngs = selectedTour.stops.map((stop) => [stop.lat, stop.lng]);
+  routePath.forEach((point) => bounds.extend(point));
 
-  window.L.polyline(latLngs, {
-    color: "#7f3119",
-    weight: 4,
-    opacity: 0.8,
-    dashArray: "8 8"
-  }).addTo(routeMapLayers);
+  if (routePath.length >= 2) {
+    const routeLine = new maps.Polyline({
+      map: routeMap,
+      path: routePath,
+      geodesic: true,
+      strokeColor: "#a64f38",
+      strokeOpacity: 0.92,
+      strokeWeight: 5
+    });
+    routeMapLayers.push(routeLine);
+  }
 
-  selectedTour.stops.forEach((stop, index) => {
+  renderableStops.forEach((stop) => {
     const isSelected = stop.id === selectedStop.id;
     const isDone = state.completedStopIds.includes(stop.id);
-
-    const marker = window.L.circleMarker([stop.lat, stop.lng], {
-      radius: isSelected ? 11 : 8,
-      color: isSelected ? "#b74d2c" : isDone ? "#35574f" : "#172026",
-      weight: isSelected ? 3 : 2,
-      fillColor: isSelected ? "#f2d7b2" : isDone ? "#d7eadf" : "#fffaf0",
-      fillOpacity: 0.95
-    }).addTo(routeMapLayers);
-
-    marker.bindTooltip(`${index + 1}. ${stop.title}`, {
-      direction: "top",
-      offset: [0, -8]
+    const marker = new maps.Marker({
+      map: routeMap,
+      position: { lat: stop.lat, lng: stop.lng },
+      title: `${stop.originalIndex + 1}. ${stop.title}`,
+      label: {
+        text: String(stop.originalIndex + 1),
+        color: isSelected ? "#6b3b2f" : "#fffaf5",
+        fontWeight: "700"
+      },
+      icon: {
+        path: maps.SymbolPath.CIRCLE,
+        fillColor: isSelected ? "#f1d1b2" : isDone ? "#35574f" : "#172026",
+        fillOpacity: 1,
+        strokeColor: isSelected ? "#b45b3d" : "#fffaf5",
+        strokeOpacity: 1,
+        strokeWeight: isSelected ? 3 : 2,
+        scale: isSelected ? 13 : 10
+      }
     });
+    routeMapLayers.push(marker);
+    bounds.extend({ lat: stop.lat, lng: stop.lng });
 
-    marker.on("click", () => {
+    marker.addListener("click", () => {
+      state.map.followNearestStop = false;
       state.selectedStopId = stop.id;
       render();
     });
   });
 
-  routeMap.fitBounds(routeMapLayers.getBounds().pad(0.18));
+  if (state.map.locationReady && state.map.userLocation) {
+    const userLatLng = {
+      lat: state.map.userLocation.lat,
+      lng: state.map.userLocation.lng
+    };
+
+    const userRadius = new maps.Circle({
+      map: routeMap,
+      center: userLatLng,
+      radius: 36,
+      strokeColor: "#5c45ff",
+      strokeOpacity: 0.2,
+      strokeWeight: 1,
+      fillColor: "#5c45ff",
+      fillOpacity: 0.12
+    });
+    routeMapLayers.push(userRadius);
+
+    const userMarker = new maps.Marker({
+      map: routeMap,
+      position: userLatLng,
+      title: "You are here",
+      icon: {
+        path: maps.SymbolPath.CIRCLE,
+        fillColor: "#5c45ff",
+        fillOpacity: 1,
+        strokeColor: "#ffffff",
+        strokeOpacity: 1,
+        strokeWeight: 3,
+        scale: 9
+      }
+    });
+    routeMapLayers.push(userMarker);
+
+    const guideLine = new maps.Polyline({
+      map: routeMap,
+      path: [userLatLng, activeRenderableStop ? { lat: activeRenderableStop.lat, lng: activeRenderableStop.lng } : userLatLng],
+      geodesic: true,
+      strokeColor: "#5c45ff",
+      strokeOpacity: 0.82,
+      strokeWeight: 3
+    });
+    routeMapLayers.push(guideLine);
+    bounds.extend(userLatLng);
+  }
+
+  if (!bounds.isEmpty()) {
+    routeMap.fitBounds(bounds, 48);
+  } else {
+    routeMap.setCenter(fallbackCenter);
+    routeMap.setZoom(14);
+  }
+
+  installMapViewportStabilizer({
+    map: routeMap,
+    maps,
+    mapElement,
+    restoreView: () => {
+      if (!bounds.isEmpty()) {
+        routeMap.fitBounds(bounds, 48);
+        return;
+      }
+
+      routeMap.setCenter(fallbackCenter);
+      routeMap.setZoom(14);
+    }
+  });
+
+  installGoogleMapHealthFallback({
+    mapElement,
+    fallbackPosition: fallbackCenter,
+    title: selectedTour.title,
+    zoom: 14,
+    maps,
+    map: routeMap
+  });
+}
+
+async function initHomeMap(selectedTour, elementId = "home-map") {
+  const mapElement = document.getElementById(elementId);
+  if (!mapElement) {
+    return;
+  }
+
+  let maps;
+  try {
+    maps = await loadGoogleMapsApi();
+  } catch (error) {
+    if (document.getElementById(elementId) === mapElement) {
+      mapElement.innerHTML = `<div class="route-map-fallback"><div><strong>Google map unavailable</strong><span>${escapeHtml((error && error.message) || "Unable to load the map.")}</span></div></div>`;
+    }
+    return;
+  }
+
+  if (document.getElementById(elementId) !== mapElement) {
+    return;
+  }
+
+  routeMap = new maps.Map(mapElement, {
+    disableDefaultUI: true,
+    zoomControl: true,
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: false,
+    gestureHandling: "cooperative",
+    clickableIcons: false,
+    styles: buildGoogleShellMapStyles(),
+    mapTypeId: "roadmap",
+    backgroundColor: "#141b2d",
+    center: { lat: 39.9526, lng: -75.1652 },
+    zoom: 12
+  });
+
+  routeMapLayers = [];
+  const focusedTour = state.home.focusTourId ? getTourById(state.home.focusTourId) : null;
+  const focusedRenderableStops = focusedTour ? getRenderableStops(focusedTour.stops) : [];
+  const bounds = new maps.LatLngBounds();
+  const collectionCenter = { lat: 39.9526, lng: -75.1652 };
+
+  if (focusedTour) {
+    const routePreview = getRoutePreviewRecord(focusedTour.id);
+    const previewLatLngs = decodeEncodedPolyline(routePreview?.route?.polyline)
+      .map(([lat, lng]) => ({ lat, lng }))
+      .filter(hasRenderableCoordinates);
+    const routePath =
+      previewLatLngs.length >= 2 ? previewLatLngs : focusedRenderableStops.map((stop) => ({ lat: stop.lat, lng: stop.lng }));
+    const accent = getTourAccent(tours.findIndex((tour) => tour.id === focusedTour.id));
+    const selectedStopId = state.selectedStopId;
+
+    routePath.forEach((point) => bounds.extend(point));
+
+    if (routePath.length >= 2) {
+      const routeHalo = new maps.Polyline({
+        map: routeMap,
+        path: routePath,
+        geodesic: true,
+        strokeColor: accent?.[1] || "#f0ceb5",
+        strokeOpacity: 0.38,
+        strokeWeight: 11
+      });
+      routeMapLayers.push(routeHalo);
+
+      const routeLine = new maps.Polyline({
+        map: routeMap,
+        path: routePath,
+        geodesic: true,
+        strokeColor: accent?.[0] || "#b45b3d",
+        strokeOpacity: 0.94,
+        strokeWeight: 5
+      });
+      routeMapLayers.push(routeLine);
+    }
+
+    focusedRenderableStops.forEach((stop) => {
+      const isSelected = stop.id === selectedStopId;
+      const marker = new maps.Marker({
+        map: routeMap,
+        position: { lat: stop.lat, lng: stop.lng },
+        title: `${stop.originalIndex + 1}. ${stop.title}`,
+        label: {
+          text: String(stop.originalIndex + 1),
+          color: isSelected ? "#6b3b2f" : "#fffaf5",
+          fontWeight: "700"
+        },
+        icon: {
+          path: maps.SymbolPath.CIRCLE,
+          fillColor: isSelected ? "#f1d1b2" : accent?.[0] || "#b45b3d",
+          fillOpacity: 1,
+          strokeColor: isSelected ? "#b45b3d" : "#fffaf5",
+          strokeOpacity: 1,
+          strokeWeight: isSelected ? 3 : 2,
+          scale: isSelected ? 13 : 10
+        }
+      });
+      routeMapLayers.push(marker);
+      bounds.extend({ lat: stop.lat, lng: stop.lng });
+
+      marker.addListener("click", () => {
+        state.selectedTourId = focusedTour.id;
+        state.map.followNearestStop = false;
+        state.selectedStopId = stop.id;
+        render();
+      });
+    });
+  } else {
+    tours.forEach((tour, index) => {
+      const leadStop = getPrimaryRenderableStop(tour);
+      if (!leadStop) {
+        return;
+      }
+
+      const accent = getTourAccent(index);
+      const marker = new maps.Marker({
+        map: routeMap,
+        position: { lat: leadStop.lat, lng: leadStop.lng },
+        title: tour.title,
+        label: {
+          text: String(index + 1),
+          color: "#fffaf5",
+          fontWeight: "700"
+        },
+        icon: {
+          path: maps.SymbolPath.CIRCLE,
+          fillColor: accent?.[0] || "#5c45ff",
+          fillOpacity: 1,
+          strokeColor: "#fffaf5",
+          strokeOpacity: 1,
+          strokeWeight: 2,
+          scale: 11
+        }
+      });
+      routeMapLayers.push(marker);
+      bounds.extend({ lat: leadStop.lat, lng: leadStop.lng });
+
+      marker.addListener("click", () => {
+        state.activeTab = "home";
+        state.routePageTourId = null;
+        state.home.focusTourId = tour.id;
+        state.selectedTourId = tour.id;
+        state.selectedStopId = leadStop.id ?? state.selectedStopId;
+        render();
+      });
+    });
+  }
+
+  if (!bounds.isEmpty()) {
+    routeMap.fitBounds(bounds, focusedTour ? 52 : 84);
+  } else {
+    routeMap.setCenter(collectionCenter);
+    routeMap.setZoom(12);
+  }
+
+  installMapViewportStabilizer({
+    map: routeMap,
+    maps,
+    mapElement,
+    restoreView: () => {
+      if (!bounds.isEmpty()) {
+        routeMap.fitBounds(bounds, focusedTour ? 52 : 84);
+        return;
+      }
+
+      routeMap.setCenter(collectionCenter);
+      routeMap.setZoom(12);
+    }
+  });
+
+  installGoogleMapHealthFallback({
+    mapElement,
+    fallbackPosition: focusedRenderableStops.find((stop) => stop.id === state.selectedStopId)
+      ? {
+          lat: focusedRenderableStops.find((stop) => stop.id === state.selectedStopId).lat,
+          lng: focusedRenderableStops.find((stop) => stop.id === state.selectedStopId).lng
+        }
+      : focusedRenderableStops[0]
+        ? { lat: focusedRenderableStops[0].lat, lng: focusedRenderableStops[0].lng }
+        : collectionCenter,
+    title: focusedTour ? focusedTour.title : "Philly AR Tours",
+    zoom: focusedTour ? 14 : 12,
+    maps,
+    map: routeMap
+  });
 }
 
 function buildRoutePath(stops) {

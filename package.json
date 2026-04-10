@@ -51,7 +51,7 @@
     "sync-server:deploy": "zsh scripts/deploy-sync-server-runtime.sh",
     "sync-server:deploy:remote": "zsh scripts/deploy-sync-server-remote.sh",
     "stripe:listen": "stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.succeeded,payment_intent.payment_failed --forward-to http://localhost:4000/api/stripe/webhook",
-    "deploy": "npx expo export -p web && wrangler deploy",
+    "deploy": "npm run webapp:build && wrangler pages deploy web-dist --project-name philly-tours",
     "preview": "npx expo export -p web && wrangler dev"
   },
   "dependencies": {
