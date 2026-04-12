@@ -8,7 +8,7 @@ const repoRoot = path.resolve(__dirname, "..");
 const webappDir = path.join(repoRoot, "webapp");
 const assetsDir = path.join(repoRoot, "assets");
 const outputDir = path.join(repoRoot, "web-dist");
-const assetVersion = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 12);
+const assetVersion = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
 
 function copyFilter(source) {
   return path.basename(source) !== ".DS_Store";

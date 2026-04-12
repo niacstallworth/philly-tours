@@ -1132,6 +1132,10 @@ button {
   margin-top: 16px;
 }
 
+.route-map-shell--street-view {
+  margin-top: 16px;
+}
+
 .route-map-shell--home {
   margin-top: 20px;
 }
@@ -1247,6 +1251,53 @@ button {
   box-shadow: inset 0 0 0 1px rgba(92, 69, 255, 0.08), 0 24px 40px rgba(17, 24, 39, 0.08);
 }
 
+.route-map--street-view {
+  min-height: 420px;
+  margin-top: 0;
+  background: #141b2d;
+  box-shadow: inset 0 0 0 1px rgba(92, 69, 255, 0.08), 0 24px 40px rgba(17, 24, 39, 0.08);
+}
+
+.route-street-view-actions {
+  margin-top: 16px;
+}
+
+.map-pin-chip {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  border-radius: 999px 999px 999px 0;
+  border: 2px solid var(--map-pin-border, #fffaf5);
+  background: var(--map-pin-bg, #5c45ff);
+  color: var(--map-pin-glyph, #fffaf5);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.24);
+  transform: rotate(-45deg) scale(var(--map-pin-scale, 1));
+  transform-origin: 50% 50%;
+  text-shadow: 0 1px 0 rgba(15, 23, 42, 0.16);
+  font-family: "SF Pro Display", "Avenir Next", sans-serif;
+  isolation: isolate;
+  will-change: transform;
+}
+
+.map-pin-chip::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.map-pin-chip span {
+  position: relative;
+  z-index: 1;
+  transform: rotate(45deg);
+}
+
 .map-live-banner {
   position: absolute;
   left: 18px;
@@ -1335,6 +1386,20 @@ button {
     linear-gradient(160deg, rgba(255, 248, 240, 0.95), rgba(245, 234, 227, 0.92));
   color: var(--ink);
   text-align: center;
+}
+
+.route-map-fallback > div {
+  display: grid;
+  gap: 12px;
+  max-width: 460px;
+}
+
+.route-map-fallback span {
+  color: var(--muted);
+}
+
+.route-map-fallback .button-row {
+  justify-content: center;
 }
 
 .route-map-fallback strong {
@@ -1634,6 +1699,10 @@ button {
   }
 
   .route-map--home {
+    min-height: 320px;
+  }
+
+  .route-map--street-view {
     min-height: 320px;
   }
 
@@ -3116,6 +3185,18 @@ body {
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 20px 60px rgba(7, 10, 26, 0.18);
+  opacity: 1;
+  transition:
+    opacity 180ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.tabbar.is-idle-hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(22px);
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(7, 10, 26, 0.08);
 }
 
 .tabbar button {

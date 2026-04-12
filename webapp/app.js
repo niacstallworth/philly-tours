@@ -320,6 +320,8 @@ const RSS_UPDATES = [
 ];
 let routeMap = null;
 let routeMapLayers = null;
+let stopStreetView = null;
+let stopStreetViewRequestToken = 0;
 let googleMapsApiPromise = null;
 let activeMapViewportCleanup = null;
 let googleMapsAuthFailed = false;
@@ -338,6 +340,7 @@ const AUDIO_PREVIEW_LIMIT = 2;
 let copyButtonResetTimer = null;
 let webTurnstileMountTimer = null;
 let authRefreshTimer = null;
+let tabBarAutoHideTimer = null;
 let supabaseClientPromise = null;
 
 const state = {
@@ -352,7 +355,7 @@ const state = {
     message: "",
     turnstileToken: null
   },
-  activeTab: "map",
+  activeTab: "home",
   selectedTourId: tours[0].id,
   selectedStopId: tours[0].stops[0].id,
   drawer: null,
@@ -421,7 +424,10 @@ const state = {
   themeFilter: "all",
   tourOrderIds: loadTourOrderIds(),
   completedStopIds: loadCompletedStops(),
-  tourCardImages: loadTourCardImages()
+  tourCardImages: loadTourCardImages(),
+  chrome: {
+    tabBarIdleHidden: false
+  }
 };
 
 const app = document.getElementById("app");
@@ -453,6 +459,11 @@ tabs.forEach((button) => {
 });
 window.addEventListener("hashchange", handleHashChange);
 window.addEventListener("scroll", updateTopbarScrollState, { passive: true });
+window.addEventListener("scroll", handleChromeActivity, { passive: true });
+window.addEventListener("pointerdown", handleChromeActivity, { passive: true });
+window.addEventListener("touchstart", handleChromeActivity, { passive: true });
+window.addEventListener("keydown", handleChromeActivity);
+window.addEventListener("focusin", handleChromeActivity);
 if ("scrollRestoration" in window.history) {
   window.history.scrollRestoration = "manual";
 }
@@ -470,11 +481,59 @@ function scrollViewportToTop() {
   document.body.scrollTop = 0;
 }
 
+function scrollHomeMapIntoView() {
+  window.requestAnimationFrame(() => {
+    const mapElement = document.getElementById("home-map");
+    const target = mapElement?.closest(".home-hero-panel") || mapElement;
+    if (!target) {
+      return;
+    }
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
+function openTourPageForStop(tour, stopId) {
+  if (!tour) {
+    return;
+  }
+  const resolvedStopId = tour.stops.some((stop) => stop.id === stopId) ? stopId : tour.stops[0]?.id ?? "";
+  state.selectedTourId = tour.id;
+  state.selectedStopId = resolvedStopId;
+  state.activeTab = "map";
+  state.home.focusTourId = null;
+  state.routePageTourId = tour.id;
+  scrollViewportToTop();
+  render();
+}
+
 function updateTopbarScrollState() {
   if (!topbar) {
     return;
   }
   topbar.classList.toggle("topbar--scrolled", window.scrollY > 16);
+}
+
+function scheduleTabBarAutoHide() {
+  window.clearTimeout(tabBarAutoHideTimer);
+  if (!tabBar || state.routePageTourId) {
+    return;
+  }
+  tabBarAutoHideTimer = window.setTimeout(() => {
+    state.chrome.tabBarIdleHidden = true;
+    updateChrome();
+  }, 2200);
+}
+
+function handleChromeActivity() {
+  if (state.routePageTourId) {
+    return;
+  }
+  const wasHidden = state.chrome.tabBarIdleHidden;
+  state.chrome.tabBarIdleHidden = false;
+  if (wasHidden) {
+    updateChrome();
+  }
+  scheduleTabBarAutoHide();
 }
 
 function normalizeTours(rawTours) {
@@ -807,6 +866,18 @@ function getGoogleMapsMapId() {
   return String(siteConfig.googleMapsMapId || "").trim();
 }
 
+async function loadGoogleMapsMarkerLibrary(maps) {
+  if (!maps || typeof maps.importLibrary !== "function") {
+    return null;
+  }
+
+  try {
+    return await maps.importLibrary("marker");
+  } catch {
+    return null;
+  }
+}
+
 function buildGoogleShellMapStyles() {
   return [
     {
@@ -954,6 +1025,95 @@ function buildGoogleLatLngEmbedMarkup(position, title, zoom = 14) {
       allowfullscreen
       referrerpolicy="origin"
     ></iframe>
+  `;
+}
+
+function buildGoogleStreetViewUrl(point) {
+  const streetViewConfig = getStopStreetViewConfig(point);
+  if (!streetViewConfig) {
+    return "";
+  }
+
+  const src = new URL("https://www.google.com/maps/@");
+  src.searchParams.set("api", "1");
+  src.searchParams.set("map_action", "pano");
+  src.searchParams.set("viewpoint", `${streetViewConfig.viewpoint.lat},${streetViewConfig.viewpoint.lng}`);
+  if (streetViewConfig.panoId) {
+    src.searchParams.set("pano", streetViewConfig.panoId);
+  }
+  if (streetViewConfig.heading != null) {
+    src.searchParams.set("heading", String(streetViewConfig.heading));
+  }
+  if (streetViewConfig.pitch != null) {
+    src.searchParams.set("pitch", String(streetViewConfig.pitch));
+  }
+  return src.toString();
+}
+
+function parseStreetViewNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getStopStreetViewConfig(stop) {
+  const rawConfig = stop?.streetView && typeof stop.streetView === "object" ? stop.streetView : null;
+  const targetPosition = getRenderableLatLng(stop);
+  const viewpoint = getRenderableLatLng(rawConfig?.viewpoint) || targetPosition;
+  if (!viewpoint) {
+    return null;
+  }
+
+  const panoId = typeof rawConfig?.panoId === "string" ? rawConfig.panoId.trim() : "";
+  const radiusM = parseStreetViewNumber(rawConfig?.radiusM);
+  const heading = parseStreetViewNumber(rawConfig?.heading);
+  const pitch = parseStreetViewNumber(rawConfig?.pitch);
+  const zoom = parseStreetViewNumber(rawConfig?.zoom);
+
+  return {
+    panoId,
+    targetPosition: targetPosition || viewpoint,
+    viewpoint,
+    radiusM: radiusM != null && radiusM >= 0 ? radiusM : 120,
+    heading,
+    pitch,
+    zoom,
+    source: rawConfig?.source === "default" ? "default" : "outdoor"
+  };
+}
+
+function normalizeLatLngLiteral(point) {
+  if (!point) {
+    return null;
+  }
+  if (typeof point.lat === "function" && typeof point.lng === "function") {
+    return getRenderableLatLng({ lat: point.lat(), lng: point.lng() });
+  }
+  return getRenderableLatLng(point);
+}
+
+function computeHeadingBetweenPoints(fromPoint, toPoint) {
+  const from = normalizeLatLngLiteral(fromPoint);
+  const to = normalizeLatLngLiteral(toPoint);
+  if (!from || !to) {
+    return 0;
+  }
+
+  const lat1 = (from.lat * Math.PI) / 180;
+  const lat2 = (to.lat * Math.PI) / 180;
+  const lngDelta = ((to.lng - from.lng) * Math.PI) / 180;
+  const y = Math.sin(lngDelta) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lngDelta);
+  return (((Math.atan2(y, x) * 180) / Math.PI) + 360) % 360;
+}
+
+function buildStopStreetViewFallbackMarkup(message) {
+  return `
+    <div class="route-map-fallback route-map-fallback--street-view">
+      <div>
+        <strong>Street View unavailable</strong>
+        <span>${escapeHtml(message)}</span>
+      </div>
+    </div>
   `;
 }
 
@@ -1279,11 +1439,9 @@ function buildHomeInlineMapFallback(selectedTour) {
     `;
   }
 
-  const routePreview = getRoutePreviewRecord(focusedTour.id);
+  const routePreview = getRoutePreviewRecord(focusedTour.id, state.narrationVariant);
   const renderableStops = getRenderableStops(focusedTour.stops);
-  const previewLatLngs = decodeEncodedPolyline(routePreview?.route?.polyline)
-    .map(([lat, lng]) => ({ lat, lng }))
-    .filter(hasRenderableCoordinates);
+  const previewLatLngs = getRoutePreviewPath(routePreview?.route);
   const routePoints =
     previewLatLngs.length >= 2 ? previewLatLngs : renderableStops.map((stop) => ({ lat: stop.lat, lng: stop.lng }));
   const projectedRoute = projectLatLngsToPreview(routePoints);
@@ -1462,8 +1620,28 @@ function buildPhoneAppHandoffLink(tourId, stopId) {
   return `phillyartours://tour/${encodeURIComponent(tourId)}/stop/${encodeURIComponent(stopId)}/map`;
 }
 
-function getRoutePreviewRecord(tourId) {
-  return state.maps.routePreviewsByTourId[tourId] || {
+function normalizeRoutePreviewVariant(variant = state.narrationVariant) {
+  return variant === "drive" ? "drive" : "walk";
+}
+
+function getRoutePreviewCacheKey(tourId, variant = state.narrationVariant) {
+  return `${tourId}::${normalizeRoutePreviewVariant(variant)}`;
+}
+
+function getRouteTravelModeForVariant(variant = state.narrationVariant) {
+  return normalizeRoutePreviewVariant(variant) === "drive" ? "DRIVE" : "WALK";
+}
+
+function getRouteRoutingPreferenceForVariant(variant = state.narrationVariant) {
+  return normalizeRoutePreviewVariant(variant) === "drive" ? "TRAFFIC_AWARE_OPTIMAL" : null;
+}
+
+function getRouteModeLabel(variant = state.narrationVariant) {
+  return normalizeRoutePreviewVariant(variant) === "drive" ? "drive" : "walking";
+}
+
+function getRoutePreviewRecord(tourId, variant = state.narrationVariant) {
+  return state.maps.routePreviewsByTourId[getRoutePreviewCacheKey(tourId, variant)] || {
     status: "idle",
     route: null,
     message: ""
@@ -1493,27 +1671,29 @@ function formatMilesFromMeters(meters, fallbackMiles) {
   return `${(meters / 1609.344).toFixed(1)} mi`;
 }
 
-function createRoutePreviewRequest(tour) {
+function createRoutePreviewRequest(tour, variant = state.narrationVariant) {
   const renderableStops = getRenderableStops(tour?.stops || []);
+  const routingPreference = getRouteRoutingPreferenceForVariant(variant);
   return {
     stops: renderableStops.map((stop) => ({
       title: stop.title,
       lat: stop.lat,
       lng: stop.lng
     })),
-    travelMode: "DRIVE",
-    routingPreference: "TRAFFIC_AWARE"
+    travelMode: getRouteTravelModeForVariant(variant),
+    ...(routingPreference ? { routingPreference } : {})
   };
 }
 
-async function ensureRoutePreviewLoaded(tour) {
+async function ensureRoutePreviewLoaded(tour, variant = state.narrationVariant) {
   if (!tour || !tour.id) {
     return;
   }
 
-  const requestBody = createRoutePreviewRequest(tour);
+  const requestBody = createRoutePreviewRequest(tour, variant);
+  const cacheKey = getRoutePreviewCacheKey(tour.id, variant);
   if (requestBody.stops.length < 2) {
-    state.maps.routePreviewsByTourId[tour.id] = {
+    state.maps.routePreviewsByTourId[cacheKey] = {
       status: "unavailable",
       route: null,
       message: "This tour needs at least two mapped stops before a route can render."
@@ -1521,7 +1701,7 @@ async function ensureRoutePreviewLoaded(tour) {
     return;
   }
 
-  const existing = getRoutePreviewRecord(tour.id);
+  const existing = getRoutePreviewRecord(tour.id, variant);
   if (
     existing.status === "loading" ||
     existing.status === "ready" ||
@@ -1533,7 +1713,7 @@ async function ensureRoutePreviewLoaded(tour) {
 
   const syncServerUrl = getSyncServerUrl();
   if (!syncServerUrl) {
-    state.maps.routePreviewsByTourId[tour.id] = {
+    state.maps.routePreviewsByTourId[cacheKey] = {
       status: "unavailable",
       route: null,
       message: "Add the sync server URL to enable live route previews."
@@ -1541,7 +1721,7 @@ async function ensureRoutePreviewLoaded(tour) {
     return;
   }
 
-  state.maps.routePreviewsByTourId[tour.id] = {
+  state.maps.routePreviewsByTourId[cacheKey] = {
     status: "loading",
     route: null,
     message: ""
@@ -1564,13 +1744,13 @@ async function ensureRoutePreviewLoaded(tour) {
       throw new Error(payload.error || "Unable to load route preview.");
     }
 
-    state.maps.routePreviewsByTourId[tour.id] = {
+    state.maps.routePreviewsByTourId[cacheKey] = {
       status: "ready",
       route: payload.primaryRoute || null,
       message: ""
     };
   } catch (error) {
-    state.maps.routePreviewsByTourId[tour.id] = {
+    state.maps.routePreviewsByTourId[cacheKey] = {
       status: "error",
       route: null,
       message: (error && error.message) || "Unable to load route preview."
@@ -1580,21 +1760,38 @@ async function ensureRoutePreviewLoaded(tour) {
   render(false);
 }
 
-function getRoutePreviewDisplay(tour) {
-  const preview = getRoutePreviewRecord(tour.id);
+function getRoutePreviewPath(route) {
+  const polylineSegments =
+    Array.isArray(route?.polylineSegments) && route.polylineSegments.length
+      ? route.polylineSegments
+      : route?.polyline
+        ? [route.polyline]
+        : [];
+
+  return polylineSegments
+    .flatMap((encodedPolyline, segmentIndex) =>
+      decodeEncodedPolyline(encodedPolyline).filter((_, pointIndex) => segmentIndex === 0 || pointIndex > 0)
+    )
+    .map(([lat, lng]) => ({ lat, lng }))
+    .filter(hasRenderableCoordinates);
+}
+
+function getRoutePreviewDisplay(tour, variant = state.narrationVariant) {
+  const preview = getRoutePreviewRecord(tour.id, variant);
   const route = preview.route;
   const liveDurationSeconds = parseDurationSeconds(route?.duration);
   const liveStaticDurationSeconds = parseDurationSeconds(route?.staticDuration);
+  const modeLabel = getRouteModeLabel(variant);
 
   return {
     status: preview.status,
     statusLabel:
       preview.status === "ready"
-        ? "Live route"
+        ? `Live ${modeLabel} route`
         : preview.status === "loading"
-          ? "Loading route"
+          ? `Loading ${modeLabel} route`
           : preview.status === "error"
-            ? "Static fallback"
+            ? "Using saved route estimate"
             : "Tour plan",
     durationLabel: formatDurationMinutesFromSeconds(liveDurationSeconds ?? liveStaticDurationSeconds, tour.durationMin),
     distanceLabel: formatMilesFromMeters(route?.distanceMeters, tour.distanceMiles),
@@ -1604,11 +1801,11 @@ function getRoutePreviewDisplay(tour) {
         : `${tour.stops.length} story stops`,
     message:
       preview.status === "ready"
-        ? "Google route preview is live for this stop order."
+        ? `Google ${modeLabel} route preview is live for this stop order.`
         : preview.status === "loading"
-          ? "Checking live drive distance and ETA for this route."
+          ? `Checking live ${modeLabel} distance and timing for this route.`
           : preview.status === "error"
-            ? preview.message || "Live route preview is unavailable right now, so this page is showing the saved tour estimate."
+            ? `Live ${modeLabel} routing is temporarily unavailable, so this page is showing the saved tour estimate.`
             : preview.message || "Static route estimate from the tour catalog."
   };
 }
@@ -1670,10 +1867,17 @@ function updateChrome() {
 
   if (tabBar) {
     tabBar.hidden = showingHiddenRoutePage;
+    tabBar.classList.toggle("is-idle-hidden", !showingHiddenRoutePage && state.chrome.tabBarIdleHidden);
   }
 
   if (topbarActions) {
     topbarActions.classList.remove("auth-compact");
+  }
+
+  if (!showingHiddenRoutePage) {
+    scheduleTabBarAutoHide();
+  } else {
+    window.clearTimeout(tabBarAutoHideTimer);
   }
 }
 
@@ -2844,8 +3048,10 @@ function handleHashChange() {
 function hydrateStateFromLocation() {
   const hash = window.location.hash.replace(/^#/, "");
   if (!hash) {
+    state.activeTab = "home";
     state.drawer = null;
     state.routePageTourId = null;
+    state.home.focusTourId = null;
     return;
   }
 
@@ -2864,22 +3070,38 @@ function hydrateStateFromLocation() {
     state.activeTab = tab;
   }
 
+  const nextHomeTour = homeTour ? getTourById(homeTour) : null;
   const nextTour = tourId ? getTourById(tourId) : null;
+  const nextRoutePageTour = routePage ? getTourById(routePage) : null;
+  const effectiveHomeTour = nextHomeTour;
+  const effectiveTour = nextRoutePageTour || (state.activeTab === "home" && effectiveHomeTour ? effectiveHomeTour : nextTour);
+
+  state.home.focusTourId = state.activeTab === "home" && effectiveHomeTour ? effectiveHomeTour.id : null;
+
+  if (state.activeTab === "home" && effectiveHomeTour) {
+    state.selectedTourId = effectiveHomeTour.id;
+    state.selectedStopId = effectiveHomeTour.stops[0]?.id ?? state.selectedStopId;
+  }
+
+  if (nextRoutePageTour) {
+    state.selectedTourId = nextRoutePageTour.id;
+    state.selectedStopId = nextRoutePageTour.stops[0]?.id ?? state.selectedStopId;
+  }
+
   if (nextTour) {
     state.selectedTourId = nextTour.id;
     state.selectedStopId = nextTour.stops[0]?.id ?? state.selectedStopId;
   }
 
   if (stopId) {
-    const selectedTour = getSelectedTour();
+    const selectedTour = effectiveTour || getSelectedTour();
     const stopExists = selectedTour.stops.some((stop) => stop.id === stopId);
     if (stopExists) {
       state.selectedStopId = stopId;
     }
   }
 
-  state.routePageTourId = routePage && getTourById(routePage) ? routePage : null;
-  state.home.focusTourId = homeTour && getTourById(homeTour) ? homeTour : null;
+  state.routePageTourId = nextRoutePageTour ? nextRoutePageTour.id : null;
 
   state.drawer = null;
   if (drawerTour && getTourById(drawerTour)) {
@@ -2908,22 +3130,21 @@ function hydrateStateFromLocation() {
 
 function syncLocationHash() {
   const params = new URLSearchParams();
-  params.set("tab", state.activeTab);
+  const normalizedTab = state.activeTab;
+  params.set("tab", normalizedTab);
 
-  if (state.activeTab === "home" || state.activeTab === "map" || state.activeTab === "ar") {
+  if ((normalizedTab === "home" && !state.home.focusTourId) || normalizedTab === "ar" || normalizedTab === "map") {
     params.set("tour", state.selectedTourId);
   }
 
-  if (state.activeTab === "map") {
-    params.set("stop", state.selectedStopId);
+  if (normalizedTab === "home" && state.home.focusTourId) {
+    params.set("homeTour", state.home.focusTourId);
   }
 
   if (state.routePageTourId) {
     params.set("routePage", state.routePageTourId);
-  }
-
-  if (state.home.focusTourId) {
-    params.set("homeTour", state.home.focusTourId);
+    params.set("tour", state.routePageTourId);
+    params.set("stop", state.selectedStopId);
   }
 
   if (state.drawer?.type === "tour") {
@@ -2944,9 +3165,6 @@ function setActiveTab(nextTab) {
   }
   state.activeTab = nextTab;
   if (nextTab !== "map") {
-    state.routePageTourId = null;
-  }
-  if (nextTab === "home") {
     state.routePageTourId = null;
   }
   scrollViewportToTop();
@@ -3032,9 +3250,6 @@ function handleClick(event) {
     }
     state.selectedTourId = selectedTour.id;
     state.selectedStopId = selectedTour.stops[0]?.id ?? "";
-    if (state.activeTab === "home") {
-      state.home.focusTourId = selectedTour.id;
-    }
     state.expandedTourCardId = selectedTour.id;
     render();
     return;
@@ -3050,8 +3265,8 @@ function handleClick(event) {
     state.home.focusTourId = selectedTour.id;
     state.selectedTourId = selectedTour.id;
     state.selectedStopId = selectedTour.stops[0]?.id ?? "";
-    scrollViewportToTop();
     render();
+    scrollHomeMapIntoView();
     return;
   }
 
@@ -3069,17 +3284,14 @@ function handleClick(event) {
     if (!selectedTour) {
       return;
     }
-    state.selectedTourId = selectedTour.id;
-    state.selectedStopId = selectedTour.stops[0]?.id ?? "";
-    state.routePageTourId = selectedTour.id;
-    scrollViewportToTop();
-    render();
+    openTourPageForStop(selectedTour, selectedTour.stops[0]?.id ?? "");
     return;
   }
 
   if (action === "close-route-page") {
     state.routePageTourId = null;
-    state.activeTab = "map";
+    state.activeTab = "home";
+    state.home.focusTourId = state.selectedTourId;
     scrollViewportToTop();
     render();
     return;
@@ -3379,6 +3591,46 @@ function getTourAccent(index) {
     ["#8a4f63", "#f3d2dd"],
     ["#8e6b1f", "#f6e1a8"]
   ][index % 6];
+}
+
+function buildMapPinIcon(maps, color, options = {}) {
+  const scale = Number.isFinite(options.scale) ? options.scale : 1.45;
+  return {
+    path: "M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7z",
+    fillColor: color || "#5c45ff",
+    fillOpacity: 1,
+    strokeColor: options.strokeColor || "#fffaf5",
+    strokeOpacity: 1,
+    strokeWeight: Number.isFinite(options.strokeWeight) ? options.strokeWeight : 1.8,
+    scale,
+    anchor: new maps.Point(12 * scale, 24 * scale),
+    labelOrigin: new maps.Point(12 * scale, 9.4 * scale)
+  };
+}
+
+function buildMapDotIcon(maps, color, options = {}) {
+  return {
+    path: maps.SymbolPath.CIRCLE,
+    fillColor: color || "#5c45ff",
+    fillOpacity: Number.isFinite(options.fillOpacity) ? options.fillOpacity : 1,
+    strokeColor: options.strokeColor || "#fffaf5",
+    strokeOpacity: 1,
+    strokeWeight: Number.isFinite(options.strokeWeight) ? options.strokeWeight : 2,
+    scale: Number.isFinite(options.scale) ? options.scale : 8
+  };
+}
+
+function buildAdvancedPinContent(pinConfig) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "map-pin-chip";
+  wrapper.style.setProperty("--map-pin-bg", pinConfig.background || "#5c45ff");
+  wrapper.style.setProperty("--map-pin-border", pinConfig.borderColor || "#fffaf5");
+  wrapper.style.setProperty("--map-pin-glyph", pinConfig.glyphColor || "#fffaf5");
+  wrapper.style.setProperty("--map-pin-scale", String(pinConfig.scale || 1));
+  const glyph = document.createElement("span");
+  glyph.textContent = pinConfig.glyphText || "";
+  wrapper.appendChild(glyph);
+  return wrapper;
 }
 
 function getSelectedStop() {
@@ -4035,7 +4287,7 @@ async function startCheckoutProduct({ amount, title, planId, successTab, idempot
 }
 
 function getChromeTabKey() {
-  return state.activeTab;
+  return state.routePageTourId ? "map" : state.activeTab;
 }
 
 function getSceneConfig(selectedTour, globalStats) {
@@ -4043,8 +4295,8 @@ function getSceneConfig(selectedTour, globalStats) {
     case "home":
       return {
         eyebrow: "Home atlas",
-        title: "See every available tour at once, then isolate the one you want.",
-        body: "The home tab keeps the city overview calm: start with the full collection, then focus one route without leaving the shell.",
+        title: "Welcome to Philadelphia Tours by Founders Threads.",
+        body: "",
         metrics: [],
         floatingCard: `
           <article class="hero-floating-card hero-floating-card--compact">
@@ -4294,6 +4546,7 @@ function renderSceneHero(selectedTour, globalStats) {
 }
 
 function render(shouldSyncHash = true) {
+  teardownStopStreetView();
   teardownRouteMap();
   updateChrome();
 
@@ -4306,8 +4559,14 @@ function render(shouldSyncHash = true) {
   const selectedStop = getSelectedStop();
   const globalStats = getGlobalStats();
 
-  if (state.activeTab === "map" || state.routePageTourId) {
-    void ensureRoutePreviewLoaded(state.routePageTourId ? getTourById(state.routePageTourId) || selectedTour : selectedTour);
+  if (state.routePageTourId) {
+    const routeTour = getTourById(state.routePageTourId) || selectedTour;
+    void ensureRoutePreviewLoaded(routeTour, state.narrationVariant);
+  } else if (state.activeTab === "home" && state.home.focusTourId) {
+    const focusedTour = getTourById(state.home.focusTourId);
+    if (focusedTour) {
+      void ensureRoutePreviewLoaded(focusedTour, state.narrationVariant);
+    }
   }
 
   app.innerHTML = `
@@ -4336,6 +4595,11 @@ function render(shouldSyncHash = true) {
     void initRouteMap(selectedTour, selectedStop, "route-map");
   }
 
+  const stopStreetViewElement = document.getElementById("stop-street-view");
+  if (stopStreetViewElement) {
+    void initStopStreetView(selectedStop, "stop-street-view");
+  }
+
   const homeMapElement = document.getElementById("home-map");
   if (homeMapElement) {
     void initHomeMap(selectedTour, "home-map");
@@ -4357,10 +4621,10 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
     return renderRouteProductPage(getTourById(state.routePageTourId) || selectedTour, selectedStop);
   }
   switch (state.activeTab) {
-    case "home":
-      return renderHomeTab(selectedTour);
     case "map":
       return renderRouteCatalogTab(selectedTour);
+    case "home":
+      return renderHomeTab(selectedTour);
     case "ar":
       return renderArTab(selectedTour);
     case "progress":
@@ -4368,8 +4632,42 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
     case "profile":
       return renderProfileTab();
     default:
-      return renderRouteCatalogTab(selectedTour);
+      return renderHomeTab(selectedTour);
   }
+}
+
+function renderSelectedStopStreetViewPanel(selectedStop) {
+  const locationLabel = selectedStop.fullAddress || selectedStop.locationLabel || selectedStop.title;
+  const streetViewUrl = buildGoogleStreetViewUrl(selectedStop);
+
+  return `
+    <div class="panel panel--map-host route-pack-map route-street-view-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Selected stop</p>
+          <h3>Street View at this stop</h3>
+        </div>
+        <span class="status-pill">Google powered</span>
+      </div>
+      <p class="lede">${escapeHtml(locationLabel)}</p>
+      <div class="route-map-shell route-map-shell--street-view">
+        <div
+          id="stop-street-view"
+          class="route-map route-map--street-view"
+          aria-label="${escapeHtml(`Google Street View panorama for ${selectedStop.title}`)}"
+        ></div>
+      </div>
+      ${
+        streetViewUrl
+          ? `
+            <div class="button-row compact route-street-view-actions">
+              <a class="ghost-button link-button" href="${escapeHtml(streetViewUrl)}" target="_blank" rel="noreferrer">Open Street View in Google Maps</a>
+            </div>
+          `
+          : ""
+      }
+    </div>
+  `;
 }
 
 function renderHomeTab(selectedTour) {
@@ -4387,34 +4685,12 @@ function renderHomeTab(selectedTour) {
           </div>
           <span class="status-pill ${focusedTour ? "is-live" : ""}">${focusedTour ? "Tour isolated" : `${tours.length} tours live`}</span>
         </div>
-        <p class="lede">
-          ${focusedTour
-            ? "This view isolates the selected tour only, so the stop pattern and route shape stay clean and readable."
-            : "Start wide with the full Philadelphia collection, then choose one route to isolate its individual stops inside the shell."}
-        </p>
+        ${focusedTour
+          ? ""
+          : `<p class="lede">Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map.</p>`}
         <div class="panel panel--map-host route-pack-map">
-          <div class="route-map-shell">
+          <div class="route-map-shell route-map-shell--home">
             <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
-          </div>
-        </div>
-        <div class="stop-summary-grid">
-          <div>
-            <strong>Visible map mode</strong>
-            <p>${focusedTour ? `Only ${focusedTour.title}` : "All tours overview"}</p>
-          </div>
-          <div>
-            <strong>Next step</strong>
-            <p>${focusedTour ? `Open ${focusedTour.title} or return to the full collection view.` : "Choose any tour below to isolate its individual stop pattern."}</p>
-          </div>
-          <div>
-            <strong>Route preview</strong>
-            <p>${
-              focusedTour
-                ? routePreview.status === "ready"
-                  ? "This tour is isolated with its route line and individual stops."
-                  : "This tour is isolated with its saved stop order and individual stops."
-                : "Overview mode keeps one marker per tour so the city view stays readable."
-            }</p>
           </div>
         </div>
         <div class="home-tour-grid">
@@ -4603,7 +4879,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             <div class="panel-header">
               <div>
                 <p class="eyebrow">Route preview</p>
-                <h3>Live route line and stop order</h3>
+                <h3>Stop map and order</h3>
               </div>
               <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
             </div>
@@ -4611,6 +4887,7 @@ function renderRouteTab(selectedTour, selectedStop) {
               <div id="route-map" class="route-map" aria-label="Route map preview"></div>
             </div>
           </div>
+          ${renderSelectedStopStreetViewPanel(selectedStop)}
           <div class="panel panel--preview-callout route-guide-panel">
             <div class="panel-header">
               <div>
@@ -4688,7 +4965,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
               ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
             </button>
-            <a class="ghost-button link-button" href="#tab=map&tour=${selectedTour.id}&stop=${selectedStop.id}">Copy route page</a>
+            <a class="ghost-button link-button" href="#tab=home&homeTour=${selectedTour.id}">Copy route page</a>
             <a
               class="ghost-button link-button"
               href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
@@ -4895,7 +5172,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
           <div class="panel-header">
             <div>
               <p class="eyebrow">Route preview</p>
-              <h3>Live route line and stop order</h3>
+              <h3>Stop map and order</h3>
             </div>
             <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
           </div>
@@ -4903,6 +5180,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
             <div id="route-map" class="route-map" aria-label="Route map preview"></div>
           </div>
         </div>
+        ${renderSelectedStopStreetViewPanel(selectedStop)}
         <div class="panel panel--preview-callout route-guide-panel">
           <div class="panel-header">
             <div>
@@ -4980,7 +5258,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
           <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
             ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
           </button>
-          <a class="ghost-button link-button" href="#tab=map&tour=${selectedTour.id}&routePage=${selectedTour.id}&stop=${selectedStop.id}">Copy route page</a>
+          <a class="ghost-button link-button" href="#tab=home&homeTour=${selectedTour.id}">Copy route page</a>
           <a
             class="ghost-button link-button"
             href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
@@ -5587,11 +5865,105 @@ function teardownRouteMap() {
     routeMapLayers.forEach((overlay) => {
       if (overlay && typeof overlay.setMap === "function") {
         overlay.setMap(null);
+        return;
+      }
+      if (overlay && "map" in overlay) {
+        overlay.map = null;
       }
     });
   }
   routeMap = null;
   routeMapLayers = [];
+}
+
+function teardownStopStreetView() {
+  stopStreetViewRequestToken += 1;
+  stopStreetView = null;
+}
+
+async function initStopStreetView(selectedStop, elementId = "stop-street-view") {
+  const streetViewElement = document.getElementById(elementId);
+  if (!streetViewElement) {
+    return;
+  }
+
+  const streetViewConfig = getStopStreetViewConfig(selectedStop);
+  if (!streetViewConfig) {
+    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("This stop does not have browser-ready map coordinates yet.");
+    return;
+  }
+
+  const requestToken = ++stopStreetViewRequestToken;
+
+  let maps;
+  try {
+    maps = await loadGoogleMapsApi();
+  } catch (error) {
+    if (document.getElementById(elementId) === streetViewElement && requestToken === stopStreetViewRequestToken) {
+      streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup((error && error.message) || "Unable to load Google Street View.");
+    }
+    return;
+  }
+
+  if (document.getElementById(elementId) !== streetViewElement || requestToken !== stopStreetViewRequestToken) {
+    return;
+  }
+
+  streetViewElement.innerHTML = "";
+
+  const streetViewService = new maps.StreetViewService();
+  const panoramaRequest = streetViewConfig.panoId
+    ? { pano: streetViewConfig.panoId }
+    : {
+        location: streetViewConfig.viewpoint,
+        radius: streetViewConfig.radiusM,
+        preference: maps.StreetViewPreference?.NEAREST,
+        ...(streetViewConfig.source === "outdoor" ? { source: maps.StreetViewSource?.OUTDOOR } : {})
+      };
+
+  streetViewService.getPanorama(
+    panoramaRequest,
+    (data, status) => {
+      if (document.getElementById(elementId) !== streetViewElement || requestToken !== stopStreetViewRequestToken) {
+        return;
+      }
+
+      if (status !== maps.StreetViewStatus.OK || !data?.location?.pano) {
+        streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("Google Street View imagery is not available close to this stop yet.");
+        return;
+      }
+
+      const panoPosition = normalizeLatLngLiteral(data.location.latLng) || streetViewConfig.viewpoint;
+      stopStreetView = new maps.StreetViewPanorama(streetViewElement, {
+        pano: data.location.pano,
+        position: panoPosition,
+        pov: {
+          heading:
+            streetViewConfig.heading != null
+              ? streetViewConfig.heading
+              : computeHeadingBetweenPoints(panoPosition, streetViewConfig.targetPosition),
+          pitch: streetViewConfig.pitch != null ? streetViewConfig.pitch : 0
+        },
+        zoom: streetViewConfig.zoom != null ? streetViewConfig.zoom : 0,
+        disableDefaultUI: true,
+        zoomControl: true,
+        linksControl: true,
+        clickToGo: true,
+        motionTracking: false,
+        motionTrackingControl: false,
+        fullscreenControl: false,
+        addressControl: false,
+        enableCloseButton: false,
+        showRoadLabels: true
+      });
+
+      window.requestAnimationFrame(() => {
+        if (stopStreetView && requestToken === stopStreetViewRequestToken) {
+          maps.event.trigger(stopStreetView, "resize");
+        }
+      });
+    }
+  );
 }
 
 async function initRouteMap(selectedTour, selectedStop, elementId = "route-map") {
@@ -5625,36 +5997,19 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
     fullscreenControl: false,
     gestureHandling: "cooperative",
     clickableIcons: false,
-    styles: buildGoogleShellMapStyles(),
+    ...(normalizeRoutePreviewVariant(state.narrationVariant) === "drive"
+      ? { mapTypeId: "hybrid" }
+      : { styles: buildGoogleShellMapStyles(), mapTypeId: "roadmap" }),
+    backgroundColor: "#141b2d",
     ...(getGoogleMapsMapId() ? { mapId: getGoogleMapsMapId() } : {})
   });
 
   routeMapLayers = [];
 
   const bounds = new maps.LatLngBounds();
-  const routePreview = getRoutePreviewRecord(selectedTour.id);
-  const previewLatLngs = decodeEncodedPolyline(routePreview?.route?.polyline)
-    .map(([lat, lng]) => ({ lat, lng }))
-    .filter(hasRenderableCoordinates);
-  const routePath =
-    previewLatLngs.length >= 2 ? previewLatLngs : renderableStops.map((stop) => ({ lat: stop.lat, lng: stop.lng }));
   const fallbackCenter = activeRenderableStop
     ? { lat: activeRenderableStop.lat, lng: activeRenderableStop.lng }
     : { lat: 39.9526, lng: -75.1652 };
-
-  routePath.forEach((point) => bounds.extend(point));
-
-  if (routePath.length >= 2) {
-    const routeLine = new maps.Polyline({
-      map: routeMap,
-      path: routePath,
-      geodesic: true,
-      strokeColor: "#a64f38",
-      strokeOpacity: 0.92,
-      strokeWeight: 5
-    });
-    routeMapLayers.push(routeLine);
-  }
 
   renderableStops.forEach((stop) => {
     const isSelected = stop.id === selectedStop.id;
@@ -5722,15 +6077,6 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
     });
     routeMapLayers.push(userMarker);
 
-    const guideLine = new maps.Polyline({
-      map: routeMap,
-      path: [userLatLng, activeRenderableStop ? { lat: activeRenderableStop.lat, lng: activeRenderableStop.lng } : userLatLng],
-      geodesic: true,
-      strokeColor: "#5c45ff",
-      strokeOpacity: 0.82,
-      strokeWeight: 3
-    });
-    routeMapLayers.push(guideLine);
     bounds.extend(userLatLng);
   }
 
@@ -5786,6 +6132,53 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     return;
   }
 
+  const homeMapId = getGoogleMapsMapId() || "DEMO_MAP_ID";
+  const markerLibrary = await loadGoogleMapsMarkerLibrary(maps);
+  const advancedMarkersAvailable = Boolean(homeMapId && markerLibrary?.AdvancedMarkerElement);
+  const createHomeMarker = ({ position, title, glyphText, color, borderColor, glyphColor, scale, zIndex, onClick }) => {
+    if (advancedMarkersAvailable) {
+      const marker = new markerLibrary.AdvancedMarkerElement({
+        map: routeMap,
+        position,
+        title,
+        zIndex,
+        content: buildAdvancedPinContent({
+          background: color,
+          borderColor,
+          glyphColor,
+          glyphText,
+          scale
+        })
+      });
+      if (typeof onClick === "function") {
+        marker.addListener("click", onClick);
+      }
+      return marker;
+    }
+
+    const marker = new maps.Marker({
+      map: routeMap,
+      position,
+      title,
+      label: glyphText
+        ? {
+            text: String(glyphText),
+            color: glyphColor || "#fffaf5",
+            fontWeight: "700"
+          }
+        : undefined,
+      icon: buildMapPinIcon(maps, color, {
+        strokeColor: borderColor,
+        scale: (Number(scale) || 1) * 1.45
+      }),
+      zIndex
+    });
+    if (typeof onClick === "function") {
+      marker.addListener("click", onClick);
+    }
+    return marker;
+  };
+
   routeMap = new maps.Map(mapElement, {
     disableDefaultUI: true,
     zoomControl: true,
@@ -5794,8 +6187,11 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     fullscreenControl: false,
     gestureHandling: "cooperative",
     clickableIcons: false,
-    styles: buildGoogleShellMapStyles(),
-    mapTypeId: "roadmap",
+    ...(normalizeRoutePreviewVariant(state.narrationVariant) === "drive"
+      ? { mapTypeId: "hybrid" }
+      : advancedMarkersAvailable
+        ? { mapTypeId: "roadmap", mapId: homeMapId }
+        : { styles: buildGoogleShellMapStyles(), mapTypeId: "roadmap" }),
     backgroundColor: "#141b2d",
     center: { lat: 39.9526, lng: -75.1652 },
     zoom: 12
@@ -5808,69 +6204,27 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
   const collectionCenter = { lat: 39.9526, lng: -75.1652 };
 
   if (focusedTour) {
-    const routePreview = getRoutePreviewRecord(focusedTour.id);
-    const previewLatLngs = decodeEncodedPolyline(routePreview?.route?.polyline)
-      .map(([lat, lng]) => ({ lat, lng }))
-      .filter(hasRenderableCoordinates);
-    const routePath =
-      previewLatLngs.length >= 2 ? previewLatLngs : focusedRenderableStops.map((stop) => ({ lat: stop.lat, lng: stop.lng }));
     const accent = getTourAccent(tours.findIndex((tour) => tour.id === focusedTour.id));
     const selectedStopId = state.selectedStopId;
 
-    routePath.forEach((point) => bounds.extend(point));
-
-    if (routePath.length >= 2) {
-      const routeHalo = new maps.Polyline({
-        map: routeMap,
-        path: routePath,
-        geodesic: true,
-        strokeColor: accent?.[1] || "#f0ceb5",
-        strokeOpacity: 0.38,
-        strokeWeight: 11
-      });
-      routeMapLayers.push(routeHalo);
-
-      const routeLine = new maps.Polyline({
-        map: routeMap,
-        path: routePath,
-        geodesic: true,
-        strokeColor: accent?.[0] || "#b45b3d",
-        strokeOpacity: 0.94,
-        strokeWeight: 5
-      });
-      routeMapLayers.push(routeLine);
-    }
-
     focusedRenderableStops.forEach((stop) => {
       const isSelected = stop.id === selectedStopId;
-      const marker = new maps.Marker({
-        map: routeMap,
+      const marker = createHomeMarker({
         position: { lat: stop.lat, lng: stop.lng },
         title: `${stop.originalIndex + 1}. ${stop.title}`,
-        label: {
-          text: String(stop.originalIndex + 1),
-          color: isSelected ? "#6b3b2f" : "#fffaf5",
-          fontWeight: "700"
-        },
-        icon: {
-          path: maps.SymbolPath.CIRCLE,
-          fillColor: isSelected ? "#f1d1b2" : accent?.[0] || "#b45b3d",
-          fillOpacity: 1,
-          strokeColor: isSelected ? "#b45b3d" : "#fffaf5",
-          strokeOpacity: 1,
-          strokeWeight: isSelected ? 3 : 2,
-          scale: isSelected ? 13 : 10
+        glyphText: String(stop.originalIndex + 1),
+        color: isSelected ? accent?.[1] || "#f1d1b2" : accent?.[0] || "#b45b3d",
+        borderColor: isSelected ? accent?.[0] || "#b45b3d" : "#fffaf5",
+        glyphColor: isSelected ? "#6b3b2f" : "#fffaf5",
+        scale: isSelected ? 1.14 : 0.98,
+        zIndex: isSelected ? 1000 : 400 + stop.originalIndex,
+        onClick: () => {
+          state.map.followNearestStop = false;
+          openTourPageForStop(focusedTour, stop.id);
         }
       });
       routeMapLayers.push(marker);
       bounds.extend({ lat: stop.lat, lng: stop.lng });
-
-      marker.addListener("click", () => {
-        state.selectedTourId = focusedTour.id;
-        state.map.followNearestStop = false;
-        state.selectedStopId = stop.id;
-        render();
-      });
     });
   } else {
     tours.forEach((tour, index) => {
@@ -5880,36 +6234,31 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
       }
 
       const accent = getTourAccent(index);
-      const marker = new maps.Marker({
-        map: routeMap,
-        position: { lat: leadStop.lat, lng: leadStop.lng },
-        title: tour.title,
-        label: {
-          text: String(index + 1),
-          color: "#fffaf5",
-          fontWeight: "700"
-        },
-        icon: {
-          path: maps.SymbolPath.CIRCLE,
-          fillColor: accent?.[0] || "#5c45ff",
-          fillOpacity: 1,
-          strokeColor: "#fffaf5",
-          strokeOpacity: 1,
-          strokeWeight: 2,
-          scale: 11
-        }
-      });
-      routeMapLayers.push(marker);
-      bounds.extend({ lat: leadStop.lat, lng: leadStop.lng });
 
-      marker.addListener("click", () => {
+      const focusTour = (stopId = leadStop.id) => {
         state.activeTab = "home";
         state.routePageTourId = null;
         state.home.focusTourId = tour.id;
         state.selectedTourId = tour.id;
-        state.selectedStopId = leadStop.id ?? state.selectedStopId;
+        state.selectedStopId = stopId ?? leadStop.id ?? state.selectedStopId;
         render();
+      };
+
+      const marker = createHomeMarker({
+        position: { lat: leadStop.lat, lng: leadStop.lng },
+        title: tour.title,
+        glyphText: String(index + 1),
+        color: accent?.[0] || "#5c45ff",
+        borderColor: "#fffaf5",
+        glyphColor: "#fffaf5",
+        scale: 1,
+        zIndex: 300 + index,
+        onClick: () => {
+          focusTour();
+        }
       });
+      routeMapLayers.push(marker);
+      bounds.extend({ lat: leadStop.lat, lng: leadStop.lng });
     });
   }
 
