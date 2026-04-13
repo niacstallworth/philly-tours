@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, Platform, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Linking, Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
 import { StripeProvider } from "./src/providers/StripeProvider";
@@ -238,17 +238,6 @@ function AppShell({
         </View>
       ) : (
         <View style={styles.content}>
-          {session && (
-            <View style={[styles.header, { borderBottomColor: colors.headerBorder, backgroundColor: colors.headerBackground }]}>
-              <View>
-                <Text style={[styles.headerName, { color: colors.text, fontSize: type.font(16) }]}>{session.displayName}</Text>
-                <Text style={[styles.headerMeta, { color: colors.textMuted, fontSize: type.font(12) }]}>Tourist Mode</Text>
-              </View>
-              <Pressable style={[styles.signOutButton, { borderColor: colors.borderStrong }]} onPress={onSignOut}>
-                <Text style={[styles.signOutText, { color: colors.textSoft, fontSize: type.font(12) }]}>Sign Out</Text>
-              </Pressable>
-            </View>
-          )}
           {!session ? (
             <ThemeSurfaceProvider surface="login">
               <OnboardingScreen onComplete={onComplete} />
@@ -273,25 +262,5 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#020617" },
   boot: { flex: 1, justifyContent: "center", alignItems: "center", gap: 12 },
   bootText: { color: "#cbd5e1", fontWeight: "600" },
-  header: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#1f2937",
-    backgroundColor: "#020617",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-  headerName: { color: "#f8fafc", fontWeight: "800", fontSize: 16 },
-  headerMeta: { color: "#94a3b8", fontSize: 12 },
-  signOutButton: {
-    borderWidth: 1,
-    borderColor: "#334155",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10
-  },
-  signOutText: { color: "#e2e8f0", fontWeight: "700", fontSize: 12 },
   content: { flex: 1 }
 });

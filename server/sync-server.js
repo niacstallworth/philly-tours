@@ -337,12 +337,15 @@ const latLngSchema = z.object({
   lng: z.number().min(-180).max(180)
 });
 
+const GOOGLE_ROUTES_MAX_STOPS_PER_REQUEST = 25;
+const MAPS_ROUTE_PREVIEW_MAX_STOPS = 100;
+
 const mapsRoutePreviewSchema = z.object({
   stops: z.array(latLngSchema.extend({
     title: z.string().min(1).max(160).optional()
-  })).min(2).max(25),
+  })).min(2).max(MAPS_ROUTE_PREVIEW_MAX_STOPS),
   travelMode: z.enum(["DRIVE", "BICYCLE", "WALK", "TWO_WHEELER"]).default("DRIVE"),
-  routingPreference: z.enum(["TRAFFIC_AWARE", "TRAFFIC_AWARE_OPTIMAL", "TRAFFIC_UNAWARE"]).default("TRAFFIC_AWARE"),
+  routingPreference: z.enum(["TRAFFIC_AWARE", "TRAFFIC_AWARE_OPTIMAL", "TRAFFIC_UNAWARE"]).optional(),
   computeAlternativeRoutes: z.boolean().optional().default(false),
   languageCode: z.string().min(2).max(10).optional(),
   regionCode: z.string().min(2).max(3).optional()
@@ -507,15 +510,151 @@ function mapRouteLegs(route, stops) {
   }));
 }
 
+function parseRouteDurationSeconds(value) {
+  const match = String(value || "").trim().match(/^([0-9]+(?:\.[0-9]+)?)s$/i);
+  if (!match) {
+    return 0;
+  }
+
+  const seconds = Number(match[1]);
+  return Number.isFinite(seconds) ? seconds : 0;
+}
+
+function formatRouteDurationSeconds(totalSeconds) {
+  if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) {
+    return "";
+  }
+
+  const rounded = Math.round(totalSeconds * 1000) / 1000;
+  const normalized = Number.isInteger(rounded) ? String(rounded) : String(rounded).replace(/\.?0+$/, "");
+  return `${normalized}s`;
+}
+
+function mergeRouteViewports(viewports) {
+  const validViewports = viewports.filter(
+    (viewport) =>
+      Number.isFinite(viewport?.low?.latitude) &&
+      Number.isFinite(viewport?.low?.longitude) &&
+      Number.isFinite(viewport?.high?.latitude) &&
+      Number.isFinite(viewport?.high?.longitude)
+  );
+
+  if (!validViewports.length) {
+    return null;
+  }
+
+  return validViewports.reduce(
+    (merged, viewport) => ({
+      low: {
+        latitude: Math.min(merged.low.latitude, viewport.low.latitude),
+        longitude: Math.min(merged.low.longitude, viewport.low.longitude)
+      },
+      high: {
+        latitude: Math.max(merged.high.latitude, viewport.high.latitude),
+        longitude: Math.max(merged.high.longitude, viewport.high.longitude)
+      }
+    }),
+    {
+      low: {
+        latitude: validViewports[0].low.latitude,
+        longitude: validViewports[0].low.longitude
+      },
+      high: {
+        latitude: validViewports[0].high.latitude,
+        longitude: validViewports[0].high.longitude
+      }
+    }
+  );
+}
+
 function summarizeRoute(route, stops) {
+  const encodedPolyline = route?.polyline?.encodedPolyline || "";
   return {
     distanceMeters: Number(route?.distanceMeters || 0),
     duration: String(route?.duration || ""),
     staticDuration: String(route?.staticDuration || ""),
     viewport: route?.viewport || null,
-    polyline: route?.polyline?.encodedPolyline || "",
+    polyline: encodedPolyline,
+    polylineSegments: encodedPolyline ? [encodedPolyline] : [],
     legs: mapRouteLegs(route, stops)
   };
+}
+
+function getEffectiveRoutingPreference({ travelMode, routingPreference }) {
+  if (travelMode === "DRIVE" || travelMode === "TWO_WHEELER") {
+    return routingPreference || "TRAFFIC_AWARE_OPTIMAL";
+  }
+
+  return undefined;
+}
+
+function chunkRoutePreviewStops(stops, maxStopsPerRequest = GOOGLE_ROUTES_MAX_STOPS_PER_REQUEST) {
+  if (stops.length <= maxStopsPerRequest) {
+    return [stops];
+  }
+
+  const chunks = [];
+  let startIndex = 0;
+
+  while (startIndex < stops.length - 1) {
+    const endIndex = Math.min(startIndex + maxStopsPerRequest - 1, stops.length - 1);
+    chunks.push(stops.slice(startIndex, endIndex + 1));
+    if (endIndex >= stops.length - 1) {
+      break;
+    }
+    startIndex = endIndex;
+  }
+
+  return chunks;
+}
+
+function mergeRouteSummaries(routeSummaries) {
+  const polylineSegments = routeSummaries.flatMap((route) =>
+    Array.isArray(route?.polylineSegments) && route.polylineSegments.length
+      ? route.polylineSegments
+      : route?.polyline
+        ? [route.polyline]
+        : []
+  );
+
+  return {
+    distanceMeters: routeSummaries.reduce((total, route) => total + Number(route?.distanceMeters || 0), 0),
+    duration: formatRouteDurationSeconds(
+      routeSummaries.reduce((total, route) => total + parseRouteDurationSeconds(route?.duration), 0)
+    ),
+    staticDuration: formatRouteDurationSeconds(
+      routeSummaries.reduce((total, route) => total + parseRouteDurationSeconds(route?.staticDuration), 0)
+    ),
+    viewport: mergeRouteViewports(routeSummaries.map((route) => route?.viewport).filter(Boolean)),
+    polyline: polylineSegments.length === 1 ? polylineSegments[0] : "",
+    polylineSegments,
+    legs: routeSummaries.flatMap((route) => route?.legs || [])
+  };
+}
+
+async function computeRoutePreviewSegment(stops, options = {}) {
+  const [origin, ...rest] = stops;
+  const destination = rest[rest.length - 1];
+  const intermediates = rest.slice(0, -1);
+  const routingPreference = getEffectiveRoutingPreference(options);
+
+  return fetchGoogleMapsJson("https://routes.googleapis.com/directions/v2:computeRoutes", {
+    method: "POST",
+    fieldMask:
+      "routes.distanceMeters,routes.duration,routes.staticDuration,routes.polyline.encodedPolyline,routes.legs.distanceMeters,routes.legs.duration,routes.legs.staticDuration,routes.legs.startLocation,routes.legs.endLocation,routes.viewport",
+    body: {
+      origin: buildRoutesWaypoint(origin),
+      destination: buildRoutesWaypoint(destination),
+      intermediates: intermediates.map(buildRoutesWaypoint),
+      travelMode: options.travelMode,
+      ...(routingPreference ? { routingPreference } : {}),
+      computeAlternativeRoutes: !!options.computeAlternativeRoutes,
+      languageCode: options.languageCode || GOOGLE_MAPS_DEFAULT_LANGUAGE,
+      regionCode: options.regionCode || GOOGLE_MAPS_DEFAULT_REGION,
+      polylineQuality: "HIGH_QUALITY",
+      polylineEncoding: "ENCODED_POLYLINE"
+    }
+  });
 }
 
 function normalizeGeocodeResult(result) {
@@ -1389,35 +1528,50 @@ app.post("/api/maps/route-preview", mapsLimiter, async (req, res) => {
 
   try {
     const body = parsed.data;
-    const [origin, ...rest] = body.stops;
-    const destination = rest[rest.length - 1];
-    const intermediates = rest.slice(0, -1);
-    const payload = await fetchGoogleMapsJson("https://routes.googleapis.com/directions/v2:computeRoutes", {
-      method: "POST",
-      fieldMask:
-        "routes.distanceMeters,routes.duration,routes.staticDuration,routes.polyline.encodedPolyline,routes.legs.distanceMeters,routes.legs.duration,routes.legs.staticDuration,routes.legs.startLocation,routes.legs.endLocation,routes.viewport",
-      body: {
-        origin: buildRoutesWaypoint(origin),
-        destination: buildRoutesWaypoint(destination),
-        intermediates: intermediates.map(buildRoutesWaypoint),
+    const stopChunks = chunkRoutePreviewStops(body.stops);
+    let primaryRoute = null;
+    let routes = [];
+
+    if (stopChunks.length === 1) {
+      const payload = await computeRoutePreviewSegment(body.stops, {
         travelMode: body.travelMode,
         routingPreference: body.routingPreference,
         computeAlternativeRoutes: body.computeAlternativeRoutes,
-        languageCode: body.languageCode || GOOGLE_MAPS_DEFAULT_LANGUAGE,
-        regionCode: body.regionCode || GOOGLE_MAPS_DEFAULT_REGION,
-        polylineQuality: "OVERVIEW",
-        polylineEncoding: "ENCODED_POLYLINE"
+        languageCode: body.languageCode,
+        regionCode: body.regionCode
+      });
+      const rawRoutes = Array.isArray(payload?.routes) ? payload.routes : [];
+      routes = rawRoutes.map((route) => summarizeRoute(route, body.stops));
+      primaryRoute = routes[0] || null;
+    } else {
+      const segmentSummaries = [];
+      for (const chunk of stopChunks) {
+        const payload = await computeRoutePreviewSegment(chunk, {
+          travelMode: body.travelMode,
+          routingPreference: body.routingPreference,
+          computeAlternativeRoutes: false,
+          languageCode: body.languageCode,
+          regionCode: body.regionCode
+        });
+        const segmentRoute = Array.isArray(payload?.routes) ? payload.routes[0] : null;
+        if (!segmentRoute) {
+          throw new Error("Google Maps did not return a route preview for one of the route segments.");
+        }
+        segmentSummaries.push(summarizeRoute(segmentRoute, chunk));
       }
-    });
 
-    const routes = Array.isArray(payload?.routes) ? payload.routes : [];
+      primaryRoute = mergeRouteSummaries(segmentSummaries);
+      routes = primaryRoute ? [primaryRoute] : [];
+    }
+
     res.json({
       ok: true,
       mode: body.travelMode,
       stopCount: body.stops.length,
       routeCount: routes.length,
-      routes: routes.map((route) => summarizeRoute(route, body.stops)),
-      primaryRoute: routes[0] ? summarizeRoute(routes[0], body.stops) : null
+      routes,
+      primaryRoute,
+      segmentCount: stopChunks.length
     });
   } catch (error) {
     res.status(502).json({ error: error.message || "Unable to load route preview." });

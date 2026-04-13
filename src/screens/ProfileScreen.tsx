@@ -221,6 +221,8 @@ export function ProfileScreen({
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
+        <View style={styles.heroGlowPrimary} />
+        <View style={styles.heroGlowSecondary} />
         <Text style={styles.heroEyebrow}>Profile</Text>
         <Text style={styles.heroTitle}>{displayName}</Text>
         <Text style={styles.heroCopy}>{email}</Text>
@@ -476,39 +478,60 @@ function createStyles(
     backgroundColor: colors.background
   },
   heroPanel: {
-    backgroundColor: colors.headerBackground,
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#07070d",
     borderRadius: 32,
     padding: 24,
     gap: 12,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(255,255,255,0.08)",
     shadowColor: colors.shadow,
     shadowOpacity: 0.14,
     shadowRadius: 22,
     shadowOffset: { width: 0, height: 14 },
     elevation: 4
   },
+  heroGlowPrimary: {
+    position: "absolute",
+    width: 220,
+    height: 220,
+    borderRadius: 999,
+    backgroundColor: "rgba(91, 56, 245, 0.24)",
+    top: -92,
+    right: -70
+  },
+  heroGlowSecondary: {
+    position: "absolute",
+    width: 180,
+    height: 180,
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 188, 138, 0.12)",
+    bottom: -90,
+    left: -56
+  },
   heroEyebrow: {
-    color: colors.warn,
+    color: "rgba(255,255,255,0.72)",
     fontSize: type.font(12),
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 1.2
   },
   heroTitle: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: type.font(30),
     lineHeight: type.line(36),
     fontWeight: "800"
   },
   heroCopy: {
-    color: colors.textSoft,
+    color: "rgba(255,255,255,0.82)",
     lineHeight: type.line(21)
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   card: {
     gap: 12,
-    backgroundColor: colors.surfaceRaised
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: 26
   },
   sectionTitle: {
     color: colors.text,

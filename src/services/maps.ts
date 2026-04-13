@@ -34,6 +34,7 @@ export type RoutePreviewSummary = {
   staticDuration: string;
   viewport: unknown;
   polyline: string;
+  polylineSegments?: string[];
   legs: RoutePreviewLeg[];
 };
 

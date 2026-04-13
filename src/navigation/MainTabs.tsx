@@ -1,11 +1,12 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { CompanionSetupScreen } from "../screens/CompanionSetupScreen";
+import { DriveScreen } from "../screens/DriveScreen";
 import { HomeScreen } from "../screens/HomeScreen";
+import { ProgressScreen } from "../screens/ProgressScreen";
 import { useCompanionSession } from "../hooks/useCompanionSession";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
-import { ScavengerHuntScreen } from "../screens/ScavengerHuntScreen";
 import { HandoffTarget } from "../services/deepLinks";
 import { ensureMediaButtonsStarted, stopMediaButtons } from "../services/mediaButtons";
 import { dismissScavengerReveal, ensureScavengerHuntCollectorStarted, getScavengerHuntSnapshot, getScavengerTokenById, subscribeToScavengerHunt } from "../services/scavengerHunt";
@@ -30,7 +31,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   const colors = useThemeColors();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
-  const [tab, setTab] = React.useState<"Home" | "Hunt" | "Profile" | "Companion">("Home");
+  const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Settings" | "Route">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
   const { status: companionStatus } = useCompanionSession();
 
@@ -51,7 +52,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
     if (!handoffTarget) {
       return;
     }
-    setTab("Home");
+    setTab("Route");
   }, [handoffTarget]);
 
   function renderTab() {
@@ -64,24 +65,46 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
             highlightedStopId={handoffTarget?.stopId}
             audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
             fullAppUnlocked={fullAppUnlocked}
-            onOpenPurchase={() => setTab("Profile")}
+            onOpenPurchase={() => setTab("Settings")}
           />
         </ThemeSurfaceProvider>
       );
     }
-    if (tab === "Hunt") {
+    if (tab === "Route") {
       return (
-        <ThemeSurfaceProvider surface="hunt">
-          <ScavengerHuntScreen />
+        <ThemeSurfaceProvider surface="map">
+          <DriveScreen initialTourId={handoffTarget?.tourId} />
         </ThemeSurfaceProvider>
       );
     }
-    if (tab === "Companion") {
+    if (tab === "AR") {
       return (
-        <ThemeSurfaceProvider surface="profile">
+        <ThemeSurfaceProvider surface="map">
           <CompanionSetupScreen
             audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
             fullAppUnlocked={fullAppUnlocked}
+          />
+        </ThemeSurfaceProvider>
+      );
+    }
+    if (tab === "Board") {
+      return (
+        <ThemeSurfaceProvider surface="home">
+          <ProgressScreen />
+        </ThemeSurfaceProvider>
+      );
+    }
+    if (tab === "Settings") {
+      return (
+        <ThemeSurfaceProvider surface="profile">
+          <ProfileScreen
+            displayName={session.displayName}
+            email={session.email}
+            audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+            fullAppUnlocked={fullAppUnlocked}
+            onRefreshEntitlements={onRefreshEntitlements}
+            onDeleteProfile={onDeleteProfile}
+            onOpenCompanion={() => setTab("AR")}
           />
         </ThemeSurfaceProvider>
       );
@@ -95,29 +118,33 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
           fullAppUnlocked={fullAppUnlocked}
           onRefreshEntitlements={onRefreshEntitlements}
           onDeleteProfile={onDeleteProfile}
-          onOpenCompanion={() => setTab("Companion")}
+          onOpenCompanion={() => setTab("AR")}
         />
       </ThemeSurfaceProvider>
     );
   }
 
-  const tabs: Array<{ key: "Home" | "Hunt" | "Profile"; label: string; glyph: string }> = [
+  const tabs: Array<{ key: "Home" | "AR" | "Board" | "Settings" | "Route"; label: string; glyph: string }> = [
     { key: "Home", label: "Home", glyph: "⌂" },
-    { key: "Hunt", label: "Hunt", glyph: "◈" },
-    { key: "Profile", label: "Settings", glyph: "⚙" }
+    { key: "AR", label: "AR", glyph: "◌" },
+    { key: "Board", label: "Board", glyph: "◔" },
+    { key: "Settings", label: "Settings", glyph: "⚙" },
+    { key: "Route", label: "Route", glyph: "⌖" }
   ];
 
   const revealToken = huntSnapshot.latestRevealId ? getScavengerTokenById(huntSnapshot.latestRevealId) : null;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={[styles.topChrome, { backgroundColor: colors.headerBackground, borderColor: colors.headerBorder }]}>
-        <View>
-          <Text style={[styles.chromeEyebrow, { color: colors.textMuted }]}>Founders Threads</Text>
-          <Text style={[styles.chromeTitle, { color: colors.text }]}>Philly AR Tours</Text>
-        </View>
-        <View style={[styles.chromePill, { backgroundColor: colors.surfaceSoft, borderColor: colors.border }]}>
-          <Text style={[styles.chromePillText, { color: colors.textSoft }]}>{getChromeCompanionLabel(companionStatus.integrationMode, companionStatus.connectionState)}</Text>
+      <View style={styles.topChromeWrap}>
+        <View style={[styles.topChrome, { backgroundColor: "#07070d", borderColor: "rgba(255,255,255,0.08)" }]}>
+          <View>
+            <Text style={[styles.chromeEyebrow, { color: "rgba(255,255,255,0.62)" }]}>Founders Threads</Text>
+            <Text style={[styles.chromeTitle, { color: "#ffffff" }]}>Philly AR Tours</Text>
+          </View>
+          <View style={[styles.chromePill, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }]}>
+            <Text style={[styles.chromePillText, { color: "#f3f4f6" }]}>{getChromeCompanionLabel(companionStatus.integrationMode, companionStatus.connectionState)}</Text>
+          </View>
         </View>
       </View>
       <View style={styles.content}>{renderTab()}</View>
@@ -130,8 +157,8 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
           </Text>
         </Pressable>
       ) : null}
-      <View style={[styles.tabShell, { backgroundColor: colors.background }]}>
-        <View style={[styles.tabBar, { backgroundColor: colors.navBackground, borderColor: colors.navBorder, shadowColor: colors.shadow }]}>
+      <View style={[styles.tabShell, { backgroundColor: "transparent" }]}>
+        <View style={[styles.tabBar, { backgroundColor: "rgba(255,255,255,0.96)", borderColor: "rgba(15, 23, 42, 0.08)", shadowColor: colors.shadow }]}>
           {tabs.map((item) => (
             <Pressable
               key={item.key}
@@ -139,13 +166,13 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
               style={[
                 styles.tabItem,
                 tab === item.key && styles.tabItemActive,
-                { backgroundColor: tab === item.key ? "#5b38f5" : "transparent" }
+                { backgroundColor: tab === item.key ? "#4f2df5" : "transparent" }
               ]}
             >
               <Text
                 style={[
                   styles.tabGlyph,
-                  { color: tab === item.key ? "#fff8f3" : colors.navText, fontSize: type.font(18) }
+                  { color: tab === item.key ? "#fff8f3" : "#64748b", fontSize: type.font(18) }
                 ]}
               >
                 {item.glyph}
@@ -153,7 +180,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
               <Text
                 style={[
                   styles.tabText,
-                  { color: tab === item.key ? "#fff8f3" : colors.navText, fontSize: type.font(11) }
+                  { color: tab === item.key ? "#fff8f3" : "#64748b", fontSize: type.font(11) }
                 ]}
               >
                 {item.label}
@@ -186,11 +213,16 @@ function createStyles(
     root: {
       flex: 1
     },
+    topChromeWrap: {
+      paddingHorizontal: 12,
+      paddingTop: 10
+    },
     topChrome: {
-      paddingTop: 18,
-      paddingHorizontal: 20,
-      paddingBottom: 16,
-      borderBottomWidth: 1,
+      paddingTop: 14,
+      paddingHorizontal: 18,
+      paddingBottom: 14,
+      borderWidth: 1,
+      borderRadius: 24,
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "flex-end",
@@ -222,7 +254,7 @@ function createStyles(
       flex: 1
     },
     tabShell: {
-      paddingHorizontal: 14,
+      paddingHorizontal: 12,
       paddingBottom: 14,
       paddingTop: 8
     },
@@ -260,10 +292,10 @@ function createStyles(
     tabBar: {
       borderWidth: 1,
       flexDirection: "row",
-      justifyContent: "space-around",
+      justifyContent: "space-between",
       alignItems: "center",
       padding: 8,
-      borderRadius: 30,
+      borderRadius: 24,
       shadowOpacity: 0.14,
       shadowRadius: 20,
       shadowOffset: { width: 0, height: 10 },

@@ -1,8 +1,9 @@
 import React from "react";
 import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
+import { tours } from "../data/tours";
 import { useDriveSession } from "../hooks/useDriveSession";
 import { getHandoffModeMeta, parseHandoffUrl } from "../services/deepLinks";
 import { triggerHandoffTarget } from "../services/handoffBus";
@@ -22,6 +23,38 @@ type Props = {
 };
 
 const driveTours = getDriveTourSummaries();
+
+function buildTourCardMediaUrl(src?: string) {
+  const trimmed = String(src || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://philly-tours.com${trimmed.startsWith("/") ? trimmed : `/${trimmed}`}`;
+}
+
+function getDriveTourThemeLabel(title: string) {
+  const source = title.toLowerCase();
+  if (source.includes("library")) return "Books";
+  if (source.includes("sports")) return "Sports";
+  if (source.includes("inventor")) return "Innovation";
+  if (source.includes("medical")) return "Medicine";
+  if (source.includes("rainbow")) return "Family";
+  if (source.includes("college") || source.includes("divine")) return "Campus";
+  if (source.includes("speakeasy")) return "Nightlife";
+  return "History";
+}
+
+function getDriveTourSummary(tourId: string, durationMin: number, stopCount: number, distanceMiles: number) {
+  const sourceTour = tours.find((entry) => entry.id === tourId);
+  const leadStops = sourceTour?.stops.slice(0, 2).map((stop) => stop.title) || [];
+  const opener = leadStops.length ? `${leadStops.join(" and ")} anchor this route.` : "A story-led Philadelphia route.";
+  return durationMin >= 90
+    ? `${opener} ${stopCount} stops across ${distanceMiles} miles for a longer city session.`
+    : `${opener} ${stopCount} stops across ${distanceMiles} miles with clear pacing and route-first touring.`;
+}
 
 function getFullAudioStopCount(tourId: string) {
   return getDriveStops(tourId).filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length;
@@ -184,38 +217,60 @@ export function DriveScreen({ initialTourId }: Props) {
       <View style={styles.heroPanel}>
         <View style={styles.heroGlowPrimary} />
         <View style={styles.heroGlowSecondary} />
-        <Text style={styles.heroEyebrow}>Drive companion</Text>
-        <Text style={styles.heroTitle}>Route first. Audio next. Handoff on arrival.</Text>
+        <Text style={styles.heroEyebrow}>Route planner</Text>
+        <Text style={styles.heroTitle}>Choose the right Philadelphia route without guessing where to start.</Text>
         <Text style={styles.heroCopy}>
-          Keep the route visible, follow the stop order, and hand off on arrival.
+          Keep the route visible, follow the stop order, and move into narration or handoff only when the stop is ready.
         </Text>
       </View>
 
       <Card style={styles.panel}>
         <View style={styles.routeHeader}>
-          <Text style={styles.label}>Tour route</Text>
+          <Text style={styles.label}>Collections</Text>
           <PrimaryButton label={fullAudioOnly ? "Showing Full Audio Routes" : "Showing All Routes"} onPress={() => setFullAudioOnly((value) => !value)} />
         </View>
-        <View style={styles.tourWrap}>
-          {visibleDriveTours.map((tour) => {
+        <View style={styles.routeCatalogGrid}>
+          {visibleDriveTours.map((tour, index) => {
             const isActive = selectedTourId === tour.id;
             const hasSession = driveSession?.tourId === tour.id;
             const fullAudioCount = getFullAudioStopCount(tour.id);
+            const sourceTour = tours.find((entry) => entry.id === tour.id);
+            const mediaUrl = buildTourCardMediaUrl(sourceTour?.cardMedia?.src);
+            const accentPairs = [
+              ["#5d42ff", "#a68eff"],
+              ["#ff8b5c", "#ffd38b"],
+              ["#1e2a68", "#6aa5ff"],
+              ["#6c1f52", "#ff7db6"]
+            ] as const;
+            const [accent, glow] = accentPairs[index % accentPairs.length];
             return (
               <Pressable
                 key={tour.id}
                 onPress={() => setSelectedTourId(tour.id)}
-                style={[styles.tourChip, isActive && styles.tourChipActive]}
+                style={[styles.routeCatalogCard, isActive && styles.routeCatalogCardActive]}
               >
-                <Text style={[styles.tourChipEyebrow, isActive && styles.tourChipEyebrowActive]}>
-                  {tour.stopCount} stops
-                </Text>
-                <Text style={[styles.tourChipText, isActive && styles.tourChipTextActive]}>
-                  {tour.title}{hasSession ? " • live" : ""}
-                </Text>
-                <Text style={[styles.tourChipMeta, isActive && styles.tourChipMetaActive]}>
-                  {fullAudioCount}/{tour.stopCount} full audio
-                </Text>
+                <View style={[styles.routeCatalogMedia, { backgroundColor: accent }]}>
+                  {mediaUrl ? <Image source={{ uri: mediaUrl }} style={styles.routeCatalogImage} resizeMode="cover" /> : null}
+                  <View style={styles.routeCatalogFallback}>
+                    <View style={[styles.routeCatalogGlow, { backgroundColor: glow }]} />
+                  </View>
+                  <View style={styles.routeCatalogScrim} />
+                  <View style={styles.routeCatalogPill}>
+                    <Text style={styles.routeCatalogPillText}>{getDriveTourThemeLabel(tour.title)}</Text>
+                  </View>
+                  <View style={styles.routeCatalogCopy}>
+                    <Text style={styles.routeCatalogEyebrow}>{tour.stopCount} stops{hasSession ? " • live" : ""}</Text>
+                    <Text style={styles.routeCatalogTitle}>{tour.title}</Text>
+                    <Text style={styles.routeCatalogInlineMeta}>{tour.durationMin} min · {tour.distanceMiles} mi · {fullAudioCount}/{tour.stopCount} full audio</Text>
+                  </View>
+                </View>
+                <View style={styles.routeCatalogBody}>
+                  <Text style={styles.routeCatalogBodyCopy}>{getDriveTourSummary(tour.id, tour.durationMin, tour.stopCount, tour.distanceMiles)}</Text>
+                  <View style={styles.chips}>
+                    <Chip label={tour.heroStopTitle ? `Start with ${tour.heroStopTitle}` : "Start route"} tone="warn" />
+                    <Chip label={isActive ? "Selected route" : "Tap to select"} tone={isActive ? "success" : "default"} />
+                  </View>
+                </View>
               </Pressable>
             );
           })}
@@ -225,13 +280,15 @@ export function DriveScreen({ initialTourId }: Props) {
 
       {selectedTour ? (
         <Card style={styles.featureCard}>
-          <Text style={styles.featureEyebrow}>Current drive plan</Text>
+          <Text style={styles.featureEyebrow}>Selected route page</Text>
           <Text style={styles.featureTitle}>{selectedTour.title}</Text>
           <Text style={styles.featureBody}>
-            {selectedTour.durationMin} min | {selectedTour.distanceMiles} mi | {selectedTour.stopCount} stops
+            {getDriveTourSummary(selectedTour.id, selectedTour.durationMin, selectedTour.stopCount, selectedTour.distanceMiles)}
           </Text>
           <View style={styles.chips}>
-            <Chip label={`Hero stop ${selectedTour.heroStopTitle || "selected"}`} tone="warn" />
+            <Chip label={`${selectedTour.durationMin} min`} tone="default" />
+            <Chip label={`${selectedTour.distanceMiles} mi`} tone="default" />
+            <Chip label={`${selectedTour.stopCount} stops`} tone="warn" />
             <Chip label={activeSession ? `Session ${activeSession.mode}` : loading ? "Loading session" : "Ready to start"} tone="success" />
             <Chip label={`${selectedTourFullAudioCount}/${selectedTour.stopCount} full audio`} tone="default" />
           </View>
@@ -398,6 +455,109 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12
+  },
+  routeCatalogGrid: {
+    gap: 16
+  },
+  routeCatalogCard: {
+    overflow: "hidden",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(129, 140, 248, 0.14)",
+    backgroundColor: "#ffffff",
+    shadowColor: "#0f172a",
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 4
+  },
+  routeCatalogCardActive: {
+    borderColor: "rgba(92, 69, 255, 0.24)",
+    shadowOpacity: 0.18
+  },
+  routeCatalogMedia: {
+    position: "relative",
+    minHeight: 210,
+    justifyContent: "flex-end",
+    padding: 16
+  },
+  routeCatalogImage: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0
+  },
+  routeCatalogFallback: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  },
+  routeCatalogGlow: {
+    position: "absolute",
+    width: 240,
+    height: 240,
+    borderRadius: 999,
+    right: -80,
+    bottom: -90,
+    opacity: 0.45
+  },
+  routeCatalogScrim: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(5, 6, 12, 0.28)"
+  },
+  routeCatalogPill: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.92)"
+  },
+  routeCatalogPillText: {
+    color: "#0f172a",
+    fontSize: 11,
+    fontWeight: "800"
+  },
+  routeCatalogCopy: {
+    position: "relative",
+    zIndex: 1
+  },
+  routeCatalogEyebrow: {
+    color: "rgba(255,255,255,0.74)",
+    fontSize: 11,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1.1
+  },
+  routeCatalogTitle: {
+    marginTop: 6,
+    color: "#ffffff",
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: "800"
+  },
+  routeCatalogInlineMeta: {
+    marginTop: 8,
+    color: "rgba(255,255,255,0.86)",
+    fontSize: 12,
+    fontWeight: "700"
+  },
+  routeCatalogBody: {
+    padding: 16,
+    gap: 12
+  },
+  routeCatalogBodyCopy: {
+    color: "#334155",
+    lineHeight: 20
   },
   narrationCard: {
     marginTop: 8,

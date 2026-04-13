@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useNarration } from "../hooks/useNarration";
@@ -40,6 +40,37 @@ function getStopSummary(description: string) {
 function getStopAddress(description: string) {
   const match = description.match(/Location:\s*([^|]+)/i);
   return match?.[1]?.trim() || "Philadelphia, PA";
+}
+
+function buildTourCardMediaUrl(src?: string) {
+  const trimmed = String(src || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://philly-tours.com${trimmed.startsWith("/") ? trimmed : `/${trimmed}`}`;
+}
+
+function deriveTourThemeLabel(title: string) {
+  const source = title.toLowerCase();
+  if (source.includes("library")) return "Books";
+  if (source.includes("sports")) return "Sports";
+  if (source.includes("inventor")) return "Innovation";
+  if (source.includes("medical")) return "Medicine";
+  if (source.includes("rainbow")) return "Family";
+  if (source.includes("divine 9") || source.includes("divine-9") || source.includes("college")) return "Campus";
+  if (source.includes("york road")) return "Corridor";
+  if (source.includes("masonic") || source.includes("eastern star") || source.includes("job")) return "Fraternal";
+  if (source.includes("speakeasy")) return "Nightlife";
+  return "History";
+}
+
+function deriveTourSummary(tour: (typeof tours)[number]) {
+  const leadStops = tour.stops.slice(0, 2).map((stop) => stop.title);
+  const opener = leadStops.length ? `${leadStops.join(" and ")} anchor this route.` : "A story-led Philadelphia route.";
+  return `${opener} ${tour.stops.length} stops across ${tour.distanceMiles} miles with layered narration and AR-ready context.`;
 }
 
 export function HomeScreen({
@@ -209,33 +240,51 @@ export function HomeScreen({
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Tour Packs</Text>
-        <Text style={styles.sectionMeta}>Tap a tab to open that tour pack</Text>
+        <Text style={styles.sectionMeta}>Choose a route the same way you do on the webapp</Text>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.packTabs}>
-        {tours.map((tour) => {
+      <View style={styles.packGrid}>
+        {tours.map((tour, index) => {
           const isActive = tour.id === selectedTourId;
           const firstStop = tour.stops[0];
+          const mediaUrl = buildTourCardMediaUrl(tour.cardMedia?.src);
+          const accentPairs = [
+            ["#5d42ff", "#a68eff"],
+            ["#ff8b5c", "#ffd38b"],
+            ["#1e2a68", "#6aa5ff"],
+            ["#6c1f52", "#ff7db6"]
+          ] as const;
+          const [accent, glow] = accentPairs[index % accentPairs.length];
           return (
-            <Pressable key={tour.id} onPress={() => setSelectedTourId(tour.id)} style={[styles.packTab, isActive && styles.packTabActive]}>
-              <Text style={styles.packTabEyebrow}>{tour.stops.length} stops</Text>
-              <Text style={[styles.packTabTitle, isActive && styles.packTabTitleActive]} numberOfLines={2}>
-                {tour.title}
-              </Text>
-              <Text style={[styles.packTabMeta, isActive && styles.packTabMetaActive]} numberOfLines={2}>
-                {firstStop ? getStopAddress(firstStop.description) : "Philadelphia, PA"}
-              </Text>
-              <View style={styles.packTabFooter}>
-                <Text style={[styles.packTabFooterText, isActive && styles.packTabFooterTextActive]}>
-                  {tour.durationMin} min
-                </Text>
-                <Text style={[styles.packTabFooterText, isActive && styles.packTabFooterTextActive]}>
-                  {tour.distanceMiles} mi
-                </Text>
+            <Pressable key={tour.id} onPress={() => setSelectedTourId(tour.id)} style={[styles.packRouteCard, isActive && styles.packRouteCardActive]}>
+              <View style={[styles.packRouteMedia, { backgroundColor: accent }]}>
+                {mediaUrl ? <Image source={{ uri: mediaUrl }} style={styles.packRouteImage} resizeMode="cover" /> : null}
+                <View style={styles.packRouteFallback}>
+                  <View style={[styles.packRouteGlow, { backgroundColor: glow }]} />
+                </View>
+                <View style={styles.packRouteScrim} />
+                <View style={styles.packRoutePill}>
+                  <Text style={styles.packRoutePillText}>{deriveTourThemeLabel(tour.title)}</Text>
+                </View>
+                <View style={styles.packRouteCopy}>
+                  <Text style={styles.packRouteNeighborhood}>{firstStop ? getStopAddress(firstStop.description) : "Philadelphia, PA"}</Text>
+                  <Text style={styles.packRouteTitle}>{tour.title}</Text>
+                  <Text style={styles.packRouteInlineMeta}>{tour.durationMin} min · {tour.distanceMiles} mi · {tour.stops.length} stops</Text>
+                </View>
+              </View>
+              <View style={styles.packRouteBody}>
+                <Text style={styles.packRouteBodyCopy} numberOfLines={3}>{selectedTourId === tour.id ? selectedTourBlurb : deriveTourSummary(tour)}</Text>
+                <View style={styles.heroChips}>
+                  <Chip label={`${tour.durationMin} min`} tone="default" />
+                  <Chip label={`${tour.distanceMiles} mi`} tone="default" />
+                  <Chip label={`${tour.rating} rating`} tone="warn" />
+                  <Chip label={`${tour.stops.length} stops`} tone={isActive ? "success" : "default"} />
+                </View>
+                <PrimaryButton label={isActive ? "Selected Route" : "Select Route"} onPress={() => setSelectedTourId(tour.id)} />
               </View>
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
 
       {selectedTour ? (
         <Card style={styles.packDetailCard}>
@@ -482,67 +531,110 @@ function createStyles(
     packList: {
       gap: 14
     },
-    packTabs: {
-      gap: 10,
-      paddingRight: 18
+    packGrid: {
+      gap: 16
     },
-    packTab: {
-      width: 196,
-      minHeight: 158,
-      borderRadius: 26,
-      paddingHorizontal: 16,
-      paddingVertical: 16,
-      justifyContent: "space-between",
-      backgroundColor: colors.surface,
+    packRouteCard: {
+      overflow: "hidden",
+      borderRadius: 22,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: "rgba(129, 140, 248, 0.14)",
+      backgroundColor: "#ffffff",
       shadowColor: colors.shadow,
-      shadowOpacity: 0.14,
-      shadowRadius: 18,
+      shadowOpacity: 0.08,
+      shadowRadius: 20,
       shadowOffset: { width: 0, height: 10 },
-      elevation: 3
+      elevation: 4
     },
-    packTabActive: {
-      borderColor: "#7d63ff",
-      backgroundColor: colors.surfaceRaised
+    packRouteCardActive: {
+      borderColor: "rgba(92, 69, 255, 0.24)",
+      shadowOpacity: 0.18
     },
-    packTabEyebrow: {
-      color: colors.textMuted,
+    packRouteMedia: {
+      position: "relative",
+      minHeight: 210,
+      justifyContent: "flex-end",
+      padding: 16,
+      backgroundColor: "#5d42ff"
+    },
+    packRouteImage: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      top: 0,
+      left: 0
+    },
+    packRouteFallback: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    },
+    packRouteGlow: {
+      position: "absolute",
+      width: 240,
+      height: 240,
+      borderRadius: 999,
+      right: -80,
+      bottom: -90,
+      opacity: 0.45
+    },
+    packRouteScrim: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      backgroundColor: "rgba(5, 6, 12, 0.28)"
+    },
+    packRoutePill: {
+      position: "absolute",
+      top: 12,
+      right: 12,
+      zIndex: 2,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: "rgba(255,255,255,0.92)"
+    },
+    packRoutePillText: {
+      color: "#0f172a",
+      fontSize: type.font(11),
+      fontWeight: "800"
+    },
+    packRouteCopy: {
+      position: "relative",
+      zIndex: 1
+    },
+    packRouteNeighborhood: {
+      color: "rgba(255,255,255,0.74)",
       fontSize: type.font(11),
       fontWeight: "800",
       textTransform: "uppercase",
       letterSpacing: 1.1
     },
-    packTabTitle: {
-      color: colors.text,
-      fontSize: type.font(15),
-      lineHeight: type.line(20),
+    packRouteTitle: {
+      marginTop: 6,
+      color: "#ffffff",
+      fontSize: type.font(24),
+      lineHeight: type.line(28),
       fontWeight: "800"
     },
-    packTabTitleActive: {
-      color: colors.info
-    },
-    packTabMeta: {
-      color: colors.textSoft,
-      fontSize: type.font(13),
-      lineHeight: type.line(18)
-    },
-    packTabMetaActive: {
-      color: colors.text
-    },
-    packTabFooter: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingTop: 8
-    },
-    packTabFooterText: {
-      color: colors.textMuted,
+    packRouteInlineMeta: {
+      marginTop: 8,
+      color: "rgba(255,255,255,0.86)",
       fontSize: type.font(12),
       fontWeight: "700"
     },
-    packTabFooterTextActive: {
-      color: colors.warn
+    packRouteBody: {
+      padding: 16,
+      gap: 12
+    },
+    packRouteBodyCopy: {
+      color: colors.textSoft,
+      fontSize: type.font(14),
+      lineHeight: type.line(20)
     },
     packDetailCard: {
       backgroundColor: colors.surfaceRaised,
