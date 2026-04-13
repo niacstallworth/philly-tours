@@ -85,6 +85,13 @@ Build and package an upload-ready release:
 ```bash
 npm run webapp:package
 ```
+
+Build and deploy the static webapp to Cloudflare Pages:
+
+```bash
+npm run deploy
+```
+
 Run the local backend:
 
 ```bash
@@ -104,6 +111,7 @@ Notes:
 - If the app shows `localhost:4000` in a release build, that build was created without the correct EAS public env baked in.
 - Web camera and geolocation features work on `http://localhost`, but public browser deployments should use `https`.
 - Android device builds should avoid root-level server secret files that Metro might try to parse.
+- Some generated web assets in `webapp/` are build outputs. Rebuild with `npm run webapp:build` before deploys when data or config changes.
 
 ## Environment
 
@@ -126,6 +134,20 @@ For production web deploys, keep the browser Google Maps key out of git and inje
 - `GOOGLE_MAPS_API_KEY` for server-side `Routes`, `Places`, and `Geocoding`
 
 The web build now also reads optional ignored files such as `.env.production.local` and `.env.web.local`, so you can keep the browser key local while still generating a production-ready `web-dist`.
+
+## Git LFS
+
+This repo uses Git LFS for large vendor artifacts, including the XREAL APK under `vendor-sdk/xreal/`.
+
+Install and initialize Git LFS before pulling or pushing branches that include those assets:
+
+```bash
+brew install git-lfs
+git lfs install
+git lfs pull
+```
+
+The tracked patterns live in `.gitattributes`. If you add new large binary SDK files, track them with Git LFS before committing.
 
 ## Payments / Backend
 
