@@ -10,6 +10,7 @@ This is not just a walking-tour app with a map. The stronger lane is:
 - layered Black history and innovation storytelling
 - premium narration
 - selective stop-by-stop AR and on-foot handoff
+- optional passenger-safe spatial immersion on Apple Vision Pro
 
 The product promise:
 
@@ -56,6 +57,7 @@ Supporting language:
 - Hear layered Black history while moving through one of America's most drivable urban regions.
 - Let the road, the architecture, and the narration work together.
 - Move through Philadelphia with comfort, beauty, and context.
+- Stay in the car for narration, then step into immersive spatial Philly when you park or ride as a passenger.
 
 ## Sample Homepage Copy
 
@@ -91,7 +93,7 @@ Short description:
 
 Longer description:
 
-`Philly Tours helps you drive Philadelphia through Black history, innovation, architecture, and neighborhood memory. Hear premium narration, follow curated routes, and use selective AR handoff when a place deserves deeper immersion.`
+`Philly Tours helps you drive Philadelphia through Black history, innovation, architecture, and neighborhood memory. Hear premium narration, follow curated routes, and use selective AR handoff when a place deserves deeper immersion. When the moment is right, the same route can extend into passenger-safe spatial storytelling on Apple Vision Pro.`
 
 ## Product Priorities
 
@@ -103,3 +105,4 @@ To support this positioning, product work should prioritize:
 4. large, low-friction in-car controls
 5. native handoff for arrival moments
 6. Meta glasses and companion audio as premium enhancers, not the whole product
+7. Vision Pro as a premium passenger and parked-mode layer, not a driver workflow

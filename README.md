@@ -7,6 +7,12 @@ The platform now has two aligned faces:
 - a cinematic web companion at `https://api.philly-tours.com`
 - a native iOS / Android app whose shell, navigation, and route posture are being brought into the same visual language
 
+The next platform extension is spatial computing:
+
+- iPhone remains the drive-first tour companion
+- Meta wearables remain lightweight audio and companion hardware
+- Apple Vision Pro is the premium passenger, parked, and post-drive immersive layer
+
 ## Current App Shape
 
 - Premium drive-first touring posture for Philadelphia neighborhoods, corridors, and legacy routes
@@ -15,6 +21,7 @@ The platform now has two aligned faces:
 - Native Android shell now visually aligned with the webapp across tabs, route cards, hunt surfaces, drive mode, and companion setup
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Meta glasses companion scaffolding: `src/services/wearables.ts`, `src/services/companion.ts`, `src/screens/CompanionSetupScreen.tsx`
+- visionOS roadmap and positioning: `docs/visionos-integration-plan.md`
 - Hosted payments + entitlement sync: `src/services/payments.ts` and `server/sync-server.js`
 - Server-issued session auth: `src/services/auth.ts` and `server/sync-server.js`
 - Shared theming and UI primitives: `src/theme/appTheme.tsx` and `src/components/ui/Primitives.tsx`
@@ -46,12 +53,14 @@ This is especially strong for:
 - visitors who want an elegant Philadelphia experience
 - culturally curious locals
 - Black heritage, innovation, and architecture routes
+- passengers who want a premium spatial layer on Apple Vision Pro without changing the drive-first core product
 
 Supporting docs:
 
 - `docs/vehicle-platform-plan.md`
 - `docs/product-direction.md`
 - `docs/drive-mode-positioning.md`
+- `docs/visionos-integration-plan.md`
 - `docs/google-maps-platform-plan.md`
 
 ## Local Development

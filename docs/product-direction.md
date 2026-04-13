@@ -136,6 +136,23 @@ Meta-style monocular display changes the design target.
 - rely on complex menus in AR
 - assume the user can comfortably read dense text in space
 
+## Vision Pro / Spatial Computing Rules
+
+Vision Pro should extend the product upward into premium spatial computing, not replace the drive-first app.
+
+### Do
+- treat Vision Pro as passenger, parked, or post-drive only
+- use immersive scenes for the strongest landmarks and reconstructions
+- preserve the route and narration spine from the phone experience
+- favor volumetric landmarks, restrained labels, and shared narration controls
+- keep the transition between phone and immersive mode obvious and low-friction
+
+### Do not
+- imply headset use while driving
+- fork the product into a separate tourism concept disconnected from the route
+- rebuild every screen as spatial UI before the hero moments are proven
+- force every stop into an immersive scene
+
 ### Best overlay types for this hardware
 - single 3D artifact
 - subtle architectural ghost overlay
