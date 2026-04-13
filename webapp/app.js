@@ -322,6 +322,7 @@ let routeMap = null;
 let routeMapLayers = null;
 let stopStreetView = null;
 let stopStreetViewRequestToken = 0;
+const stopStreetViewAddressCache = new Map();
 let googleMapsApiPromise = null;
 let activeMapViewportCleanup = null;
 let googleMapsAuthFailed = false;
@@ -597,7 +598,8 @@ function normalizeStop(stop) {
     dayLabel: metadata.dayLabel,
     timeLabel: metadata.timeLabel,
     locationLabel: metadata.locationLabel,
-    fullAddress: metadata.fullAddress
+    fullAddress: metadata.fullAddress,
+    streetView: stop.streetView && typeof stop.streetView === "object" ? stop.streetView : null
   };
 }
 
@@ -1034,6 +1036,13 @@ function buildGoogleStreetViewUrl(point) {
     return "";
   }
 
+  if (streetViewConfig.address) {
+    const src = new URL("https://www.google.com/maps/search/");
+    src.searchParams.set("api", "1");
+    src.searchParams.set("query", streetViewConfig.address);
+    return src.toString();
+  }
+
   const src = new URL("https://www.google.com/maps/@");
   src.searchParams.set("api", "1");
   src.searchParams.set("map_action", "pano");
@@ -1059,8 +1068,11 @@ function getStopStreetViewConfig(stop) {
   const rawConfig = stop?.streetView && typeof stop.streetView === "object" ? stop.streetView : null;
   const targetPosition = getRenderableLatLng(stop);
   const viewpoint = getRenderableLatLng(rawConfig?.viewpoint) || targetPosition;
+  const address = typeof stop?.fullAddress === "string" ? stop.fullAddress.trim() : "";
   if (!viewpoint) {
-    return null;
+    if (!address) {
+      return null;
+    }
   }
 
   const panoId = typeof rawConfig?.panoId === "string" ? rawConfig.panoId.trim() : "";
@@ -1071,6 +1083,7 @@ function getStopStreetViewConfig(stop) {
 
   return {
     panoId,
+    address,
     targetPosition: targetPosition || viewpoint,
     viewpoint,
     radiusM: radiusM != null && radiusM >= 0 ? radiusM : 120,
@@ -1079,6 +1092,36 @@ function getStopStreetViewConfig(stop) {
     zoom,
     source: rawConfig?.source === "default" ? "default" : "outdoor"
   };
+}
+
+async function resolveStopStreetViewLocation(streetViewConfig, maps) {
+  if (!streetViewConfig) {
+    return null;
+  }
+
+  if (!streetViewConfig.address) {
+    return streetViewConfig.viewpoint || streetViewConfig.targetPosition || null;
+  }
+
+  if (stopStreetViewAddressCache.has(streetViewConfig.address)) {
+    return stopStreetViewAddressCache.get(streetViewConfig.address);
+  }
+
+  const geocoder = new maps.Geocoder();
+
+  const location = await new Promise((resolve) => {
+    geocoder.geocode({ address: streetViewConfig.address }, (results, status) => {
+      if (status !== "OK" || !Array.isArray(results) || results.length === 0) {
+        resolve(streetViewConfig.viewpoint || streetViewConfig.targetPosition || null);
+        return;
+      }
+
+      resolve(normalizeLatLngLiteral(results[0]?.geometry?.location) || streetViewConfig.viewpoint || streetViewConfig.targetPosition || null);
+    });
+  });
+
+  stopStreetViewAddressCache.set(streetViewConfig.address, location);
+  return location;
 }
 
 function normalizeLatLngLiteral(point) {
@@ -4695,33 +4738,48 @@ function renderHomeTab(selectedTour) {
         </div>
         <div class="home-tour-grid">
           ${tours
-            .map((tour) => {
+            .map((tour, index) => {
               const progress = getProgressForTour(tour);
               const isFocused = focusedTour?.id === tour.id;
+              const artwork = renderTourCardArtwork(tour);
+              const palette = [
+                ["#5d42ff", "#a68eff"],
+                ["#ff8b5c", "#ffd38b"],
+                ["#1e2a68", "#6aa5ff"],
+                ["#6c1f52", "#ff7db6"]
+              ][index % 4];
               return `
-                <article class="home-tour-card ${isFocused ? "active" : ""}">
-                  <div>
-                    <p class="eyebrow">${tour.theme}</p>
-                    <strong>${tour.title}</strong>
-                    <p>${truncateCopy(tour.summary, 120)}</p>
+                <article class="experience-card home-tour-card ${isFocused ? "selected active" : ""} expanded" style="--tour-accent:${palette[0]}; --tour-glow:${palette[1]};">
+                  <div class="experience-card-media">
+                    <span class="experience-card-pill">${tour.theme}</span>
+                    ${artwork}
+                    <div class="experience-card-copy">
+                      <p>${tour.neighborhood}</p>
+                      <strong>${tour.title}</strong>
+                      <span class="experience-card-inline-meta">${tour.durationMin} min · ${tour.distanceMiles} mi · ${tour.stops.length} stops</span>
+                    </div>
                   </div>
-                  <div class="tour-card-meta">
-                    <span>${tour.stops.length} stops</span>
-                    <span>${tour.distanceMiles} mi</span>
-                    <span>${progress.percent}% complete</span>
-                  </div>
-                  <div class="button-row compact">
-                    <button
-                      type="button"
-                      class="primary-button"
-                      data-action="${isFocused ? "show-all-home-tours" : "focus-home-tour"}"
-                      ${isFocused ? "" : `data-tour-id="${tour.id}"`}
-                    >
-                      ${isFocused ? "Show all tours" : "Focus tour"}
-                    </button>
-                    <button type="button" class="ghost-button" data-action="open-route-page" data-tour-id="${tour.id}">
-                      Open route page
-                    </button>
+                  <div class="experience-card-body">
+                    <p>${truncateCopy(tour.summary, 154)}</p>
+                    <div class="tour-card-meta">
+                      <span>${tour.durationMin} min</span>
+                      <span>${tour.distanceMiles} mi</span>
+                      <span>${tour.stops.length} stops</span>
+                      <span>${progress.percent}% complete</span>
+                    </div>
+                    <div class="button-row compact">
+                      <button
+                        type="button"
+                        class="primary-button"
+                        data-action="${isFocused ? "show-all-home-tours" : "focus-home-tour"}"
+                        ${isFocused ? "" : `data-tour-id="${tour.id}"`}
+                      >
+                        ${isFocused ? "Show all tours" : "Focus tour"}
+                      </button>
+                      <button type="button" class="ghost-button" data-action="open-route-page" data-tour-id="${tour.id}">
+                        Open route page
+                      </button>
+                    </div>
                   </div>
                 </article>
               `;
@@ -5909,13 +5967,23 @@ async function initStopStreetView(selectedStop, elementId = "stop-street-view") 
     return;
   }
 
+  const resolvedStreetViewLocation = await resolveStopStreetViewLocation(streetViewConfig, maps);
+  if (document.getElementById(elementId) !== streetViewElement || requestToken !== stopStreetViewRequestToken) {
+    return;
+  }
+
+  if (!resolvedStreetViewLocation && !streetViewConfig.panoId) {
+    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("This stop does not have a mappable address or coordinate for Street View yet.");
+    return;
+  }
+
   streetViewElement.innerHTML = "";
 
   const streetViewService = new maps.StreetViewService();
   const panoramaRequest = streetViewConfig.panoId
     ? { pano: streetViewConfig.panoId }
     : {
-        location: streetViewConfig.viewpoint,
+        location: resolvedStreetViewLocation,
         radius: streetViewConfig.radiusM,
         preference: maps.StreetViewPreference?.NEAREST,
         ...(streetViewConfig.source === "outdoor" ? { source: maps.StreetViewSource?.OUTDOOR } : {})
@@ -5933,7 +6001,7 @@ async function initStopStreetView(selectedStop, elementId = "stop-street-view") 
         return;
       }
 
-      const panoPosition = normalizeLatLngLiteral(data.location.latLng) || streetViewConfig.viewpoint;
+      const panoPosition = normalizeLatLngLiteral(data.location.latLng) || resolvedStreetViewLocation || streetViewConfig.viewpoint;
       stopStreetView = new maps.StreetViewPanorama(streetViewElement, {
         pano: data.location.pano,
         position: panoPosition,
