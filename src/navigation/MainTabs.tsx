@@ -4,7 +4,6 @@ import { CompanionSetupScreen } from "../screens/CompanionSetupScreen";
 import { DriveScreen } from "../screens/DriveScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ProgressScreen } from "../screens/ProgressScreen";
-import { useCompanionSession } from "../hooks/useCompanionSession";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { HandoffTarget } from "../services/deepLinks";
@@ -33,7 +32,6 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Settings" | "Compass">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
-  const { status: companionStatus } = useCompanionSession();
 
   React.useEffect(() => {
     const unsubscribe = subscribeToScavengerHunt(setHuntSnapshot);
@@ -136,17 +134,6 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
-      <View style={styles.topChromeWrap}>
-        <View style={[styles.topChrome, { backgroundColor: "#07070d", borderColor: "rgba(255,255,255,0.08)" }]}>
-          <View>
-            <Text style={[styles.chromeEyebrow, { color: "rgba(255,255,255,0.62)" }]}>Founders Threads</Text>
-            <Text style={[styles.chromeTitle, { color: "#ffffff" }]}>Philly AR Tours</Text>
-          </View>
-          <View style={[styles.chromePill, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }]}>
-            <Text style={[styles.chromePillText, { color: "#f3f4f6" }]}>{getChromeCompanionLabel(companionStatus.integrationMode, companionStatus.connectionState)}</Text>
-          </View>
-        </View>
-      </View>
       <View style={styles.content}>{renderTab()}</View>
       {revealToken ? (
         <Pressable style={[styles.revealShell, { backgroundColor: colors.surface, borderColor: colors.border, shadowColor: colors.shadow }]} onPress={() => void dismissScavengerReveal()}>
@@ -193,18 +180,6 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   );
 }
 
-function getChromeCompanionLabel(integrationMode: "native" | "manual" | "none", connectionState: string) {
-  if (integrationMode === "manual") {
-    return connectionState === "connected" ? "Universal audio on" : "Universal audio ready";
-  }
-
-  if (integrationMode === "native") {
-    return connectionState === "connected" ? "Meta companion on" : "Meta companion ready";
-  }
-
-  return "Phone audio mode";
-}
-
 function createStyles(
   colors: ReturnType<typeof useThemeColors>,
   type: ReturnType<typeof useTypeScale>
@@ -212,43 +187,6 @@ function createStyles(
   return StyleSheet.create({
     root: {
       flex: 1
-    },
-    topChromeWrap: {
-      paddingHorizontal: 12,
-      paddingTop: 10
-    },
-    topChrome: {
-      paddingTop: 14,
-      paddingHorizontal: 18,
-      paddingBottom: 14,
-      borderWidth: 1,
-      borderRadius: 24,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "flex-end",
-      gap: 12
-    },
-    chromeEyebrow: {
-      fontSize: type.font(12),
-      fontWeight: "800",
-      textTransform: "uppercase",
-      letterSpacing: 1.8
-    },
-    chromeTitle: {
-      marginTop: 4,
-      fontSize: type.font(20),
-      lineHeight: type.line(24),
-      fontWeight: "800"
-    },
-    chromePill: {
-      borderWidth: 1,
-      borderRadius: 999,
-      paddingHorizontal: 16,
-      paddingVertical: 12
-    },
-    chromePillText: {
-      fontSize: type.font(12),
-      fontWeight: "700"
     },
     content: {
       flex: 1
