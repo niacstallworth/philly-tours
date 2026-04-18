@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
 import { AppPalette, useThemeColors, useTypeScale } from "../../theme/appTheme";
 
@@ -8,71 +8,15 @@ type Props = {
   onTokenChange: (token: string | null) => void;
 };
 
-function buildTurnstileHtml(siteKey: string) {
-  const escapedSiteKey = JSON.stringify(siteKey);
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        background: transparent;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      }
-      body {
-        min-height: 74px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #turnstile {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
-    </style>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-  </head>
-  <body>
-    <div id="turnstile"></div>
-    <script>
-      function send(payload) {
-        if (window.ReactNativeWebView) {
-          window.ReactNativeWebView.postMessage(JSON.stringify(payload));
-        }
-      }
+function getChallengeBaseUrl() {
+  const appBase = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
+  return appBase.replace(/\/+$/, "");
+}
 
-      function mount() {
-        if (!window.turnstile) {
-          window.setTimeout(mount, 80);
-          return;
-        }
-
-        window.turnstile.render("#turnstile", {
-          sitekey: ${escapedSiteKey},
-          theme: "light",
-          callback: function(token) {
-            send({ type: "token", token: token });
-          },
-          "expired-callback": function() {
-            send({ type: "expired" });
-          },
-          "timeout-callback": function() {
-            send({ type: "expired" });
-          },
-          "error-callback": function() {
-            send({ type: "error" });
-          }
-        });
-      }
-
-      mount();
-    </script>
-  </body>
-</html>`;
+function buildChallengeUrl(siteKey: string) {
+  const url = new URL(`${getChallengeBaseUrl()}/api/turnstile/challenge`);
+  url.searchParams.set("siteKey", siteKey);
+  return url.toString();
 }
 
 export function CloudflareTurnstileChallenge({ siteKey, onTokenChange }: Props) {
@@ -82,6 +26,8 @@ export function CloudflareTurnstileChallenge({ siteKey, onTokenChange }: Props) 
   const webViewRef = useRef<WebView | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const challengeUrl = useMemo(() => buildChallengeUrl(siteKey), [siteKey]);
+  const challengeHeight = Platform.OS === "web" ? 86 : 220;
 
   useEffect(() => {
     onTokenChange(null);
@@ -101,11 +47,23 @@ export function CloudflareTurnstileChallenge({ siteKey, onTokenChange }: Props) 
           ref={(instance) => {
             webViewRef.current = instance;
           }}
-          source={{ html: buildTurnstileHtml(siteKey) }}
-          style={styles.webview}
+          source={{ uri: challengeUrl }}
+          style={[styles.webview, { height: challengeHeight }]}
           originWhitelist={["*"]}
           javaScriptEnabled
+          domStorageEnabled
+          sharedCookiesEnabled
+          thirdPartyCookiesEnabled
+          setSupportMultipleWindows={false}
           onLoadEnd={() => setReady(true)}
+          onError={() => {
+            setError("Cloudflare verification page could not load. Please try again.");
+            onTokenChange(null);
+          }}
+          onHttpError={() => {
+            setError("Cloudflare verification page returned an error. Please try again.");
+            onTokenChange(null);
+          }}
           onMessage={(event) => {
             try {
               const payload = JSON.parse(event.nativeEvent.data || "{}");
@@ -115,7 +73,8 @@ export function CloudflareTurnstileChallenge({ siteKey, onTokenChange }: Props) 
               } else if (payload.type === "expired") {
                 onTokenChange(null);
               } else if (payload.type === "error") {
-                setError("Cloudflare verification could not load. Please try again.");
+                const code = payload.code ? ` (${String(payload.code)})` : "";
+                setError(`Cloudflare verification could not load${code}. Please try again.`);
                 onTokenChange(null);
               }
             } catch {
@@ -148,7 +107,7 @@ function createStyles(
       fontWeight: "700"
     },
     frame: {
-      minHeight: 86,
+      minHeight: 220,
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 16,
@@ -164,7 +123,6 @@ function createStyles(
       gap: 8
     },
     webview: {
-      height: 86,
       backgroundColor: "transparent"
     },
     hint: {

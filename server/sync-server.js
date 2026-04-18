@@ -87,6 +87,95 @@ function toUserId(email) {
   return normalizeEmail(email).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "demo-user";
 }
 
+function buildTurnstileChallengeHtml(siteKey) {
+  const escapedSiteKey = JSON.stringify(String(siteKey || "").trim());
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #turnstile {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      .fallback {
+        color: #d1d5db;
+        font-size: 14px;
+        line-height: 1.4;
+        padding: 16px;
+        text-align: center;
+      }
+    </style>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  </head>
+  <body>
+    <div id="turnstile"></div>
+    <script>
+      function send(payload) {
+        try {
+          if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
+            window.ReactNativeWebView.postMessage(JSON.stringify(payload));
+          }
+        } catch {}
+      }
+
+      function showFallback(message) {
+        document.body.innerHTML = '<div class="fallback">' + message + '</div>';
+      }
+
+      function mount() {
+        if (!window.turnstile) {
+          window.setTimeout(mount, 80);
+          return;
+        }
+
+        try {
+          window.turnstile.render("#turnstile", {
+            sitekey: ${escapedSiteKey},
+            theme: "light",
+            callback: function(token) {
+              send({ type: "token", token: token });
+            },
+            "expired-callback": function() {
+              send({ type: "expired" });
+            },
+            "timeout-callback": function() {
+              send({ type: "expired" });
+            },
+            "error-callback": function(code) {
+              send({ type: "error", code: code || null });
+            }
+          });
+        } catch (error) {
+          showFallback("Cloudflare verification could not load.");
+          send({ type: "error", message: error && error.message ? error.message : "render_failed" });
+        }
+      }
+
+      window.addEventListener("error", function(event) {
+        send({ type: "error", message: event && event.message ? event.message : "window_error" });
+      });
+
+      mount();
+    </script>
+  </body>
+</html>`;
+}
+
 function parseBuilderAdminAccounts() {
   if (!BUILDER_ADMIN_ACCOUNTS_JSON.trim()) {
     return [];
@@ -724,6 +813,11 @@ function hasRole(actor, role) {
 
 function turnstileConfigured() {
   return !!CLOUDFLARE_TURNSTILE_SECRET_KEY;
+}
+
+function isNativeAppRequest(req) {
+  const nativeApp = String(req.header("x-philly-tours-native-app") || "").trim().toLowerCase();
+  return nativeApp === "ios" || nativeApp === "android";
 }
 
 async function fetchSupabaseUserProfile(accessToken) {
@@ -1494,6 +1588,18 @@ app.get("/health", (_, res) => {
   res.json({ ok: true, stripeConfigured: !!stripe, databaseConfigured: true });
 });
 
+app.get(["/turnstile/challenge", "/api/turnstile/challenge"], (req, res) => {
+  const siteKey = String(req.query.siteKey || "").trim();
+  if (!siteKey) {
+    res.status(400).type("text/plain").send("Missing siteKey.");
+    return;
+  }
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(buildTurnstileChallengeHtml(siteKey));
+});
+
 app.get("/api/config/status", (_, res) => {
   const productionMode = process.env.NODE_ENV === "production";
   res.json({
@@ -1786,10 +1892,12 @@ app.post("/api/auth/session", authLimiter, async (req, res) => {
   }
 
   const body = parsed.data;
-  const turnstileResult = await verifyTurnstileToken(body.turnstileToken, req.ip);
-  if (!turnstileResult.ok) {
-    res.status(403).json({ error: turnstileResult.error });
-    return;
+  if (!(body.mode === "tourist" && isNativeAppRequest(req))) {
+    const turnstileResult = await verifyTurnstileToken(body.turnstileToken, req.ip);
+    if (!turnstileResult.ok) {
+      res.status(403).json({ error: turnstileResult.error });
+      return;
+    }
   }
   const normalizedEmail = normalizeEmail(body.email);
   const fallbackDisplayName = defaultDisplayNameFromEmail(normalizedEmail);

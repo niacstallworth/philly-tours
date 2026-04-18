@@ -1,6 +1,7 @@
 import { tours } from "../data/tours";
 import type { HandoffMode } from "./deepLinks";
 import { triggerHandoffTarget } from "./handoffBus";
+import { recordStopOpened } from "./gameProgress";
 
 type TourSelection = {
   tourId: string | null;
@@ -14,6 +15,7 @@ let currentSelection: TourSelection = {
 
 export function setCurrentTourSelection(tourId: string | null, stopId: string | null) {
   currentSelection = { tourId, stopId };
+  recordStopOpened(stopId);
 }
 
 export function getCurrentTourSelection() {

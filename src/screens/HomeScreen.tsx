@@ -6,6 +6,7 @@ import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { setCurrentTourSelection } from "../services/tourControl";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
+import { TourDetailScreen } from "./TourDetailScreen";
 
 type Props = {
   displayName?: string;
@@ -85,6 +86,7 @@ export function HomeScreen({
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
+  const [detailTourId, setDetailTourId] = React.useState<string | null>(null);
   const [activeStopId, setActiveStopId] = React.useState<string | null>(highlightedStopId || null);
   const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
   const narration = useNarration();
@@ -102,6 +104,7 @@ export function HomeScreen({
   }, [highlightedStopId]);
 
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
+  const detailTour = React.useMemo(() => tours.find((tour) => tour.id === detailTourId) || null, [detailTourId]);
   const visibleStops = React.useMemo(
     () => (fullAudioOnly ? (selectedTour?.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio") || []) : selectedTour?.stops || []),
     [fullAudioOnly, selectedTour]
@@ -208,6 +211,18 @@ export function HomeScreen({
     }
   }
 
+  if (detailTour) {
+    return (
+      <TourDetailScreen
+        tour={detailTour}
+        audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+        fullAppUnlocked={fullAppUnlocked}
+        onBack={() => setDetailTourId(null)}
+        onOpenPurchase={onOpenPurchase}
+      />
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
@@ -279,6 +294,10 @@ export function HomeScreen({
                   <Chip label={`${tour.rating} rating`} tone="warn" />
                   <Chip label={`${tour.stops.length} stops`} tone={isActive ? "success" : "default"} />
                 </View>
+                <PrimaryButton label="Open Tour Page" onPress={() => {
+                  setSelectedTourId(tour.id);
+                  setDetailTourId(tour.id);
+                }} />
                 <PrimaryButton label={isActive ? "Selected Route" : "Select Route"} onPress={() => setSelectedTourId(tour.id)} />
               </View>
             </Pressable>

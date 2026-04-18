@@ -30,7 +30,8 @@ export function OnboardingScreen({ onComplete }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const cloudflareSiteKey = process.env.EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY?.trim() || "";
-  const requiresTurnstile = Platform.OS === "web" && !!cloudflareSiteKey;
+  const requiresTurnstile = !!cloudflareSiteKey && Platform.OS === "web";
+  const showInlineTurnstile = requiresTurnstile && Platform.OS === "web";
 
   const canContinue = useMemo(() => {
     const hasName = displayName.trim().length >= 2;
@@ -100,13 +101,13 @@ export function OnboardingScreen({ onComplete }: Props) {
         <Text style={styles.modeHint}>
           This device profile gets you into the app on this device.
         </Text>
-        {requiresTurnstile ? (
+        {showInlineTurnstile ? (
           <CloudflareTurnstileChallenge siteKey={cloudflareSiteKey} onTokenChange={setTurnstileToken} />
-        ) : (
+        ) : Platform.OS === "web" ? (
           <Text style={styles.modeHint}>
             Cloudflare Turnstile is not configured yet for this build, so secure challenge mode is currently bypassed.
           </Text>
-        )}
+        ) : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </Card>
 
@@ -213,6 +214,6 @@ function createStyles(
       color: colors.textSoft,
       lineHeight: type.line(20),
       fontSize: type.font(13)
-    },
+    }
   });
 }

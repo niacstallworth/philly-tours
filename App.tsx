@@ -10,6 +10,7 @@ import { subscribeToHandoffTarget } from "./src/services/handoffBus";
 import { getEntitlements, setApiUserId } from "./src/services/payments";
 import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
+import { clearGameProgress } from "./src/services/gameProgress";
 import { AppThemeProvider, ThemeSurfaceProvider, useAppTheme, useTypeScale } from "./src/theme/appTheme";
 
 type AppSession = {
@@ -173,6 +174,7 @@ export default function App() {
     setAuthToken(null);
     setApiUserId("demo-user");
     clearSession().catch(() => undefined);
+    clearGameProgress().catch(() => undefined);
   }
 
   const appBody = (

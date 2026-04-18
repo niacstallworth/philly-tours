@@ -469,6 +469,24 @@ if ("scrollRestoration" in window.history) {
   window.history.scrollRestoration = "manual";
 }
 
+function isTurnstileChallengePage() {
+  const url = new URL(window.location.href);
+  return url.pathname === "/turnstile/challenge";
+}
+
+function getTurnstileChallengeSiteKey() {
+  const url = new URL(window.location.href);
+  return String(url.searchParams.get("siteKey") || "").trim() || getCloudflareTurnstileSiteKey();
+}
+
+function postTurnstileChallengeMessage(payload) {
+  try {
+    if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === "function") {
+      window.ReactNativeWebView.postMessage(JSON.stringify(payload));
+    }
+  } catch {}
+}
+
 hydrateStateFromLocation();
 scrollViewportToTop();
 updateTopbarScrollState();
@@ -1897,6 +1915,24 @@ function decodeEncodedPolyline(encoded) {
 }
 
 function updateChrome() {
+  if (isTurnstileChallengePage()) {
+    if (glassesModeButton) {
+      glassesModeButton.hidden = true;
+    }
+    if (copyViewButton) {
+      copyViewButton.hidden = true;
+    }
+    if (tabBar) {
+      tabBar.hidden = true;
+      tabBar.classList.remove("is-idle-hidden");
+    }
+    if (topbar) {
+      topbar.hidden = true;
+    }
+    window.clearTimeout(tabBarAutoHideTimer);
+    return;
+  }
+
   const showingHiddenRoutePage = !!state.routePageTourId;
   if (glassesModeButton) {
     glassesModeButton.textContent = getGlassesModeLabel();
@@ -1922,6 +1958,23 @@ function updateChrome() {
   } else {
     window.clearTimeout(tabBarAutoHideTimer);
   }
+}
+
+function renderTurnstileChallengePage() {
+  return `
+    <section
+      class="turnstile-challenge-page"
+      style="min-height:86px;display:flex;align-items:center;justify-content:center;padding:8px;background:transparent;"
+    >
+      <div style="width:100%;display:flex;align-items:center;justify-content:center;">
+        <div id="webapp-turnstile" class="turnstile-mount" style="min-height:74px;"></div>
+      </div>
+      <p
+        id="turnstile-challenge-status"
+        style="display:none;margin:8px 0 0;color:#fda4af;font:500 12px/1.4 'Plus Jakarta Sans', sans-serif;text-align:center;"
+      ></p>
+    </section>
+  `;
 }
 
 function resetCopyButtonLabel() {
@@ -4043,8 +4096,10 @@ function renderNewsletterSignup(copy = "Get launch notes, route drops, and platf
 
 function mountWebTurnstile() {
   const mountNode = document.getElementById("webapp-turnstile");
-  const siteKey = getCloudflareTurnstileSiteKey();
-  if (!mountNode || !siteKey || state.auth.turnstileToken) {
+  const challengePage = isTurnstileChallengePage();
+  const challengeStatus = document.getElementById("turnstile-challenge-status");
+  const siteKey = challengePage ? getTurnstileChallengeSiteKey() : getCloudflareTurnstileSiteKey();
+  if (!mountNode || !siteKey || (!challengePage && state.auth.turnstileToken)) {
     return;
   }
 
@@ -4059,20 +4114,44 @@ function mountWebTurnstile() {
     sitekey: siteKey,
     theme: "light",
     callback(token) {
+      if (challengePage) {
+        if (challengeStatus) {
+          challengeStatus.style.display = "none";
+          challengeStatus.textContent = "";
+        }
+        postTurnstileChallengeMessage({ type: "token", token });
+        return;
+      }
       state.auth.turnstileToken = token;
       state.auth.status = "idle";
       state.auth.message = "";
       render(false);
     },
     "expired-callback"() {
+      if (challengePage) {
+        postTurnstileChallengeMessage({ type: "expired" });
+        return;
+      }
       state.auth.turnstileToken = null;
       render(false);
     },
     "timeout-callback"() {
+      if (challengePage) {
+        postTurnstileChallengeMessage({ type: "expired" });
+        return;
+      }
       state.auth.turnstileToken = null;
       render(false);
     },
-    "error-callback"() {
+    "error-callback"(code) {
+      if (challengePage) {
+        if (challengeStatus) {
+          challengeStatus.style.display = "block";
+          challengeStatus.textContent = "Cloudflare verification could not load. Refresh and try again.";
+        }
+        postTurnstileChallengeMessage({ type: "error", code: code || null });
+        return;
+      }
       state.auth.turnstileToken = null;
       state.auth.status = "error";
       state.auth.message = "Cloudflare verification could not load. Refresh and try again.";
@@ -4592,6 +4671,12 @@ function render(shouldSyncHash = true) {
   teardownStopStreetView();
   teardownRouteMap();
   updateChrome();
+
+  if (isTurnstileChallengePage()) {
+    app.innerHTML = renderTurnstileChallengePage();
+    mountWebTurnstile();
+    return;
+  }
 
   const chromeTab = getChromeTabKey();
   tabs.forEach((button) => {

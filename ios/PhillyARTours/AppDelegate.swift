@@ -17,6 +17,14 @@ public class AppDelegate: ExpoAppDelegate {
   ) -> Bool {
     MetaWearablesManager.shared.configureIfAvailable()
 
+    // Previously registered `BypassLoginURLProtocol` here to tag API requests
+    // so the backend could bypass Cloudflare turnstile for iOS. We no longer
+    // want the iOS app to bypass public Turnstile checks; server should
+    // enforce appropriate handling. Keep the protocol implementation in
+    // the repo for reference, but do not register it.
+    // URLProtocol.registerClass(BypassLoginURLProtocol.self)
+    // URLProtocol registration removed to avoid bypassing Cloudflare/Turnstile.
+
     let delegate = ReactNativeDelegate()
     let factory = ExpoReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()

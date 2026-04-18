@@ -11,6 +11,7 @@ import {
 } from "../services/companion";
 import { getCurrentTourContext } from "../services/tourControl";
 import type { WearableStatus } from "../services/wearables";
+import { getNativeArStatus, type NativeArStatus } from "../services/nativeAr";
 import { getNarrationCoverage } from "../services/narration";
 import { useCompanionSession } from "../hooks/useCompanionSession";
 import { type AppPalette, useTypeScale, useThemeColors } from "../theme/appTheme";
@@ -27,6 +28,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
   const { status, lastCommandResult } = useCompanionSession();
   const [busy, setBusy] = React.useState<"pair" | "pair-mock" | "disconnect" | "refresh" | "command" | null>(null);
   const [message, setMessage] = React.useState<string | null>(status.lastError);
+  const [nativeArStatus, setNativeArStatus] = React.useState<NativeArStatus | null>(null);
   const context = getCurrentTourContext();
   const [selectedTourId, setSelectedTourId] = React.useState<string>(context?.tour.id || tours[0]?.id || "");
   const mockPairingAvailable = status.integrationMode === "native" && status.platformLabel === "iOS";
@@ -56,6 +58,34 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
 
   React.useEffect(() => {
     void refreshCompanionStatus();
+  }, []);
+
+  React.useEffect(() => {
+    if (Platform.OS !== "ios") {
+      return;
+    }
+
+    let cancelled = false;
+    void getNativeArStatus()
+      .then((nextStatus) => {
+        if (!cancelled) {
+          setNativeArStatus(nextStatus);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setNativeArStatus({
+            available: false,
+            reason: "Native AR status could not be loaded on this device.",
+            sessionRunning: false,
+            placedModelCount: 0
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   React.useEffect(() => {
@@ -175,6 +205,9 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           <Chip label={Platform.OS === "android" ? "Android first" : "iOS first"} tone="default" />
           <Chip label={hasPremiumAudio ? "Premium audio unlocked" : "Preview audio mode"} tone={hasPremiumAudio ? "success" : "warn"} />
           <Chip label={status.integrationMode === "native" ? "Native companion path" : status.integrationMode === "manual" ? "Bluetooth audio path" : "Phone-only path"} tone="default" />
+          {Platform.OS === "ios" && nativeArStatus ? (
+            <Chip label={nativeArStatus.available ? "Native AR ready" : "Native AR unavailable"} tone={nativeArStatus.available ? "success" : "warn"} />
+          ) : null}
         </View>
       </View>
 
@@ -307,6 +340,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
         <Text style={styles.sectionTitle}>Device connection</Text>
         <Text style={styles.copy}>{getCompanionIntroCopy(status)}</Text>
         <Text style={styles.copy}>{getCompanionDetailCopy(status)}</Text>
+        {Platform.OS === "ios" && nativeArStatus ? <Text style={styles.copy}>{nativeArStatus.reason}</Text> : null}
         <View style={styles.chips}>
           <Chip label={status.connectionState.toUpperCase()} tone={status.connectionState === "connected" ? "success" : "warn"} />
           <Chip label={getIntegrationChipLabel(status)} tone={status.integrationMode === "none" ? "danger" : "success"} />

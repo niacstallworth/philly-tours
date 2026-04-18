@@ -74,6 +74,7 @@ type AppThemeContextValue = {
 };
 
 const APP_THEME_STORAGE_KEY = "app.theme.settings";
+const DEFAULT_APPEARANCE_MODE: AppAppearanceMode = "light";
 const DEFAULT_SURFACE: ThemeSurface = "default";
 const LOGIN_BUTTON_THEME: ButtonSurfaceTheme = {
   background: "#5b38f5",
@@ -243,7 +244,7 @@ function getPresetById(presetId: ThemePresetId) {
 
 function buildThemeSettings(
   presetId: ThemePresetId,
-  appearanceMode: AppAppearanceMode = "system",
+  appearanceMode: AppAppearanceMode = DEFAULT_APPEARANCE_MODE,
   textScale: AppTextScale = "standard"
 ): AppThemeSettings {
   const preset = getPresetById(presetId);
@@ -285,13 +286,13 @@ function isButtonSurfaceTheme(value: unknown): value is ButtonSurfaceTheme {
 
 function normalizeThemeSettings(value: unknown): AppThemeSettings {
   if (!value || typeof value !== "object") {
-    return buildThemeSettings("rose", "system", "standard");
+    return buildThemeSettings("rose", DEFAULT_APPEARANCE_MODE, "standard");
   }
 
   const candidate = value as Partial<AppThemeSettings> & { buttonThemes?: Partial<Record<ThemeSurface, ButtonSurfaceTheme>> };
   const nextSettings = buildThemeSettings(
     isThemePresetId(candidate.presetId) ? candidate.presetId : "rose",
-    isAppearanceMode(candidate.appearanceMode) ? candidate.appearanceMode : "system",
+    isAppearanceMode(candidate.appearanceMode) ? candidate.appearanceMode : DEFAULT_APPEARANCE_MODE,
     isTextScale(candidate.textScale) ? candidate.textScale : "standard"
   );
 
@@ -311,7 +312,7 @@ function normalizeThemeSettings(value: unknown): AppThemeSettings {
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   const deviceColorScheme = useColorScheme();
-  const [settings, setSettings] = React.useState<AppThemeSettings>(() => buildThemeSettings("rose", "system", "standard"));
+  const [settings, setSettings] = React.useState<AppThemeSettings>(() => buildThemeSettings("rose", DEFAULT_APPEARANCE_MODE, "standard"));
 
   React.useEffect(() => {
     let isMounted = true;

@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { AppMode } from "../screens/OnboardingScreen";
 
 export type AuthenticatedSession = {
@@ -28,6 +29,15 @@ function toApiError(error: unknown, fallbackMessage: string) {
   return new Error(asError?.message || fallbackMessage);
 }
 
+function getClientHeaders(): Record<string, string> {
+  if (Platform.OS === "ios" || Platform.OS === "android") {
+    return {
+      "X-Philly-Tours-Native-App": Platform.OS
+    };
+  }
+  return {};
+}
+
 export function setAuthToken(token: string | null | undefined) {
   authToken = token?.trim() || null;
 }
@@ -52,7 +62,8 @@ export async function createAuthenticatedSession(payload: {
     response = await fetch(`${getServerUrl()}/api/auth/session`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        ...getClientHeaders()
       },
       body: JSON.stringify(payload)
     });
@@ -93,7 +104,8 @@ export async function createOAuthAuthenticatedSession(payload: {
     response = await fetch(`${getServerUrl()}/api/auth/oauth-session`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        ...getClientHeaders()
       },
       body: JSON.stringify(payload)
     });

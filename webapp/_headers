@@ -1,7 +1,7 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=*, geolocation=*, autoplay=*, xr-spatial-tracking=*
+  Permissions-Policy: camera=(self), geolocation=(self), autoplay=(self), xr-spatial-tracking=(self)
 
 /index.html
   Cache-Control: no-store

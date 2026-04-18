@@ -3,6 +3,7 @@ import * as Speech from "expo-speech";
 import { narrationAudioMap } from "../data/narrationAudioMap";
 import { narrationCatalogByStopId, type NarrationVariant } from "../data/narrationCatalog";
 import { narrationScriptMapByStopId } from "../data/narrationScriptMap";
+import { recordNarrationStarted, recordStopCompleted } from "./gameProgress";
 import { getWearableStatus, subscribeToWearableStatus, type WearableStatus } from "./wearables";
 
 type NarrationSource = "audio" | "speech" | "none";
@@ -256,6 +257,7 @@ function onPlaybackStatus(stop: NarrationStop, status: AVPlaybackStatus) {
   }
 
   if (status.didJustFinish) {
+    recordStopCompleted(stop.id);
     emit({
       status: "stopped",
       source: "audio",
@@ -319,6 +321,7 @@ export async function startNarration(
         stopTitle: stop.title,
         message: `Playing recorded narration on ${buildNarrationRouteCopy(target)}.`
       });
+      recordNarrationStarted(stop.id);
       return;
     } catch {
       await releaseSound();
@@ -339,12 +342,14 @@ export async function startNarration(
         ? `Speaking current script text on ${buildNarrationRouteCopy(target)}.`
         : `Speaking live stop preview on ${buildNarrationRouteCopy(target)}.`
     });
+    recordNarrationStarted(stop.id);
     Speech.speak(speechScript, {
       rate: 0.95,
       pitch: 1.0,
       language: "en-GB",
       voice: voice || undefined,
       onDone: () => {
+        recordStopCompleted(stop.id);
         emit({
           status: "stopped",
           source: "speech",
