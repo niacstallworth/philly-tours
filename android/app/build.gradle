@@ -99,7 +99,8 @@ android {
         buildConfigField "String", "META_WEARABLES_DAT_VERSION", "\"${(findProperty("metaWearablesDatVersion") ?: "0.5.0")}\""
         buildConfigField "String", "VUZIX_ULTRALITE_SDK_VERSION", "\"${(findProperty("vuzixUltraliteSdkVersion") ?: "1.9")}\""
         manifestPlaceholders = [
-            metaWearablesApplicationId: (findProperty("metaWearablesApplicationId") ?: "0").toString()
+            metaWearablesApplicationId: (findProperty("metaWearablesApplicationId") ?: "0").toString(),
+            googleMapsApiKey: (findProperty("googleMapsApiKey") ?: System.getenv("GOOGLE_MAPS_API_KEY") ?: "").toString()
         ]
     }
     flavorDimensions "hardware"
