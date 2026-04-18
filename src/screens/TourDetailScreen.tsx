@@ -1,10 +1,11 @@
 import React from "react";
-import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import type { Stop, Tour } from "../types";
 import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { setCurrentTourSelection } from "../services/tourControl";
+import { getCommunityRoomPosts, submitCommunityRoomPost, type CommunityRoomPost, type CommunityRoomTheme } from "../services/communityRooms";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 import { RoutePreviewMap } from "../components/maps/RoutePreviewMap";
 
@@ -76,6 +77,11 @@ export function TourDetailScreen({
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const narration = useNarration();
   const [selectedStopId, setSelectedStopId] = React.useState(tour.stops[0]?.id || "");
+  const [roomPosts, setRoomPosts] = React.useState<CommunityRoomPost[]>([]);
+  const [reflectionBody, setReflectionBody] = React.useState("");
+  const [reflectionTheme, setReflectionTheme] = React.useState<CommunityRoomTheme>("reflection");
+  const [submittingReflection, setSubmittingReflection] = React.useState(false);
+  const [roomMessage, setRoomMessage] = React.useState<string | null>(null);
   const selectedStop = tour.stops.find((stop) => stop.id === selectedStopId) || tour.stops[0] || null;
   const selectedStopIndex = selectedStop ? tour.stops.findIndex((stop) => stop.id === selectedStop.id) : -1;
   const fullAudioCount = tour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length;
@@ -92,6 +98,30 @@ export function TourDetailScreen({
   React.useEffect(() => {
     setCurrentTourSelection(tour.id, selectedStop?.id || tour.stops[0]?.id || null);
   }, [selectedStop?.id, tour.id, tour.stops]);
+
+  React.useEffect(() => {
+    let mounted = true;
+    if (!selectedStop?.id) {
+      setRoomPosts([]);
+      return;
+    }
+    getCommunityRoomPosts(selectedStop.id)
+      .then((posts) => {
+        if (mounted) {
+          setRoomPosts(posts);
+          setRoomMessage(null);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setRoomPosts([]);
+          setRoomMessage("Community room is unavailable right now.");
+        }
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [selectedStop?.id]);
 
   async function playSelectedStop() {
     if (!selectedStop) {
@@ -130,6 +160,29 @@ export function TourDetailScreen({
 
   function selectStop(stop: Stop) {
     setSelectedStopId(stop.id);
+  }
+
+  async function submitReflection() {
+    if (!selectedStop) {
+      return;
+    }
+    setSubmittingReflection(true);
+    setRoomMessage(null);
+    try {
+      const nextPost = await submitCommunityRoomPost({
+        tourId: tour.id,
+        stopId: selectedStop.id,
+        body: reflectionBody,
+        theme: reflectionTheme
+      });
+      setRoomPosts((current) => [nextPost, ...current]);
+      setReflectionBody("");
+      setRoomMessage("Reflection saved for review. Approved voices can appear here and in AR cards later.");
+    } catch (error) {
+      setRoomMessage((error as Error).message || "Could not save this reflection.");
+    } finally {
+      setSubmittingReflection(false);
+    }
   }
 
   return (
@@ -239,6 +292,61 @@ export function TourDetailScreen({
             ) : null}
             <PrimaryButton label="Open Stop In Maps" onPress={() => void openSelectedStopInMaps()} />
           </View>
+        </Card>
+      ) : null}
+
+      {selectedStop ? (
+        <Card style={styles.communityCard}>
+          <Text style={styles.sectionEyebrow}>AR Community Room</Text>
+          <Text style={styles.sectionTitle}>Voices From This Place</Text>
+          <Text style={styles.copy}>
+            Approved memories and reflections can become spatial story cards for this stop. New submissions stay pending until reviewed.
+          </Text>
+          <View style={styles.chips}>
+            <Chip label={`${roomPosts.filter((post) => post.status === "approved").length} approved`} tone="success" />
+            <Chip label={`${roomPosts.filter((post) => post.status === "pending").length} pending`} tone="warn" />
+            <Chip label="AR cards ready later" tone="default" />
+          </View>
+          <View style={styles.roomPostList}>
+            {roomPosts.length ? (
+              roomPosts.slice(0, 4).map((post) => (
+                <View key={post.id} style={[styles.roomPostCard, post.status === "pending" && styles.roomPostPending]}>
+                  <View style={styles.roomPostHeader}>
+                    <Text style={styles.roomPostAuthor}>{post.authorName}</Text>
+                    <Chip label={post.status === "approved" ? post.theme : "Pending review"} tone={post.status === "approved" ? "success" : "warn"} />
+                  </View>
+                  <Text style={styles.roomPostBody}>{post.body}</Text>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.copy}>No voices have been added to this room yet. Leave the first reflection for review.</Text>
+            )}
+          </View>
+          <View style={styles.themePicker}>
+            {(["reflection", "memory", "family", "question", "archive"] as CommunityRoomTheme[]).map((theme) => (
+              <Pressable
+                key={theme}
+                onPress={() => setReflectionTheme(theme)}
+                style={[styles.themeChip, reflectionTheme === theme && styles.themeChipActive]}
+              >
+                <Text style={[styles.themeChipText, reflectionTheme === theme && styles.themeChipTextActive]}>{theme}</Text>
+              </Pressable>
+            ))}
+          </View>
+          <TextInput
+            value={reflectionBody}
+            onChangeText={setReflectionBody}
+            placeholder="This place matters because..."
+            placeholderTextColor={colors.textMuted}
+            style={styles.roomInput}
+            multiline
+          />
+          {roomMessage ? <Text style={styles.roomMessage}>{roomMessage}</Text> : null}
+          <PrimaryButton
+            label={submittingReflection ? "Saving Reflection..." : "Submit Reflection For Review"}
+            onPress={() => void submitReflection()}
+            disabled={submittingReflection}
+          />
         </Card>
       ) : null}
 
@@ -461,6 +569,88 @@ function createStyles(
     },
     actions: {
       gap: 10
+    },
+    communityCard: {
+      gap: 12,
+      backgroundColor: colors.surfaceRaised,
+      borderColor: colors.warnSoft
+    },
+    roomPostList: {
+      gap: 10
+    },
+    roomPostCard: {
+      gap: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 18,
+      backgroundColor: colors.surface,
+      padding: 14
+    },
+    roomPostPending: {
+      borderColor: colors.warn,
+      backgroundColor: colors.warnSoft
+    },
+    roomPostHeader: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: 10
+    },
+    roomPostAuthor: {
+      flex: 1,
+      color: colors.text,
+      fontSize: type.font(14),
+      fontWeight: "800"
+    },
+    roomPostBody: {
+      color: colors.textSoft,
+      fontSize: type.font(14),
+      lineHeight: type.line(20)
+    },
+    themePicker: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8
+    },
+    themeChip: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 999,
+      backgroundColor: colors.surface,
+      paddingHorizontal: 12,
+      paddingVertical: 8
+    },
+    themeChipActive: {
+      borderColor: colors.warn,
+      backgroundColor: colors.warnSoft
+    },
+    themeChipText: {
+      color: colors.textSoft,
+      fontSize: type.font(12),
+      fontWeight: "800",
+      textTransform: "capitalize"
+    },
+    themeChipTextActive: {
+      color: colors.warn
+    },
+    roomInput: {
+      minHeight: 92,
+      borderWidth: 1,
+      borderColor: colors.inputBorder,
+      borderRadius: 18,
+      backgroundColor: colors.inputBackground,
+      color: colors.text,
+      paddingHorizontal: 14,
+      paddingVertical: 13,
+      textAlignVertical: "top",
+      fontSize: type.font(14),
+      lineHeight: type.line(20)
+    },
+    roomMessage: {
+      color: colors.info,
+      fontSize: type.font(13),
+      lineHeight: type.line(18),
+      fontWeight: "700"
     },
     stopRow: {
       flexDirection: "row",

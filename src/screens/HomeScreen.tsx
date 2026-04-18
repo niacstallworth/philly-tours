@@ -5,6 +5,7 @@ import { tours } from "../data/tours";
 import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { setCurrentTourSelection } from "../services/tourControl";
+import { getPhiladelphiaCurrentWeather, type CurrentWeather } from "../services/weather";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 import { TourDetailScreen } from "./TourDetailScreen";
 
@@ -89,6 +90,8 @@ export function HomeScreen({
   const [detailTourId, setDetailTourId] = React.useState<string | null>(null);
   const [activeStopId, setActiveStopId] = React.useState<string | null>(highlightedStopId || null);
   const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
+  const [weather, setWeather] = React.useState<CurrentWeather | null>(null);
+  const [weatherError, setWeatherError] = React.useState<string | null>(null);
   const narration = useNarration();
 
   React.useEffect(() => {
@@ -102,6 +105,25 @@ export function HomeScreen({
       setActiveStopId(highlightedStopId);
     }
   }, [highlightedStopId]);
+
+  React.useEffect(() => {
+    let mounted = true;
+    getPhiladelphiaCurrentWeather()
+      .then((nextWeather) => {
+        if (mounted) {
+          setWeather(nextWeather);
+          setWeatherError(null);
+        }
+      })
+      .catch((error) => {
+        if (mounted) {
+          setWeatherError((error as Error).message || "Weather unavailable.");
+        }
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
   const detailTour = React.useMemo(() => tours.find((tour) => tour.id === detailTourId) || null, [detailTourId]);
@@ -244,6 +266,20 @@ export function HomeScreen({
       <Card style={styles.welcomeCard}>
         <Text style={styles.welcomeEyebrow}>Tonight in Philly</Text>
         <Text style={styles.welcomeTitle}>Good evening, {displayName}</Text>
+        <View style={styles.weatherWidget}>
+          <View style={styles.weatherMain}>
+            <Text style={styles.weatherCity}>Philadelphia now</Text>
+            <Text style={styles.weatherTemp}>{weather?.temperatureF == null ? "--" : `${weather.temperatureF}°`}</Text>
+          </View>
+          <View style={styles.weatherDetails}>
+            <Text style={styles.weatherCondition}>{weather?.condition || (weatherError ? "Weather unavailable" : "Loading current weather")}</Text>
+            <Text style={styles.weatherMeta}>
+              {weather
+                ? `Feels ${weather.feelsLikeF ?? weather.temperatureF ?? "--"}° · Wind ${weather.windMph ?? "--"} mph${weather.precipitationPct == null ? "" : ` · Rain ${weather.precipitationPct}%`}`
+                : "Google Weather current conditions"}
+            </Text>
+          </View>
+        </View>
         <Text style={styles.welcomeCopy}>
           Browse the tour collection, open a stop, and continue at your own pace.
         </Text>
@@ -493,6 +529,50 @@ function createStyles(
       color: colors.text,
       fontSize: type.font(22),
       fontWeight: "800"
+    },
+    weatherWidget: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 14,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      padding: 14
+    },
+    weatherMain: {
+      minWidth: 86,
+      gap: 2
+    },
+    weatherCity: {
+      color: colors.warn,
+      fontSize: type.font(10),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 0.9
+    },
+    weatherTemp: {
+      color: colors.text,
+      fontSize: type.font(34),
+      lineHeight: type.line(38),
+      fontWeight: "900"
+    },
+    weatherDetails: {
+      flex: 1,
+      minWidth: 0,
+      gap: 3
+    },
+    weatherCondition: {
+      color: colors.text,
+      fontSize: type.font(15),
+      lineHeight: type.line(19),
+      fontWeight: "800"
+    },
+    weatherMeta: {
+      color: colors.textMuted,
+      fontSize: type.font(12),
+      lineHeight: type.line(17),
+      fontWeight: "700"
     },
     welcomeCopy: {
       color: colors.textSoft,

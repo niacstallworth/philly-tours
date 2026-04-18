@@ -472,6 +472,13 @@ const mapsGeocodeSchema = z.object({
   }
 });
 
+const weatherCurrentSchema = z.object({
+  lat: z.coerce.number().min(-90).max(90).optional().default(39.9526),
+  lng: z.coerce.number().min(-180).max(180).optional().default(-75.1652),
+  unitsSystem: z.enum(["IMPERIAL", "METRIC"]).optional().default("IMPERIAL"),
+  languageCode: z.string().min(2).max(10).optional().default("en")
+});
+
 const roomMembers = new Map();
 
 let googleAuthClientPromise = null;
@@ -551,6 +558,55 @@ async function fetchGoogleMapsJson(url, { method = "GET", headers = {}, body, fi
     );
   }
   return payload;
+}
+
+async function fetchGoogleWeatherCurrent({ lat, lng, unitsSystem, languageCode }) {
+  const query = new URLSearchParams({
+    key: GOOGLE_MAPS_API_KEY,
+    "location.latitude": String(lat),
+    "location.longitude": String(lng),
+    unitsSystem,
+    languageCode
+  });
+
+  const response = await fetch(`https://weather.googleapis.com/v1/currentConditions:lookup?${query.toString()}`);
+  const payload = await readJsonResponse(response, "Unable to parse Google Weather response.");
+  if (!response.ok) {
+    throw new Error(
+      payload?.error?.message ||
+        payload?.message ||
+        `Google Weather request failed (${response.status}).`
+    );
+  }
+  return payload;
+}
+
+function normalizeGoogleWeatherCurrent(payload, { lat, lng }) {
+  const temperature = payload?.temperature || {};
+  const feelsLike = payload?.feelsLikeTemperature || payload?.heatIndex || payload?.windChill || {};
+  const wind = payload?.wind || {};
+  const precipitation = payload?.precipitation?.probability || {};
+  const condition = payload?.weatherCondition || {};
+  const description = condition?.description?.text || "Current conditions";
+
+  return {
+    provider: "google_weather",
+    city: "Philadelphia",
+    location: { lat, lng },
+    currentTime: payload?.currentTime || null,
+    timeZoneId: payload?.timeZone?.id || "America/New_York",
+    isDaytime: Boolean(payload?.isDaytime),
+    condition: description,
+    conditionType: condition?.type || null,
+    iconBaseUri: condition?.iconBaseUri || null,
+    temperatureF: typeof temperature.degrees === "number" ? Math.round(temperature.degrees) : null,
+    feelsLikeF: typeof feelsLike.degrees === "number" ? Math.round(feelsLike.degrees) : null,
+    humidityPct: typeof payload?.relativeHumidity === "number" ? Math.round(payload.relativeHumidity) : null,
+    precipitationPct: typeof precipitation.percent === "number" ? Math.round(precipitation.percent) : null,
+    precipitationType: precipitation.type || null,
+    windMph: typeof wind?.speed?.value === "number" ? Math.round(wind.speed.value) : null,
+    windDirection: wind?.direction?.cardinal || null
+  };
 }
 
 function buildRoutesWaypoint(stop) {
@@ -1681,6 +1737,30 @@ app.post("/api/maps/route-preview", mapsLimiter, async (req, res) => {
     });
   } catch (error) {
     res.status(502).json({ error: error.message || "Unable to load route preview." });
+  }
+});
+
+app.get("/api/weather/current", mapsLimiter, async (req, res) => {
+  if (!requireGoogleMaps(res)) {
+    return;
+  }
+
+  const parsed = weatherCurrentSchema.safeParse(req.query || {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid weather request." });
+    return;
+  }
+
+  try {
+    const body = parsed.data;
+    const payload = await fetchGoogleWeatherCurrent(body);
+    res.setHeader("Cache-Control", "public, max-age=300");
+    res.json({
+      ok: true,
+      weather: normalizeGoogleWeatherCurrent(payload, { lat: body.lat, lng: body.lng })
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message || "Unable to load current weather." });
   }
 });
 

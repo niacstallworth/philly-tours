@@ -1,9 +1,10 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Card, Chip } from "../components/ui/Primitives";
+import { Alert, ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { getCurrentTourSelection } from "../services/tourControl";
 import { getGameProgressSnapshot, subscribeToGameProgress } from "../services/gameProgress";
+import { getPendingCommunityRoomPostCount } from "../services/communityRooms";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 
 type Badge = {
@@ -26,6 +27,14 @@ type BoardQuest = {
   reward: string;
 };
 
+type CityBoardSpace = {
+  id: string;
+  title: string;
+  index: number;
+  state: "claimed" | "visited" | "next" | "locked";
+  tone: "gold" | "blue" | "green" | "rose";
+};
+
 const LEVELS = [
   { title: "Visitor", minXp: 0 },
   { title: "Route Scout", minXp: 100 },
@@ -39,11 +48,23 @@ function isScavengerHuntTour(tour: { id: string; title: string }) {
   return searchable.includes("scavenger") || searchable.includes("scavanger");
 }
 
+function getBoardTitle(title: string) {
+  const cleaned = title
+    .replace(/\([^)]*\)/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (cleaned.length <= 22) {
+    return cleaned;
+  }
+  return `${cleaned.slice(0, 20).trim()}...`;
+}
+
 export function ProgressScreen() {
   const colors = useThemeColors();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [progress, setProgress] = React.useState(() => getGameProgressSnapshot());
+  const [pendingCommunityPostCount, setPendingCommunityPostCount] = React.useState(0);
   const activeSelection = getCurrentTourSelection();
   const progressSets = React.useMemo(
     () => ({
@@ -85,7 +106,8 @@ export function ProgressScreen() {
     { title: "AR Explorer", detail: "Find an AR-ready stop", earned: arDiscoveries > 0 },
     { title: "Full Route", detail: "Complete every stop in one tour", earned: totalStops > 0 && completedStops >= totalStops },
     { title: "Streak Starter", detail: "Tour on two active days", earned: progress.currentStreakDays >= 2 },
-    { title: "Score 250", detail: "Reach 250 total XP", earned: xp >= 250 }
+    { title: "Score 250", detail: "Reach 250 total XP", earned: xp >= 250 },
+    { title: "Place Witness", detail: "Submit a community-room reflection", earned: pendingCommunityPostCount > 0 }
   ];
   const earnedBadgeCount = badges.filter((badge) => badge.earned).length;
   const todayKey = React.useMemo(() => {
@@ -105,6 +127,22 @@ export function ProgressScreen() {
     collected: progressSets.opened.has(stop.id) || progressSets.narrated.has(stop.id) || progressSets.completed.has(stop.id),
     complete: progressSets.completed.has(stop.id)
   }));
+  const cityBoardSpaces: CityBoardSpace[] = activeTour.stops.slice(0, 16).map((stop, index) => {
+    const claimed = progressSets.completed.has(stop.id);
+    const visited = progressSets.opened.has(stop.id) || progressSets.narrated.has(stop.id);
+    const isNext = nextStop?.id === stop.id;
+    return {
+      id: stop.id,
+      title: getBoardTitle(stop.title),
+      index,
+      state: claimed ? "claimed" : isNext ? "next" : visited ? "visited" : "locked",
+      tone: (["gold", "blue", "green", "rose"] as const)[index % 4]
+    };
+  });
+  const boardTop = cityBoardSpaces.slice(0, 5);
+  const boardRight = cityBoardSpaces.slice(5, 8);
+  const boardBottom = cityBoardSpaces.slice(8, 13).reverse();
+  const boardLeft = cityBoardSpaces.slice(13, 16).reverse();
   const rewardTiers: RewardTier[] = [
     { title: "Route Starter", detail: "Unlocked at 100 XP", unlocked: xp >= 100 },
     { title: "Story Lens", detail: "Unlocked after 2 heard stories", unlocked: heardNarrations >= 2 },
@@ -155,8 +193,79 @@ export function ProgressScreen() {
       pct: tour.stops.length ? Math.round((completed / tour.stops.length) * 100) : 0
     };
   });
+  const foundersBoardShareText = [
+    "I am building my Founders Board in Philadelphia.",
+    `Route: ${activeTour.title}`,
+    `Rank: ${currentLevel.title} (${xp} XP)`,
+    `Claimed: ${completedStops} of ${totalStops} stops`,
+    `Streak: ${progress.currentStreakDays} day${progress.currentStreakDays === 1 ? "" : "s"}`,
+    nextStop ? `Next compass point: ${nextStop.title}` : null,
+    "From North Broad outward with Philly AR Tours.",
+    "https://philly-tours.com"
+  ].filter((line): line is string => Boolean(line)).join("\n");
 
   React.useEffect(() => subscribeToGameProgress(setProgress), []);
+
+  React.useEffect(() => {
+    let mounted = true;
+    getPendingCommunityRoomPostCount()
+      .then((count) => {
+        if (mounted) {
+          setPendingCommunityPostCount(count);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  function renderCityBoardSpace(space: CityBoardSpace | undefined, placement: "top" | "side" | "bottom") {
+    if (!space) {
+      return <View style={[styles.boardSpace, styles.boardSpaceEmpty]} />;
+    }
+
+    return (
+      <View
+        key={space.id}
+        style={[
+          styles.boardSpace,
+          placement === "side" && styles.boardSpaceSide,
+          space.state === "claimed" && styles.boardSpaceClaimed,
+          space.state === "visited" && styles.boardSpaceVisited,
+          space.state === "next" && styles.boardSpaceNext
+        ]}
+      >
+        <View
+          style={[
+            styles.boardSpaceBand,
+            space.tone === "gold"
+              ? styles.boardSpaceBandGold
+              : space.tone === "blue"
+                ? styles.boardSpaceBandBlue
+                : space.tone === "green"
+                  ? styles.boardSpaceBandGreen
+                  : styles.boardSpaceBandRose
+          ]}
+        />
+        <Text style={styles.boardSpaceNumber}>{space.index + 1}</Text>
+        <Text style={styles.boardSpaceTitle} numberOfLines={2}>{space.title}</Text>
+        <Text style={styles.boardSpaceState}>{space.state === "claimed" ? "Claimed" : space.state === "next" ? "Next" : space.state === "visited" ? "Visited" : "Locked"}</Text>
+      </View>
+    );
+  }
+
+  async function shareFoundersBoard() {
+    try {
+      await Share.share({
+        title: "My Founders Board",
+        message: foundersBoardShareText,
+        url: "https://philly-tours.com"
+      });
+    } catch {
+      Alert.alert("Share unavailable", "The Founders Board could not be shared from this device.");
+    }
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -180,6 +289,10 @@ export function ProgressScreen() {
           <View style={styles.heroStat}>
             <Text style={styles.heroStatValue}>{earnedBadgeCount}</Text>
             <Text style={styles.heroStatLabel}>badges</Text>
+          </View>
+          <View style={styles.heroStat}>
+            <Text style={styles.heroStatValue}>{pendingCommunityPostCount}</Text>
+            <Text style={styles.heroStatLabel}>voices</Text>
           </View>
         </View>
         <View style={styles.heroLevelTrack}>
@@ -246,6 +359,45 @@ export function ProgressScreen() {
           </View>
         </View>
         <Text style={styles.copy}>Next compass point: {nextStop?.title || "Choose a tour stop"}</Text>
+        <View style={styles.cityBoard}>
+          <View style={styles.boardRow}>
+            {boardTop.map((space) => renderCityBoardSpace(space, "top"))}
+          </View>
+          <View style={styles.boardMiddle}>
+            <View style={styles.boardSideRail}>
+              {boardLeft.map((space) => renderCityBoardSpace(space, "side"))}
+            </View>
+            <View style={styles.boardCenter}>
+              <Text style={styles.boardCenterEyebrow}>Philadelphia</Text>
+              <Text style={styles.boardCenterTitle}>Founders Board</Text>
+              <Text style={styles.boardCenterCopy}>Claim stops, complete sets, and move from North Broad outward.</Text>
+              <View style={styles.boardCenterStats}>
+                <View style={styles.boardCenterStat}>
+                  <Text style={styles.boardCenterValue}>{completedStops}</Text>
+                  <Text style={styles.boardCenterLabel}>claimed</Text>
+                </View>
+                <View style={styles.boardCenterStat}>
+                  <Text style={styles.boardCenterValue}>{openedStops}</Text>
+                  <Text style={styles.boardCenterLabel}>visited</Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.boardSideRail}>
+              {boardRight.map((space) => renderCityBoardSpace(space, "side"))}
+            </View>
+          </View>
+          <View style={styles.boardRow}>
+            {boardBottom.map((space) => renderCityBoardSpace(space, "bottom"))}
+          </View>
+        </View>
+        <View style={styles.shareBoardPanel}>
+          <View style={styles.shareBoardText}>
+            <Text style={styles.shareBoardEyebrow}>Social card</Text>
+            <Text style={styles.shareBoardTitle}>Share your Founders Board</Text>
+            <Text style={styles.shareBoardCopy}>Post your rank, streak, claimed stops, and next compass point.</Text>
+          </View>
+          <PrimaryButton label="Share Founders Board" onPress={() => void shareFoundersBoard()} />
+        </View>
         <View style={styles.metricGrid}>
           <View style={styles.metricCard}>
             <Text style={styles.metricValue}>{completedStops}</Text>
@@ -587,6 +739,174 @@ function createStyles(
     sectionTitle: { color: colors.text, fontSize: type.font(20), lineHeight: type.line(24), fontWeight: "800" },
     copy: { color: colors.textSoft, fontSize: type.font(14), lineHeight: type.line(20) },
     chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+    cityBoard: {
+      gap: 6,
+      borderRadius: 22,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      backgroundColor: colors.surface,
+      padding: 8
+    },
+    boardRow: {
+      flexDirection: "row",
+      gap: 6
+    },
+    boardMiddle: {
+      flexDirection: "row",
+      gap: 6,
+      minHeight: 224
+    },
+    boardSideRail: {
+      width: 62,
+      gap: 6
+    },
+    boardSpace: {
+      flex: 1,
+      minHeight: 62,
+      overflow: "hidden",
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceRaised,
+      paddingHorizontal: 6,
+      paddingTop: 12,
+      paddingBottom: 7,
+      justifyContent: "space-between"
+    },
+    boardSpaceSide: {
+      minHeight: 70
+    },
+    boardSpaceEmpty: {
+      opacity: 0
+    },
+    boardSpaceClaimed: {
+      borderColor: colors.success,
+      backgroundColor: colors.successSoft
+    },
+    boardSpaceVisited: {
+      borderColor: colors.info,
+      backgroundColor: colors.infoSoft
+    },
+    boardSpaceNext: {
+      borderColor: colors.warn,
+      backgroundColor: colors.warnSoft
+    },
+    boardSpaceBand: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      left: 0,
+      height: 8
+    },
+    boardSpaceBandGold: { backgroundColor: "#d6a21d" },
+    boardSpaceBandBlue: { backgroundColor: "#2563eb" },
+    boardSpaceBandGreen: { backgroundColor: "#15803d" },
+    boardSpaceBandRose: { backgroundColor: "#be185d" },
+    boardSpaceNumber: {
+      color: colors.textMuted,
+      fontSize: type.font(9),
+      fontWeight: "900",
+      textTransform: "uppercase"
+    },
+    boardSpaceTitle: {
+      color: colors.text,
+      fontSize: type.font(9),
+      lineHeight: type.line(11),
+      fontWeight: "900"
+    },
+    boardSpaceState: {
+      color: colors.textMuted,
+      fontSize: type.font(8),
+      fontWeight: "900",
+      textTransform: "uppercase"
+    },
+    boardCenter: {
+      flex: 1,
+      minWidth: 0,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceSoft,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 16,
+      gap: 8
+    },
+    boardCenterEyebrow: {
+      color: colors.warn,
+      fontSize: type.font(10),
+      fontWeight: "900",
+      textTransform: "uppercase",
+      letterSpacing: 1
+    },
+    boardCenterTitle: {
+      color: colors.text,
+      fontSize: type.font(22),
+      lineHeight: type.line(26),
+      fontWeight: "900",
+      textAlign: "center"
+    },
+    boardCenterCopy: {
+      color: colors.textSoft,
+      fontSize: type.font(12),
+      lineHeight: type.line(16),
+      textAlign: "center"
+    },
+    boardCenterStats: {
+      flexDirection: "row",
+      gap: 8,
+      marginTop: 4
+    },
+    boardCenterStat: {
+      minWidth: 64,
+      borderRadius: 14,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      alignItems: "center"
+    },
+    boardCenterValue: {
+      color: colors.text,
+      fontSize: type.font(18),
+      fontWeight: "900"
+    },
+    boardCenterLabel: {
+      color: colors.textMuted,
+      fontSize: type.font(9),
+      fontWeight: "900",
+      textTransform: "uppercase"
+    },
+    shareBoardPanel: {
+      gap: 12,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.infoSoft,
+      backgroundColor: colors.surface,
+      padding: 14
+    },
+    shareBoardText: {
+      gap: 4
+    },
+    shareBoardEyebrow: {
+      color: colors.info,
+      fontSize: type.font(10),
+      fontWeight: "900",
+      textTransform: "uppercase",
+      letterSpacing: 1
+    },
+    shareBoardTitle: {
+      color: colors.text,
+      fontSize: type.font(16),
+      lineHeight: type.line(20),
+      fontWeight: "900"
+    },
+    shareBoardCopy: {
+      color: colors.textSoft,
+      fontSize: type.font(12),
+      lineHeight: type.line(17)
+    },
     metricGrid: {
       flexDirection: "row",
       flexWrap: "wrap",

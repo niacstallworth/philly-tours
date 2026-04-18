@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, ImageBackground, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useCompanionSession } from "../hooks/useCompanionSession";
@@ -36,6 +36,8 @@ const SOCIAL_LINKS = [
   { label: "YouTube", detail: "@niathatswhy", url: "https://www.youtube.com/@niathatswhy" },
   { label: "WhatsApp", detail: "+1 (631) 773-5745", url: "https://api.whatsapp.com/send?phone=16317735745" }
 ] as const;
+
+const PROFILE_HERO_IMAGE = require("../../assets/images/founders-threads-profile.png");
 
 export function ProfileScreen({
   displayName = "Founder Demo",
@@ -220,17 +222,18 @@ export function ProfileScreen({
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.heroPanel}>
-        <View style={styles.heroGlowPrimary} />
-        <View style={styles.heroGlowSecondary} />
-        <Text style={styles.heroEyebrow}>Profile</Text>
-        <Text style={styles.heroTitle}>{displayName}</Text>
-        <Text style={styles.heroCopy}>{email}</Text>
-        <View style={styles.chips}>
-          <Chip label="Tour mode" tone="default" />
-          <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
+      <ImageBackground source={PROFILE_HERO_IMAGE} style={styles.heroPanel} imageStyle={styles.heroImage} resizeMode="cover">
+        <View style={styles.heroScrim} />
+        <View style={styles.heroContent}>
+          <Text style={styles.heroEyebrow}>Profile</Text>
+          <Text style={styles.heroTitle}>{displayName}</Text>
+          <Text style={styles.heroCopy}>{email}</Text>
+          <View style={styles.chips}>
+            <Chip label="Tour mode" tone="default" />
+            <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
+          </View>
         </View>
-      </View>
+      </ImageBackground>
 
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Appearance</Text>
@@ -480,35 +483,33 @@ function createStyles(
   heroPanel: {
     position: "relative",
     overflow: "hidden",
-    backgroundColor: "#07070d",
+    minHeight: 252,
+    justifyContent: "flex-end",
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 32,
-    padding: 24,
-    gap: 12,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: colors.border,
     shadowColor: colors.shadow,
     shadowOpacity: 0.14,
     shadowRadius: 22,
     shadowOffset: { width: 0, height: 14 },
     elevation: 4
   },
-  heroGlowPrimary: {
-    position: "absolute",
-    width: 220,
-    height: 220,
-    borderRadius: 999,
-    backgroundColor: "rgba(91, 56, 245, 0.24)",
-    top: -92,
-    right: -70
+  heroImage: {
+    borderRadius: 32
   },
-  heroGlowSecondary: {
+  heroScrim: {
     position: "absolute",
-    width: 180,
-    height: 180,
-    borderRadius: 999,
-    backgroundColor: "rgba(255, 188, 138, 0.12)",
-    bottom: -90,
-    left: -56
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(0,0,0,0.24)"
+  },
+  heroContent: {
+    position: "relative",
+    gap: 12,
+    padding: 24
   },
   heroEyebrow: {
     color: "rgba(255,255,255,0.72)",
