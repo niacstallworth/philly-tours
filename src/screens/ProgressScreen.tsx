@@ -259,8 +259,7 @@ export function ProgressScreen() {
     try {
       await Share.share({
         title: "My Founders Board",
-        message: foundersBoardShareText,
-        url: "https://philly-tours.com"
+        message: foundersBoardShareText
       });
     } catch {
       Alert.alert("Share unavailable", "The Founders Board could not be shared from this device.");

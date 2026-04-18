@@ -69,6 +69,7 @@ Supporting docs:
 
 - `docs/vehicle-platform-plan.md`
 - `docs/product-direction.md`
+- `docs/app-shape-next-plan.md`
 - `docs/drive-mode-positioning.md`
 - `docs/visionos-integration-plan.md`
 - `docs/google-maps-platform-plan.md`

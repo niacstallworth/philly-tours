@@ -229,6 +229,16 @@ Each should get:
 4. Use audio as the narrative layer and AR as the visual jewel.
 5. Design overlays specifically for small-eye-display hardware.
 
+## Next App Shape Plan
+
+The next product-shape pass is tracked in `docs/app-shape-next-plan.md`.
+
+Focus areas:
+- visual Founders Board share cards
+- richer Board state and set logic
+- production-quality AR moment assets
+- more human Compass arrival states
+
 ## Execution Recommendation
 
 The correct execution is not more bulk generation.
