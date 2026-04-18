@@ -46,9 +46,9 @@ function getNeighborhoodSpan(tour: Tour) {
 function buildTourNarrative(tour: Tour) {
   const leadStops = tour.stops.slice(0, 3).map((stop) => stop.title);
   if (!leadStops.length) {
-    return "Start with the first available stop, then follow the tour order as the route opens up.";
+    return "North Broad is the north star of the Founders Compass. Start near that center and let the city open outward.";
   }
-  return `Start at ${leadStops[0]}, continue through ${leadStops.slice(1).join(", ")}, then follow the remaining stops in order.`;
+  return `North Broad is the north star of the Founders Compass. Begin at ${leadStops[0]}, then let the story radiate through ${leadStops.slice(1).join(", ")}.`;
 }
 
 function getCoverageMeta(coverage: NarrationCoverage) {
@@ -174,27 +174,27 @@ export function TourDetailScreen({
       </View>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Route guide</Text>
-        <Text style={styles.sectionTitle}>What this page gives you</Text>
+        <Text style={styles.sectionEyebrow}>Founders Compass</Text>
+        <Text style={styles.sectionTitle}>North Broad is the north star</Text>
         <Text style={styles.copy}>
-          Review the route, pick any stop, start narration, and open the selected location in Maps when you are ready to move.
+          Each tour begins from the city&apos;s compass point and opens outward, so the stop list feels like Philadelphia unfolding instead of a spreadsheet.
         </Text>
         <View style={styles.summaryGrid}>
           <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>Neighborhood span</Text>
+            <Text style={styles.summaryLabel}>City arc</Text>
             <Text style={styles.summaryValue}>{getNeighborhoodSpan(tour)}</Text>
           </View>
           <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>Recommended first stop</Text>
+            <Text style={styles.summaryLabel}>Compass start</Text>
             <Text style={styles.summaryValue}>{tour.stops[0]?.title || "First listed stop"}</Text>
           </View>
           <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>Suggested flow</Text>
+            <Text style={styles.summaryLabel}>Story flow</Text>
             <Text style={styles.summaryValue}>{buildTourNarrative(tour)}</Text>
           </View>
           <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>Route preview</Text>
-            <Text style={styles.summaryValue}>{tour.stops.length > 1 ? `${tour.stops.length - 1} route legs` : "Single-stop route"}</Text>
+            <Text style={styles.summaryLabel}>Outward path</Text>
+            <Text style={styles.summaryValue}>{tour.stops.length > 1 ? `${tour.stops.length} compass points` : "One compass point"}</Text>
           </View>
         </View>
       </Card>
@@ -243,10 +243,10 @@ export function TourDetailScreen({
       ) : null}
 
       <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Stops in this route</Text>
-        <Text style={styles.sectionTitle}>Select a stop to update this page</Text>
+        <Text style={styles.sectionEyebrow}>Compass points</Text>
+        <Text style={styles.sectionTitle}>Follow the city outward</Text>
         <Text style={styles.copy}>
-          The detail page stays focused on one tour pack, like the webapp route page, while the list below lets you jump through the stop order.
+          The stops are arranged from the Founders Compass near North Broad toward the farthest edge of the story.
         </Text>
         {tour.stops.map((stop, index) => {
           const isSelected = stop.id === selectedStop?.id;

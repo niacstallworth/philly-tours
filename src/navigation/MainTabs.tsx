@@ -31,7 +31,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   const colors = useThemeColors();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
-  const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Settings" | "Route">("Home");
+  const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Settings" | "Compass">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
   const { status: companionStatus } = useCompanionSession();
 
@@ -52,7 +52,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
     if (!handoffTarget) {
       return;
     }
-    setTab("Route");
+    setTab("Compass");
   }, [handoffTarget]);
 
   function renderTab() {
@@ -70,7 +70,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
         </ThemeSurfaceProvider>
       );
     }
-    if (tab === "Route") {
+    if (tab === "Compass") {
       return (
         <ThemeSurfaceProvider surface="map">
           <DriveScreen initialTourId={handoffTarget?.tourId} />
@@ -124,12 +124,12 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
     );
   }
 
-  const tabs: Array<{ key: "Home" | "AR" | "Board" | "Settings" | "Route"; label: string; glyph: string }> = [
+  const tabs: Array<{ key: "Home" | "AR" | "Board" | "Settings" | "Compass"; label: string; glyph: string }> = [
     { key: "Home", label: "Home", glyph: "⌂" },
     { key: "AR", label: "AR", glyph: "◌" },
     { key: "Board", label: "Board", glyph: "◔" },
     { key: "Settings", label: "Settings", glyph: "⚙" },
-    { key: "Route", label: "Route", glyph: "⌖" }
+    { key: "Compass", label: "Compass", glyph: "⌖" }
   ];
 
   const revealToken = huntSnapshot.latestRevealId ? getScavengerTokenById(huntSnapshot.latestRevealId) : null;

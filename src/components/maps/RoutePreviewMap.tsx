@@ -17,10 +17,10 @@ export function RoutePreviewMap({ tour }: Props) {
 
   return (
     <View style={styles.shell}>
-      <Text style={styles.eyebrow}>Route preview</Text>
-      <Text style={styles.title}>Stop map and order</Text>
+      <Text style={styles.eyebrow}>Founders Compass</Text>
+      <Text style={styles.title}>North Broad as the north star</Text>
       <Text style={styles.copy}>
-        Native route maps are available in the iOS app. This tour has {tour.stops.length} stops across {tour.distanceMiles} miles.
+        Native maps are available in the iOS app. This story opens from the city&apos;s compass point through {tour.stops.length} stops across {tour.distanceMiles} miles.
       </Text>
     </View>
   );

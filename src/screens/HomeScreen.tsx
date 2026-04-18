@@ -21,12 +21,12 @@ const METERS_PER_MILE = 1609.344;
 
 function getTourPackBlurb(durationMin: number, fullAudioCount: number) {
   if (fullAudioCount > 0) {
-    return "Audio-led city storytelling with narrated stops, clear pacing, and strong neighborhood context.";
+    return "Audio-led city storytelling that starts from the Founders Compass and opens outward through each neighborhood.";
   }
   if (durationMin >= 90) {
-    return "A longer city route built for deep historical context, steady pacing, and full-neighborhood discovery.";
+    return "A longer city story that follows North Broad as its north star, then widens into deep neighborhood context.";
   }
-  return "A focused walking route built around clear storytelling, easy pacing, and elegant stop-by-stop discovery.";
+  return "A focused walking story paced from the city center outward, one compass point at a time.";
 }
 
 function formatMilesFromMeters(distanceInMeters: number) {
@@ -70,8 +70,8 @@ function deriveTourThemeLabel(title: string) {
 
 function deriveTourSummary(tour: (typeof tours)[number]) {
   const leadStops = tour.stops.slice(0, 2).map((stop) => stop.title);
-  const opener = leadStops.length ? `${leadStops.join(" and ")} anchor this route.` : "A story-led Philadelphia route.";
-  return `${opener} ${tour.stops.length} stops across ${tour.distanceMiles} miles with layered narration and AR-ready context.`;
+  const opener = leadStops.length ? `${leadStops.join(" and ")} sit near the first turn of the Founders Compass.` : "A story-led Philadelphia route.";
+  return `${opener} ${tour.stops.length} stops unfold across ${tour.distanceMiles} miles with layered narration and AR-ready context.`;
 }
 
 export function HomeScreen({

@@ -15,6 +15,10 @@ export type PositionWatcher = {
   remove: () => void;
 };
 
+export type HeadingWatcher = {
+  remove: () => void;
+};
+
 export async function requestForegroundLocationPermission(): Promise<boolean> {
   const { status } = await Location.requestForegroundPermissionsAsync();
   return status === "granted";
@@ -45,6 +49,28 @@ export async function getCurrentHeading(): Promise<UserHeading | null> {
     magHeadingDeg,
     trueHeadingDeg,
     accuracy
+  };
+}
+
+export async function startHeadingWatch(onHeading: (heading: UserHeading) => void): Promise<HeadingWatcher> {
+  const sub = await Location.watchHeadingAsync((heading) => {
+    const magHeadingDeg = Number.isFinite(heading.magHeading) ? heading.magHeading : null;
+    const trueHeadingDeg = Number.isFinite(heading.trueHeading) && heading.trueHeading >= 0 ? heading.trueHeading : null;
+    const accuracy = Number.isFinite(heading.accuracy) ? heading.accuracy : null;
+
+    if (magHeadingDeg === null && trueHeadingDeg === null) {
+      return;
+    }
+
+    onHeading({
+      magHeadingDeg,
+      trueHeadingDeg,
+      accuracy
+    });
+  });
+
+  return {
+    remove: () => sub.remove()
   };
 }
 

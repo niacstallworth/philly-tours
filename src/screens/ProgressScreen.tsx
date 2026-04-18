@@ -18,6 +18,14 @@ type RewardTier = {
   unlocked: boolean;
 };
 
+type BoardQuest = {
+  title: string;
+  detail: string;
+  current: number;
+  goal: number;
+  reward: string;
+};
+
 const LEVELS = [
   { title: "Visitor", minXp: 0 },
   { title: "Route Scout", minXp: 100 },
@@ -25,6 +33,11 @@ const LEVELS = [
   { title: "City Archivist", minXp: 500 },
   { title: "Founder Guide", minXp: 900 }
 ];
+
+function isScavengerHuntTour(tour: { id: string; title: string }) {
+  const searchable = `${tour.id} ${tour.title}`.toLowerCase();
+  return searchable.includes("scavenger") || searchable.includes("scavanger");
+}
 
 export function ProgressScreen() {
   const colors = useThemeColors();
@@ -84,9 +97,9 @@ export function ProgressScreen() {
   }, []);
   const dailyQuestCount = Math.min(progress.dailyQuestDate === todayKey ? progress.dailyNarrationCount : 0, 3);
   const weeklyQuestCount = Math.min(completedStops, 5);
-  const groupGoal = Math.max(totalStops, 1);
-  const groupActions = Math.min(groupGoal, completedStops + Math.floor(activeNarrations / 2) + Math.min(activeArDiscoveries, 2));
-  const groupPct = Math.round((groupActions / groupGoal) * 100);
+  const challengeGoal = Math.max(totalStops, 1);
+  const challengeActions = Math.min(challengeGoal, completedStops + Math.floor(activeNarrations / 2) + Math.min(activeArDiscoveries, 2));
+  const challengePct = Math.round((challengeActions / challengeGoal) * 100);
   const collectionStops = activeTour.stops.slice(0, 6).map((stop) => ({
     stop,
     collected: progressSets.opened.has(stop.id) || progressSets.narrated.has(stop.id) || progressSets.completed.has(stop.id),
@@ -98,10 +111,46 @@ export function ProgressScreen() {
     { title: "AR Token", detail: "Unlocked after 1 AR discovery", unlocked: arDiscoveries >= 1 },
     { title: "Founder Pass", detail: "Unlocked at 900 XP", unlocked: xp >= 900 }
   ];
-  const tourProgress = tours.slice(0, 6).map((tour) => {
+  const boardQuests: BoardQuest[] = [
+    {
+      title: "Daily story",
+      detail: "Hear 3 stories today",
+      current: dailyQuestCount,
+      goal: 3,
+      reward: "+25 XP"
+    },
+    {
+      title: "Weekly route",
+      detail: "Complete 5 stops",
+      current: weeklyQuestCount,
+      goal: 5,
+      reward: "Route reward"
+    },
+    {
+      title: "AR hunt",
+      detail: "Find every AR scene on this tour",
+      current: activeArDiscoveries,
+      goal: Math.max(activeArStops.length, 1),
+      reward: "AR token"
+    }
+  ];
+  const nextBadge = badges.find((badge) => !badge.earned);
+  const nextReward = rewardTiers.find((reward) => !reward.unlocked);
+  const unlockedRewardCount = rewardTiers.filter((reward) => reward.unlocked).length;
+  const personalBests = [
+    { label: "Longest streak", value: `${progress.longestStreakDays} day${progress.longestStreakDays === 1 ? "" : "s"}` },
+    { label: "Badges", value: `${earnedBadgeCount}/${badges.length}` },
+    { label: "Rewards", value: `${unlockedRewardCount}/${rewardTiers.length}` }
+  ];
+  const tourProgress = tours
+    .slice()
+    .sort((tourA, tourB) => Number(isScavengerHuntTour(tourB)) - Number(isScavengerHuntTour(tourA)))
+    .slice(0, 6)
+    .map((tour) => {
     const completed = tour.stops.filter((stop) => progressSets.completed.has(stop.id)).length;
     return {
       tour,
+      isScavengerHunt: isScavengerHuntTour(tour),
       completed,
       pct: tour.stops.length ? Math.round((completed / tour.stops.length) * 100) : 0
     };
@@ -116,7 +165,9 @@ export function ProgressScreen() {
         <View style={styles.heroGlowSecondary} />
         <Text style={styles.heroEyebrow}>Board</Text>
         <Text style={styles.heroTitle}>{currentLevel.title}</Text>
-        <Text style={styles.heroCopy}>Collect stories, unlock badges, hold a streak, and level up across Philadelphia.</Text>
+        <Text style={styles.heroCopy}>
+          {nextStop ? `Next compass point: ${nextStop.title}` : "Choose a tour and let the city open outward."}
+        </Text>
         <View style={styles.heroStats}>
           <View style={styles.heroStat}>
             <Text style={styles.heroStatValue}>{xp}</Text>
@@ -137,6 +188,10 @@ export function ProgressScreen() {
         <Text style={styles.heroLevelCopy}>
           {nextLevel ? `${Math.max(nextLevelXp - xp, 0)} XP to ${nextLevel.title}` : "Top rank reached"}
         </Text>
+        <View style={styles.heroFocusRow}>
+          <Text style={styles.heroFocusLabel}>Next badge</Text>
+          <Text style={styles.heroFocusValue}>{nextBadge?.title || "All badges cleared"}</Text>
+        </View>
       </View>
 
       <Card style={styles.scoreCard}>
@@ -172,7 +227,7 @@ export function ProgressScreen() {
             <Chip label={`Best ${progress.longestStreakDays}`} tone="warn" />
           </View>
         </View>
-        <Text style={styles.copy}>Open a stop, hear narration, or complete a stop on a new day to keep the streak alive.</Text>
+        <Text style={styles.copy}>Open a compass point, hear narration, or complete a stop on a new day to keep the streak alive.</Text>
         <View style={styles.streakDots}>
           {[0, 1, 2, 3, 4, 5, 6].map((day) => (
             <View key={day} style={day < Math.min(progress.currentStreakDays, 7) ? styles.streakDotActive : styles.streakDot} />
@@ -190,7 +245,7 @@ export function ProgressScreen() {
             <Chip label={`${routePct}%`} tone="success" />
           </View>
         </View>
-        <Text style={styles.copy}>Next stop: {nextStop?.title || "Choose a tour stop"}</Text>
+        <Text style={styles.copy}>Next compass point: {nextStop?.title || "Choose a tour stop"}</Text>
         <View style={styles.metricGrid}>
           <View style={styles.metricCard}>
             <Text style={styles.metricValue}>{completedStops}</Text>
@@ -213,40 +268,54 @@ export function ProgressScreen() {
           <View style={[styles.barFill, { width: `${routePct}%` }]} />
         </View>
         <View style={styles.chips}>
-          <Chip label={`${routePct}% complete`} tone="success" />
+          <Chip label={`${routePct}% unfolded`} tone="success" />
           <Chip label="+40 XP per stop" tone="default" />
           <Chip label="+25 XP per narration" tone="warn" />
         </View>
       </Card>
 
       <Card style={styles.questCard}>
-        <Text style={styles.sectionEyebrow}>Today</Text>
-        <Text style={styles.sectionTitle}>Hear one new story</Text>
-        <Text style={styles.copy}>Play narration at any unlocked stop to finish today's quest and add 25 XP to the board.</Text>
-        <View style={styles.questSteps}>
-          {[0, 1, 2].map((step) => (
-            <View key={step} style={step < dailyQuestCount ? styles.questStepDone : styles.questStep} />
-          ))}
-        </View>
-        <View style={styles.chips}>
-          <Chip label={`${dailyQuestCount} of 3 actions`} tone="warn" />
-          <Chip label="Reward: 25 XP" tone="success" />
-        </View>
-        <View style={styles.weeklyQuest}>
-          <Text style={styles.weeklyQuestTitle}>Weekly route quest</Text>
-          <Text style={styles.copy}>Complete 5 stops this week to unlock the route finisher reward.</Text>
-          <View style={styles.questSteps}>
-            {[0, 1, 2, 3, 4].map((step) => (
-              <View key={step} style={step < weeklyQuestCount ? styles.questStepDone : styles.questStep} />
-            ))}
+        <Text style={styles.sectionEyebrow}>Quest log</Text>
+        <Text style={styles.sectionTitle}>Today, this week, and AR</Text>
+        {boardQuests.map((quest) => {
+          const questPct = Math.min(100, Math.round((quest.current / quest.goal) * 100));
+          return (
+            <View key={quest.title} style={styles.questRow}>
+              <View style={styles.questRowHeader}>
+                <View style={styles.questText}>
+                  <Text style={styles.questTitle}>{quest.title}</Text>
+                  <Text style={styles.questMeta}>{quest.detail}</Text>
+                </View>
+                <Chip label={quest.reward} tone={questPct >= 100 ? "success" : "warn"} />
+              </View>
+              <View style={styles.questTrack}>
+                <View style={[styles.questFill, { width: `${questPct}%` }]} />
+              </View>
+              <Text style={styles.questCount}>{Math.min(quest.current, quest.goal)} of {quest.goal}</Text>
+            </View>
+          );
+        })}
+      </Card>
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionEyebrow}>Next unlock</Text>
+        <Text style={styles.sectionTitle}>{nextReward?.title || "Reward board cleared"}</Text>
+        <Text style={styles.copy}>{nextReward?.detail || "Keep touring to build score, streaks, and collection depth."}</Text>
+        <View style={styles.unlockPreview}>
+          <View style={styles.unlockPreviewCell}>
+            <Text style={styles.unlockValue}>{nextLevel ? Math.max(nextLevelXp - xp, 0) : 0}</Text>
+            <Text style={styles.unlockLabel}>XP to rank</Text>
           </View>
-          <Chip label={`${weeklyQuestCount} of 5 stops`} tone="success" />
+          <View style={styles.unlockPreviewCell}>
+            <Text style={styles.unlockValue}>{nextBadge ? earnedBadgeCount : badges.length}</Text>
+            <Text style={styles.unlockLabel}>badges earned</Text>
+          </View>
         </View>
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Tour progress rings</Text>
-        <Text style={styles.sectionTitle}>Route, stories, and AR</Text>
+        <Text style={styles.sectionEyebrow}>Compass rings</Text>
+        <Text style={styles.sectionTitle}>Path, stories, and AR</Text>
         <View style={styles.ringGrid}>
           <View style={styles.ringCard}>
             <View style={[styles.ringOuter, routePct >= 100 && styles.ringOuterComplete]}>
@@ -254,7 +323,10 @@ export function ProgressScreen() {
                 <Text style={styles.ringValue}>{routePct}%</Text>
               </View>
             </View>
-            <Text style={styles.ringLabel}>Route</Text>
+            <Text style={styles.ringLabel}>Path</Text>
+            <View style={styles.ringTrack}>
+              <View style={[styles.ringFill, { width: `${routePct}%` }]} />
+            </View>
           </View>
           <View style={styles.ringCard}>
             <View style={[styles.ringOuter, storyPct >= 100 && styles.ringOuterComplete]}>
@@ -263,6 +335,9 @@ export function ProgressScreen() {
               </View>
             </View>
             <Text style={styles.ringLabel}>Stories</Text>
+            <View style={styles.ringTrack}>
+              <View style={[styles.ringFill, { width: `${storyPct}%` }]} />
+            </View>
           </View>
           <View style={styles.ringCard}>
             <View style={[styles.ringOuter, arPct >= 100 && styles.ringOuterComplete]}>
@@ -271,6 +346,9 @@ export function ProgressScreen() {
               </View>
             </View>
             <Text style={styles.ringLabel}>AR</Text>
+            <View style={styles.ringTrack}>
+              <View style={[styles.ringFill, { width: `${arPct}%` }]} />
+            </View>
           </View>
         </View>
       </Card>
@@ -282,28 +360,35 @@ export function ProgressScreen() {
           {collectionStops.map(({ stop, collected, complete }) => (
             <View key={stop.id} style={[styles.collectionBookCard, collected && styles.collectionBookCardCollected]}>
               <Text style={styles.collectionBookTitle}>{collected ? stop.title : "Locked stop"}</Text>
-              <Text style={styles.collectionBookMeta}>{complete ? "Completed" : collected ? "Collected" : "Open the stop to reveal"}</Text>
+              <Text style={styles.collectionBookMeta}>{complete ? "Completed" : collected ? "Collected" : "Hidden"}</Text>
             </View>
           ))}
         </View>
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Private group progress</Text>
-        <Text style={styles.sectionTitle}>Shared route goal</Text>
-        <Text style={styles.copy}>A personal group-style meter for comparing your latest tour actions against the active route goal.</Text>
+        <Text style={styles.sectionEyebrow}>Compass meter</Text>
+        <Text style={styles.sectionTitle}>Personal bests</Text>
         <View style={styles.groupBarTrack}>
-          <View style={[styles.groupBarFill, { width: `${groupPct}%` }]} />
+          <View style={[styles.groupBarFill, { width: `${challengePct}%` }]} />
         </View>
         <View style={styles.chips}>
-          <Chip label={`${groupActions} of ${groupGoal} actions`} tone="success" />
-          <Chip label={`Best streak ${progress.longestStreakDays}`} tone="warn" />
+          <Chip label={`${challengeActions} of ${challengeGoal} compass moves`} tone="success" />
+          <Chip label={`${challengePct}% challenge`} tone="warn" />
+        </View>
+        <View style={styles.bestGrid}>
+          {personalBests.map((best) => (
+            <View key={best.label} style={styles.bestCell}>
+              <Text style={styles.bestValue}>{best.value}</Text>
+              <Text style={styles.bestLabel}>{best.label}</Text>
+            </View>
+          ))}
         </View>
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Route timeline</Text>
-        <Text style={styles.sectionTitle}>Stop-by-stop path</Text>
+        <Text style={styles.sectionEyebrow}>Compass path</Text>
+        <Text style={styles.sectionTitle}>From North Broad outward</Text>
         <View style={styles.timeline}>
           {activeTour.stops.slice(0, 8).map((stop, index) => {
             const done = progressSets.completed.has(stop.id);
@@ -325,7 +410,7 @@ export function ProgressScreen() {
 
       <Card style={styles.card}>
         <Text style={styles.sectionEyebrow}>Rewards</Text>
-        <Text style={styles.sectionTitle}>Unlocks</Text>
+        <Text style={styles.sectionTitle}>{unlockedRewardCount} of {rewardTiers.length} unlocked</Text>
         {rewardTiers.map((reward) => (
           <View key={reward.title} style={[styles.rewardRow, reward.unlocked && styles.rewardRowUnlocked]}>
             <View style={styles.rewardText}>
@@ -386,7 +471,7 @@ export function ProgressScreen() {
       <Card style={styles.card}>
         <Text style={styles.sectionEyebrow}>AR discoveries</Text>
         <Text style={styles.sectionTitle}>Scene collection</Text>
-        <Text style={styles.copy}>AR-ready stops become collection targets. Open the matching tour page, choose the stop, then launch AR when available.</Text>
+        <Text style={styles.copy}>AR-ready stops become hidden points on the Founders Compass. Open the tour page, choose the stop, then launch AR when available.</Text>
         <View style={styles.collectionGrid}>
           <View style={styles.collectionCard}>
             <Text style={styles.collectionValue}>{arAvailable}</Text>
@@ -401,14 +486,19 @@ export function ProgressScreen() {
 
       <Card style={styles.card}>
         <Text style={styles.sectionEyebrow}>Tour collection</Text>
-        <Text style={styles.sectionTitle}>Route completion</Text>
-        {tourProgress.map(({ tour, completed, pct }) => (
+        <Text style={styles.sectionTitle}>Compass progress</Text>
+        {tourProgress.map(({ tour, completed, isScavengerHunt, pct }) => (
           <View key={tour.id} style={styles.tourRow}>
             <View style={styles.tourRowHeader}>
               <Text style={styles.tourTitle}>{tour.title}</Text>
               <Text style={styles.tourPct}>{pct}%</Text>
             </View>
             <Text style={styles.tourMeta}>{completed} of {tour.stops.length} stops completed</Text>
+            {isScavengerHunt ? (
+              <View style={styles.tourChips}>
+                <Chip label="Scavenger hunt" tone="warn" />
+              </View>
+            ) : null}
             <View style={styles.smallTrack}>
               <View style={[styles.smallFill, { width: `${pct}%` }]} />
             </View>
@@ -475,6 +565,18 @@ function createStyles(
     heroLevelTrack: { height: 14, borderRadius: 999, overflow: "hidden", backgroundColor: "rgba(255,255,255,0.12)" },
     heroLevelFill: { height: 14, borderRadius: 999, backgroundColor: "#ffbc8a" },
     heroLevelCopy: { color: "rgba(255,255,255,0.7)", fontSize: type.font(12), fontWeight: "700" },
+    heroFocusRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 8,
+      borderTopWidth: 1,
+      borderTopColor: "rgba(255,255,255,0.1)",
+      paddingTop: 12
+    },
+    heroFocusLabel: { color: "rgba(255,255,255,0.58)", fontSize: type.font(11), fontWeight: "800", textTransform: "uppercase" },
+    heroFocusValue: { color: "#ffffff", fontSize: type.font(13), fontWeight: "800" },
     card: { gap: 14, backgroundColor: colors.surfaceRaised },
     scoreCard: { gap: 14, backgroundColor: colors.surfaceRaised, borderColor: colors.infoSoft },
     questCard: { gap: 14, backgroundColor: colors.surfaceRaised, borderColor: colors.warnSoft },
@@ -533,6 +635,21 @@ function createStyles(
     questSteps: { flexDirection: "row", gap: 8 },
     questStep: { flex: 1, height: 10, borderRadius: 999, backgroundColor: colors.surfaceSoft },
     questStepDone: { flex: 1, height: 10, borderRadius: 999, backgroundColor: colors.warn },
+    questRow: {
+      gap: 9,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 18,
+      backgroundColor: colors.surface,
+      padding: 14
+    },
+    questRowHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 10 },
+    questText: { flex: 1, minWidth: 0, gap: 3 },
+    questTitle: { color: colors.text, fontSize: type.font(15), fontWeight: "800" },
+    questMeta: { color: colors.textSoft, fontSize: type.font(12), lineHeight: type.line(16) },
+    questTrack: { height: 10, borderRadius: 999, overflow: "hidden", backgroundColor: colors.surfaceSoft },
+    questFill: { height: 10, borderRadius: 999, backgroundColor: colors.warn },
+    questCount: { color: colors.textMuted, fontSize: type.font(11), fontWeight: "800", textTransform: "uppercase" },
     weeklyQuest: {
       gap: 10,
       borderTopWidth: 1,
@@ -540,6 +657,18 @@ function createStyles(
       paddingTop: 14
     },
     weeklyQuestTitle: { color: colors.text, fontSize: type.font(15), fontWeight: "800" },
+    unlockPreview: { flexDirection: "row", gap: 10, flexWrap: "wrap" },
+    unlockPreviewCell: {
+      minWidth: "47%",
+      flexGrow: 1,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 18,
+      backgroundColor: colors.surface,
+      padding: 14
+    },
+    unlockValue: { color: colors.text, fontSize: type.font(26), fontWeight: "800" },
+    unlockLabel: { marginTop: 4, color: colors.textMuted, fontSize: type.font(11), fontWeight: "800", textTransform: "uppercase" },
     ringGrid: { flexDirection: "row", gap: 10, flexWrap: "wrap" },
     ringCard: {
       minWidth: "30%",
@@ -574,6 +703,8 @@ function createStyles(
     },
     ringValue: { color: colors.text, fontSize: type.font(14), fontWeight: "800" },
     ringLabel: { color: colors.textMuted, fontSize: type.font(11), fontWeight: "800", textTransform: "uppercase" },
+    ringTrack: { width: "100%", height: 8, borderRadius: 999, overflow: "hidden", backgroundColor: colors.surfaceSoft },
+    ringFill: { height: 8, borderRadius: 999, backgroundColor: colors.info },
     collectionBookGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
     collectionBookCard: {
       minWidth: "47%",
@@ -592,6 +723,18 @@ function createStyles(
     collectionBookMeta: { color: colors.textMuted, fontSize: type.font(11), fontWeight: "800", textTransform: "uppercase" },
     groupBarTrack: { height: 16, borderRadius: 999, overflow: "hidden", backgroundColor: colors.surfaceSoft },
     groupBarFill: { height: 16, borderRadius: 999, backgroundColor: colors.success },
+    bestGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+    bestCell: {
+      minWidth: "30%",
+      flexGrow: 1,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 16,
+      backgroundColor: colors.surface,
+      padding: 12
+    },
+    bestValue: { color: colors.text, fontSize: type.font(16), fontWeight: "800" },
+    bestLabel: { marginTop: 3, color: colors.textMuted, fontSize: type.font(10), fontWeight: "800", textTransform: "uppercase" },
     timeline: { gap: 12 },
     timelineRow: { flexDirection: "row", alignItems: "center", gap: 12 },
     timelineDot: {
@@ -686,6 +829,7 @@ function createStyles(
     tourTitle: { flex: 1, color: colors.text, fontSize: type.font(15), fontWeight: "800" },
     tourPct: { color: colors.success, fontSize: type.font(14), fontWeight: "800" },
     tourMeta: { color: colors.textSoft, fontSize: type.font(12) },
+    tourChips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
     smallTrack: { height: 10, borderRadius: 999, overflow: "hidden", backgroundColor: colors.surfaceSoft },
     smallFill: { height: 10, borderRadius: 999, backgroundColor: colors.success }
   });

@@ -50,7 +50,7 @@ function getInitialRegion(coordinates: LatLng[]): Region {
 function formatMiles(fallbackMiles?: number) {
   const miles = fallbackMiles;
   if (typeof miles !== "number" || !Number.isFinite(miles)) {
-    return "Route distance";
+    return "City distance";
   }
   return `${miles < 0.1 ? miles.toFixed(2) : miles.toFixed(1)} mi`;
 }
@@ -73,14 +73,14 @@ export function RoutePreviewMap({ tour, selectedStopId, travelMode = "WALK", onS
   const [routeMeta, setRouteMeta] = React.useState({
     distanceLabel: formatMiles(tour.distanceMiles),
     durationLabel: formatDuration(tour.durationMin),
-    message: "Map shows each stop as a numbered point. Open a stop for narration or directions."
+    message: "North Broad is the north star. Numbered points show how the story opens outward from the Founders Compass."
   });
 
   React.useEffect(() => {
     setRouteMeta({
       distanceLabel: formatMiles(tour.distanceMiles),
       durationLabel: formatDuration(tour.durationMin),
-      message: "Map shows each stop as a numbered point. Open a stop for narration or directions."
+      message: "North Broad is the north star. Numbered points show how the story opens outward from the Founders Compass."
     });
   }, [tour.distanceMiles, tour.durationMin]);
 
@@ -88,23 +88,24 @@ export function RoutePreviewMap({ tour, selectedStopId, travelMode = "WALK", onS
     if (!stopCoordinates.length) {
       return;
     }
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       mapRef.current?.fitToCoordinates(stopCoordinates, {
         animated: true,
         edgePadding: { top: 54, right: 34, bottom: 54, left: 34 }
       });
     }, 250);
-  }, [stopCoordinates, selectedStopId]);
+    return () => clearTimeout(timeoutId);
+  }, [stopCoordinates]);
 
   return (
     <View style={styles.shell}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.eyebrow}>Route preview</Text>
-          <Text style={styles.title}>Stop map and order</Text>
+          <Text style={styles.eyebrow}>Founders Compass</Text>
+          <Text style={styles.title}>North Broad as the north star</Text>
         </View>
         <View style={styles.statusPill}>
-          <Text style={styles.statusPillText}>Stop points</Text>
+          <Text style={styles.statusPillText}>Compass points</Text>
         </View>
       </View>
       <View style={styles.mapFrame}>
