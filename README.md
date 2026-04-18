@@ -1,26 +1,31 @@
 # Philly Tours
 
-Philly Tours is a premium Philadelphia cultural touring platform built for beautiful city driving, layered narration, and selective native AR handoff when a stop deserves more than audio alone.
+Philly Tours is a premium Philadelphia cultural touring platform built for beautiful city movement, layered narration, live compass guidance, selective native AR handoff, and lightweight glasses companion experiences when a stop deserves more than audio alone.
 
 The platform now has two aligned faces:
 
 - a cinematic web companion at `https://api.philly-tours.com`
-- a native iOS / Android app whose shell, navigation, and route posture are being brought into the same visual language
+- a native iOS / Android app with tour pages, route collections, live Compass guidance, scavenger hunts, gamified progress, and AR/glasses handoff surfaces
 
 The next platform extension is spatial computing:
 
-- iPhone remains the drive-first tour companion
-- Meta wearables remain lightweight audio and companion hardware
+- iPhone remains the route, narration, Compass, and AR handoff companion
+- Meta and other glasses remain lightweight audio, notification, and future overlay hardware
 - Apple Vision Pro is the premium passenger, parked, and post-drive immersive layer
 
 ## Current App Shape
 
-- Premium drive-first touring posture for Philadelphia neighborhoods, corridors, and legacy routes
-- Main shell: Home, Scavenger Hunt, and Profile
+- Premium city-route posture for Philadelphia neighborhoods, corridors, and legacy routes
+- Main shell: Home, AR, Board, Settings, and Compass
+- Compass tab: route cards select a story path, the live needle points toward the next stop, foreground location watches arrival radius, and the target advances automatically when the user reaches a stop
+- Turn-by-turn handoff: `Navigate to Next Point` opens Apple Maps or Google Maps for the current Compass target
+- Board tab: persisted scoring, levels, streaks, daily quest progress, and scavenger-hunt-first tour collection
+- Tour pages: each tour opens to its own native detail page with route points, narration, map preview, and AR handoff context
 - Cinematic mobile web shell with Google / Apple sign-in and production backend auth
-- Native Android shell now visually aligned with the webapp across tabs, route cards, hunt surfaces, drive mode, and companion setup
+- Native Android shell now visually aligned with the webapp across tabs, route cards, hunt surfaces, Compass mode, and companion setup
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
-- Meta glasses companion scaffolding: `src/services/wearables.ts`, `src/services/companion.ts`, `src/screens/CompanionSetupScreen.tsx`
+- Glasses companion scaffolding: `src/services/wearables.ts`, `src/services/companion.ts`, `src/services/glassesDisplay.ts`, `src/screens/CompanionSetupScreen.tsx`
+- Maps are point-based in the app; route polylines are intentionally suppressed so the product reads as compass points instead of a generic route line.
 - visionOS roadmap and positioning: `docs/visionos-integration-plan.md`
 - Hosted payments + entitlement sync: `src/services/payments.ts` and `server/sync-server.js`
 - Server-issued session auth: `src/services/auth.ts` and `server/sync-server.js`
@@ -33,7 +38,11 @@ The next platform extension is spatial computing:
 - Home: `src/screens/HomeScreen.tsx`
 - Profile: `src/screens/ProfileScreen.tsx`
 - Scavenger Hunt: `src/screens/ScavengerHuntScreen.tsx`
-- Drive: `src/screens/DriveScreen.tsx`
+- Compass / drive guidance: `src/screens/DriveScreen.tsx`
+- Glasses display abstraction: `src/services/glassesDisplay.ts`
+- Live location and heading helpers: `src/services/location.ts`
+- Board / gamification: `src/screens/ProgressScreen.tsx`, `src/services/gameProgress.ts`
+- Tour detail pages: `src/screens/TourDetailScreen.tsx`
 - Native AR: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Sync backend: `server/sync-server.js`
 - EAS config: `eas.json`
@@ -42,10 +51,11 @@ The next platform extension is spatial computing:
 
 Philly Tours is not just a walking-tour app. The product direction is a luxury cultural driving companion for Philadelphia:
 
-- drive scenic city routes with premium narration
+- follow scenic city routes with premium narration and a live Compass
 - hear Black legacy, innovation, and place-based storytelling in motion
 - stay in the car when the route itself is the experience
 - step out when AR, architecture, or site-specific context matters
+- use Apple Maps or Google Maps for turn-by-turn directions while the app keeps the story target and Compass state
 
 This is especially strong for:
 
@@ -348,6 +358,8 @@ Source files:
 - `docs/ar-asset-catalog.csv`
 - `src/data/arAssetCatalog.ts`
 - `docs/ar-scene-manifests/`
+- `docs/ar-briefs/`
+- `docs/ar-job-packs/`
 - `scripts/generate-ar-review-dashboard.mjs`
 
 Common commands:
@@ -357,6 +369,19 @@ npm run ar:jobs:generate
 npm run ar:reviews:dashboard
 npm run ar:catalog:sync-runtime
 ```
+
+The curated AR production set currently has 8 priority moments:
+
+1. Lewis Latimer Light Bulb Exhibit
+2. Garrett Morgan Traffic Signal
+3. Dr. Charles Drew Blood Bank
+4. Mercy-Douglass Nurse Training
+5. Barbara Bates Center
+6. Joe Frazier's Gym / Cloverlay
+7. Allen Iverson's Hampton Park Courts
+8. Sonny Hill League @ Tustin
+
+Runtime AR expects iOS `.usdz` assets and Android/Web `.glb` assets. Keep paths stable once referenced in `src/data/arAssetCatalog.ts`.
 
 ## Builder Access
 
