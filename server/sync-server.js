@@ -609,6 +609,92 @@ function normalizeGoogleWeatherCurrent(payload, { lat, lng }) {
   };
 }
 
+function weatherCodeToCondition(code) {
+  const normalizedCode = Number(code);
+  if (normalizedCode === 0) return { condition: "Clear sky", conditionType: "CLEAR" };
+  if ([1, 2].includes(normalizedCode)) return { condition: "Partly cloudy", conditionType: "PARTLY_CLOUDY" };
+  if (normalizedCode === 3) return { condition: "Cloudy", conditionType: "CLOUDY" };
+  if ([45, 48].includes(normalizedCode)) return { condition: "Fog", conditionType: "FOG" };
+  if ([51, 53, 55, 56, 57].includes(normalizedCode)) return { condition: "Drizzle", conditionType: "DRIZZLE" };
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(normalizedCode)) return { condition: "Rain", conditionType: "RAIN" };
+  if ([71, 73, 75, 77, 85, 86].includes(normalizedCode)) return { condition: "Snow", conditionType: "SNOW" };
+  if ([95, 96, 99].includes(normalizedCode)) return { condition: "Thunderstorms", conditionType: "THUNDERSTORM" };
+  return { condition: "Current conditions", conditionType: null };
+}
+
+function windDegreesToCardinal(degrees) {
+  if (typeof degrees !== "number" || !Number.isFinite(degrees)) {
+    return null;
+  }
+  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+  return directions[Math.round((((degrees % 360) + 360) % 360) / 45) % directions.length];
+}
+
+async function fetchOpenMeteoCurrent({ lat, lng }) {
+  const query = new URLSearchParams({
+    latitude: String(lat),
+    longitude: String(lng),
+    current: [
+      "temperature_2m",
+      "relative_humidity_2m",
+      "apparent_temperature",
+      "precipitation",
+      "weather_code",
+      "wind_speed_10m",
+      "wind_direction_10m",
+      "is_day"
+    ].join(","),
+    temperature_unit: "fahrenheit",
+    wind_speed_unit: "mph",
+    precipitation_unit: "inch",
+    timezone: "America/New_York"
+  });
+
+  const response = await fetch(`https://api.open-meteo.com/v1/forecast?${query.toString()}`);
+  const payload = await readJsonResponse(response, "Unable to parse Open-Meteo response.");
+  if (!response.ok) {
+    throw new Error(payload?.reason || payload?.error || `Open-Meteo request failed (${response.status}).`);
+  }
+  return payload;
+}
+
+function normalizeOpenMeteoCurrent(payload, { lat, lng }) {
+  const current = payload?.current || {};
+  const condition = weatherCodeToCondition(current.weather_code);
+  return {
+    provider: "open_meteo",
+    city: "Philadelphia",
+    location: { lat, lng },
+    currentTime: current.time || null,
+    timeZoneId: payload?.timezone || "America/New_York",
+    isDaytime: current.is_day === 1,
+    condition: condition.condition,
+    conditionType: condition.conditionType,
+    iconBaseUri: null,
+    temperatureF: typeof current.temperature_2m === "number" ? Math.round(current.temperature_2m) : null,
+    feelsLikeF: typeof current.apparent_temperature === "number" ? Math.round(current.apparent_temperature) : null,
+    humidityPct: typeof current.relative_humidity_2m === "number" ? Math.round(current.relative_humidity_2m) : null,
+    precipitationPct: null,
+    precipitationType: typeof current.precipitation === "number" && current.precipitation > 0 ? "RAIN" : null,
+    windMph: typeof current.wind_speed_10m === "number" ? Math.round(current.wind_speed_10m) : null,
+    windDirection: windDegreesToCardinal(current.wind_direction_10m)
+  };
+}
+
+async function getCurrentWeather(body) {
+  if (googleMapsConfigured()) {
+    try {
+      const payload = await fetchGoogleWeatherCurrent(body);
+      return normalizeGoogleWeatherCurrent(payload, { lat: body.lat, lng: body.lng });
+    } catch (error) {
+      console.warn("Google Weather current conditions failed; falling back to Open-Meteo.", error.message || error);
+    }
+  }
+
+  const payload = await fetchOpenMeteoCurrent(body);
+  return normalizeOpenMeteoCurrent(payload, { lat: body.lat, lng: body.lng });
+}
+
 function buildRoutesWaypoint(stop) {
   return {
     location: {
@@ -1741,10 +1827,6 @@ app.post("/api/maps/route-preview", mapsLimiter, async (req, res) => {
 });
 
 app.get("/api/weather/current", mapsLimiter, async (req, res) => {
-  if (!requireGoogleMaps(res)) {
-    return;
-  }
-
   const parsed = weatherCurrentSchema.safeParse(req.query || {});
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid weather request." });
@@ -1753,11 +1835,11 @@ app.get("/api/weather/current", mapsLimiter, async (req, res) => {
 
   try {
     const body = parsed.data;
-    const payload = await fetchGoogleWeatherCurrent(body);
+    const weather = await getCurrentWeather(body);
     res.setHeader("Cache-Control", "public, max-age=300");
     res.json({
       ok: true,
-      weather: normalizeGoogleWeatherCurrent(payload, { lat: body.lat, lng: body.lng })
+      weather
     });
   } catch (error) {
     res.status(502).json({ error: error.message || "Unable to load current weather." });
@@ -1896,6 +1978,8 @@ app.get("/api/maps/static-map", mapsLimiter, async (req, res) => {
     const size = String(req.query.size || "1200x800").trim();
     const scale = String(req.query.scale || "2").trim();
     const maptype = String(req.query.maptype || "roadmap").trim();
+    const center = String(req.query.center || "").trim();
+    const zoom = String(req.query.zoom || "").trim();
     const pathValue = String(req.query.path || "").trim();
     const markerValues = Array.isArray(req.query.markers)
       ? req.query.markers.map((value) => String(value || "").trim()).filter(Boolean)
@@ -1919,8 +2003,18 @@ app.get("/api/maps/static-map", mapsLimiter, async (req, res) => {
       return;
     }
 
-    if (!pathValue && markerValues.length === 0) {
-      res.status(400).json({ error: "Static map requires a path or at least one marker." });
+    if (center && !/^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(center)) {
+      res.status(400).json({ error: "Invalid static map center." });
+      return;
+    }
+
+    if (zoom && !/^\d{1,2}$/.test(zoom)) {
+      res.status(400).json({ error: "Invalid static map zoom." });
+      return;
+    }
+
+    if (!pathValue && markerValues.length === 0 && (!center || !zoom)) {
+      res.status(400).json({ error: "Static map requires a path, marker, or center with zoom." });
       return;
     }
 
@@ -1938,6 +2032,11 @@ app.get("/api/maps/static-map", mapsLimiter, async (req, res) => {
 
     if (pathValue) {
       query.append("path", pathValue);
+    }
+
+    if (center && zoom) {
+      query.set("center", center);
+      query.set("zoom", zoom);
     }
 
     markerValues.forEach((marker) => {

@@ -1,7 +1,7 @@
 import { getAuthHeaders } from "./auth";
 
 export type CurrentWeather = {
-  provider: "google_weather";
+  provider: "google_weather" | "open_meteo";
   city: string;
   location: {
     lat: number;

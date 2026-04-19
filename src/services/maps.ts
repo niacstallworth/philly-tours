@@ -5,6 +5,11 @@ export type LatLngLiteral = {
   lng: number;
 };
 
+export type StaticMapViewport = {
+  center: LatLngLiteral;
+  zoom: number;
+};
+
 export type RoutePreviewStop = LatLngLiteral & {
   title?: string;
 };
@@ -124,6 +129,28 @@ async function postJson<T>(path: string, body: Record<string, unknown>, fallback
 
 export async function getRoutePreview(request: RoutePreviewRequest) {
   return postJson<RoutePreviewResponse>("/api/maps/route-preview", request as Record<string, unknown>, "Unable to load route preview.");
+}
+
+export function getStaticMapUrl(coordinates: LatLngLiteral[], viewport?: StaticMapViewport) {
+  const validCoordinates = coordinates.filter((coordinate) => Number.isFinite(coordinate.lat) && Number.isFinite(coordinate.lng));
+  const query = new URLSearchParams({
+    size: "900x560",
+    scale: "2",
+    maptype: "roadmap",
+    v: "android-static-map-v2"
+  });
+
+  if (viewport) {
+    query.set("center", `${viewport.center.lat},${viewport.center.lng}`);
+    query.set("zoom", String(viewport.zoom));
+  } else {
+    validCoordinates.forEach((coordinate, index) => {
+      const label = index < 9 ? `|label:${index + 1}` : "";
+      query.append("markers", `size:mid|color:0xb45b3d${label}|${coordinate.lat},${coordinate.lng}`);
+    });
+  }
+
+  return `${getServerUrl()}/api/maps/static-map?${query.toString()}`;
 }
 
 export async function searchPlaces(request: PlaceSearchRequest) {

@@ -20,6 +20,30 @@ It should not read as:
 - developer-first
 - sci-fi for its own sake
 
+## Story Logistics
+
+Philly Tours routes should feel arranged by someone who understands both the city and the human experience of moving through it.
+
+Story Logistics is the Founders route logic:
+
+```txt
+next stop = closest meaningful stop that keeps the story moving forward
+```
+
+In simple program language:
+
+```ts
+nextStop = bestStop({
+  nearEnough: true,
+  keepsMomentum: true,
+  avoidsBacktracking: true,
+  fitsStoryArc: true,
+  respectsNorthStar: true
+});
+```
+
+This is not generic pin sorting. It is distance plus direction plus story logic plus no annoying jumps. The route should feel like Philadelphia unfolding in the user's body, not like a spreadsheet of landmarks.
+
 ## Consumer App Rules
 
 ### What the user should see

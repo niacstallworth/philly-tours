@@ -53,9 +53,18 @@ Philly Tours is not just a walking-tour app. The product direction is a luxury c
 
 - follow scenic city routes with premium narration and a live Compass
 - hear Black legacy, innovation, and place-based storytelling in motion
+- move through routes shaped by Story Logistics: each next stop is the closest meaningful place that keeps the story, geography, and momentum moving forward
 - stay in the car when the route itself is the experience
 - step out when AR, architecture, or site-specific context matters
 - use Apple Maps or Google Maps for turn-by-turn directions while the app keeps the story target and Compass state
+
+Story Logistics is the Founders route logic:
+
+```txt
+next stop = closest meaningful stop that keeps the story moving forward
+```
+
+It is more intentional than sorting by distance, popularity, or category alone. Each route balances neighborhood flow, emotional arc, no-backtracking movement, and the Founders Compass north-star direction.
 
 This is especially strong for:
 

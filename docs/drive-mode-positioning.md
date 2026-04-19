@@ -36,6 +36,7 @@ Philly Tours should emphasize:
 
 - drive-first pacing
 - fewer, stronger stops
+- Story Logistics: stops ordered by geography, narrative flow, and momentum instead of distance alone
 - scenic corridor transitions
 - narrated movement between destinations
 - clear cues for when to stay in the car vs step out
@@ -70,6 +71,7 @@ Hero:
 Support copy:
 
 - `Built for drivers who want more than directions. Philly Tours turns the road into a guided cultural experience across Philadelphia's neighborhoods, corridors, and civic landmarks.`
+- `Routes are shaped by Story Logistics: each next stop is chosen to keep the drive, the neighborhood flow, and the story moving forward.`
 
 CTA ideas:
 

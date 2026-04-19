@@ -29,17 +29,6 @@ export const tours: Tour[] = [
         "estimatedEffort": "high"
       },
       {
-        "id": "black-american-legacy-and-quaker-heritage-free-quaker-meeting-house",
-        "title": "Free Quaker Meeting House",
-        "description": "Quakers who supported the Revolution (1783) | Day: Day 1 | Time: Morning | Location: 500 Arch St, Philadelphia, PA 19106",
-        "lat": 39.952528509318,
-        "lng": -75.148558439592,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/free-quaker-meeting-house.glb",
-        "audioUrl": "/audio/free-quaker-meeting-house.mp3"
-      },
-      {
         "id": "black-american-legacy-and-quaker-heritage-pennsylvania-abolition-society",
         "title": "Pennsylvania Abolition Society",
         "description": "First abolitionist organization in the world (1775) | Day: Day 1 | Time: Morning | Location: 525 Chestnut St, Philadelphia, PA",
@@ -51,15 +40,15 @@ export const tours: Tour[] = [
         "audioUrl": "/audio/pennsylvania-abolition-society.mp3"
       },
       {
-        "id": "black-american-legacy-and-quaker-heritage-lombard-street-free-african-society-ho",
-        "title": "Lombard Street Free African Society homes",
-        "description": "Richard Allen, Absalom Jones, Cyrus Bustill homes | Day: Day 1 | Time: Afternoon | Location: 600-700 block Lombard St, Philadelphia, PA",
-        "lat": 39.943168393929,
-        "lng": -75.153778315938,
+        "id": "black-american-legacy-and-quaker-heritage-free-quaker-meeting-house",
+        "title": "Free Quaker Meeting House",
+        "description": "Quakers who supported the Revolution (1783) | Day: Day 1 | Time: Morning | Location: 500 Arch St, Philadelphia, PA 19106",
+        "lat": 39.952528509318,
+        "lng": -75.148558439592,
         "coordQuality": "verified",
         "triggerRadiusM": 40,
-        "modelUrl": "/models/lombard-street-free-african-society-homes.glb",
-        "audioUrl": "/audio/lombard-street-free-african-society-homes.mp3"
+        "modelUrl": "/models/free-quaker-meeting-house.glb",
+        "audioUrl": "/audio/free-quaker-meeting-house.mp3"
       },
       {
         "id": "black-american-legacy-and-quaker-heritage-arch-street-friends-meeting-house",
@@ -88,6 +77,17 @@ export const tours: Tour[] = [
         "estimatedEffort": "high"
       },
       {
+        "id": "black-american-legacy-and-quaker-heritage-lombard-street-free-african-society-ho",
+        "title": "Lombard Street Free African Society homes",
+        "description": "Richard Allen, Absalom Jones, Cyrus Bustill homes | Day: Day 1 | Time: Afternoon | Location: 600-700 block Lombard St, Philadelphia, PA",
+        "lat": 39.943168393929,
+        "lng": -75.153778315938,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/lombard-street-free-african-society-homes.glb",
+        "audioUrl": "/audio/lombard-street-free-african-society-homes.mp3"
+      },
+      {
         "id": "black-american-legacy-and-quaker-heritage-christian-street-ymca",
         "title": "Christian Street YMCA",
         "description": "Pivotal site for Black intellectual life | Day: Day 3 | Time: Afternoon | Location: 1724 Christian St, Philadelphia, PA 19146",
@@ -99,37 +99,19 @@ export const tours: Tour[] = [
         "audioUrl": "/audio/christian-street-ymca.mp3"
       },
       {
-        "id": "black-american-legacy-and-quaker-heritage-freedom-theatre",
-        "title": "Freedom Theatre",
-        "description": "Key cultural landmark | Day: Day 4 | Time: Afternoon | Location: 1346 N Broad St, Philadelphia, PA 19121",
-        "lat": 39.97376,
-        "lng": -75.15927,
+        "id": "black-american-legacy-and-quaker-heritage-the-woodlands",
+        "title": "The Woodlands",
+        "description": "1770s neoclassical mansion and cemetery | Day: Day 3 | Time: Morning | Location: 4000 Woodland Ave, Philadelphia, PA 19104",
+        "lat": 39.946761172315,
+        "lng": -75.206946956348,
         "coordQuality": "verified",
         "triggerRadiusM": 40,
-        "modelUrl": "/models/freedom-theatre.glb",
-        "audioUrl": "/audio/freedom-theatre.mp3"
-      },
-      {
-        "id": "black-american-legacy-and-quaker-heritage-lemon-hill-mansion",
-        "title": "Lemon Hill Mansion",
-        "description": "1799 Federal mansion, owned by Quaker Henry Pratt | Day: Day 3 | Time: Morning | Location: Lemon Hill Drive, Philadelphia, PA 19130",
-        "lat": 39.9707321,
-        "lng": -75.1872031,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/lemon-hill-mansion.glb",
-        "audioUrl": "/audio/lemon-hill-mansion.mp3"
-      },
-      {
-        "id": "black-american-legacy-and-quaker-heritage-cecil-b-moore-avenue",
-        "title": "Cecil B. Moore Avenue",
-        "description": "Center of 1960s-70s Black Power era | Day: Day 4 | Time: Afternoon | Location: 1600 Cecil B. Moore Ave, Philadelphia, PA 19121",
-        "lat": 39.979059822157,
-        "lng": -75.161220817288,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/cecil-b-moore-avenue.glb",
-        "audioUrl": "/audio/cecil-b-moore-avenue.mp3"
+        "modelUrl": "/models/the-woodlands.glb",
+        "audioUrl": "/audio/the-woodlands.mp3",
+        "arType": "before_after_overlay",
+        "arPriority": 4,
+        "assetNeeded": "mansion overlay; cemetery context cards",
+        "estimatedEffort": "medium"
       },
       {
         "id": "black-american-legacy-and-quaker-heritage-w-e-b-du-bois-college-house",
@@ -154,32 +136,6 @@ export const tours: Tour[] = [
         "audioUrl": "/audio/3911-delancey-street.mp3"
       },
       {
-        "id": "black-american-legacy-and-quaker-heritage-john-coltrane-house",
-        "title": "John Coltrane House",
-        "description": "Home of legendary jazz musician | Day: Day 4 | Time: Afternoon | Location: 1511 N 33rd St, Philadelphia, PA 19121",
-        "lat": 39.9800611265,
-        "lng": -75.188844766108,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/john-coltrane-house.glb",
-        "audioUrl": "/audio/john-coltrane-house.mp3"
-      },
-      {
-        "id": "black-american-legacy-and-quaker-heritage-the-woodlands",
-        "title": "The Woodlands",
-        "description": "1770s neoclassical mansion and cemetery | Day: Day 3 | Time: Morning | Location: 4000 Woodland Ave, Philadelphia, PA 19104",
-        "lat": 39.946761172315,
-        "lng": -75.206946956348,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/the-woodlands.glb",
-        "audioUrl": "/audio/the-woodlands.mp3",
-        "arType": "before_after_overlay",
-        "arPriority": 4,
-        "assetNeeded": "mansion overlay; cemetery context cards",
-        "estimatedEffort": "medium"
-      },
-      {
         "id": "black-american-legacy-and-quaker-heritage-4600-spruce-street",
         "title": "4600 Spruce Street",
         "description": "Former home of Dr. Nathan F. Mossell | Day: Day 3 | Time: Afternoon | Location: 4600 Spruce St, Philadelphia, PA 19139",
@@ -191,17 +147,6 @@ export const tours: Tour[] = [
         "audioUrl": "/audio/4600-spruce-street.mp3"
       },
       {
-        "id": "black-american-legacy-and-quaker-heritage-mount-pleasant",
-        "title": "Mount Pleasant",
-        "description": "Georgian masterpiece | Day: Day 4 | Time: Late Afternoon | Location: 3800 Mount Pleasant Dr, Philadelphia, PA 19121",
-        "lat": 39.9833812,
-        "lng": -75.1998419,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/mount-pleasant.glb",
-        "audioUrl": "/audio/mount-pleasant.mp3"
-      },
-      {
         "id": "black-american-legacy-and-quaker-heritage-4700-4800-blocks-of-walnut-street",
         "title": "4700-4800 blocks of Walnut Street",
         "description": "Twin Victorian mansions | Day: Day 3 | Time: Afternoon | Location: 4750 Walnut St, Philadelphia, PA",
@@ -211,6 +156,72 @@ export const tours: Tour[] = [
         "triggerRadiusM": 40,
         "modelUrl": "/models/4700-4800-blocks-of-walnut-street.glb",
         "audioUrl": "/audio/4700-4800-blocks-of-walnut-street.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-lemon-hill-mansion",
+        "title": "Lemon Hill Mansion",
+        "description": "1799 Federal mansion, owned by Quaker Henry Pratt | Day: Day 3 | Time: Morning | Location: Lemon Hill Drive, Philadelphia, PA 19130",
+        "lat": 39.9707321,
+        "lng": -75.1872031,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/lemon-hill-mansion.glb",
+        "audioUrl": "/audio/lemon-hill-mansion.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-freedom-theatre",
+        "title": "Freedom Theatre",
+        "description": "Key cultural landmark | Day: Day 4 | Time: Afternoon | Location: 1346 N Broad St, Philadelphia, PA 19121",
+        "lat": 39.97376,
+        "lng": -75.15927,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/freedom-theatre.glb",
+        "audioUrl": "/audio/freedom-theatre.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-cecil-b-moore-avenue",
+        "title": "Cecil B. Moore Avenue",
+        "description": "Center of 1960s-70s Black Power era | Day: Day 4 | Time: Afternoon | Location: 1600 Cecil B. Moore Ave, Philadelphia, PA 19121",
+        "lat": 39.979059822157,
+        "lng": -75.161220817288,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/cecil-b-moore-avenue.glb",
+        "audioUrl": "/audio/cecil-b-moore-avenue.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-john-coltrane-house",
+        "title": "John Coltrane House",
+        "description": "Home of legendary jazz musician | Day: Day 4 | Time: Afternoon | Location: 1511 N 33rd St, Philadelphia, PA 19121",
+        "lat": 39.9800611265,
+        "lng": -75.188844766108,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/john-coltrane-house.glb",
+        "audioUrl": "/audio/john-coltrane-house.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-belmont-mansion",
+        "title": "Belmont Mansion",
+        "description": "Underground Railroad stop | Day: Day 3 | Time: Morning | Location: 2032 Belmont Mansion Dr, Philadelphia, PA 19131",
+        "lat": 39.9909604,
+        "lng": -75.2130597,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/belmont-mansion.glb",
+        "audioUrl": "/audio/belmont-mansion.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-mount-pleasant",
+        "title": "Mount Pleasant",
+        "description": "Georgian masterpiece | Day: Day 4 | Time: Late Afternoon | Location: 3800 Mount Pleasant Dr, Philadelphia, PA 19121",
+        "lat": 39.9833812,
+        "lng": -75.1998419,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/mount-pleasant.glb",
+        "audioUrl": "/audio/mount-pleasant.mp3"
       },
       {
         "id": "black-american-legacy-and-quaker-heritage-ormiston",
@@ -257,17 +268,6 @@ export const tours: Tour[] = [
         "audioUrl": "/audio/3200-3400-blocks-diamond-and-susquehanna.mp3"
       },
       {
-        "id": "black-american-legacy-and-quaker-heritage-belmont-mansion",
-        "title": "Belmont Mansion",
-        "description": "Underground Railroad stop | Day: Day 3 | Time: Morning | Location: 2032 Belmont Mansion Dr, Philadelphia, PA 19131",
-        "lat": 39.9909604,
-        "lng": -75.2130597,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/belmont-mansion.glb",
-        "audioUrl": "/audio/belmont-mansion.mp3"
-      },
-      {
         "id": "black-american-legacy-and-quaker-heritage-stenton",
         "title": "Stenton",
         "description": "Georgian mansion with complex slavery history | Day: Day 2 | Time: Morning | Location: 4601 N 18th St, Philadelphia, PA",
@@ -277,6 +277,17 @@ export const tours: Tour[] = [
         "triggerRadiusM": 40,
         "modelUrl": "/models/stenton.glb",
         "audioUrl": "/audio/stenton.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-belfield-mansion",
+        "title": "Belfield Mansion",
+        "description": "1711 Quaker summer estate, abolitionist ties | Day: Day 1 | Time: Afternoon | Location: 2100 W Clarkson Ave, Philadelphia, PA 19144",
+        "lat": 40.038190898967,
+        "lng": -75.156717419902,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/belfield-mansion.glb",
+        "audioUrl": "/audio/belfield-mansion.mp3"
       },
       {
         "id": "black-american-legacy-and-quaker-heritage-grumblethorpe",
@@ -299,17 +310,6 @@ export const tours: Tour[] = [
         "triggerRadiusM": 40,
         "modelUrl": "/models/deshler-morris-house.glb",
         "audioUrl": "/audio/deshler-morris-house.mp3"
-      },
-      {
-        "id": "black-american-legacy-and-quaker-heritage-belfield-mansion",
-        "title": "Belfield Mansion",
-        "description": "1711 Quaker summer estate, abolitionist ties | Day: Day 1 | Time: Afternoon | Location: 2100 W Clarkson Ave, Philadelphia, PA 19144",
-        "lat": 40.038190898967,
-        "lng": -75.156717419902,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/belfield-mansion.glb",
-        "audioUrl": "/audio/belfield-mansion.mp3"
       },
       {
         "id": "black-american-legacy-and-quaker-heritage-wyck",
@@ -349,17 +349,6 @@ export const tours: Tour[] = [
         "estimatedEffort": "high"
       },
       {
-        "id": "black-american-legacy-and-quaker-heritage-upsala",
-        "title": "Upsala",
-        "description": "1798 Federal-style mansion | Day: Day 2 | Time: Morning | Location: 6430 Germantown Ave, Philadelphia, PA",
-        "lat": 40.0466326,
-        "lng": -75.1832504,
-        "coordQuality": "verified",
-        "triggerRadiusM": 40,
-        "modelUrl": "/models/upsala.glb",
-        "audioUrl": "/audio/upsala.mp3"
-      },
-      {
         "id": "black-american-legacy-and-quaker-heritage-cliveden",
         "title": "Cliveden",
         "description": "1767 mansion, Battle of Germantown site | Day: Day 2 | Time: Morning | Location: 6401 Germantown Ave, Philadelphia, PA 19119",
@@ -369,6 +358,17 @@ export const tours: Tour[] = [
         "triggerRadiusM": 40,
         "modelUrl": "/models/cliveden.glb",
         "audioUrl": "/audio/cliveden.mp3"
+      },
+      {
+        "id": "black-american-legacy-and-quaker-heritage-upsala",
+        "title": "Upsala",
+        "description": "1798 Federal-style mansion | Day: Day 2 | Time: Morning | Location: 6430 Germantown Ave, Philadelphia, PA",
+        "lat": 40.0466326,
+        "lng": -75.1832504,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40,
+        "modelUrl": "/models/upsala.glb",
+        "audioUrl": "/audio/upsala.mp3"
       }
     ]
   },
