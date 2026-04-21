@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Philly AR Tours",
+    "name": "Philly Tours",
     "slug": "philly-ar-tours",
     "icon": "./assets/icons/philly-app-icon-flat.png",
     "scheme": "phillyartours",
@@ -14,13 +14,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.founders.phillyartours",
       "infoPlist": {
-        "NSLocalNetworkUsageDescription": "Allow Philly AR Tours to connect to the local development server while debugging on your network.",
-        "NSLocationWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops while touring.",
-        "UIBackgroundModes": [
-          "fetch",
-          "remote-notification"
-        ]
+        "NSCameraUsageDescription": "Camera access lets Philly Tours place AR scenes in your surroundings.",
+        "NSLocationWhenInUseUsageDescription": "Location helps Philly Tours show nearby stops, route progress, and compass-guided discoveries while you use the app.",
+        "NSBluetoothAlwaysUsageDescription": "Bluetooth can route narration to headphones or supported smart glasses."
       }
     },
     "android": {

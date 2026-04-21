@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { getCurrentTourSelection } from "../services/tourControl";
@@ -62,7 +62,10 @@ function getBoardTitle(title: string) {
 export function ProgressScreen() {
   const colors = useThemeColors();
   const type = useTypeScale();
+  const { width: screenWidth } = useWindowDimensions();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
+  const deckSlideStyle = React.useMemo(() => ({ width: Math.max(248, Math.min(320, screenWidth - 76)) }), [screenWidth]);
+  const deckSlideWideStyle = React.useMemo(() => ({ width: Math.max(248, Math.min(350, screenWidth - 76)) }), [screenWidth]);
   const [progress, setProgress] = React.useState(() => getGameProgressSnapshot());
   const [pendingCommunityPostCount, setPendingCommunityPostCount] = React.useState(0);
   const activeSelection = getCurrentTourSelection();
@@ -200,7 +203,7 @@ export function ProgressScreen() {
     `Claimed: ${completedStops} of ${totalStops} stops`,
     `Streak: ${progress.currentStreakDays} day${progress.currentStreakDays === 1 ? "" : "s"}`,
     nextStop ? `Next compass point: ${nextStop.title}` : null,
-    "From North Broad outward with Philly AR Tours.",
+    "From North Broad outward with Philly Tours.",
     "https://philly-tours.com"
   ].filter((line): line is string => Boolean(line)).join("\n");
 
@@ -306,47 +309,6 @@ export function ProgressScreen() {
         </View>
       </View>
 
-      <Card style={styles.scoreCard}>
-        <Text style={styles.sectionEyebrow}>Scoring</Text>
-        <Text style={styles.sectionTitle}>Earn points by touring</Text>
-        <View style={styles.scoreRulesGrid}>
-          <View style={styles.scoreRule}>
-            <Text style={styles.scoreRuleValue}>+10</Text>
-            <Text style={styles.scoreRuleLabel}>open stop</Text>
-          </View>
-          <View style={styles.scoreRule}>
-            <Text style={styles.scoreRuleValue}>+25</Text>
-            <Text style={styles.scoreRuleLabel}>hear story</Text>
-          </View>
-          <View style={styles.scoreRule}>
-            <Text style={styles.scoreRuleValue}>+40</Text>
-            <Text style={styles.scoreRuleLabel}>complete stop</Text>
-          </View>
-          <View style={styles.scoreRule}>
-            <Text style={styles.scoreRuleValue}>+60</Text>
-            <Text style={styles.scoreRuleLabel}>find AR</Text>
-          </View>
-        </View>
-      </Card>
-
-      <Card style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View style={styles.cardHeaderText}>
-            <Text style={styles.sectionEyebrow}>Streak</Text>
-            <Text style={styles.sectionTitle}>{progress.currentStreakDays} active day{progress.currentStreakDays === 1 ? "" : "s"}</Text>
-          </View>
-          <View style={styles.progressChipWrap}>
-            <Chip label={`Best ${progress.longestStreakDays}`} tone="warn" />
-          </View>
-        </View>
-        <Text style={styles.copy}>Open a compass point, hear narration, or complete a stop on a new day to keep the streak alive.</Text>
-        <View style={styles.streakDots}>
-          {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-            <View key={day} style={day < Math.min(progress.currentStreakDays, 7) ? styles.streakDotActive : styles.streakDot} />
-          ))}
-        </View>
-      </Card>
-
       <Card style={styles.card}>
         <View style={styles.cardHeader}>
           <View style={styles.cardHeaderText}>
@@ -425,236 +387,277 @@ export function ProgressScreen() {
         </View>
       </Card>
 
-      <Card style={styles.questCard}>
-        <Text style={styles.sectionEyebrow}>Quest log</Text>
-        <Text style={styles.sectionTitle}>Today, this week, and AR</Text>
-        {boardQuests.map((quest) => {
-          const questPct = Math.min(100, Math.round((quest.current / quest.goal) * 100));
-          return (
-            <View key={quest.title} style={styles.questRow}>
-              <View style={styles.questRowHeader}>
-                <View style={styles.questText}>
-                  <Text style={styles.questTitle}>{quest.title}</Text>
-                  <Text style={styles.questMeta}>{quest.detail}</Text>
+      <Card style={styles.scoreDeckCard}>
+        <View style={styles.cardHeader}>
+          <View style={styles.cardHeaderText}>
+            <Text style={styles.sectionEyebrow}>Score deck</Text>
+            <Text style={styles.sectionTitle}>Swipe through progress, rewards, and collections</Text>
+          </View>
+          <View style={styles.progressChipWrap}>
+            <Chip label="Swipe" tone="default" />
+          </View>
+        </View>
+        <ScrollView
+          horizontal
+          nestedScrollEnabled
+          showsHorizontalScrollIndicator={false}
+          snapToAlignment="start"
+          decelerationRate="fast"
+          contentContainerStyle={styles.deckContent}
+        >
+          <View style={[styles.deckSlide, deckSlideStyle, styles.deckSlideScore]}>
+            <Text style={styles.sectionEyebrow}>Scoring</Text>
+            <Text style={styles.sectionTitle}>Earn points by touring</Text>
+            <View style={styles.scoreRulesGrid}>
+              <View style={styles.scoreRule}>
+                <Text style={styles.scoreRuleValue}>+10</Text>
+                <Text style={styles.scoreRuleLabel}>open stop</Text>
+              </View>
+              <View style={styles.scoreRule}>
+                <Text style={styles.scoreRuleValue}>+25</Text>
+                <Text style={styles.scoreRuleLabel}>hear story</Text>
+              </View>
+              <View style={styles.scoreRule}>
+                <Text style={styles.scoreRuleValue}>+40</Text>
+                <Text style={styles.scoreRuleLabel}>complete stop</Text>
+              </View>
+              <View style={styles.scoreRule}>
+                <Text style={styles.scoreRuleValue}>+60</Text>
+                <Text style={styles.scoreRuleLabel}>find AR</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Streak</Text>
+            <Text style={styles.sectionTitle}>{progress.currentStreakDays} active day{progress.currentStreakDays === 1 ? "" : "s"}</Text>
+            <Text style={styles.copy}>Open a compass point, hear narration, or complete a stop on a new day to keep the streak alive.</Text>
+            <View style={styles.streakDots}>
+              {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+                <View key={day} style={day < Math.min(progress.currentStreakDays, 7) ? styles.streakDotActive : styles.streakDot} />
+              ))}
+            </View>
+            <View style={styles.chips}>
+              <Chip label={`Best ${progress.longestStreakDays}`} tone="warn" />
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Quest log</Text>
+            <Text style={styles.sectionTitle}>Today, this week, and AR</Text>
+            {boardQuests.map((quest) => {
+              const questPct = Math.min(100, Math.round((quest.current / quest.goal) * 100));
+              return (
+                <View key={quest.title} style={styles.questRow}>
+                  <View style={styles.questRowHeader}>
+                    <View style={styles.questText}>
+                      <Text style={styles.questTitle}>{quest.title}</Text>
+                      <Text style={styles.questMeta}>{quest.detail}</Text>
+                    </View>
+                    <Chip label={quest.reward} tone={questPct >= 100 ? "success" : "warn"} />
+                  </View>
+                  <View style={styles.questTrack}>
+                    <View style={[styles.questFill, { width: `${questPct}%` }]} />
+                  </View>
+                  <Text style={styles.questCount}>{Math.min(quest.current, quest.goal)} of {quest.goal}</Text>
                 </View>
-                <Chip label={quest.reward} tone={questPct >= 100 ? "success" : "warn"} />
-              </View>
-              <View style={styles.questTrack}>
-                <View style={[styles.questFill, { width: `${questPct}%` }]} />
-              </View>
-              <Text style={styles.questCount}>{Math.min(quest.current, quest.goal)} of {quest.goal}</Text>
-            </View>
-          );
-        })}
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Next unlock</Text>
-        <Text style={styles.sectionTitle}>{nextReward?.title || "Reward board cleared"}</Text>
-        <Text style={styles.copy}>{nextReward?.detail || "Keep touring to build score, streaks, and collection depth."}</Text>
-        <View style={styles.unlockPreview}>
-          <View style={styles.unlockPreviewCell}>
-            <Text style={styles.unlockValue}>{nextLevel ? Math.max(nextLevelXp - xp, 0) : 0}</Text>
-            <Text style={styles.unlockLabel}>XP to rank</Text>
+              );
+            })}
           </View>
-          <View style={styles.unlockPreviewCell}>
-            <Text style={styles.unlockValue}>{nextBadge ? earnedBadgeCount : badges.length}</Text>
-            <Text style={styles.unlockLabel}>badges earned</Text>
-          </View>
-        </View>
-      </Card>
 
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Compass rings</Text>
-        <Text style={styles.sectionTitle}>Path, stories, and AR</Text>
-        <View style={styles.ringGrid}>
-          <View style={styles.ringCard}>
-            <View style={[styles.ringOuter, routePct >= 100 && styles.ringOuterComplete]}>
-              <View style={styles.ringInner}>
-                <Text style={styles.ringValue}>{routePct}%</Text>
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Next unlock</Text>
+            <Text style={styles.sectionTitle}>{nextReward?.title || "Reward board cleared"}</Text>
+            <Text style={styles.copy}>{nextReward?.detail || "Keep touring to build score, streaks, and collection depth."}</Text>
+            <View style={styles.unlockPreview}>
+              <View style={styles.unlockPreviewCell}>
+                <Text style={styles.unlockValue}>{nextLevel ? Math.max(nextLevelXp - xp, 0) : 0}</Text>
+                <Text style={styles.unlockLabel}>XP to rank</Text>
+              </View>
+              <View style={styles.unlockPreviewCell}>
+                <Text style={styles.unlockValue}>{nextBadge ? earnedBadgeCount : badges.length}</Text>
+                <Text style={styles.unlockLabel}>badges earned</Text>
               </View>
             </View>
-            <Text style={styles.ringLabel}>Path</Text>
-            <View style={styles.ringTrack}>
-              <View style={[styles.ringFill, { width: `${routePct}%` }]} />
-            </View>
           </View>
-          <View style={styles.ringCard}>
-            <View style={[styles.ringOuter, storyPct >= 100 && styles.ringOuterComplete]}>
-              <View style={styles.ringInner}>
-                <Text style={styles.ringValue}>{storyPct}%</Text>
-              </View>
-            </View>
-            <Text style={styles.ringLabel}>Stories</Text>
-            <View style={styles.ringTrack}>
-              <View style={[styles.ringFill, { width: `${storyPct}%` }]} />
-            </View>
-          </View>
-          <View style={styles.ringCard}>
-            <View style={[styles.ringOuter, arPct >= 100 && styles.ringOuterComplete]}>
-              <View style={styles.ringInner}>
-                <Text style={styles.ringValue}>{arPct}%</Text>
-              </View>
-            </View>
-            <Text style={styles.ringLabel}>AR</Text>
-            <View style={styles.ringTrack}>
-              <View style={[styles.ringFill, { width: `${arPct}%` }]} />
-            </View>
-          </View>
-        </View>
-      </Card>
 
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Collection book</Text>
-        <Text style={styles.sectionTitle}>Stop cards</Text>
-        <View style={styles.collectionBookGrid}>
-          {collectionStops.map(({ stop, collected, complete }) => (
-            <View key={stop.id} style={[styles.collectionBookCard, collected && styles.collectionBookCardCollected]}>
-              <Text style={styles.collectionBookTitle}>{collected ? stop.title : "Locked stop"}</Text>
-              <Text style={styles.collectionBookMeta}>{complete ? "Completed" : collected ? "Collected" : "Hidden"}</Text>
-            </View>
-          ))}
-        </View>
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Compass meter</Text>
-        <Text style={styles.sectionTitle}>Personal bests</Text>
-        <View style={styles.groupBarTrack}>
-          <View style={[styles.groupBarFill, { width: `${challengePct}%` }]} />
-        </View>
-        <View style={styles.chips}>
-          <Chip label={`${challengeActions} of ${challengeGoal} compass moves`} tone="success" />
-          <Chip label={`${challengePct}% challenge`} tone="warn" />
-        </View>
-        <View style={styles.bestGrid}>
-          {personalBests.map((best) => (
-            <View key={best.label} style={styles.bestCell}>
-              <Text style={styles.bestValue}>{best.value}</Text>
-              <Text style={styles.bestLabel}>{best.label}</Text>
-            </View>
-          ))}
-        </View>
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Compass path</Text>
-        <Text style={styles.sectionTitle}>From North Broad outward</Text>
-        <View style={styles.timeline}>
-          {activeTour.stops.slice(0, 8).map((stop, index) => {
-            const done = progressSets.completed.has(stop.id);
-            const open = progressSets.opened.has(stop.id) || progressSets.narrated.has(stop.id);
-            return (
-              <View key={stop.id} style={styles.timelineRow}>
-                <View style={[styles.timelineDot, done && styles.timelineDotDone, !done && open && styles.timelineDotOpen]}>
-                  <Text style={styles.timelineDotText}>{index + 1}</Text>
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Compass rings</Text>
+            <Text style={styles.sectionTitle}>Path, stories, and AR</Text>
+            <View style={styles.ringGrid}>
+              {([
+                ["Path", routePct],
+                ["Stories", storyPct],
+                ["AR", arPct]
+              ] as Array<[string, number]>).map(([label, pct]) => (
+                <View key={label} style={styles.ringCard}>
+                  <View style={[styles.ringOuter, pct >= 100 && styles.ringOuterComplete]}>
+                    <View style={styles.ringInner}>
+                      <Text style={styles.ringValue}>{pct}%</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.ringLabel}>{label}</Text>
+                  <View style={styles.ringTrack}>
+                    <View style={[styles.ringFill, { width: `${pct}%` }]} />
+                  </View>
                 </View>
-                <View style={styles.timelineContent}>
-                  <Text style={styles.timelineTitle}>{stop.title}</Text>
-                  <Text style={styles.timelineMeta}>{done ? "Completed" : open ? "In progress" : "Locked"}</Text>
+              ))}
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Collection book</Text>
+            <Text style={styles.sectionTitle}>Stop cards</Text>
+            <View style={styles.collectionBookGrid}>
+              {collectionStops.map(({ stop, collected, complete }) => (
+                <View key={stop.id} style={[styles.collectionBookCard, collected && styles.collectionBookCardCollected]}>
+                  <Text style={styles.collectionBookTitle}>{collected ? stop.title : "Locked stop"}</Text>
+                  <Text style={styles.collectionBookMeta}>{complete ? "Completed" : collected ? "Collected" : "Hidden"}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Compass meter</Text>
+            <Text style={styles.sectionTitle}>Personal bests</Text>
+            <View style={styles.groupBarTrack}>
+              <View style={[styles.groupBarFill, { width: `${challengePct}%` }]} />
+            </View>
+            <View style={styles.chips}>
+              <Chip label={`${challengeActions} of ${challengeGoal} compass moves`} tone="success" />
+              <Chip label={`${challengePct}% challenge`} tone="warn" />
+            </View>
+            <View style={styles.bestGrid}>
+              {personalBests.map((best) => (
+                <View key={best.label} style={styles.bestCell}>
+                  <Text style={styles.bestValue}>{best.value}</Text>
+                  <Text style={styles.bestLabel}>{best.label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Compass path</Text>
+            <Text style={styles.sectionTitle}>From North Broad outward</Text>
+            <View style={styles.timeline}>
+              {activeTour.stops.slice(0, 8).map((stop, index) => {
+                const done = progressSets.completed.has(stop.id);
+                const open = progressSets.opened.has(stop.id) || progressSets.narrated.has(stop.id);
+                return (
+                  <View key={stop.id} style={styles.timelineRow}>
+                    <View style={[styles.timelineDot, done && styles.timelineDotDone, !done && open && styles.timelineDotOpen]}>
+                      <Text style={styles.timelineDotText}>{index + 1}</Text>
+                    </View>
+                    <View style={styles.timelineContent}>
+                      <Text style={styles.timelineTitle}>{stop.title}</Text>
+                      <Text style={styles.timelineMeta}>{done ? "Completed" : open ? "In progress" : "Locked"}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Rewards</Text>
+            <Text style={styles.sectionTitle}>{unlockedRewardCount} of {rewardTiers.length} unlocked</Text>
+            {rewardTiers.map((reward) => (
+              <View key={reward.title} style={[styles.rewardRow, reward.unlocked && styles.rewardRowUnlocked]}>
+                <View style={styles.rewardText}>
+                  <Text style={styles.rewardTitle}>{reward.title}</Text>
+                  <Text style={styles.rewardMeta}>{reward.detail}</Text>
+                </View>
+                <Chip label={reward.unlocked ? "Unlocked" : "Locked"} tone={reward.unlocked ? "success" : "default"} />
+              </View>
+            ))}
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Levels</Text>
+            <Text style={styles.sectionTitle}>Rank ladder</Text>
+            {LEVELS.map((level) => {
+              const active = level.title === currentLevel.title;
+              const reached = xp >= level.minXp;
+              return (
+                <View key={level.title} style={[styles.levelRow, active && styles.levelRowActive]}>
+                  <Text style={[styles.levelName, reached && styles.levelNameReached]}>{level.title}</Text>
+                  <Text style={styles.levelMeta}>{level.minXp} XP</Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Badge shelf</Text>
+            <Text style={styles.sectionTitle}>Earned and upcoming</Text>
+            <View style={styles.badgeGrid}>
+              {badges.map((badge) => (
+                <View key={badge.title} style={[styles.badgeCard, badge.earned && styles.badgeCardEarned]}>
+                  <Text style={[styles.badgeTitle, badge.earned && styles.badgeTitleEarned]}>{badge.title}</Text>
+                  <Text style={styles.badgeDetail}>{badge.detail}</Text>
+                  <Text style={[styles.badgeState, badge.earned && styles.badgeStateEarned]}>
+                    {badge.earned ? "Unlocked" : "Locked"}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>Recent score</Text>
+            <Text style={styles.sectionTitle}>Latest XP awards</Text>
+            {progress.scoreEvents.length ? (
+              progress.scoreEvents.slice().reverse().slice(0, 4).map((event) => (
+                <View key={event.id} style={styles.scoreEventRow}>
+                  <Text style={styles.scoreEventLabel}>{event.label}</Text>
+                  <Text style={styles.scoreEventXp}>+{event.xp}</Text>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.copy}>Open a stop or play narration to start scoring.</Text>
+            )}
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideStyle]}>
+            <Text style={styles.sectionEyebrow}>AR discoveries</Text>
+            <Text style={styles.sectionTitle}>Scene collection</Text>
+            <Text style={styles.copy}>AR-ready stops become hidden points on the Founders Compass. Open the tour page, choose the stop, then launch AR when available.</Text>
+            <View style={styles.collectionGrid}>
+              <View style={styles.collectionCard}>
+                <Text style={styles.collectionValue}>{arAvailable}</Text>
+                <Text style={styles.collectionLabel}>available AR stops</Text>
+              </View>
+              <View style={styles.collectionCard}>
+                <Text style={styles.collectionValue}>{arDiscoveries}</Text>
+                <Text style={styles.collectionLabel}>discovered</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.deckSlide, deckSlideWideStyle]}>
+            <Text style={styles.sectionEyebrow}>Tour collection</Text>
+            <Text style={styles.sectionTitle}>Compass progress</Text>
+            {tourProgress.map(({ tour, completed, isScavengerHunt, pct }) => (
+              <View key={tour.id} style={styles.tourRow}>
+                <View style={styles.tourRowHeader}>
+                  <Text style={styles.tourTitle}>{tour.title}</Text>
+                  <Text style={styles.tourPct}>{pct}%</Text>
+                </View>
+                <Text style={styles.tourMeta}>{completed} of {tour.stops.length} stops completed</Text>
+                {isScavengerHunt ? (
+                  <View style={styles.tourChips}>
+                    <Chip label="Scavenger hunt" tone="warn" />
+                  </View>
+                ) : null}
+                <View style={styles.smallTrack}>
+                  <View style={[styles.smallFill, { width: `${pct}%` }]} />
                 </View>
               </View>
-            );
-          })}
-        </View>
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Rewards</Text>
-        <Text style={styles.sectionTitle}>{unlockedRewardCount} of {rewardTiers.length} unlocked</Text>
-        {rewardTiers.map((reward) => (
-          <View key={reward.title} style={[styles.rewardRow, reward.unlocked && styles.rewardRowUnlocked]}>
-            <View style={styles.rewardText}>
-              <Text style={styles.rewardTitle}>{reward.title}</Text>
-              <Text style={styles.rewardMeta}>{reward.detail}</Text>
-            </View>
-            <Chip label={reward.unlocked ? "Unlocked" : "Locked"} tone={reward.unlocked ? "success" : "default"} />
+            ))}
           </View>
-        ))}
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Levels</Text>
-        <Text style={styles.sectionTitle}>Rank ladder</Text>
-        {LEVELS.map((level) => {
-          const active = level.title === currentLevel.title;
-          const reached = xp >= level.minXp;
-          return (
-            <View key={level.title} style={[styles.levelRow, active && styles.levelRowActive]}>
-              <Text style={[styles.levelName, reached && styles.levelNameReached]}>{level.title}</Text>
-              <Text style={styles.levelMeta}>{level.minXp} XP</Text>
-            </View>
-          );
-        })}
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Badge shelf</Text>
-        <Text style={styles.sectionTitle}>Earned and upcoming</Text>
-        <View style={styles.badgeGrid}>
-          {badges.map((badge) => (
-            <View key={badge.title} style={[styles.badgeCard, badge.earned && styles.badgeCardEarned]}>
-              <Text style={[styles.badgeTitle, badge.earned && styles.badgeTitleEarned]}>{badge.title}</Text>
-              <Text style={styles.badgeDetail}>{badge.detail}</Text>
-              <Text style={[styles.badgeState, badge.earned && styles.badgeStateEarned]}>
-                {badge.earned ? "Unlocked" : "Locked"}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Recent score</Text>
-        <Text style={styles.sectionTitle}>Latest XP awards</Text>
-        {progress.scoreEvents.length ? (
-          progress.scoreEvents.slice().reverse().slice(0, 4).map((event) => (
-            <View key={event.id} style={styles.scoreEventRow}>
-              <Text style={styles.scoreEventLabel}>{event.label}</Text>
-              <Text style={styles.scoreEventXp}>+{event.xp}</Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.copy}>Open a stop or play narration to start scoring.</Text>
-        )}
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>AR discoveries</Text>
-        <Text style={styles.sectionTitle}>Scene collection</Text>
-        <Text style={styles.copy}>AR-ready stops become hidden points on the Founders Compass. Open the tour page, choose the stop, then launch AR when available.</Text>
-        <View style={styles.collectionGrid}>
-          <View style={styles.collectionCard}>
-            <Text style={styles.collectionValue}>{arAvailable}</Text>
-            <Text style={styles.collectionLabel}>available AR stops</Text>
-          </View>
-          <View style={styles.collectionCard}>
-            <Text style={styles.collectionValue}>{arDiscoveries}</Text>
-            <Text style={styles.collectionLabel}>discovered</Text>
-          </View>
-        </View>
-      </Card>
-
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Tour collection</Text>
-        <Text style={styles.sectionTitle}>Compass progress</Text>
-        {tourProgress.map(({ tour, completed, isScavengerHunt, pct }) => (
-          <View key={tour.id} style={styles.tourRow}>
-            <View style={styles.tourRowHeader}>
-              <Text style={styles.tourTitle}>{tour.title}</Text>
-              <Text style={styles.tourPct}>{pct}%</Text>
-            </View>
-            <Text style={styles.tourMeta}>{completed} of {tour.stops.length} stops completed</Text>
-            {isScavengerHunt ? (
-              <View style={styles.tourChips}>
-                <Chip label="Scavenger hunt" tone="warn" />
-              </View>
-            ) : null}
-            <View style={styles.smallTrack}>
-              <View style={[styles.smallFill, { width: `${pct}%` }]} />
-            </View>
-          </View>
-        ))}
+        </ScrollView>
       </Card>
     </ScrollView>
   );
@@ -729,8 +732,30 @@ function createStyles(
     heroFocusLabel: { color: "rgba(255,255,255,0.58)", fontSize: type.font(11), fontWeight: "800", textTransform: "uppercase" },
     heroFocusValue: { color: "#ffffff", fontSize: type.font(13), fontWeight: "800" },
     card: { gap: 14, backgroundColor: colors.surfaceRaised },
-    scoreCard: { gap: 14, backgroundColor: colors.surfaceRaised, borderColor: colors.infoSoft },
-    questCard: { gap: 14, backgroundColor: colors.surfaceRaised, borderColor: colors.warnSoft },
+    scoreDeckCard: {
+      gap: 14,
+      backgroundColor: colors.surfaceRaised,
+      overflow: "hidden"
+    },
+    deckContent: {
+      gap: 14,
+      paddingRight: 4,
+      paddingBottom: 2
+    },
+    deckSlide: {
+      width: 312,
+      minHeight: 330,
+      gap: 14,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      padding: 16
+    },
+    deckSlideScore: {
+      borderColor: colors.warnSoft,
+      backgroundColor: colors.surfaceRaised
+    },
     cardHeader: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: 10 },
     cardHeaderText: { flex: 1, minWidth: 0 },
     progressChipWrap: { flexShrink: 0, alignSelf: "flex-start" },

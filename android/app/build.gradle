@@ -67,6 +67,11 @@ react {
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
 def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInReleaseBuilds') ?: false).toBoolean()
+def releaseStoreFilePath = (findProperty("phillyToursUploadStoreFile") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_FILE"))?.toString()
+def releaseStorePassword = (findProperty("phillyToursUploadStorePassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_PASSWORD"))?.toString()
+def releaseKeyAlias = (findProperty("phillyToursUploadKeyAlias") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_ALIAS"))?.toString()
+def releaseKeyPassword = (findProperty("phillyToursUploadKeyPassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_PASSWORD"))?.toString()
+def hasReleaseSigningConfig = releaseStoreFilePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -131,15 +136,23 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (hasReleaseSigningConfig) {
+                storeFile file(releaseStoreFilePath)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            if (hasReleaseSigningConfig) {
+                signingConfig signingConfigs.release
+            }
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

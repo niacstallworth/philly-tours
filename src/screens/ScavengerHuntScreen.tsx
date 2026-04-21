@@ -158,7 +158,7 @@ export function ScavengerHuntScreen() {
         <Card style={styles.summaryCard}>
           <Text style={styles.sectionTitle}>Location Needed</Text>
           <Text style={styles.summaryCopy}>
-            Hunt reveals use live position. Turn location back on for Philly AR Tours, then come back here and the collector will resume.
+            Hunt reveals use live position. Turn location back on for Philly Tours, then come back here and the collector will resume.
           </Text>
           <PrimaryButton label="Open Location Settings" onPress={() => void handleRetryLocation()} surface="hunt" />
         </Card>

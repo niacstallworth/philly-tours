@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Philly AR Tours</string>
+	<string>Philly Tours</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -59,17 +59,11 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera is required for AR tour placement and scene alignment.</string>
+	<string>Camera access lets Philly Tours place AR scenes in your surroundings.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Bluetooth is used to route narration to connected headphones or smart glasses and to discover supported Meta glasses for hands-free tour features.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>Allow Philly AR Tours to connect to the local development server while debugging on your network.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Location is used to trigger nearby AR tour stops while touring.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your location</string>
+	<string>Bluetooth can route narration to headphones or supported smart glasses.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location is used to trigger nearby AR tour stops.</string>
+	<string>Location helps Philly Tours show nearby stops, route progress, and compass-guided discoveries while you use the app.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

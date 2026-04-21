@@ -47,6 +47,8 @@
     "webapp:build": "npm run webapp:data && node scripts/build-webapp-dist.mjs",
     "webapp:package": "npm run webapp:build && node scripts/package-webapp-dist.mjs",
     "webapp:serve": "npm run webapp:data && node scripts/serve-webapp.mjs",
+    "preflight:store": "node scripts/store-release-preflight.mjs",
+    "store:screenshots:frame": "node scripts/generate-store-framed-screenshots.mjs",
     "sync-server": "node server/sync-server.js",
     "sync-server:deploy": "zsh scripts/deploy-sync-server-runtime.sh",
     "sync-server:deploy:remote": "zsh scripts/deploy-sync-server-remote.sh",

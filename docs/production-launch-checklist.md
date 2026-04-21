@@ -63,6 +63,13 @@ Important:
 - `development` and `preview` can point at local/dev backend URLs
 - `production` must point at the real HTTPS backend
 - EAS production builds do not read your local `.env`
+- Android release builds must use an upload/release keystore, not the debug keystore
+- Set release signing through secure CI/EAS/local secrets only:
+  - `PHILLY_TOURS_UPLOAD_STORE_FILE`
+  - `PHILLY_TOURS_UPLOAD_STORE_PASSWORD`
+  - `PHILLY_TOURS_UPLOAD_KEY_ALIAS`
+  - `PHILLY_TOURS_UPLOAD_KEY_PASSWORD`
+- Add the release/upload SHA-1 certificate fingerprint to the restricted Android Google Maps API key
 
 ## 6. Rebuild and Test Payments
 
@@ -92,9 +99,12 @@ Important:
 
 Before store submission or broad internal rollout:
 
+- `npm run preflight:store` passes
 - backend deployed under HTTPS
 - auth enabled
 - builder/admin accounts hashed and server-side only
 - production EAS env set correctly
+- store metadata prepared from `docs/store-submission-readiness.md`
+- App Store privacy answers and Google Play Data Safety match the final build
 - payments and entitlements verified
 - privacy deletion flow verified

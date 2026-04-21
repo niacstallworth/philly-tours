@@ -318,6 +318,14 @@ const RSS_UPDATES = [
     detail: "Short product and curation updates pulled into one RSS feed."
   }
 ];
+const BOARD_LEVELS = [
+  { title: "Visitor", minXp: 0 },
+  { title: "Route Scout", minXp: 100 },
+  { title: "Story Keeper", minXp: 250 },
+  { title: "City Archivist", minXp: 500 },
+  { title: "Founder Guide", minXp: 900 }
+];
+const FOUNDERS_COMPASS_ANCHOR = { lat: 39.953405220467, lng: -75.163235969318 };
 let routeMap = null;
 let routeMapLayers = null;
 let stopStreetView = null;
@@ -331,6 +339,8 @@ let preferredSpeechVoice = null;
 let arStream = null;
 let arLocationWatchId = null;
 let mapLocationWatchId = null;
+let compassOrientationHandler = null;
+const compassAutoAdvancedStopKeys = new Set();
 let xrSession = null;
 let xrCanvas = null;
 let xrGl = null;
@@ -340,6 +350,7 @@ const AR_AUTO_NARRATION_COOLDOWN_MS = 45000;
 const AUDIO_PREVIEW_LIMIT = 2;
 let copyButtonResetTimer = null;
 let webTurnstileMountTimer = null;
+let webTurnstileWidgetId = null;
 let authRefreshTimer = null;
 let tabBarAutoHideTimer = null;
 let supabaseClientPromise = null;
@@ -395,6 +406,10 @@ const state = {
     userLocation: null,
     nearestStopId: null,
     distanceToSelectedM: null,
+    headingReady: false,
+    headingDegrees: null,
+    headingError: "",
+    autoAdvanceNote: "",
     followNearestStop: true
   },
   glassesMode: loadGlassesMode(),
@@ -971,7 +986,7 @@ function loadGoogleMapsApi() {
 
   const apiKey = getGoogleMapsJsApiKey();
   if (!apiKey) {
-    return Promise.reject(new Error("Add `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY` to render Google Maps inside the web shell."));
+    return Promise.reject(new Error("Map preview is unavailable right now."));
   }
 
   googleMapsApiPromise = new Promise((resolve, reject) => {
@@ -1004,11 +1019,11 @@ function loadGoogleMapsApi() {
       resolve(window.google.maps);
     };
     const timeoutId = window.setTimeout(() => {
-      fail("Google Maps JavaScript API timed out before rendering.");
+      fail("Map preview is taking too long to load.");
     }, 12000);
     const handleAuthFailure = () => {
       googleMapsAuthFailed = true;
-      fail("Google Maps authorization failed for this browser.");
+      fail("Map preview is unavailable right now.");
     };
 
     window.gm_authFailure = handleAuthFailure;
@@ -1021,7 +1036,7 @@ function loadGoogleMapsApi() {
     script.defer = true;
     script.referrerPolicy = "origin";
     script.onerror = () => {
-      fail("Unable to load Google Maps JavaScript API.");
+      fail("Map preview is unavailable right now.");
     };
 
     document.head.appendChild(script);
@@ -1347,7 +1362,7 @@ function buildProjectMapEmbedMarkup(label) {
       <div class="route-map-fallback">
         <div>
           <strong>Google map unavailable</strong>
-          <span>Add a browser Google Maps key or publish a public Google map project URL to render the map here.</span>
+          <span>Map preview is unavailable right now. You can still explore the tour cards and open directions from each stop.</span>
         </div>
       </div>
     `;
@@ -2280,7 +2295,7 @@ function clearOAuthRedirectParams() {
 async function finalizeOAuthSignIn(accessToken, provider) {
   const syncServerUrl = getSyncServerUrl();
   if (!syncServerUrl) {
-    throw new Error("This web build is missing `EXPO_PUBLIC_WEB_SYNC_SERVER_URL`.");
+    throw new Error("Sign-in is unavailable right now.");
   }
 
   const response = await fetch(`${syncServerUrl}/api/auth/oauth-session`, {
@@ -2296,7 +2311,7 @@ async function finalizeOAuthSignIn(accessToken, provider) {
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || !payload.token || !payload.session) {
-    throw new Error(payload.error || "Unable to complete provider sign-in.");
+    throw new Error(payload.error || "Unable to complete sign-in.");
   }
 
   state.auth.session = payload.session;
@@ -2325,12 +2340,12 @@ async function completeOAuthRedirectIfPresent() {
     clearPendingOAuthProvider();
     clearOAuthRedirectParams();
     state.auth.status = "error";
-    state.auth.message = "Supabase Auth is not configured for browser sign-in.";
+    state.auth.message = "Sign-in is unavailable right now.";
     return false;
   }
 
   state.auth.status = "submitting";
-  state.auth.message = "Completing provider sign-in...";
+  state.auth.message = "Completing sign-in...";
   render(false);
 
   try {
@@ -2353,7 +2368,7 @@ async function completeOAuthRedirectIfPresent() {
     }
 
     if (!accessToken) {
-      throw new Error("Provider sign-in did not return a usable session.");
+      throw new Error("Sign-in could not finish.");
     }
 
     await finalizeOAuthSignIn(accessToken, pendingProvider || undefined);
@@ -2367,7 +2382,7 @@ async function completeOAuthRedirectIfPresent() {
     state.auth.session = null;
     state.auth.authToken = "";
     state.auth.status = "error";
-    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to complete provider sign-in.", pendingProvider || "");
+    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to complete sign-in.", pendingProvider || "");
     return false;
   }
 }
@@ -2457,14 +2472,15 @@ async function startOAuthSignIn(provider) {
   const client = await getSupabaseBrowserClient();
   if (!client) {
     state.auth.status = "error";
-    state.auth.message = withAuthRetryGuidance("Supabase Auth is not configured for Google or Apple sign-in.");
+    state.auth.message = withAuthRetryGuidance("Sign-in is unavailable right now.");
     render(false);
     return;
   }
 
   if (getCloudflareTurnstileSiteKey() && !state.auth.turnstileToken) {
-    state.auth.status = "error";
-    state.auth.message = "Complete the Cloudflare verification before continuing with Google or Apple.";
+    state.auth.status = "idle";
+    state.auth.message = "";
+    mountWebTurnstile();
     render(false);
     return;
   }
@@ -2493,7 +2509,7 @@ async function startOAuthSignIn(provider) {
   } catch (error) {
     clearPendingOAuthProvider();
     state.auth.status = "error";
-    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to start provider sign-in.", provider);
+    state.auth.message = withAuthRetryGuidance((error && error.message) || "Unable to start sign-in.", provider);
     render(false);
   }
 }
@@ -2523,6 +2539,11 @@ function isQuestBrowser() {
   return /OculusBrowser|Quest/i.test(userAgent);
 }
 
+function isSocialInAppBrowser() {
+  const userAgent = navigator.userAgent || "";
+  return /FBAN|FBAV|FB_IAB|Instagram|Line\/|TikTok|Twitter/i.test(userAgent);
+}
+
 async function initializeWebXRSupport() {
   if (state.xr.checked) {
     return state.xr;
@@ -2535,7 +2556,7 @@ async function initializeWebXRSupport() {
       ...state.xr,
       supported: false,
       sessionType: "",
-      deviceLabel: "Quest WebXR requires HTTPS.",
+      deviceLabel: "Headset view is unavailable here.",
       error: ""
     };
     render(false);
@@ -2547,7 +2568,7 @@ async function initializeWebXRSupport() {
       ...state.xr,
       supported: false,
       sessionType: "",
-      deviceLabel: "WebXR is reserved for Quest Browser in this build.",
+      deviceLabel: "Headset view is unavailable here.",
       error: ""
     };
     render(false);
@@ -2559,7 +2580,7 @@ async function initializeWebXRSupport() {
       ...state.xr,
       supported: false,
       sessionType: "",
-      deviceLabel: "Quest Browser is open, but WebXR is unavailable on this device.",
+      deviceLabel: "Headset view is unavailable here.",
       error: ""
     };
     render(false);
@@ -2574,10 +2595,10 @@ async function initializeWebXRSupport() {
       supported: supportsImmersiveAr || supportsImmersiveVr,
       sessionType: supportsImmersiveAr ? "immersive-ar" : supportsImmersiveVr ? "immersive-vr" : "",
       deviceLabel: supportsImmersiveAr
-        ? "Quest passthrough WebXR is available."
+        ? "Headset camera view is ready."
         : supportsImmersiveVr
-          ? "Quest immersive WebXR is available."
-          : "Quest Browser is open, but immersive WebXR is not available right now.",
+          ? "Headset view is ready."
+          : "Headset view is unavailable right now.",
       error: ""
     };
   } catch (error) {
@@ -2585,8 +2606,8 @@ async function initializeWebXRSupport() {
       ...state.xr,
       supported: false,
       sessionType: "",
-      deviceLabel: "Quest Browser detected.",
-      error: error instanceof Error ? error.message : "Could not detect WebXR support."
+      deviceLabel: "Headset view is unavailable right now.",
+      error: error instanceof Error ? "Headset view is unavailable right now." : "Could not check headset view."
     };
   }
 
@@ -2631,14 +2652,14 @@ function syncWebXROverlay() {
   overlayRoot.hidden = false;
   overlayRoot.innerHTML = `
     <div class="webxr-overlay-panel">
-      <p class="eyebrow">Quest WebXR</p>
+      <p class="eyebrow">Headset view</p>
       <h3>${escapeHtml(selectedStop.title)}</h3>
       <p>${escapeHtml(selectedStop.fullAddress || selectedStop.locationLabel || selectedTour.title)}</p>
       <div class="webxr-overlay-meta">
         <span>${escapeHtml(selectedTour.title)}</span>
         <span>${escapeHtml(state.xr.sessionType === "immersive-ar" ? "Passthrough mode" : "Immersive mode")}</span>
       </div>
-      <button type="button" class="ghost-button" data-webxr-action="stop-webxr">Exit Quest WebXR</button>
+      <button type="button" class="ghost-button" data-webxr-action="stop-webxr">Exit headset view</button>
     </div>
   `;
 }
@@ -2664,7 +2685,7 @@ async function startWebXRMode() {
   await initializeWebXRSupport();
 
   if (!state.xr.supported || !state.xr.sessionType || !navigator.xr) {
-    state.xr.error = state.xr.error || "Quest WebXR is not available in this browser.";
+    state.xr.error = state.xr.error || "Headset view is unavailable here.";
     render(false);
     return;
   }
@@ -2690,7 +2711,7 @@ async function startWebXRMode() {
     xrCanvas = document.createElement("canvas");
     xrGl = xrCanvas.getContext("webgl", { xrCompatible: true, alpha: true, antialias: true });
     if (!xrGl) {
-      throw new Error("WebGL is unavailable for WebXR.");
+      throw new Error("Headset view is unavailable here.");
     }
     if (typeof xrGl.makeXRCompatible === "function") {
       await xrGl.makeXRCompatible();
@@ -2735,7 +2756,7 @@ async function startWebXRMode() {
     state.xr = {
       ...state.xr,
       mode: "idle",
-      error: error instanceof Error ? error.message : "Could not start Quest WebXR."
+      error: error instanceof Error ? error.message : "Could not start headset view."
     };
     syncWebXROverlay();
     render(false);
@@ -2825,6 +2846,166 @@ function haversineDistanceMeters(a, b) {
   return 2 * earthRadiusM * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
+function normalizeDegrees(degrees) {
+  return ((degrees % 360) + 360) % 360;
+}
+
+function getCardinalDirection(degrees) {
+  if (typeof degrees !== "number") {
+    return "Waiting";
+  }
+  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+  return directions[Math.round(normalizeDegrees(degrees) / 45) % directions.length];
+}
+
+function getBearingToPoint(from, to) {
+  const lat1 = (from.lat * Math.PI) / 180;
+  const lat2 = (to.lat * Math.PI) / 180;
+  const deltaLng = ((to.lng - from.lng) * Math.PI) / 180;
+  const y = Math.sin(deltaLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLng);
+  return normalizeDegrees((Math.atan2(y, x) * 180) / Math.PI);
+}
+
+function getTurnLabel(delta) {
+  if (typeof delta !== "number") {
+    return "Start Compass, then hold the device level to wake the heading.";
+  }
+  const normalized = ((delta + 540) % 360) - 180;
+  const magnitude = Math.abs(normalized);
+  if (magnitude < 12) {
+    return "You are facing the next compass point.";
+  }
+  return `Turn ${normalized > 0 ? "right" : "left"} ${Math.round(magnitude)} deg toward the next point.`;
+}
+
+function getDistanceLabel(distanceMeters) {
+  if (typeof distanceMeters !== "number") {
+    return "Location pending";
+  }
+  if (distanceMeters < 160) {
+    return `${Math.round(distanceMeters)} m away`;
+  }
+  const miles = distanceMeters / 1609.344;
+  return miles < 1 ? `${miles.toFixed(2)} mi away` : `${miles.toFixed(1)} mi away`;
+}
+
+function getCompassReadout(selectedStop) {
+  const target = { lat: selectedStop.lat, lng: selectedStop.lng };
+  const origin = state.map.userLocation || FOUNDERS_COMPASS_ANCHOR;
+  const heading = typeof state.map.headingDegrees === "number" ? normalizeDegrees(state.map.headingDegrees) : null;
+  const targetBearing = getBearingToPoint(origin, target);
+  const targetDelta = heading === null ? null : targetBearing - heading;
+  const triggerRadiusM = selectedStop.triggerRadiusM ?? selectedStop.radius ?? 40;
+  const distanceMeters = state.map.userLocation
+    ? haversineDistanceMeters(state.map.userLocation, target)
+    : null;
+
+  return {
+    heading,
+    headingLabel: heading === null ? "Finding north" : `${Math.round(heading)} deg ${getCardinalDirection(heading)}`,
+    cardinal: getCardinalDirection(heading),
+    targetBearing,
+    targetRotation: heading === null ? targetBearing : targetBearing - heading,
+    needleRotation: heading === null ? 0 : -heading,
+    distanceMeters,
+    triggerRadiusM,
+    inArrivalZone: typeof distanceMeters === "number" && distanceMeters <= triggerRadiusM,
+    distanceLabel: getDistanceLabel(distanceMeters),
+    instruction: getTurnLabel(targetDelta),
+    originLabel: state.map.userLocation ? "Using your location" : "Previewing from Founders Compass"
+  };
+}
+
+function maybeAdvanceCompassTarget(selectedTour, selectedStop, distanceMeters) {
+  if (state.activeTab !== "map" || !state.map.tracking || typeof distanceMeters !== "number") {
+    return;
+  }
+
+  const triggerRadiusM = selectedStop.triggerRadiusM ?? selectedStop.radius ?? 40;
+  if (distanceMeters > triggerRadiusM) {
+    return;
+  }
+
+  const advanceKey = `${selectedTour.id}:${selectedStop.id}`;
+  if (compassAutoAdvancedStopKeys.has(advanceKey)) {
+    return;
+  }
+  compassAutoAdvancedStopKeys.add(advanceKey);
+
+  if (!state.completedStopIds.includes(selectedStop.id)) {
+    state.completedStopIds = [...state.completedStopIds, selectedStop.id];
+    saveCompletedStops();
+  }
+
+  const currentIndex = getStopIndexForTour(selectedTour, selectedStop.id);
+  const nextStop = selectedTour.stops[currentIndex + 1] || null;
+  if (nextStop) {
+    state.selectedStopId = nextStop.id;
+    state.map.distanceToSelectedM = state.map.userLocation
+      ? Math.round(haversineDistanceMeters(state.map.userLocation, { lat: nextStop.lat, lng: nextStop.lng }))
+      : null;
+    state.map.autoAdvanceNote = `Reached ${selectedStop.title}. Compass advanced to ${nextStop.title}.`;
+  } else {
+    state.map.autoAdvanceNote = `Reached ${selectedStop.title}. This compass path is complete.`;
+  }
+}
+
+async function startCompassHeading() {
+  state.map.headingError = "";
+
+  if (compassOrientationHandler) {
+    return;
+  }
+
+  if (!window.DeviceOrientationEvent) {
+    state.map.headingError = "Compass direction is not available here.";
+    state.map.headingReady = false;
+    return;
+  }
+
+  try {
+    if (typeof window.DeviceOrientationEvent.requestPermission === "function") {
+      const permission = await window.DeviceOrientationEvent.requestPermission();
+      if (permission !== "granted") {
+        throw new Error("Compass permission is off.");
+      }
+    }
+
+    compassOrientationHandler = (event) => {
+      const webkitHeading = typeof event.webkitCompassHeading === "number" ? event.webkitCompassHeading : null;
+      const alphaHeading = typeof event.alpha === "number" ? normalizeDegrees(360 - event.alpha) : null;
+      const nextHeading = webkitHeading ?? alphaHeading;
+
+      if (typeof nextHeading !== "number") {
+        return;
+      }
+
+      state.map.headingDegrees = normalizeDegrees(nextHeading);
+      state.map.headingReady = true;
+      state.map.headingError = "";
+
+      if (state.activeTab === "map") {
+        render(false);
+      }
+    };
+
+    window.addEventListener("deviceorientation", compassOrientationHandler, true);
+  } catch (error) {
+    state.map.headingReady = false;
+    state.map.headingError = (error && error.message) || "Turn on compass permission for live direction.";
+    if (state.activeTab === "map") {
+      render(false);
+    }
+  }
+}
+
+function startCompassLive() {
+  state.map.requested = true;
+  void startCompassHeading();
+  startHomeMapLive();
+}
+
 function updateArNearestStop(positionCoords) {
   const selectedTour = getSelectedTour();
   let nearestStop = null;
@@ -2902,13 +3083,20 @@ function updateHomeMapLocation(positionCoords) {
       haversineDistanceMeters(positionCoords, { lat: nearestStop.lat, lng: nearestStop.lng })
     );
   }
+
+  const activeStop = getSelectedStop();
+  const activeDistance = Math.round(
+    haversineDistanceMeters(positionCoords, { lat: activeStop.lat, lng: activeStop.lng })
+  );
+  state.map.distanceToSelectedM = activeDistance;
+  maybeAdvanceCompassTarget(selectedTour, activeStop, activeDistance);
 }
 
 function startHomeMapLive() {
   state.map.requested = true;
 
   if (!navigator.geolocation) {
-    state.map.error = "Location is not available in this browser.";
+    state.map.error = "Location is not available here.";
     state.map.tracking = false;
     state.map.locationReady = false;
     render(false);
@@ -2928,15 +3116,15 @@ function startHomeMapLive() {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       });
-      if (state.activeTab === "home") {
+      if (state.activeTab === "home" || state.activeTab === "map") {
         render(false);
       }
     },
     () => {
       stopHomeMapLive();
       state.map.locationReady = false;
-      state.map.error = "Location access is blocked. Turn it on to make the map follow you.";
-      if (state.activeTab === "home") {
+      state.map.error = "Location is off. Turn it on to let the compass follow you.";
+      if (state.activeTab === "home" || state.activeTab === "map") {
         render(false);
       }
     },
@@ -2956,7 +3144,7 @@ async function startArLive() {
 
   try {
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error("Camera access is not available in this browser.");
+      throw new Error("Camera is not available here. Try the mobile app for the best AR experience.");
     }
 
     arStream = await navigator.mediaDevices.getUserMedia({
@@ -3001,13 +3189,13 @@ async function startArLive() {
         }
       );
     } else {
-      state.ar.error = "Geolocation is not available in this browser.";
+      state.ar.error = "Location is not available here. You can still browse the story.";
     }
 
     render(false);
   } catch (error) {
     stopArLive();
-    state.ar.error = error instanceof Error ? error.message : "Unable to start AR live mode.";
+    state.ar.error = error instanceof Error ? error.message : "Unable to start camera mode.";
     render(false);
   }
 }
@@ -3169,7 +3357,7 @@ function hydrateStateFromLocation() {
   const nextHomeTour = homeTour ? getTourById(homeTour) : null;
   const nextTour = tourId ? getTourById(tourId) : null;
   const nextRoutePageTour = routePage ? getTourById(routePage) : null;
-  const effectiveHomeTour = nextHomeTour;
+  const effectiveHomeTour = nextHomeTour || (state.activeTab === "home" ? nextTour : null);
   const effectiveTour = nextRoutePageTour || (state.activeTab === "home" && effectiveHomeTour ? effectiveHomeTour : nextTour);
 
   state.home.focusTourId = state.activeTab === "home" && effectiveHomeTour ? effectiveHomeTour.id : null;
@@ -3347,6 +3535,9 @@ function handleClick(event) {
     state.selectedTourId = selectedTour.id;
     state.selectedStopId = selectedTour.stops[0]?.id ?? "";
     state.expandedTourCardId = selectedTour.id;
+    state.routePageTourId = null;
+    state.map.followNearestStop = false;
+    state.map.autoAdvanceNote = "";
     render();
     return;
   }
@@ -3414,6 +3605,7 @@ function handleClick(event) {
   if (action === "select-stop" && stopId) {
     state.map.followNearestStop = false;
     state.selectedStopId = stopId;
+    state.map.autoAdvanceNote = "";
     render();
     return;
   }
@@ -3428,13 +3620,14 @@ function handleClick(event) {
     if (nextStop) {
       state.map.followNearestStop = false;
       state.selectedStopId = nextStop.id;
+      state.map.autoAdvanceNote = "";
       render();
     }
     return;
   }
 
   if (action === "start-map-live") {
-    startHomeMapLive();
+    startCompassLive();
     render(false);
     return;
   }
@@ -3442,7 +3635,7 @@ function handleClick(event) {
   if (action === "resume-map-follow") {
     state.map.followNearestStop = true;
     if (!state.map.tracking) {
-      startHomeMapLive();
+      startCompassLive();
     } else if (state.map.userLocation) {
       updateHomeMapLocation(state.map.userLocation);
       render(false);
@@ -3814,6 +4007,44 @@ function getGlobalStats() {
   return { totalStops, completedStops, toursStarted };
 }
 
+function isScavengerHuntTour(tour) {
+  const searchable = `${tour?.id || ""} ${tour?.title || ""}`.toLowerCase();
+  return searchable.includes("scavenger") || searchable.includes("scavanger");
+}
+
+function getBoardTitle(title) {
+  const cleaned = String(title || "")
+    .replace(/\([^)]*\)/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.length <= 22 ? cleaned : `${cleaned.slice(0, 20).trim()}...`;
+}
+
+function getBoardLevel(xp) {
+  const currentLevelIndex = BOARD_LEVELS.reduce((activeIndex, level, index) => (xp >= level.minXp ? index : activeIndex), 0);
+  const currentLevel = BOARD_LEVELS[currentLevelIndex];
+  const nextLevel = BOARD_LEVELS[currentLevelIndex + 1] || null;
+  const previousLevelXp = currentLevel.minXp;
+  const nextLevelXp = nextLevel?.minXp || currentLevel.minXp;
+  const levelSpan = Math.max(nextLevelXp - previousLevelXp, 1);
+  const levelPct = nextLevel ? Math.min(100, Math.round(((xp - previousLevelXp) / levelSpan) * 100)) : 100;
+  return { currentLevel, nextLevel, nextLevelXp, levelPct };
+}
+
+function renderBoardSpace(space, placement = "top") {
+  if (!space) {
+    return `<div class="board-space board-space--empty"></div>`;
+  }
+  return `
+    <div class="board-space board-space--${placement} board-space--${space.state}">
+      <span class="board-space-band board-space-band--${space.tone}"></span>
+      <span class="board-space-number">${space.index + 1}</span>
+      <strong>${escapeHtml(space.title)}</strong>
+      <span>${space.state === "claimed" ? "Claimed" : space.state === "next" ? "Next" : space.state === "visited" ? "Visited" : "Locked"}</span>
+    </div>
+  `;
+}
+
 function truncateCopy(value, maxLength = 180) {
   if (!value || value.length <= maxLength) {
     return value;
@@ -3847,12 +4078,12 @@ function renderAuthScreen() {
       <article class="panel auth-panel auth-panel--cinematic">
         <div class="auth-panel-hero">
           <p class="eyebrow">Founders Threads access</p>
-          <h2>Sign in to enter Philly AR Tours.</h2>
+          <h2>Sign in to enter Philly Tours.</h2>
         </div>
         <div class="auth-form auth-form--cinematic">
           <div class="auth-form-top">
             <span class="status-pill">Private access</span>
-            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Google + Apple ready" : "Provider setup needed"}</span>
+            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Ready" : "Coming soon"}</span>
           </div>
           <div class="auth-provider-row auth-provider-row--waiver">
             <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${providerButtonsEnabled ? "" : "disabled"}>
@@ -3863,29 +4094,25 @@ function renderAuthScreen() {
             </button>
           </div>
           <div class="drawer-copy auth-helper-box">
-            <strong>Google sign-in note</strong>
-            <p>Google users may have to sign in twice to activate the token. This is expected behavior. If the app gets stuck, refresh the page.</p>
-          </div>
-          <div class="drawer-copy auth-helper-box">
             <strong>Login help</strong>
-            <p>If sign-in fails, refresh the page and try again.</p>
+            <p>If sign-in pauses, refresh the page and try again.</p>
           </div>
           ${
             hasSiteKey
               ? state.auth.turnstileToken
-                ? '<div class="subscription-status success">Verification complete. You can step into the app.</div>'
-                : '<div id="webapp-turnstile" class="turnstile-mount"></div>'
-              : '<div class="subscription-status">Add `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY` to render the challenge on this build.</div>'
+                ? ""
+                : '<div id="webapp-turnstile" class="turnstile-mount turnstile-mount--silent" aria-hidden="true"></div>'
+              : ""
           }
           ${
             hasSyncServer
               ? ""
-              : '<div class="subscription-status error">Add `EXPO_PUBLIC_WEB_SYNC_SERVER_URL` so the webapp can create real authenticated sessions.</div>'
+              : '<div class="subscription-status error">Sign-in is unavailable right now.</div>'
           }
           ${
             hasProviderAuth
               ? ""
-              : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable provider sign-in.</p>'
+              : '<p class="subscription-status">Sign-in is coming soon.</p>'
           }
           ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
           <div class="drawer-copy">
@@ -3919,17 +4146,17 @@ function renderSettingsSignInCard() {
       <div class="panel-header">
         <div>
           <p class="eyebrow">Sign in</p>
-          <h3>${activeUser ? "Manage web access from settings" : "Connect Google or Apple from settings"}</h3>
+          <h3>${activeUser ? "You are signed in" : "Sign in with Google or Apple"}</h3>
         </div>
         <span class="status-pill ${activeUser || hasProviderAuth ? "is-live" : ""}">${
-          activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Setup needed"
+          activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Coming soon"
         }</span>
       </div>
       ${
         activeUser
           ? `<div class="drawer-copy auth-helper-box">
               <strong>${escapeHtml(activeUser.displayName || activeUser.email || "Web session active")}</strong>
-              <p>${escapeHtml(activeUser.email || "Your browser session is active on this device.")}</p>
+              <p>${escapeHtml(activeUser.email || "Your visit is saved on this device.")}</p>
             </div>`
           : ""
       }
@@ -3941,26 +4168,22 @@ function renderSettingsSignInCard() {
           Continue with Apple
         </button>
       </div>
-      <div class="drawer-copy auth-helper-box">
-        <strong>Google sign-in note</strong>
-        <p>Google users may have to sign in twice to activate the token. This is expected behavior. If the app gets stuck, refresh the page.</p>
-      </div>
       ${
         hasSiteKey
           ? state.auth.turnstileToken
-            ? '<div class="subscription-status success">Verification complete. You can sign in from settings.</div>'
-            : '<div id="webapp-turnstile" class="turnstile-mount"></div>'
-          : '<div class="subscription-status">Add `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY` to render the challenge on this build.</div>'
+            ? ""
+            : '<div id="webapp-turnstile" class="turnstile-mount turnstile-mount--silent" aria-hidden="true"></div>'
+          : ""
       }
       ${
         hasSyncServer
           ? ""
-          : '<div class="subscription-status error">Add `EXPO_PUBLIC_WEB_SYNC_SERVER_URL` so the webapp can create real authenticated sessions.</div>'
+          : '<div class="subscription-status error">Sign-in is unavailable right now.</div>'
       }
       ${
         hasProviderAuth
           ? ""
-          : '<p class="subscription-status">Add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to enable provider sign-in.</p>'
+          : '<p class="subscription-status">Sign-in is coming soon.</p>'
       }
       ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
       <div class="button-row">
@@ -4110,9 +4333,11 @@ function mountWebTurnstile() {
   }
 
   mountNode.innerHTML = "";
-  window.turnstile.render("#webapp-turnstile", {
+  webTurnstileWidgetId = window.turnstile.render("#webapp-turnstile", {
     sitekey: siteKey,
     theme: "light",
+    size: challengePage ? "normal" : "invisible",
+    appearance: challengePage ? "always" : "execute",
     callback(token) {
       if (challengePage) {
         if (challengeStatus) {
@@ -4133,7 +4358,8 @@ function mountWebTurnstile() {
         return;
       }
       state.auth.turnstileToken = null;
-      render(false);
+      webTurnstileWidgetId = null;
+      mountWebTurnstile();
     },
     "timeout-callback"() {
       if (challengePage) {
@@ -4141,23 +4367,27 @@ function mountWebTurnstile() {
         return;
       }
       state.auth.turnstileToken = null;
-      render(false);
+      webTurnstileWidgetId = null;
+      mountWebTurnstile();
     },
     "error-callback"(code) {
       if (challengePage) {
         if (challengeStatus) {
           challengeStatus.style.display = "block";
-          challengeStatus.textContent = "Cloudflare verification could not load. Refresh and try again.";
+          challengeStatus.textContent = "Verification could not load. Refresh and try again.";
         }
         postTurnstileChallengeMessage({ type: "error", code: code || null });
         return;
       }
       state.auth.turnstileToken = null;
-      state.auth.status = "error";
-      state.auth.message = "Cloudflare verification could not load. Refresh and try again.";
+      state.auth.status = "idle";
+      state.auth.message = "";
       render(false);
     }
   });
+  if (!challengePage && webTurnstileWidgetId && typeof window.turnstile.execute === "function") {
+    window.turnstile.execute(webTurnstileWidgetId);
+  }
 }
 
 async function submitWebappAuth() {
@@ -4170,7 +4400,7 @@ async function submitWebappAuth() {
 
   if (!syncServerUrl) {
     state.auth.status = "error";
-    state.auth.message = "This web build is missing `EXPO_PUBLIC_WEB_SYNC_SERVER_URL`.";
+    state.auth.message = "Sign-in is unavailable right now.";
     render(false);
     return;
   }
@@ -4183,8 +4413,9 @@ async function submitWebappAuth() {
   }
 
   if (siteKey && !state.auth.turnstileToken) {
-    state.auth.status = "error";
-    state.auth.message = "Complete the Cloudflare challenge before signing in.";
+    state.auth.status = "idle";
+    state.auth.message = "";
+    mountWebTurnstile();
     render(false);
     return;
   }
@@ -4281,7 +4512,7 @@ async function subscribeProfileEmail() {
   const { supabaseUrl, supabaseAnonKey, newsletterTable } = getNewsletterApiConfig();
   if (!supabaseUrl || !supabaseAnonKey) {
     state.subscription.status = "error";
-    state.subscription.message = "Subscription is not configured yet for this web build.";
+    state.subscription.message = "Email signup is unavailable right now.";
     render(false);
     return;
   }
@@ -4343,7 +4574,7 @@ async function startTourGuideCheckout() {
   const guideConfig = getInPersonTourGuideConfig();
   if (!guideConfig.amountCents) {
     state.checkout.status = "error";
-    state.checkout.message = "In-person tour guide checkout is not configured yet for this build.";
+    state.checkout.message = "Tour guide checkout is unavailable right now.";
     render(false);
     return;
   }
@@ -4361,7 +4592,7 @@ async function startCheckoutProduct({ amount, title, planId, successTab, idempot
   const syncServerUrl = getSyncServerUrl();
   if (!syncServerUrl) {
     state.checkout.status = "error";
-    state.checkout.message = "Checkout is not configured for this web build yet.";
+    state.checkout.message = "Checkout is unavailable right now.";
     render(false);
     return;
   }
@@ -4424,15 +4655,15 @@ function getSceneConfig(selectedTour, globalStats) {
           <article class="hero-floating-card hero-floating-card--compact">
             <strong>${state.home.focusTourId ? "Focused tour" : "Collection overview"}</strong>
             <h3>${state.home.focusTourId ? selectedTour.title : `${tours.length} tours available`}</h3>
-            <p>${state.home.focusTourId ? truncateCopy(selectedTour.summary, 136) : "Choose a tour below to isolate only its stops and route line on the map."}</p>
+            <p>${state.home.focusTourId ? truncateCopy(selectedTour.summary, 136) : "Choose a tour below to isolate its compass points on the map."}</p>
           </article>
         `
       };
     case "map":
       return {
-        eyebrow: "Route planner",
-        title: "Pick the right Philadelphia tour without guessing where to start.",
-        body: "Choose by neighborhood, time, or story theme, then open a dedicated route page when you are ready to move from browsing into a real plan.",
+        eyebrow: "Founders Compass",
+        title: "Point the webapp at the next meaningful Philadelphia stop.",
+        body: "Choose a Compass path, start location and heading, then let the selected card steer the live bearing, distance, and story order.",
         metrics: [],
         floatingCard: `
           <article class="hero-floating-card">
@@ -4449,12 +4680,12 @@ function getSceneConfig(selectedTour, globalStats) {
     case "ar":
       return {
         eyebrow: "AR field mode",
-        title: "Use AR when you are already near a stop and need a calm field companion.",
-        body: "The AR tab is built for on-site use: camera, distance awareness, narration handoff, and lightweight stop guidance without losing your selected route.",
+        title: "Use AR when you are near a stop and ready to look closer.",
+        body: "The AR tab helps you get oriented, hear the story, and move into the mobile app when it is time for the full camera experience.",
         metrics: [],
         floatingCard: `
           <article class="hero-floating-card hero-floating-card--compact">
-            <strong>Selected route</strong>
+            <strong>Selected tour</strong>
             <h3>${selectedTour.title}</h3>
             <p>${selectedTour.arFocus}</p>
           </article>
@@ -4750,7 +4981,7 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
   }
   switch (state.activeTab) {
     case "map":
-      return renderRouteCatalogTab(selectedTour);
+      return renderRouteTab(selectedTour, selectedStop);
     case "home":
       return renderHomeTab(selectedTour);
     case "ar":
@@ -4816,10 +5047,15 @@ function renderHomeTab(selectedTour) {
         ${focusedTour
           ? ""
           : `<p class="lede">Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map.</p>`}
+        ${renderStoryLogisticsCard(focusedTour || previewTour)}
         <div class="panel panel--map-host route-pack-map">
           <div class="route-map-shell route-map-shell--home">
             <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
           </div>
+        </div>
+        <div class="in-app-browser-notice">
+          <strong>Want the best map view?</strong>
+          <p>Open this page in your phone browser for the smoothest map and compass experience.</p>
         </div>
         <div class="home-tour-grid">
           ${tours
@@ -4876,6 +5112,112 @@ function renderHomeTab(selectedTour) {
   `;
 }
 
+function renderStoryLogisticsCard(tour) {
+  const leadStops = (tour?.stops || []).slice(0, 4).map((stop) => stop.title);
+  const stopPreview = leadStops.length ? leadStops.join(" -> ") : "Compass start -> next meaningful stop";
+  return `
+    <div class="story-logistics-card">
+      <div>
+        <p class="eyebrow">Story Logistics</p>
+        <strong>Routes shaped by story, geography, and momentum.</strong>
+      </div>
+      <p>Each next stop is chosen to keep the route moving forward, avoiding awkward jumps while preserving the story arc.</p>
+      <span>${stopPreview}</span>
+    </div>
+  `;
+}
+
+function renderCompassPanel(selectedTour, selectedStop) {
+  const readout = getCompassReadout(selectedStop);
+  const currentStopIndex = Math.max(getStopIndexForTour(selectedTour, selectedStop.id), 0);
+  const stopCount = selectedTour.stops.length;
+  const canGoPrev = currentStopIndex > 0;
+  const canGoNext = currentStopIndex < stopCount - 1;
+  const headingStatus = state.map.headingReady
+    ? "Phone compass live"
+    : state.map.requested
+      ? "Waiting for heading"
+      : "Ready to start";
+  const locationStatus = state.map.locationReady
+    ? readout.inArrivalZone
+      ? "Inside arrival zone"
+      : readout.distanceLabel
+    : state.map.requested
+      ? "Waiting for location"
+      : "Location off";
+
+  return `
+    <article class="panel compass-panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Founders Compass</p>
+          <h3>${readout.headingLabel}</h3>
+        </div>
+        <span class="status-pill ${state.map.headingReady ? "is-live" : ""}">${headingStatus}</span>
+      </div>
+      <div class="compass-shell">
+        <div
+          class="compass-dial"
+          style="--needle-rotation:${readout.needleRotation}deg; --target-rotation:${readout.targetRotation}deg;"
+          aria-label="Compass bearing to selected stop"
+        >
+          <span class="compass-cardinal compass-cardinal--n">N</span>
+          <span class="compass-cardinal compass-cardinal--e">E</span>
+          <span class="compass-cardinal compass-cardinal--s">S</span>
+          <span class="compass-cardinal compass-cardinal--w">W</span>
+          <div class="compass-target-ray"></div>
+          <div class="compass-needle">
+            <span class="compass-needle-north"></span>
+            <span class="compass-needle-south"></span>
+          </div>
+          <div class="compass-center">
+            <strong>${readout.cardinal}</strong>
+          </div>
+        </div>
+        <div class="compass-readout">
+          <p class="eyebrow">Next compass point</p>
+          <h3>${currentStopIndex + 1}. ${selectedStop.title}</h3>
+          <p>${readout.instruction}</p>
+          <div class="compass-metrics">
+            <div>
+              <strong>${Math.round(readout.targetBearing)} deg</strong>
+              <span>target bearing</span>
+            </div>
+            <div>
+              <strong>${locationStatus}</strong>
+              <span>${readout.originLabel}</span>
+            </div>
+            <div>
+              <strong>${currentStopIndex + 1}/${stopCount}</strong>
+              <span>story order</span>
+            </div>
+            <div>
+              <strong>${readout.triggerRadiusM} m</strong>
+              <span>arrival radius</span>
+            </div>
+          </div>
+          ${state.map.error ? `<p class="compass-error">${state.map.error}</p>` : ""}
+          ${state.map.headingError ? `<p class="compass-error">${state.map.headingError}</p>` : ""}
+          ${state.map.autoAdvanceNote ? `<p class="compass-display-note">${state.map.autoAdvanceNote}</p>` : ""}
+          <div class="button-row compact compass-actions">
+            <button type="button" class="primary-button" data-action="start-map-live">${state.map.tracking ? "Refresh Compass" : "Start Compass"}</button>
+            <button type="button" class="ghost-button" data-action="select-prev-stop" ${canGoPrev ? "" : "disabled"}>Previous point</button>
+            <button type="button" class="ghost-button" data-action="select-next-stop" ${canGoNext ? "" : "disabled"}>Next point</button>
+            <a
+              class="ghost-button link-button"
+              href="https://www.google.com/maps/dir/?api=1&destination=${selectedStop.lat},${selectedStop.lng}&travelmode=walking"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open directions
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
 function renderRouteTab(selectedTour, selectedStop) {
   const themes = ["all", ...new Set(tours.map((tour) => tour.theme.toLowerCase()))];
   const visibleTours = getVisibleTours();
@@ -4892,11 +5234,13 @@ function renderRouteTab(selectedTour, selectedStop) {
 
   return `
     <section class="section-grid route-shell">
+      ${renderCompassPanel(selectedTour, selectedStop)}
+
       <article class="panel panel--catalog">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Collections</p>
-            <h3>Choose your route lens</h3>
+            <p class="eyebrow">Compass paths</p>
+            <h3>Choose your next bearing</h3>
           </div>
           <span class="status-pill">${visibleTours.length} showing</span>
         </div>
@@ -4932,6 +5276,7 @@ function renderRouteTab(selectedTour, selectedStop) {
               const isSelected = tour.id === selectedTour.id;
               const isExpanded = state.expandedTourCardId === tour.id;
               const nextStop = getRecommendedNextStop(tour);
+              const artwork = renderTourCardArtwork(tour);
               const palette = [
                 ["#5d42ff", "#a68eff"],
                 ["#ff8b5c", "#ffd38b"],
@@ -4943,7 +5288,7 @@ function renderRouteTab(selectedTour, selectedStop) {
                   <button type="button" class="experience-card-media experience-card-toggle" data-action="toggle-tour-card" data-tour-id="${tour.id}">
                     <span class="experience-card-pill">${tour.theme}</span>
                     <span class="experience-card-drag-hint">Move</span>
-                    <div class="experience-card-gradient"></div>
+                    ${artwork}
                     <div class="experience-card-copy">
                       <p>${tour.neighborhood}</p>
                       <strong>${tour.title}</strong>
@@ -4963,7 +5308,7 @@ function renderRouteTab(selectedTour, selectedStop) {
                     </div>
                     <div class="button-row compact">
                       <button type="button" class="primary-button" data-action="select-tour" data-tour-id="${tour.id}">
-                        ${isSelected ? "Open route page" : "Select route"}
+                        ${isSelected ? "Compass selected" : "Use in Compass"}
                       </button>
                       <button type="button" class="ghost-button" data-action="open-tour-drawer" data-tour-id="${tour.id}">Quick view</button>
                     </div>
@@ -4979,12 +5324,13 @@ function renderRouteTab(selectedTour, selectedStop) {
         <article class="panel panel--map-host route-detail-page">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Selected route page</p>
+              <p class="eyebrow">Selected compass path</p>
               <h3>${selectedTour.title}</h3>
             </div>
             <span class="status-pill">${selectedTour.theme}</span>
           </div>
           <p class="lede">${selectedTour.summary}</p>
+          ${renderStoryLogisticsCard(selectedTour)}
           <div class="route-page-stats">
             <div><strong>${routePreview.durationLabel}</strong><span>estimated time</span></div>
             <div><strong>${routePreview.distanceLabel}</strong><span>route distance</span></div>
@@ -5005,7 +5351,7 @@ function renderRouteTab(selectedTour, selectedStop) {
               <p>${recommendedStop.title}${recommendedStop.fullAddress || recommendedStop.locationLabel ? ` · ${recommendedStop.fullAddress || recommendedStop.locationLabel}` : ""}</p>
             </div>
             <div>
-              <strong>Suggested flow</strong>
+              <strong>Story Logistics flow</strong>
               <p>${buildTourNarrative(selectedTour)}</p>
             </div>
             <div>
@@ -5016,12 +5362,12 @@ function renderRouteTab(selectedTour, selectedStop) {
           <div class="stop-meta-row">
             <span class="chip">${selectedTour.theme}</span>
             <span class="chip">${selectedTour.neighborhood}</span>
-            <span class="chip">${selectedTour.stops.length} stops on route</span>
+            <span class="chip">${selectedTour.stops.length} compass points</span>
           </div>
           <div class="panel panel--map-host route-pack-map">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Route preview</p>
+                <p class="eyebrow">Compass map</p>
                 <h3>Stop map and order</h3>
               </div>
               <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
@@ -5037,7 +5383,7 @@ function renderRouteTab(selectedTour, selectedStop) {
                 <p class="eyebrow">In-person tour guide</p>
                 <h3>Purchase a guided version of this route</h3>
               </div>
-              <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Avalible on May 1st"}</span>
+              <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Available on May 1st"}</span>
             </div>
             <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
             <div class="button-row">
@@ -5120,8 +5466,8 @@ function renderRouteTab(selectedTour, selectedStop) {
             <button type="button" class="ghost-button" data-action="set-tab" data-tab="progress">Open board</button>
           </div>
           <div class="drawer-copy emphasis">
-            <strong>Stops in this route</strong>
-            <p>Select a stop below to update the route page details, narration controls, and phone handoff target.</p>
+            <strong>Compass points in this path</strong>
+            <p>Select a point below to update the compass, narration controls, and phone handoff target.</p>
           </div>
           <div class="stop-list">
             ${selectedTour.stops
@@ -5278,6 +5624,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
           }
         </div>
         <p class="lede">${selectedTour.summary}</p>
+        ${renderStoryLogisticsCard(selectedTour)}
         <div class="route-page-stats">
           <div><strong>${routePreview.durationLabel}</strong><span>estimated time</span></div>
           <div><strong>${routePreview.distanceLabel}</strong><span>route distance</span></div>
@@ -5298,7 +5645,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
             <p>${recommendedStop.title}${recommendedStop.fullAddress || recommendedStop.locationLabel ? ` · ${recommendedStop.fullAddress || recommendedStop.locationLabel}` : ""}</p>
           </div>
           <div>
-            <strong>Suggested flow</strong>
+            <strong>Story Logistics flow</strong>
             <p>${buildTourNarrative(selectedTour)}</p>
           </div>
           <div>
@@ -5330,7 +5677,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
               <p class="eyebrow">In-person tour guide</p>
               <h3>Purchase a guided version of this route</h3>
             </div>
-            <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Avalible on May 1st"}</span>
+            <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Available on May 1st"}</span>
           </div>
           <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
           <div class="button-row">
@@ -5622,7 +5969,26 @@ function renderArTab(selectedTour) {
   const focusSourceLabel =
     nearestStop && nearestStopTour?.id === selectedTour.id ? "Following nearest live stop" : "Following selected route stop";
   const audioAccess = effectiveStop ? getAudioAccessSummary(effectiveStop.id) : getAudioAccessSummary("");
-  const questXrStatusLabel = state.xr.mode === "live" ? "Quest WebXR live" : state.xr.supported ? "Quest WebXR ready" : "Quest WebXR unavailable";
+  const headsetStatusLabel = state.xr.mode === "live" ? "Headset view live" : state.xr.supported ? "Headset view ready" : "Headset view";
+  const headsetMarkup = state.xr.supported || state.xr.mode === "live"
+    ? `
+        <div class="drawer-copy">
+          <strong>Headset view</strong>
+          <p>${escapeHtml(state.xr.deviceLabel || "A simple headset view is ready when your device supports it.")}</p>
+        </div>
+        <div class="button-row">
+          <button
+            type="button"
+            class="ghost-button ${state.xr.mode === "live" ? "active" : ""}"
+            data-action="${state.xr.mode === "live" ? "stop-webxr" : "start-webxr"}"
+          >
+            ${state.xr.mode === "live" ? "Exit headset view" : "Start headset view"}
+          </button>
+          <span class="status-pill ${state.xr.mode === "live" ? "is-live" : ""}">${escapeHtml(headsetStatusLabel)}</span>
+        </div>
+        ${state.xr.error ? `<div class="drawer-copy"><strong>Status</strong><p>${escapeHtml(state.xr.error)}</p></div>` : ""}
+      `
+    : "";
 
   return `
     <section class="section-grid ar-grid ar-grid--cinematic">
@@ -5688,22 +6054,7 @@ function renderArTab(selectedTour) {
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
         </div>
         ${state.ar.error ? `<div class="drawer-copy"><strong>Status</strong><p>${state.ar.error}</p></div>` : ""}
-        <div class="drawer-copy ${state.xr.supported ? "" : "emphasis"}">
-          <strong>Quest-only WebXR</strong>
-          <p>${escapeHtml(state.xr.deviceLabel || "Quest Browser detection is still running.")}</p>
-        </div>
-        <div class="button-row">
-          <button
-            type="button"
-            class="ghost-button ${state.xr.mode === "live" ? "active" : ""}"
-            data-action="${state.xr.mode === "live" ? "stop-webxr" : "start-webxr"}"
-            ${state.xr.supported ? "" : "disabled"}
-          >
-            ${state.xr.mode === "live" ? "Exit Quest WebXR" : "Enter Quest WebXR"}
-          </button>
-          <span class="status-pill ${state.xr.mode === "live" ? "is-live" : ""}">${escapeHtml(questXrStatusLabel)}</span>
-        </div>
-        ${state.xr.error ? `<div class="drawer-copy"><strong>Quest WebXR status</strong><p>${escapeHtml(state.xr.error)}</p></div>` : ""}
+        ${headsetMarkup}
       </article>
 
       <article class="panel readiness-panel">
@@ -5847,33 +6198,367 @@ function renderArTab(selectedTour) {
 }
 
 function renderProgressTab(globalStats) {
+  const activeTour = getSelectedTour();
+  const selectedStop = getSelectedStop();
+  const progress = getProgressForTour(activeTour);
+  const completedStopSet = new Set(state.completedStopIds);
+  const narratedStopSet = new Set(state.audioAccess.previewedStopIds);
+  const openedStopSet = new Set([state.selectedStopId, ...state.completedStopIds, ...state.audioAccess.previewedStopIds].filter(Boolean));
+  const completedStops = activeTour.stops.filter((stop) => completedStopSet.has(stop.id)).length;
+  const openedStops = activeTour.stops.filter((stop) => openedStopSet.has(stop.id)).length;
+  const heardNarrations = narratedStopSet.size;
+  const activeNarrations = activeTour.stops.filter((stop) => narratedStopSet.has(stop.id)).length;
+  const arStops = activeTour.stops.filter((stop) => stop.arType && stop.arType !== "none");
+  const arAvailable = tours.flatMap((tour) => tour.stops.filter((stop) => stop.arType && stop.arType !== "none")).length;
+  const arDiscoveries = activeTour.stops.filter((stop) => completedStopSet.has(stop.id) && stop.arType && stop.arType !== "none").length;
+  const totalStops = activeTour.stops.length;
+  const routePct = totalStops ? Math.round((completedStops / totalStops) * 100) : 0;
+  const storyPct = totalStops ? Math.round((activeNarrations / totalStops) * 100) : 0;
+  const arPct = arStops.length ? Math.round((arDiscoveries / arStops.length) * 100) : 0;
+  const xp = state.completedStopIds.length * 40 + heardNarrations * 25 + globalStats.toursStarted * 10 + arDiscoveries * 60;
+  const { currentLevel, nextLevel, nextLevelXp, levelPct } = getBoardLevel(xp);
+  const nextStop = getRecommendedNextStop(activeTour);
+  const badges = [
+    { title: "First Stop", detail: "Complete one stop", earned: completedStops >= 1 },
+    { title: "Story Listener", detail: "Hear two narrations", earned: heardNarrations >= 2 },
+    { title: "AR Explorer", detail: "Find an AR-ready stop", earned: arDiscoveries > 0 },
+    { title: "Full Route", detail: "Complete every stop in one tour", earned: totalStops > 0 && completedStops >= totalStops },
+    { title: "Streak Starter", detail: "Keep two active days", earned: globalStats.toursStarted >= 2 },
+    { title: "Score 250", detail: "Reach 250 total XP", earned: xp >= 250 },
+    { title: "Place Witness", detail: "Submit a reflection", earned: false }
+  ];
+  const earnedBadgeCount = badges.filter((badge) => badge.earned).length;
+  const nextBadge = badges.find((badge) => !badge.earned);
+  const boardSpaces = activeTour.stops.slice(0, 16).map((stop, index) => {
+    const claimed = completedStopSet.has(stop.id);
+    const visited = openedStopSet.has(stop.id) || narratedStopSet.has(stop.id);
+    const isNext = nextStop?.id === stop.id;
+    return {
+      id: stop.id,
+      title: getBoardTitle(stop.title),
+      index,
+      state: claimed ? "claimed" : isNext ? "next" : visited ? "visited" : "locked",
+      tone: ["gold", "blue", "green", "rose"][index % 4]
+    };
+  });
+  const boardTop = boardSpaces.slice(0, 5);
+  const boardRight = boardSpaces.slice(5, 8);
+  const boardBottom = boardSpaces.slice(8, 13).reverse();
+  const boardLeft = boardSpaces.slice(13, 16).reverse();
+  const dailyQuestCount = Math.min(heardNarrations, 3);
+  const weeklyQuestCount = Math.min(completedStops, 5);
+  const boardQuests = [
+    { title: "Daily story", detail: "Hear 3 stories", current: dailyQuestCount, goal: 3, reward: "+25 XP" },
+    { title: "Weekly route", detail: "Complete 5 stops", current: weeklyQuestCount, goal: 5, reward: "Route reward" },
+    { title: "AR hunt", detail: "Find every AR scene on this tour", current: arDiscoveries, goal: Math.max(arStops.length, 1), reward: "AR token" }
+  ];
+  const rewardTiers = [
+    { title: "Route Starter", detail: "Unlocked at 100 XP", unlocked: xp >= 100 },
+    { title: "Story Lens", detail: "Unlocked after 2 heard stories", unlocked: heardNarrations >= 2 },
+    { title: "AR Token", detail: "Unlocked after 1 AR discovery", unlocked: arDiscoveries >= 1 },
+    { title: "Founder Pass", detail: "Unlocked at 900 XP", unlocked: xp >= 900 }
+  ];
+  const nextReward = rewardTiers.find((reward) => !reward.unlocked);
+  const unlockedRewardCount = rewardTiers.filter((reward) => reward.unlocked).length;
+  const collectionStops = activeTour.stops.slice(0, 6).map((stop) => ({
+    stop,
+    collected: openedStopSet.has(stop.id) || narratedStopSet.has(stop.id) || completedStopSet.has(stop.id),
+    complete: completedStopSet.has(stop.id)
+  }));
+  const challengeGoal = Math.max(totalStops, 1);
+  const challengeActions = Math.min(challengeGoal, completedStops + Math.floor(activeNarrations / 2) + Math.min(arDiscoveries, 2));
+  const challengePct = Math.round((challengeActions / challengeGoal) * 100);
+  const personalBests = [
+    { label: "Longest streak", value: `${Math.max(globalStats.toursStarted, completedStops ? 1 : 0)} day${Math.max(globalStats.toursStarted, completedStops ? 1 : 0) === 1 ? "" : "s"}` },
+    { label: "Badges", value: `${earnedBadgeCount}/${badges.length}` },
+    { label: "Rewards", value: `${unlockedRewardCount}/${rewardTiers.length}` }
+  ];
+  const tourProgress = tours
+    .slice()
+    .sort((tourA, tourB) => Number(isScavengerHuntTour(tourB)) - Number(isScavengerHuntTour(tourA)))
+    .slice(0, 6)
+    .map((tour) => ({ tour, isScavengerHunt: isScavengerHuntTour(tour), ...getProgressForTour(tour) }));
+  const recentEvents = [
+    ...state.completedStopIds.slice(-3).map((stopId) => ({ id: `done-${stopId}`, label: `Completed ${getStopById(stopId)?.title || "stop"}`, xp: 40 })),
+    ...state.audioAccess.previewedStopIds.slice(-2).map((stopId) => ({ id: `story-${stopId}`, label: `Heard ${getStopById(stopId)?.title || "story"}`, xp: 25 }))
+  ].slice(-4).reverse();
+
   return `
-    <section class="section-grid progress-grid progress-grid--cinematic">
-      <article class="panel">
+    <section class="section-grid progress-grid progress-grid--cinematic board-page">
+      <article class="panel board-hero-panel">
+        <p class="eyebrow">Board</p>
+        <h3>${currentLevel.title}</h3>
+        <p>${nextStop ? `Next compass point: ${nextStop.title}` : "Choose a tour and let the city open outward."}</p>
+        <div class="board-hero-stats">
+          <div><strong>${xp}</strong><span>score</span></div>
+          <div><strong>${Math.max(globalStats.toursStarted, completedStops ? 1 : 0)}</strong><span>day streak</span></div>
+          <div><strong>${earnedBadgeCount}</strong><span>badges</span></div>
+          <div><strong>0</strong><span>voices</span></div>
+        </div>
+        <div class="board-track"><span style="width:${levelPct}%"></span></div>
+        <p class="board-muted">${nextLevel ? `${Math.max(nextLevelXp - xp, 0)} XP to ${nextLevel.title}` : "Top rank reached"}</p>
+        <div class="board-focus-row"><span>Next badge</span><strong>${nextBadge?.title || "All badges cleared"}</strong></div>
+      </article>
+
+      <article class="panel board-card board-active-quest">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Collection health</p>
-            <h3>What’s active on this device</h3>
+            <p class="eyebrow">Active quest</p>
+            <h3>${activeTour.title}</h3>
           </div>
+          <span class="status-pill is-live">${routePct}%</span>
         </div>
-        <div class="progress-list">
-          ${tours
-            .map((tour) => {
-              const progress = getProgressForTour(tour);
-              return `
-                <div class="progress-row">
+        <p class="lede">Next compass point: ${nextStop?.title || selectedStop.title}</p>
+        <div class="city-board">
+          <div class="board-row">${boardTop.map((space) => renderBoardSpace(space, "top")).join("")}</div>
+          <div class="board-middle">
+            <div class="board-side-rail">${boardLeft.map((space) => renderBoardSpace(space, "side")).join("")}</div>
+            <div class="board-center">
+              <p class="eyebrow">Philadelphia</p>
+              <h3>Founders Board</h3>
+              <p>Claim stops, complete sets, and move from North Broad outward.</p>
+              <div class="board-center-stats">
+                <div><strong>${completedStops}</strong><span>claimed</span></div>
+                <div><strong>${openedStops}</strong><span>visited</span></div>
+              </div>
+            </div>
+            <div class="board-side-rail">${boardRight.map((space) => renderBoardSpace(space, "side")).join("")}</div>
+          </div>
+          <div class="board-row">${boardBottom.map((space) => renderBoardSpace(space, "bottom")).join("")}</div>
+        </div>
+        <div class="share-board-panel">
+          <div>
+            <p class="eyebrow">Social card</p>
+            <strong>Share your Founders Board</strong>
+            <span>Post your rank, streak, claimed stops, and next compass point.</span>
+          </div>
+          <button type="button" class="primary-button" data-action="copy-view">Share Founders Board</button>
+        </div>
+        <div class="board-metric-grid">
+          <div><strong>${completedStops}</strong><span>stops done</span></div>
+          <div><strong>${openedStops}</strong><span>stops opened</span></div>
+          <div><strong>${heardNarrations}</strong><span>stories heard</span></div>
+          <div><strong>${tours.length}</strong><span>tour packs</span></div>
+        </div>
+        <div class="board-track board-track--light"><span style="width:${routePct}%"></span></div>
+        <div class="stop-meta-row">
+          <span class="chip">${routePct}% unfolded</span>
+          <span class="chip">+40 XP per stop</span>
+          <span class="chip">+25 XP per narration</span>
+        </div>
+      </article>
+
+      <article class="panel board-carousel-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Score deck</p>
+            <h3>Swipe through progress, rewards, and collections</h3>
+          </div>
+          <span class="status-pill">Swipe</span>
+        </div>
+        <div class="board-carousel" aria-label="Board score deck">
+          <section class="board-slide board-slide--score">
+            <div>
+              <p class="eyebrow">Scoring</p>
+              <h3>Earn points by touring</h3>
+            </div>
+            <div class="score-rules-grid">
+              <div><strong>+10</strong><span>open stop</span></div>
+              <div><strong>+25</strong><span>hear story</span></div>
+              <div><strong>+40</strong><span>complete stop</span></div>
+              <div><strong>+60</strong><span>find AR</span></div>
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Streak</p>
+              <h3>${Math.max(globalStats.toursStarted, completedStops ? 1 : 0)} active day${Math.max(globalStats.toursStarted, completedStops ? 1 : 0) === 1 ? "" : "s"}</h3>
+            </div>
+            <p class="lede">Open a compass point, hear narration, or complete a stop on a new day to keep the streak alive.</p>
+            <div class="streak-dots">
+              ${[0, 1, 2, 3, 4, 5, 6].map((day) => `<span class="${day < Math.min(Math.max(globalStats.toursStarted, completedStops ? 1 : 0), 7) ? "active" : ""}"></span>`).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Quest log</p>
+              <h3>Today, this week, and AR</h3>
+            </div>
+            <div class="board-stack">
+              ${boardQuests.map((quest) => {
+                const questPct = Math.min(100, Math.round((quest.current / quest.goal) * 100));
+                return `
+                  <div class="quest-row">
+                    <div class="quest-row-header">
+                      <div><strong>${quest.title}</strong><span>${quest.detail}</span></div>
+                      <span class="status-pill ${questPct >= 100 ? "is-live" : ""}">${quest.reward}</span>
+                    </div>
+                    <div class="board-track board-track--small"><span style="width:${questPct}%"></span></div>
+                    <small>${Math.min(quest.current, quest.goal)} of ${quest.goal}</small>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Next unlock</p>
+              <h3>${nextReward?.title || "Reward board cleared"}</h3>
+            </div>
+            <p class="lede">${nextReward?.detail || "Keep touring to build score, streaks, and collection depth."}</p>
+            <div class="unlock-preview">
+              <div><strong>${nextLevel ? Math.max(nextLevelXp - xp, 0) : 0}</strong><span>XP to rank</span></div>
+              <div><strong>${nextBadge ? earnedBadgeCount : badges.length}</strong><span>badges earned</span></div>
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Compass rings</p>
+              <h3>Path, stories, and AR</h3>
+            </div>
+            <div class="ring-grid">
+              ${[
+                ["Path", routePct],
+                ["Stories", storyPct],
+                ["AR", arPct]
+              ].map(([label, pct]) => `
+                <div class="ring-card">
+                  <div class="ring-outer ${pct >= 100 ? "complete" : ""}"><div><strong>${pct}%</strong></div></div>
+                  <span>${label}</span>
+                  <div class="board-track board-track--small"><span style="width:${pct}%"></span></div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Collection book</p>
+              <h3>Stop cards</h3>
+            </div>
+            <div class="collection-book-grid">
+              ${collectionStops.map(({ stop, collected, complete }) => `
+                <div class="collection-book-card ${collected ? "collected" : ""}">
+                  <strong>${collected ? stop.title : "Locked stop"}</strong>
+                  <span>${complete ? "Completed" : collected ? "Collected" : "Hidden"}</span>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Compass meter</p>
+              <h3>Personal bests</h3>
+            </div>
+            <div class="board-track board-track--light"><span style="width:${challengePct}%"></span></div>
+            <div class="stop-meta-row">
+              <span class="chip">${challengeActions} of ${challengeGoal} compass moves</span>
+              <span class="chip">${challengePct}% challenge</span>
+            </div>
+            <div class="best-grid">
+              ${personalBests.map((best) => `<div><strong>${best.value}</strong><span>${best.label}</span></div>`).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Compass path</p>
+              <h3>From North Broad outward</h3>
+            </div>
+            <div class="timeline">
+              ${activeTour.stops.slice(0, 8).map((stop, index) => {
+                const done = completedStopSet.has(stop.id);
+                const open = openedStopSet.has(stop.id) || narratedStopSet.has(stop.id);
+                return `
+                  <div class="timeline-row">
+                    <span class="timeline-dot ${done ? "done" : open ? "open" : ""}">${index + 1}</span>
+                    <div><strong>${stop.title}</strong><span>${done ? "Completed" : open ? "In progress" : "Locked"}</span></div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Rewards</p>
+              <h3>${unlockedRewardCount} of ${rewardTiers.length} unlocked</h3>
+            </div>
+            <div class="board-stack">
+              ${rewardTiers.map((reward) => `
+                <div class="reward-row ${reward.unlocked ? "unlocked" : ""}">
+                  <div><strong>${reward.title}</strong><span>${reward.detail}</span></div>
+                  <span class="status-pill ${reward.unlocked ? "is-live" : ""}">${reward.unlocked ? "Unlocked" : "Locked"}</span>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Levels</p>
+              <h3>Rank ladder</h3>
+            </div>
+            <div class="board-stack">
+              ${BOARD_LEVELS.map((level) => `
+                <div class="level-row ${level.title === currentLevel.title ? "active" : ""} ${xp >= level.minXp ? "reached" : ""}">
+                  <strong>${level.title}</strong>
+                  <span>${level.minXp} XP</span>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Badge shelf</p>
+              <h3>Earned and upcoming</h3>
+            </div>
+            <div class="badge-grid">
+              ${badges.map((badge) => `
+                <div class="badge-card ${badge.earned ? "earned" : ""}">
+                  <strong>${badge.title}</strong>
+                  <span>${badge.detail}</span>
+                  <small>${badge.earned ? "Unlocked" : "Locked"}</small>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">Recent score</p>
+              <h3>Latest XP awards</h3>
+            </div>
+            <div class="board-stack">
+              ${recentEvents.length
+                ? recentEvents.map((event) => `<div class="score-event-row"><span>${event.label}</span><strong>+${event.xp}</strong></div>`).join("")
+                : `<p class="lede">Open a stop or play narration to start scoring.</p>`}
+            </div>
+          </section>
+          <section class="board-slide">
+            <div>
+              <p class="eyebrow">AR discoveries</p>
+              <h3>Scene collection</h3>
+            </div>
+            <p class="lede">AR-ready stops become hidden points on the Founders Compass. Open the tour page, choose the stop, then launch AR when available.</p>
+            <div class="collection-grid">
+              <div><strong>${arAvailable}</strong><span>available AR stops</span></div>
+              <div><strong>${arDiscoveries}</strong><span>discovered</span></div>
+            </div>
+          </section>
+          <section class="board-slide board-slide--wide">
+            <div>
+              <p class="eyebrow">Tour collection</p>
+              <h3>Compass progress</h3>
+            </div>
+            <div class="progress-list">
+              ${tourProgress.map(({ tour, completed, percent, isScavengerHunt }) => `
+                <div class="progress-row board-tour-row">
                   <div class="progress-copy">
                     <strong>${tour.title}</strong>
-                    <span>${progress.completed}/${tour.stops.length} stops</span>
+                    <span>${completed} of ${tour.stops.length} stops completed${isScavengerHunt ? " · Scavenger hunt" : ""}</span>
                   </div>
-                  <div class="progress-bar">
-                    <span style="width:${progress.percent}%"></span>
-                  </div>
-                  <span class="progress-value">${progress.percent}%</span>
+                  <div class="progress-bar"><span style="width:${percent}%"></span></div>
+                  <span class="progress-value">${percent}%</span>
                 </div>
-              `;
-            })
-            .join("")}
+              `).join("")}
+            </div>
+          </section>
         </div>
       </article>
     </section>
@@ -5933,6 +6618,11 @@ function renderProfileTab() {
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse tours</button>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Resume route</button>
         </div>
+        <div class="native-ar-notice">
+          <strong>For the full AR experience, use the mobile app.</strong>
+          <p>The website is great for planning, maps, the board, compass, narration, and learning the story. The mobile app brings the camera experience to life when you are out at the stops.</p>
+          <span>Download the app below before your walk.</span>
+        </div>
         <div class="store-launch-grid" aria-label="Mobile app download links">
           ${renderStoreBadge({
             label: "App Store",
@@ -5975,6 +6665,10 @@ function renderProfileTab() {
           ${getSubscriptionStatusMarkup()}
         </form>
         ${renderRssUpdates()}
+        <div class="legal-link-row" aria-label="App links">
+          <a href="/privacy.html">Privacy</a>
+          <a href="/support.html">Support</a>
+        </div>
         ${activeUser ? `
           <div class="button-row compact">
             <button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>
@@ -6032,7 +6726,7 @@ async function initStopStreetView(selectedStop, elementId = "stop-street-view") 
 
   const streetViewConfig = getStopStreetViewConfig(selectedStop);
   if (!streetViewConfig) {
-    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("This stop does not have browser-ready map coordinates yet.");
+    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("This stop does not have a map preview yet.");
     return;
   }
 
@@ -6447,7 +7141,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
       : focusedRenderableStops[0]
         ? { lat: focusedRenderableStops[0].lat, lng: focusedRenderableStops[0].lng }
         : collectionCenter,
-    title: focusedTour ? focusedTour.title : "Philly AR Tours",
+    title: focusedTour ? focusedTour.title : "Philly Tours",
     zoom: focusedTour ? 14 : 12,
     maps,
     map: routeMap

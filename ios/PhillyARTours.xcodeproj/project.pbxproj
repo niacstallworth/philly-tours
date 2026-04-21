@@ -392,7 +392,7 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = PhillyARTours/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Philly AR Tours";
+				INFOPLIST_KEY_CFBundleDisplayName = "Philly Tours";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -427,7 +427,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T5WMAN8PDL;
 				INFOPLIST_FILE = PhillyARTours/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Philly AR Tours";
+				INFOPLIST_KEY_CFBundleDisplayName = "Philly Tours";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
