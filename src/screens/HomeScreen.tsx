@@ -1,10 +1,13 @@
 import React from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { tours } from "../data/tours";
 import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
+import { setCurrentTourSelection } from "../services/tourControl";
+import { getPhiladelphiaCurrentWeather, type CurrentWeather } from "../services/weather";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
+import { TourDetailScreen } from "./TourDetailScreen";
 
 type Props = {
   displayName?: string;
@@ -19,17 +22,57 @@ const METERS_PER_MILE = 1609.344;
 
 function getTourPackBlurb(durationMin: number, fullAudioCount: number) {
   if (fullAudioCount > 0) {
-    return "Audio-led city storytelling with narrated stops, clear pacing, and strong neighborhood context.";
+    return "Audio-led city storytelling that starts from the Founders Compass and opens outward through each neighborhood.";
   }
   if (durationMin >= 90) {
-    return "A longer city route built for deep historical context, steady pacing, and full-neighborhood discovery.";
+    return "A longer city story that follows North Broad as its north star, then widens into deep neighborhood context.";
   }
-  return "A focused walking route built around clear storytelling, easy pacing, and elegant stop-by-stop discovery.";
+  return "A focused walking story paced from the city center outward, one compass point at a time.";
 }
 
 function formatMilesFromMeters(distanceInMeters: number) {
   const miles = distanceInMeters / METERS_PER_MILE;
   return `${miles < 0.1 ? miles.toFixed(2) : miles.toFixed(1)} mi`;
+}
+
+function getStopSummary(description: string) {
+  return description.split("|")[0]?.trim() || description;
+}
+
+function getStopAddress(description: string) {
+  const match = description.match(/Location:\s*([^|]+)/i);
+  return match?.[1]?.trim() || "Philadelphia, PA";
+}
+
+function buildTourCardMediaUrl(src?: string) {
+  const trimmed = String(src || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://philly-tours.com${trimmed.startsWith("/") ? trimmed : `/${trimmed}`}`;
+}
+
+function deriveTourThemeLabel(title: string) {
+  const source = title.toLowerCase();
+  if (source.includes("library")) return "Books";
+  if (source.includes("sports")) return "Sports";
+  if (source.includes("inventor")) return "Innovation";
+  if (source.includes("medical")) return "Medicine";
+  if (source.includes("rainbow")) return "Family";
+  if (source.includes("divine 9") || source.includes("divine-9") || source.includes("college")) return "Campus";
+  if (source.includes("york road")) return "Corridor";
+  if (source.includes("masonic") || source.includes("eastern star") || source.includes("job")) return "Fraternal";
+  if (source.includes("speakeasy")) return "Nightlife";
+  return "History";
+}
+
+function deriveTourSummary(tour: (typeof tours)[number]) {
+  const leadStops = tour.stops.slice(0, 2).map((stop) => stop.title);
+  const opener = leadStops.length ? `${leadStops.join(" and ")} sit near the first turn of the Founders Compass.` : "A story-led Philadelphia route.";
+  return `${opener} ${tour.stops.length} stops unfold across ${tour.distanceMiles} miles with layered narration and AR-ready context.`;
 }
 
 export function HomeScreen({
@@ -44,8 +87,11 @@ export function HomeScreen({
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
+  const [detailTourId, setDetailTourId] = React.useState<string | null>(null);
   const [activeStopId, setActiveStopId] = React.useState<string | null>(highlightedStopId || null);
   const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
+  const [weather, setWeather] = React.useState<CurrentWeather | null>(null);
+  const [weatherError, setWeatherError] = React.useState<string | null>(null);
   const narration = useNarration();
 
   React.useEffect(() => {
@@ -60,7 +106,27 @@ export function HomeScreen({
     }
   }, [highlightedStopId]);
 
+  React.useEffect(() => {
+    let mounted = true;
+    getPhiladelphiaCurrentWeather()
+      .then((nextWeather) => {
+        if (mounted) {
+          setWeather(nextWeather);
+          setWeatherError(null);
+        }
+      })
+      .catch((error) => {
+        if (mounted) {
+          setWeatherError((error as Error).message || "Weather unavailable.");
+        }
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
+  const detailTour = React.useMemo(() => tours.find((tour) => tour.id === detailTourId) || null, [detailTourId]);
   const visibleStops = React.useMemo(
     () => (fullAudioOnly ? (selectedTour?.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio") || []) : selectedTour?.stops || []),
     [fullAudioOnly, selectedTour]
@@ -77,6 +143,11 @@ export function HomeScreen({
       return highlightedStopId && visibleStops.some((stop) => stop.id === highlightedStopId) ? highlightedStopId : visibleStops[0]?.id || null;
     });
   }, [highlightedStopId, visibleStops]);
+
+  React.useEffect(() => {
+    setCurrentTourSelection(selectedTour?.id || null, activeStopId || highlightedStopId || visibleStops[0]?.id || null);
+  }, [activeStopId, highlightedStopId, selectedTour?.id, visibleStops]);
+
   const highlightedStop = React.useMemo(() => {
     const preferredStopId = activeStopId || highlightedStopId;
     return visibleStops.find((stop) => stop.id === preferredStopId) || visibleStops[0] || null;
@@ -162,13 +233,27 @@ export function HomeScreen({
     }
   }
 
+  if (detailTour) {
+    return (
+      <TourDetailScreen
+        tour={detailTour}
+        audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+        fullAppUnlocked={fullAppUnlocked}
+        onBack={() => setDetailTourId(null)}
+        onOpenPurchase={onOpenPurchase}
+      />
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
+        <View style={styles.heroGlowPrimary} />
+        <View style={styles.heroGlowSecondary} />
         <Text style={styles.heroEyebrow}>Philly tours by founders</Text>
-        <Text style={styles.heroTitle}>Historic city walks with elegant guided storytelling.</Text>
+        <Text style={styles.heroTitle}>Historic city walks with cinematic guided storytelling.</Text>
         <Text style={styles.heroCopy}>
-          Start with one tour pack and move through Philadelphia one clear stop at a time.
+          Explore city routes, preview featured stops, and step into guided Philadelphia stories.
         </Text>
         <View style={styles.heroChips}>
           <Chip label={`${tours.length} tour packs`} tone="default" />
@@ -179,9 +264,24 @@ export function HomeScreen({
       </View>
 
       <Card style={styles.welcomeCard}>
+        <Text style={styles.welcomeEyebrow}>Tonight in Philly</Text>
         <Text style={styles.welcomeTitle}>Good evening, {displayName}</Text>
+        <View style={styles.weatherWidget}>
+          <View style={styles.weatherMain}>
+            <Text style={styles.weatherCity}>Philadelphia now</Text>
+            <Text style={styles.weatherTemp}>{weather?.temperatureF == null ? "--" : `${weather.temperatureF}°`}</Text>
+          </View>
+          <View style={styles.weatherDetails}>
+            <Text style={styles.weatherCondition}>{weather?.condition || (weatherError ? "Weather unavailable" : "Loading current weather")}</Text>
+            <Text style={styles.weatherMeta}>
+              {weather
+                ? `Feels ${weather.feelsLikeF ?? weather.temperatureF ?? "--"}° · Wind ${weather.windMph ?? "--"} mph${weather.precipitationPct == null ? "" : ` · Rain ${weather.precipitationPct}%`}`
+                : "Google Weather current conditions"}
+            </Text>
+          </View>
+        </View>
         <Text style={styles.welcomeCopy}>
-          Choose a tour tab below to open that pack, preview the first two stops for free, and continue through the route one stop at a time.
+          Browse the tour collection, open a stop, and continue at your own pace.
         </Text>
         <View style={styles.heroChips}>
           <PrimaryButton label={fullAudioOnly ? "Showing Full Audio" : "Showing All Stops"} onPress={() => setFullAudioOnly((value) => !value)} />
@@ -191,20 +291,55 @@ export function HomeScreen({
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Tour Packs</Text>
-        <Text style={styles.sectionMeta}>Tap a tab to open that tour pack</Text>
+        <Text style={styles.sectionMeta}>Choose a route the same way you do on the webapp</Text>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.packTabs}>
-        {tours.map((tour) => {
+      <View style={styles.packGrid}>
+        {tours.map((tour, index) => {
           const isActive = tour.id === selectedTourId;
+          const firstStop = tour.stops[0];
+          const mediaUrl = buildTourCardMediaUrl(tour.cardMedia?.src);
+          const accentPairs = [
+            ["#5d42ff", "#a68eff"],
+            ["#ff8b5c", "#ffd38b"],
+            ["#1e2a68", "#6aa5ff"],
+            ["#6c1f52", "#ff7db6"]
+          ] as const;
+          const [accent, glow] = accentPairs[index % accentPairs.length];
           return (
-            <Pressable key={tour.id} onPress={() => setSelectedTourId(tour.id)} style={[styles.packTab, isActive && styles.packTabActive]}>
-              <Text style={[styles.packTabTitle, isActive && styles.packTabTitleActive]} numberOfLines={2}>
-                {tour.title}
-              </Text>
+            <Pressable key={tour.id} onPress={() => setSelectedTourId(tour.id)} style={[styles.packRouteCard, isActive && styles.packRouteCardActive]}>
+              <View style={[styles.packRouteMedia, { backgroundColor: accent }]}>
+                {mediaUrl ? <Image source={{ uri: mediaUrl }} style={styles.packRouteImage} resizeMode="cover" /> : null}
+                <View style={styles.packRouteFallback}>
+                  <View style={[styles.packRouteGlow, { backgroundColor: glow }]} />
+                </View>
+                <View style={styles.packRouteScrim} />
+                <View style={styles.packRoutePill}>
+                  <Text style={styles.packRoutePillText}>{deriveTourThemeLabel(tour.title)}</Text>
+                </View>
+                <View style={styles.packRouteCopy}>
+                  <Text style={styles.packRouteNeighborhood}>{firstStop ? getStopAddress(firstStop.description) : "Philadelphia, PA"}</Text>
+                  <Text style={styles.packRouteTitle}>{tour.title}</Text>
+                  <Text style={styles.packRouteInlineMeta}>{tour.durationMin} min · {tour.distanceMiles} mi · {tour.stops.length} stops</Text>
+                </View>
+              </View>
+              <View style={styles.packRouteBody}>
+                <Text style={styles.packRouteBodyCopy} numberOfLines={3}>{selectedTourId === tour.id ? selectedTourBlurb : deriveTourSummary(tour)}</Text>
+                <View style={styles.heroChips}>
+                  <Chip label={`${tour.durationMin} min`} tone="default" />
+                  <Chip label={`${tour.distanceMiles} mi`} tone="default" />
+                  <Chip label={`${tour.rating} rating`} tone="warn" />
+                  <Chip label={`${tour.stops.length} stops`} tone={isActive ? "success" : "default"} />
+                </View>
+                <PrimaryButton label="Open Tour Page" onPress={() => {
+                  setSelectedTourId(tour.id);
+                  setDetailTourId(tour.id);
+                }} />
+                <PrimaryButton label={isActive ? "Selected Route" : "Select Route"} onPress={() => setSelectedTourId(tour.id)} />
+              </View>
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
 
       {selectedTour ? (
         <Card style={styles.packDetailCard}>
@@ -229,7 +364,8 @@ export function HomeScreen({
             {highlightedStopIndex >= 0 ? `Stop ${highlightedStopIndex + 1} of ${visibleStops.length}` : "Tour stop"}
           </Text>
           <Text style={styles.handoffTitle}>{highlightedStop.title}</Text>
-          <Text style={styles.handoffCopy}>{highlightedStop.description.split("|")[0]?.trim() || "Open the stop and start the narration when you're ready."}</Text>
+          <Text style={styles.handoffAddress}>{getStopAddress(highlightedStop.description)}</Text>
+          <Text style={styles.handoffCopy}>{getStopSummary(highlightedStop.description) || "Open the stop and start the narration when you're ready."}</Text>
           <View style={styles.heroChips}>
             <Chip label={selectedTour.title} tone="default" />
             {!highlightedStopLocked && highlightedStopIndex < previewLimit && !hasPaidAudioAccess ? <Chip label="Free preview" tone="success" /> : null}
@@ -243,6 +379,9 @@ export function HomeScreen({
               }
               tone={highlightedStopLocked ? "warn" : highlightedNarrationMeta?.coverageTone || "warn"}
             />
+            {narration.stopId === highlightedStop.id ? (
+              <Chip label={narration.target === "companion" ? "To connected audio" : narration.target === "phone" ? "To current output" : "No target"} tone="default" />
+            ) : null}
           </View>
           {highlightedStopLocked ? (
             <Text style={styles.purchaseCopy}>
@@ -263,7 +402,7 @@ export function HomeScreen({
             {narration.stopId === highlightedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
               <PrimaryButton label={highlightedNarrationMeta?.stopLabel || "Stop Narration"} onPress={onStopHighlightedNarration} />
             ) : null}
-            {nextStop ? (
+            {nextStop && !(highlightedStopLocked && nextStopLocked) ? (
               <PrimaryButton
                 label={nextStopLocked ? "Purchase Full App Content" : "Play Next Stop"}
                 onPress={() => void onPlayNextStop()}
@@ -289,11 +428,12 @@ export function HomeScreen({
               <View style={styles.routeIndex}><Text style={styles.routeIndexText}>{index + 1}</Text></View>
               <View style={styles.routeContent}>
                 <Text style={styles.routeTitle}>{stop.title}</Text>
+                <Text style={styles.routeAddress}>{getStopAddress(stop.description)}</Text>
                 <View style={styles.routeChips}>
                   <Chip label={index < previewLimit || hasPaidAudioAccess ? "Open now" : "Purchase required"} tone={index < previewLimit || hasPaidAudioAccess ? "success" : "warn"} />
                   <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
                 </View>
-                <Text style={styles.routeMeta} numberOfLines={2}>{stop.description}</Text>
+                <Text style={styles.routeMeta} numberOfLines={3}>{getStopSummary(stop.description)}</Text>
                 {audioHistoryOnlyUnlocked ? (
                   <PrimaryButton
                     label={narration.stopId === stop.id && narration.status === "playing" ? "Replay Stop History" : "Hear Stop History"}
@@ -324,12 +464,32 @@ function createStyles(
       backgroundColor: colors.background
     },
     heroPanel: {
+      position: "relative",
+      overflow: "hidden",
       borderRadius: 30,
-      padding: 22,
+      padding: 24,
       gap: 12,
-      backgroundColor: colors.backgroundElevated,
+      backgroundColor: colors.headerBackground,
       borderWidth: 1,
       borderColor: colors.border
+    },
+    heroGlowPrimary: {
+      position: "absolute",
+      width: 240,
+      height: 240,
+      borderRadius: 999,
+      backgroundColor: "rgba(91, 56, 245, 0.28)",
+      top: -96,
+      right: -72
+    },
+    heroGlowSecondary: {
+      position: "absolute",
+      width: 220,
+      height: 220,
+      borderRadius: 999,
+      backgroundColor: "rgba(255, 188, 138, 0.16)",
+      bottom: -120,
+      left: -84
     },
     heroEyebrow: {
       color: colors.warn,
@@ -355,12 +515,64 @@ function createStyles(
       gap: 8
     },
     welcomeCard: {
-      gap: 6
+      gap: 8,
+      backgroundColor: colors.surfaceRaised
+    },
+    welcomeEyebrow: {
+      color: colors.textMuted,
+      fontSize: type.font(11),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1.4
     },
     welcomeTitle: {
       color: colors.text,
       fontSize: type.font(22),
       fontWeight: "800"
+    },
+    weatherWidget: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 14,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      padding: 14
+    },
+    weatherMain: {
+      minWidth: 86,
+      gap: 2
+    },
+    weatherCity: {
+      color: colors.warn,
+      fontSize: type.font(10),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 0.9
+    },
+    weatherTemp: {
+      color: colors.text,
+      fontSize: type.font(34),
+      lineHeight: type.line(38),
+      fontWeight: "900"
+    },
+    weatherDetails: {
+      flex: 1,
+      minWidth: 0,
+      gap: 3
+    },
+    weatherCondition: {
+      color: colors.text,
+      fontSize: type.font(15),
+      lineHeight: type.line(19),
+      fontWeight: "800"
+    },
+    weatherMeta: {
+      color: colors.textMuted,
+      fontSize: type.font(12),
+      lineHeight: type.line(17),
+      fontWeight: "700"
     },
     welcomeCopy: {
       color: colors.textSoft,
@@ -380,6 +592,11 @@ function createStyles(
       fontSize: type.font(26),
       lineHeight: type.line(31),
       fontWeight: "800"
+    },
+    handoffAddress: {
+      color: colors.warn,
+      fontSize: type.font(13),
+      fontWeight: "700"
     },
     handoffStep: {
       color: colors.textMuted,
@@ -413,36 +630,113 @@ function createStyles(
     packList: {
       gap: 14
     },
-    packTabs: {
-      gap: 10,
-      paddingRight: 18
+    packGrid: {
+      gap: 16
     },
-    packTab: {
-      width: 196,
-      minHeight: 86,
+    packRouteCard: {
+      overflow: "hidden",
       borderRadius: 22,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      justifyContent: "center",
-      backgroundColor: colors.surface,
       borderWidth: 1,
-      borderColor: colors.border
+      borderColor: "rgba(129, 140, 248, 0.14)",
+      backgroundColor: "#ffffff",
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.08,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 4
     },
-    packTabActive: {
-      borderColor: "#007eff",
-      backgroundColor: colors.infoSoft
+    packRouteCardActive: {
+      borderColor: "rgba(92, 69, 255, 0.24)",
+      shadowOpacity: 0.18
     },
-    packTabTitle: {
-      color: colors.text,
-      fontSize: type.font(15),
-      lineHeight: type.line(20),
+    packRouteMedia: {
+      position: "relative",
+      minHeight: 210,
+      justifyContent: "flex-end",
+      padding: 16,
+      backgroundColor: "#5d42ff"
+    },
+    packRouteImage: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      top: 0,
+      left: 0
+    },
+    packRouteFallback: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    },
+    packRouteGlow: {
+      position: "absolute",
+      width: 240,
+      height: 240,
+      borderRadius: 999,
+      right: -80,
+      bottom: -90,
+      opacity: 0.45
+    },
+    packRouteScrim: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      backgroundColor: "rgba(5, 6, 12, 0.28)"
+    },
+    packRoutePill: {
+      position: "absolute",
+      top: 12,
+      right: 12,
+      zIndex: 2,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: "rgba(255,255,255,0.92)"
+    },
+    packRoutePillText: {
+      color: "#0f172a",
+      fontSize: type.font(11),
       fontWeight: "800"
     },
-    packTabTitleActive: {
-      color: colors.info
+    packRouteCopy: {
+      position: "relative",
+      zIndex: 1
+    },
+    packRouteNeighborhood: {
+      color: "rgba(255,255,255,0.74)",
+      fontSize: type.font(11),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1.1
+    },
+    packRouteTitle: {
+      marginTop: 6,
+      color: "#ffffff",
+      fontSize: type.font(24),
+      lineHeight: type.line(28),
+      fontWeight: "800"
+    },
+    packRouteInlineMeta: {
+      marginTop: 8,
+      color: "rgba(255,255,255,0.86)",
+      fontSize: type.font(12),
+      fontWeight: "700"
+    },
+    packRouteBody: {
+      padding: 16,
+      gap: 12
+    },
+    packRouteBodyCopy: {
+      color: colors.textSoft,
+      fontSize: type.font(14),
+      lineHeight: type.line(20)
     },
     packDetailCard: {
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceRaised,
       borderColor: colors.infoSoft,
       gap: 12
     },
@@ -482,12 +776,15 @@ function createStyles(
     routeRow: {
       flexDirection: "row",
       gap: 14,
-      alignItems: "flex-start"
+      alignItems: "flex-start",
+      paddingVertical: 6
     },
     routeRowActive: {
       padding: 12,
       borderRadius: 18,
-      backgroundColor: colors.surfaceSoft
+      backgroundColor: colors.surfaceSoft,
+      borderWidth: 1,
+      borderColor: colors.border
     },
     routeIndex: {
       width: 30,
@@ -509,6 +806,11 @@ function createStyles(
     routeTitle: {
       color: colors.text,
       fontSize: type.font(16),
+      fontWeight: "700"
+    },
+    routeAddress: {
+      color: colors.warn,
+      fontSize: type.font(12),
       fontWeight: "700"
     },
     routeChips: {

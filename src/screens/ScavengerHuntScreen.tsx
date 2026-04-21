@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import {
   dismissScavengerReveal,
@@ -13,9 +13,11 @@ import {
   type ScavengerHuntSnapshot,
   type ScavengerToken
 } from "../services/scavengerHunt";
+import { haversineDistanceM } from "../services/geofence";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 
 const TOUR_ORDER = ["black-inventors-tour", "black-medical-legacy", "masonic-scavenger-hunt"];
+const METERS_PER_MILE = 1609.344;
 
 const toneMeta: Record<ScavengerToken["tone"], { label: string; glow: string; ink: string; shell: string }> = {
   inventors: { label: "Inventors AR", glow: "#7dd3fc", ink: "#082f49", shell: "#e0f2fe" },
@@ -37,6 +39,9 @@ export function ScavengerHuntScreen() {
     return unsubscribe;
   }, []);
 
+  const collected = React.useMemo(() => new Set(snapshot.collectedIds), [snapshot.collectedIds]);
+  const startedTours = React.useMemo(() => new Set(snapshot.startedTourIds), [snapshot.startedTourIds]);
+
   const grouped = React.useMemo(() => {
     const groups = new Map<string, ScavengerToken[]>();
     snapshot.tokens.forEach((token) => {
@@ -44,14 +49,66 @@ export function ScavengerHuntScreen() {
       current.push(token);
       groups.set(token.tourId, current);
     });
-    return TOUR_ORDER.map((tourId) => [tourId, groups.get(tourId) || []] as const).filter(([, items]) => items.length > 0);
-  }, [snapshot.tokens]);
+    return TOUR_ORDER.map((tourId) => {
+      const items = [...(groups.get(tourId) || [])].sort((left, right) => {
+        const leftCollected = collected.has(left.id);
+        const rightCollected = collected.has(right.id);
+        if (leftCollected !== rightCollected) {
+          return leftCollected ? 1 : -1;
+        }
+        if (left.gpsReady !== right.gpsReady) {
+          return left.gpsReady ? -1 : 1;
+        }
+        const leftDistance = distanceForToken(left, snapshot.lastPosition);
+        const rightDistance = distanceForToken(right, snapshot.lastPosition);
+        if (leftDistance === null && rightDistance === null) {
+          return left.stopTitle.localeCompare(right.stopTitle);
+        }
+        if (leftDistance === null) {
+          return 1;
+        }
+        if (rightDistance === null) {
+          return -1;
+        }
+        return leftDistance - rightDistance;
+      });
+      return [tourId, items] as const;
+    }).filter(([, items]) => items.length > 0);
+  }, [collected, snapshot.lastPosition, snapshot.tokens]);
 
-  const collected = new Set(snapshot.collectedIds);
-  const startedTours = new Set(snapshot.startedTourIds);
   const latestReveal = snapshot.latestRevealId ? getScavengerTokenById(snapshot.latestRevealId) : null;
   const totalCount = snapshot.tokens.filter((token) => token.gpsReady).length;
   const collectedCount = snapshot.tokens.filter((token) => token.gpsReady && collected.has(token.id)).length;
+  const activeTokens = React.useMemo(
+    () => snapshot.tokens.filter((token) => token.gpsReady && startedTours.has(token.tourId) && !collected.has(token.id)),
+    [collected, snapshot.tokens, startedTours]
+  );
+  const nextTarget = React.useMemo(
+    () =>
+      [...activeTokens].sort((left, right) => {
+        const leftDistance = distanceForToken(left, snapshot.lastPosition);
+        const rightDistance = distanceForToken(right, snapshot.lastPosition);
+        if (leftDistance === null && rightDistance === null) {
+          return left.stopTitle.localeCompare(right.stopTitle);
+        }
+        if (leftDistance === null) {
+          return 1;
+        }
+        if (rightDistance === null) {
+          return -1;
+        }
+        return leftDistance - rightDistance;
+      })[0] || null,
+    [activeTokens, snapshot.lastPosition]
+  );
+  const readyToClaimCount = activeTokens.filter((token) => isWithinClaimRadius(token, snapshot.lastPosition)).length;
+  const inactiveTourCount = TOUR_ORDER.filter((tourId) => !startedTours.has(tourId)).length;
+  const locationStatusLabel =
+    snapshot.permission === "denied"
+      ? "Location permission needed"
+      : snapshot.collectorActive
+        ? "Auto collection on"
+        : "Starting GPS";
 
   async function handleStartHunt(tourId: string) {
     setStartingTourId(tourId);
@@ -71,6 +128,14 @@ export function ScavengerHuntScreen() {
     }
   }
 
+  async function handleRetryLocation() {
+    if (snapshot.permission === "denied") {
+      await Linking.openSettings();
+      return;
+    }
+    await ensureScavengerHuntCollectorStarted();
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.hero}>
@@ -83,10 +148,50 @@ export function ScavengerHuntScreen() {
         </Text>
         <View style={styles.heroChips}>
           <Chip label={`${collectedCount}/${totalCount} claimed`} tone="success" />
-          <Chip label={snapshot.collectorActive ? "Auto collection on" : snapshot.permission === "denied" ? "Location off" : "Starting GPS"} tone="warn" />
+          <Chip label={locationStatusLabel} tone={snapshot.permission === "denied" ? "danger" : "warn"} />
+          {readyToClaimCount > 0 ? <Chip label={`${readyToClaimCount} nearby now`} tone="success" /> : null}
           <Chip label="Inventors tour is AR-first" tone="default" />
         </View>
       </View>
+
+      {snapshot.permission === "denied" ? (
+        <Card style={styles.summaryCard}>
+          <Text style={styles.sectionTitle}>Location Needed</Text>
+          <Text style={styles.summaryCopy}>
+            Hunt reveals use live position. Turn location back on for Philly Tours, then come back here and the collector will resume.
+          </Text>
+          <PrimaryButton label="Open Location Settings" onPress={() => void handleRetryLocation()} surface="hunt" />
+        </Card>
+      ) : null}
+
+      {nextTarget ? (
+        <Card style={styles.revealCard}>
+          <Text style={styles.revealEyebrow}>Next Target</Text>
+          <Text style={styles.revealTitle}>{nextTarget.stopTitle}</Text>
+          <Text style={styles.revealCopy}>
+            {isWithinClaimRadius(nextTarget, snapshot.lastPosition)
+              ? "You are inside the claim radius now. Stay here for a moment and the token should collect automatically."
+              : `${nextTarget.tourTitle} is your closest live token. ${getTokenDistanceLabel(nextTarget, snapshot.lastPosition)}.`}
+          </Text>
+          <View style={styles.heroChips}>
+            <Chip label={toneMeta[nextTarget.tone].label} tone="success" />
+            <Chip label={formatRadiusLabel(nextTarget.triggerRadiusM)} tone="warn" />
+            <Chip
+              label={isWithinClaimRadius(nextTarget, snapshot.lastPosition) ? "In range" : "Move closer"}
+              tone={isWithinClaimRadius(nextTarget, snapshot.lastPosition) ? "success" : "default"}
+            />
+          </View>
+        </Card>
+      ) : (
+        <Card style={styles.summaryCard}>
+          <Text style={styles.sectionTitle}>Hunt Readiness</Text>
+          <Text style={styles.summaryCopy}>
+            {inactiveTourCount > 0
+              ? `Start ${inactiveTourCount === 1 ? "the last hunt track" : `${inactiveTourCount} hunt tracks`} to begin collecting nearby tokens.`
+              : "Every hunt track is started. Keep moving through eligible stops and tokens will collect automatically."}
+          </Text>
+        </Card>
+      )}
 
       {latestReveal ? (
         <Card style={styles.revealCard}>
@@ -159,8 +264,16 @@ export function ScavengerHuntScreen() {
             const meta = toneMeta[token.tone];
             const isCollected = collected.has(token.id);
             const huntStarted = startedTours.has(token.tourId);
+            const inRange = isWithinClaimRadius(token, snapshot.lastPosition);
             return (
-              <Pressable key={token.id} style={styles.tokenRow}>
+              <View
+                key={token.id}
+                style={[
+                  styles.tokenRow,
+                  isCollected ? styles.tokenRowCollected : null,
+                  inRange && !isCollected ? styles.tokenRowReady : null
+                ]}
+              >
                 <View style={[styles.tokenGlyphWrap, { backgroundColor: meta.shell, shadowColor: meta.glow }]}>
                   <Text style={[styles.tokenGlyph, { color: meta.ink }]}>{token.glyph}</Text>
                 </View>
@@ -173,15 +286,18 @@ export function ScavengerHuntScreen() {
                       label={
                         isCollected
                           ? "Collected"
+                          : inRange
+                            ? "Ready to claim"
                           : !huntStarted
                             ? "Start this hunt first"
                             : getTokenDistanceLabel(token, snapshot.lastPosition)
                       }
-                      tone={isCollected ? "success" : !huntStarted ? "default" : token.gpsReady ? "warn" : "danger"}
+                      tone={isCollected ? "success" : inRange ? "success" : !huntStarted ? "default" : token.gpsReady ? "warn" : "danger"}
                     />
+                    <Chip label={formatRadiusLabel(token.triggerRadiusM)} tone="default" />
                   </View>
                 </View>
-              </Pressable>
+              </View>
             );
           })}
         </View>
@@ -201,6 +317,25 @@ export function ScavengerHuntScreen() {
   );
 }
 
+function distanceForToken(token: ScavengerToken, position: ScavengerHuntSnapshot["lastPosition"]) {
+  if (!position || !token.gpsReady) {
+    return null;
+  }
+  return haversineDistanceM(position.latitude, position.longitude, token.lat, token.lng);
+}
+
+function isWithinClaimRadius(token: ScavengerToken, position: ScavengerHuntSnapshot["lastPosition"]) {
+  return getTokenDistanceLabel(token, position) === "Ready to claim";
+}
+
+function formatRadiusLabel(triggerRadiusM: number) {
+  const miles = triggerRadiusM / METERS_PER_MILE;
+  if (miles < 0.1) {
+    return `${triggerRadiusM} m radius`;
+  }
+  return `${miles.toFixed(1)} mi radius`;
+}
+
 function createStyles(
   colors: AppPalette,
   type: {
@@ -218,11 +353,16 @@ function createStyles(
       position: "relative",
       overflow: "hidden",
       borderRadius: 32,
-      padding: 24,
+      padding: 26,
       gap: 12,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.headerBackground,
       borderWidth: 1,
-      borderColor: colors.border
+      borderColor: colors.border,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.14,
+      shadowRadius: 22,
+      shadowOffset: { width: 0, height: 12 },
+      elevation: 4
     },
     heroHaloA: {
       position: "absolute",
@@ -269,7 +409,8 @@ function createStyles(
     },
     revealCard: {
       gap: 10,
-      borderRadius: 28
+      borderRadius: 28,
+      backgroundColor: colors.surfaceRaised
     },
     revealEyebrow: {
       color: colors.warn,
@@ -289,7 +430,8 @@ function createStyles(
       lineHeight: type.line(21)
     },
     summaryCard: {
-      gap: 12
+      gap: 12,
+      backgroundColor: colors.surfaceRaised
     },
     sectionTitle: {
       color: colors.text,
@@ -310,7 +452,12 @@ function createStyles(
       lineHeight: type.line(19)
     },
     group: {
-      gap: 10
+      gap: 12,
+      backgroundColor: colors.surfaceRaised,
+      borderRadius: 28,
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 18
     },
     groupHeader: {
       flexDirection: "row",
@@ -369,6 +516,13 @@ function createStyles(
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.surface
+    },
+    tokenRowReady: {
+      borderColor: colors.success,
+      backgroundColor: colors.successSoft
+    },
+    tokenRowCollected: {
+      opacity: 0.72
     },
     tokenGlyphWrap: {
       width: 58,

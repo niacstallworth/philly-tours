@@ -60,5 +60,21 @@ target 'PhillyARTours' do
         end
       end
     end
+
+    # Ensure pods use a minimum iOS deployment target of 12.0 to avoid simulator
+    # deployment target warnings for older pods (some pods still default to 11.0).
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        begin
+          if current.nil? || Gem::Version.new(current) < Gem::Version.new('12.0')
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+          end
+        rescue ArgumentError
+          # If version parsing fails for any reason, set to 12.0 conservatively
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+        end
+      end
+    end
   end
 end

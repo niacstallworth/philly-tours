@@ -1,5 +1,2 @@
-email,password,displayName,active
-admin@phillyartours.local,Founders215,App Admin,true
-info@foundersthreads.org,Founders215,App Admin,true
-niacstallworth@gmail.com,Founders215,App Admin,true
-
+email,password,displayName,roles,active
+info@foundersthreads.org,ChaseJolie27$,Founders Threads,"builder|admin",true

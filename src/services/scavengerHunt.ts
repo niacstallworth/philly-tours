@@ -273,8 +273,14 @@ export function getTokenDistanceLabel(token: ScavengerToken, position: UserPosit
     return "Distance available once location is on";
   }
   const distance = haversineDistanceM(position.latitude, position.longitude, token.lat, token.lng);
+  if (distance <= token.triggerRadiusM) {
+    return "Ready to claim";
+  }
+  if (distance < 160) {
+    return `${Math.round(distance)} m away`;
+  }
   const miles = distance / METERS_PER_MILE;
-  if (miles < 0.1) {
+  if (miles < 1) {
     return `${miles.toFixed(2)} mi away`;
   }
   return `${miles.toFixed(1)} mi away`;

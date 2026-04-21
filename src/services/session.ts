@@ -8,6 +8,9 @@ export type StoredSession = {
   email: string;
   mode: AppMode;
   userId: string;
+  roles?: string[];
+  authToken?: string | null;
+  authExpiresAt?: number | null;
 };
 
 export async function loadSession(): Promise<StoredSession | null> {
@@ -17,7 +20,7 @@ export async function loadSession(): Promise<StoredSession | null> {
       return null;
     }
     const parsed = JSON.parse(raw) as StoredSession;
-    if (!parsed.email || !parsed.userId) {
+    if (!parsed.email || !parsed.userId || !parsed.mode) {
       return null;
     }
     return parsed;

@@ -1,0 +1,1 @@
+vendor-sdk/xreal/*.apk filter=lfs diff=lfs merge=lfs -text

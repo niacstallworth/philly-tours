@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "Philly AR Tours",
+    "name": "Philly Tours",
     "slug": "philly-ar-tours",
+    "icon": "./assets/icons/philly-app-icon-flat.png",
     "scheme": "phillyartours",
     "version": "0.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -13,20 +14,27 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.founders.phillyartours",
       "infoPlist": {
-        "NSLocalNetworkUsageDescription": "Allow Philly AR Tours to connect to the local development server while debugging on your network.",
-        "NSLocationWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Location is used to trigger nearby AR tour stops while touring.",
-        "UIBackgroundModes": [
-          "fetch",
-          "remote-notification"
-        ]
+        "NSCameraUsageDescription": "Camera access lets Philly Tours place AR scenes in your surroundings.",
+        "NSLocationWhenInUseUsageDescription": "Location helps Philly Tours show nearby stops, route progress, and compass-guided discoveries while you use the app.",
+        "NSBluetoothAlwaysUsageDescription": "Bluetooth can route narration to headphones or supported smart glasses."
       }
     },
     "android": {
+      "icon": "./assets/icons/philly-app-icon-flat.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/philly-app-icon-adaptive-foreground.png",
+        "backgroundColor": "#0B2F62"
+      },
       "package": "com.founders.phillyartours",
       "permissions": [
+        "BLUETOOTH",
+        "BLUETOOTH_CONNECT",
+        "CAMERA",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.CAMERA",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ]

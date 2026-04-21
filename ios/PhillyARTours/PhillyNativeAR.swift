@@ -12,6 +12,21 @@ class PhillyNativeAR: NSObject {
   private var placedModelIds: Set<String> = []
   private weak var arController: PhillyARViewController?
 
+  private var arAvailabilityStatus: (available: Bool, reason: String) {
+    if Self.isRunningOnVisionProCompatibilityMode {
+      return (
+        false,
+        "AR handoff is unavailable in Apple Vision Pro compatibility mode. Use the iPhone or iPad build for camera-based AR, or add a native visionOS immersive scene."
+      )
+    }
+
+    let supported = ARWorldTrackingConfiguration.isSupported
+    return (
+      supported,
+      supported ? "ARKit available" : "ARKit unsupported on this device"
+    )
+  }
+
   @objc
   static func requiresMainQueueSetup() -> Bool {
     true
@@ -23,10 +38,10 @@ class PhillyNativeAR: NSObject {
       isSessionRunning = false
       placedModelIds.removeAll()
     }
-    let supported = ARWorldTrackingConfiguration.isSupported
+    let availability = arAvailabilityStatus
     resolve([
-      "available": supported,
-      "reason": supported ? "ARKit available" : "ARKit unsupported on this device",
+      "available": availability.available,
+      "reason": availability.reason,
       "sessionRunning": isSessionRunning,
       "placedModelCount": placedModelIds.count
     ])
@@ -35,8 +50,9 @@ class PhillyNativeAR: NSObject {
   @objc(startSession:rejecter:)
   func startSession(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
     DispatchQueue.main.async {
-      guard ARWorldTrackingConfiguration.isSupported else {
-        reject("ARKIT_UNAVAILABLE", "ARKit is not supported on this device", nil)
+      let availability = self.arAvailabilityStatus
+      guard availability.available else {
+        reject("ARKIT_UNAVAILABLE", availability.reason, nil)
         return
       }
 
@@ -178,6 +194,13 @@ class PhillyNativeAR: NSObject {
       return topViewController(base: presented)
     }
     return base
+  }
+
+  private static var isRunningOnVisionProCompatibilityMode: Bool {
+    if #available(iOS 17.0, *) {
+      return UIDevice.current.userInterfaceIdiom == .vision
+    }
+    return false
   }
 }
 
@@ -887,21 +910,25 @@ final class PhillyARViewController: UIViewController {
     placementReticle.isHidden = true
 
     infoPanel.translatesAutoresizingMaskIntoConstraints = false
-    infoPanel.backgroundColor = UIColor.black.withAlphaComponent(0.74)
-    infoPanel.layer.cornerRadius = 18
-    infoPanel.layer.borderWidth = 1
-    infoPanel.layer.borderColor = UIColor.white.withAlphaComponent(0.12).cgColor
+    infoPanel.backgroundColor = .clear
+    infoPanel.layer.cornerRadius = 0
+    infoPanel.layer.borderWidth = 0
+    infoPanel.layer.borderColor = UIColor.clear.cgColor
     infoPanel.isHidden = true
 
     infoTitleLabel.translatesAutoresizingMaskIntoConstraints = false
     infoTitleLabel.numberOfLines = 2
     infoTitleLabel.textColor = .white
     infoTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+    infoTitleLabel.shadowColor = UIColor.black.withAlphaComponent(0.8)
+    infoTitleLabel.shadowOffset = CGSize(width: 0, height: 1)
 
     infoBodyLabel.translatesAutoresizingMaskIntoConstraints = false
     infoBodyLabel.numberOfLines = 4
     infoBodyLabel.textColor = UIColor(red: 0.88, green: 0.88, blue: 0.92, alpha: 1)
     infoBodyLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+    infoBodyLabel.shadowColor = UIColor.black.withAlphaComponent(0.8)
+    infoBodyLabel.shadowOffset = CGSize(width: 0, height: 1)
 
     view.addSubview(placementGuideContainer)
     placementGuideContainer.addSubview(placementGuideLabel)
@@ -934,14 +961,14 @@ final class PhillyARViewController: UIViewController {
       infoPanel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
       infoPanel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -28),
 
-      infoTitleLabel.topAnchor.constraint(equalTo: infoPanel.topAnchor, constant: 14),
-      infoTitleLabel.leadingAnchor.constraint(equalTo: infoPanel.leadingAnchor, constant: 14),
-      infoTitleLabel.trailingAnchor.constraint(equalTo: infoPanel.trailingAnchor, constant: -14),
+      infoTitleLabel.topAnchor.constraint(equalTo: infoPanel.topAnchor),
+      infoTitleLabel.leadingAnchor.constraint(equalTo: infoPanel.leadingAnchor),
+      infoTitleLabel.trailingAnchor.constraint(equalTo: infoPanel.trailingAnchor),
 
       infoBodyLabel.topAnchor.constraint(equalTo: infoTitleLabel.bottomAnchor, constant: 6),
-      infoBodyLabel.leadingAnchor.constraint(equalTo: infoPanel.leadingAnchor, constant: 14),
-      infoBodyLabel.trailingAnchor.constraint(equalTo: infoPanel.trailingAnchor, constant: -14),
-      infoBodyLabel.bottomAnchor.constraint(equalTo: infoPanel.bottomAnchor, constant: -14)
+      infoBodyLabel.leadingAnchor.constraint(equalTo: infoPanel.leadingAnchor),
+      infoBodyLabel.trailingAnchor.constraint(equalTo: infoPanel.trailingAnchor),
+      infoBodyLabel.bottomAnchor.constraint(equalTo: infoPanel.bottomAnchor)
     ])
   }
 

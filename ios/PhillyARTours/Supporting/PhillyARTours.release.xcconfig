@@ -1,0 +1,7 @@
+#include? "../../Pods/Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.release.xcconfig"
+
+META_WEARABLES_APP_ID = meta-app-id-required
+META_WEARABLES_CLIENT_TOKEN = meta-client-token-required
+META_WEARABLES_APP_LINK_URL_SCHEME = $(PRODUCT_BUNDLE_IDENTIFIER)
+
+#include? "MetaWearables.local.xcconfig"

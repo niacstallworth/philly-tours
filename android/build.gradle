@@ -1,4 +1,5 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+import java.util.Properties
 
 buildscript {
   repositories {
@@ -28,6 +29,14 @@ def asyncStorageAndroidLocalRepo = new File(
   "../android/local_repo"
 )
 
+def localProperties = new Properties()
+def localPropertiesFile = new File(rootDir, "local.properties")
+if (localPropertiesFile.exists()) {
+  localPropertiesFile.withInputStream { stream ->
+    localProperties.load(stream)
+  }
+}
+
 allprojects {
   repositories {
     maven {
@@ -41,6 +50,13 @@ allprojects {
 
     google()
     mavenCentral()
+    maven {
+      url 'https://maven.pkg.github.com/facebook/meta-wearables-dat-android'
+      credentials {
+        username = ""
+        password = System.getenv("GITHUB_TOKEN") ?: localProperties.getProperty("github_token") ?: ""
+      }
+    }
     maven { url 'https://www.jitpack.io' }
   }
 

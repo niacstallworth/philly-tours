@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Philly AR Tours</string>
+	<string>Philly Tours</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -37,6 +37,20 @@
 	<string>12.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>MWDAT</key>
+	<dict>
+		<key>AppLinkURLScheme</key>
+		<string>$(META_WEARABLES_APP_LINK_URL_SCHEME)</string>
+		<key>Analytics</key>
+		<dict>
+			<key>OptOut</key>
+			<true/>
+		</dict>
+		<key>ClientToken</key>
+		<string>$(META_WEARABLES_CLIENT_TOKEN)</string>
+		<key>MetaAppID</key>
+		<string>$(META_WEARABLES_APP_ID)</string>
+	</dict>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -45,15 +59,11 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera is required for AR tour placement and scene alignment.</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>Allow Philly AR Tours to connect to the local development server while debugging on your network.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Location is used to trigger nearby AR tour stops while touring.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your location</string>
+	<string>Camera access lets Philly Tours place AR scenes in your surroundings.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Bluetooth can route narration to headphones or supported smart glasses.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location is used to trigger nearby AR tour stops.</string>
+	<string>Location helps Philly Tours show nearby stops, route progress, and compass-guided discoveries while you use the app.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -77,7 +87,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIUserInterfaceStyle</key>
-	<string>Dark</string>
+	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

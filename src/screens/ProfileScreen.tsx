@@ -1,50 +1,65 @@
 import React, { useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, ImageBackground, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
+import { useCompanionSession } from "../hooks/useCompanionSession";
+import { openAuthSessionWithFallback } from "../services/browser";
+import { connectCompanion, refreshCompanionStatus } from "../services/companion";
+import type { WearableStatus } from "../services/wearables";
 import {
   createCheckoutSession,
-  DeletionRequestRecord,
-  fulfillDeletionRequest,
   getEntitlements,
   getSyncServerUrl,
-  listDeletionRequests,
-  requestBackendDeletion
+  requestBackendDeletion,
+  subscribeToNewsletter
 } from "../services/payments";
-import { AppAppearanceMode, AppPalette, AppTextScale, THEME_SURFACE_LABELS, useAppTheme, useTypeScale } from "../theme/appTheme";
+import { AppAppearanceMode, AppPalette, AppTextScale, useAppTheme, useTypeScale } from "../theme/appTheme";
 
 type Props = {
   displayName?: string;
   email?: string;
-  mode?: "tourist" | "builder";
   audioHistoryOnlyUnlocked?: boolean;
   fullAppUnlocked?: boolean;
   onRefreshEntitlements?: () => Promise<void>;
   onDeleteProfile?: () => void;
+  onOpenCompanion?: () => void;
 };
 
 WebBrowser.maybeCompleteAuthSession();
 
+const SOCIAL_LINKS = [
+  { label: "Instagram", detail: "@philly_tours", url: "https://www.instagram.com/philly_tours" },
+  { label: "Facebook", detail: "Founders Threads", url: "https://www.facebook.com/people/Founders-Threads/61581897702529/" },
+  { label: "X", detail: "@FoundrsThreads", url: "https://x.com/FoundrsThreads" },
+  { label: "Bluesky", detail: "@foundersthreads.bsky.social", url: "https://bsky.app/profile/foundersthreads.bsky.social" },
+  { label: "Cash App", detail: "$FoundersThreads", url: "https://cash.app/$FoundersThreads" },
+  { label: "YouTube", detail: "@niathatswhy", url: "https://www.youtube.com/@niathatswhy" },
+  { label: "WhatsApp", detail: "+1 (631) 773-5745", url: "https://api.whatsapp.com/send?phone=16317735745" }
+] as const;
+
+const PROFILE_HERO_IMAGE = require("../../assets/images/founders-threads-profile.png");
+
 export function ProfileScreen({
   displayName = "Founder Demo",
   email = "demo@local.app",
-  mode = "builder",
   audioHistoryOnlyUnlocked = false,
   fullAppUnlocked = false,
   onRefreshEntitlements,
-  onDeleteProfile
+  onDeleteProfile,
+  onOpenCompanion
 }: Props) {
-  const { activePreset, presets, setPreset, settings, appearanceMode, setAppearanceMode, textScale, setTextScale, colors } = useAppTheme();
+  const { appearanceMode, setAppearanceMode, textScale, setTextScale, colors } = useAppTheme();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
+  const { status: companionStatus, lastCommandResult } = useCompanionSession();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [entitlementStatus, setEntitlementStatus] = useState<string>("not_loaded");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [deletionReason, setDeletionReason] = useState("");
   const [deletionRequestedAt, setDeletionRequestedAt] = useState<number | null>(null);
-  const [adminKey, setAdminKey] = useState("");
-  const [adminRequests, setAdminRequests] = useState<DeletionRequestRecord[]>([]);
+  const [newsletterEmail, setNewsletterEmail] = useState(email);
+  const [newsletterSubscribedAt, setNewsletterSubscribedAt] = useState<number | null>(null);
 
   React.useEffect(() => {
     refreshEntitlements(false).catch(() => undefined);
@@ -58,6 +73,36 @@ export function ProfileScreen({
     });
     return () => sub.remove();
   }, []);
+
+  const canReconnectCompanion =
+    companionStatus.supported &&
+    companionStatus.pairedDevice != null &&
+    companionStatus.connectionState !== "connected" &&
+    companionStatus.connectionState !== "pairing";
+
+  async function reconnectCompanionFromProfile() {
+    setLoadingAction("companion-reconnect");
+    setStatusMessage(null);
+    try {
+      const nextStatus = await connectCompanion();
+      setStatusMessage(nextStatus.statusMessage ?? "Companion connected.");
+    } catch (error) {
+      setStatusMessage((error as Error).message || "Could not reconnect companion.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function refreshCompanionFromProfile() {
+    setLoadingAction("companion-refresh");
+    setStatusMessage(null);
+    try {
+      const nextStatus = await refreshCompanionStatus();
+      setStatusMessage(nextStatus.statusMessage ?? nextStatus.lastError ?? "Companion status refreshed.");
+    } finally {
+      setLoadingAction(null);
+    }
+  }
 
   async function refreshEntitlements(showAlert = true) {
     setLoadingAction("entitlements");
@@ -94,7 +139,7 @@ export function ProfileScreen({
       if (!session.url) {
         throw new Error("Stripe Checkout URL was not returned.");
       }
-      const result = await WebBrowser.openAuthSessionAsync(session.url, "phillyartours://checkout/success");
+      const result = await openAuthSessionWithFallback(session.url, "phillyartours://checkout/success");
       if (result.type === "success" || result.type === "dismiss" || result.type === "cancel") {
         refreshEntitlements(false).catch(() => undefined);
       }
@@ -139,97 +184,77 @@ export function ProfileScreen({
     }
   }
 
-  async function refreshAdminDeletionRequests() {
-    if (!adminKey.trim()) {
-      setStatusMessage("Enter ADMIN_API_KEY to review deletion requests.");
+  async function submitNewsletterSignup() {
+    const normalizedEmail = newsletterEmail.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setStatusMessage("Enter an email address for newsletter updates.");
       return;
     }
-    setLoadingAction("admin-requests");
+    setLoadingAction("newsletter");
     setStatusMessage(null);
     try {
-      const requests = await listDeletionRequests(adminKey.trim(), email || displayName || "builder");
-      setAdminRequests(requests);
+      const result = await subscribeToNewsletter({
+        email: normalizedEmail,
+        displayName,
+        source: "profile_settings_socials"
+      });
+      setNewsletterEmail(result.email);
+      setNewsletterSubscribedAt(result.subscribedAt);
+      setStatusMessage(`Subscribed ${result.email}. A confirmation email has been sent.`);
     } catch (error) {
-      setStatusMessage((error as Error).message || "Could not load deletion requests.");
+      setStatusMessage((error as Error).message || "Could not subscribe to the newsletter.");
     } finally {
       setLoadingAction(null);
     }
   }
 
-  async function fulfillDeletionRequestFromQueue(requestId: number) {
-    if (!adminKey.trim()) {
-      setStatusMessage("Enter ADMIN_API_KEY before fulfilling deletion requests.");
-      return;
-    }
-    setLoadingAction(`fulfill:${requestId}`);
-    setStatusMessage(null);
+  async function openExternalLink(url: string) {
     try {
-      await fulfillDeletionRequest(requestId, adminKey.trim(), email || displayName || "builder");
-      setStatusMessage(`Deletion request ${requestId} fulfilled. Backend records were purged.`);
-      const requests = await listDeletionRequests(adminKey.trim(), email || displayName || "builder");
-      setAdminRequests(requests);
-    } catch (error) {
-      setStatusMessage((error as Error).message || "Could not fulfill deletion request.");
-    } finally {
-      setLoadingAction(null);
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert("Could not open link", url);
     }
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.heroPanel}>
-        <Text style={styles.heroEyebrow}>Profile</Text>
-        <Text style={styles.heroTitle}>{displayName}</Text>
-        <Text style={styles.heroCopy}>{email}</Text>
-        <View style={styles.chips}>
-          <Chip label={mode === "builder" ? "Creator mode" : "Tour mode"} tone="default" />
-          <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
+      <ImageBackground source={PROFILE_HERO_IMAGE} style={styles.heroPanel} imageStyle={styles.heroImage} resizeMode="cover">
+        <View style={styles.heroScrim} />
+        <View style={styles.heroContent}>
+          <Text style={styles.heroEyebrow}>Profile</Text>
+          <Text style={styles.heroTitle}>{displayName}</Text>
+          <Text style={styles.heroCopy}>{email}</Text>
+          <View style={styles.chips}>
+            <Chip label="Tour mode" tone="default" />
+            <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
+          </View>
         </View>
-      </View>
+      </ImageBackground>
 
-      {mode === "builder" ? (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Appearance</Text>
-          <Text style={styles.copy}>Choose whether the app follows the device setting or stays manually light or dark.</Text>
-          <View style={styles.appearanceRow}>
-            {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
-              const selected = option === appearanceMode;
-              return (
-                <Pressable
-                  key={option}
-                  onPress={() => void setAppearanceMode(option)}
-                  style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
-                >
-                  <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
-                    {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
-      ) : (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Appearance</Text>
-          <Text style={styles.copy}>Follow the device theme or choose a fixed look for this app.</Text>
-          <View style={styles.appearanceRow}>
-            {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
-              const selected = option === appearanceMode;
-              return (
-                <Pressable
-                  key={option}
-                  onPress={() => void setAppearanceMode(option)}
-                  style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
-                >
-                  <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
-                    {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Card>
-      )}
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Appearance</Text>
+        <Text style={styles.copy}>Follow the device theme or choose a fixed look for this app.</Text>
+        <View style={styles.appearanceRow}>
+          {(["system", "light", "dark"] as AppAppearanceMode[]).map((option) => {
+            const selected = option === appearanceMode;
+            return (
+              <Pressable
+                key={option}
+                onPress={() => void setAppearanceMode(option)}
+                style={[styles.appearanceChip, selected && styles.appearanceChipActive]}
+              >
+                <Text style={[styles.appearanceChipText, selected && styles.appearanceChipTextActive]}>
+                  {option === "system" ? "Use Device" : option === "light" ? "Light" : "Dark"}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </Card>
 
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Text Size</Text>
@@ -252,51 +277,52 @@ export function ProfileScreen({
         </View>
       </Card>
 
-      {mode === "builder" ? (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Theme Studio</Text>
-          <Text style={styles.copy}>
-            Builder only. This sets the shared button palette across the app now, while the page-by-page color map is ready for the next tuning pass.
-          </Text>
-          <View style={styles.chips}>
-            <Chip label={`Current ${activePreset.label}`} tone="success" />
-          </View>
-          <View style={styles.themePresetGrid}>
-            {presets.map((preset) => {
-              const selected = preset.id === activePreset.id;
-              return (
-                <Pressable
-                  key={preset.id}
-                  onPress={() => void setPreset(preset.id)}
-                  style={[styles.themePresetCard, selected && styles.themePresetCardActive]}
-                >
-                  <View style={styles.themePresetHeader}>
-                    <View style={[styles.themeSwatch, { backgroundColor: preset.accent.background }]} />
-                    <Text style={styles.themePresetTitle}>{preset.label}</Text>
-                  </View>
-                  <Text style={styles.meta}>{preset.description}</Text>
-                  <Text style={[styles.themePresetStatus, selected && styles.themePresetStatusActive]}>
-                    {selected ? "Active now" : "Use this palette"}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-          <View style={styles.themePreviewGrid}>
-            {Object.entries(THEME_SURFACE_LABELS).map(([surface, label]) => (
-              <View key={surface} style={styles.themePreviewItem}>
-                <View style={[styles.themePreviewSwatch, { backgroundColor: settings.buttonThemes[surface as keyof typeof THEME_SURFACE_LABELS].background }]} />
-                <Text style={styles.themePreviewLabel}>{label}</Text>
-              </View>
-            ))}
-          </View>
-        </Card>
-      ) : null}
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Audio and Glasses Companion</Text>
+        <Text style={styles.copy}>
+          {getProfileCompanionCopy(companionStatus)}
+        </Text>
+        <View style={styles.chips}>
+          <Chip
+            label={companionStatus.connectionState === "connected" ? "Connected" : companionStatus.connectionState.replace(/_/g, " ")}
+            tone={companionStatus.connectionState === "connected" ? "success" : companionStatus.connectionState === "error" ? "danger" : "warn"}
+          />
+          <Chip label={companionStatus.pairedDevice?.displayName || "No paired glasses"} tone="default" />
+          <Chip label={getProfileIntegrationLabel(companionStatus)} tone={companionStatus.integrationMode === "none" ? "danger" : "success"} />
+        </View>
+        <Text style={styles.meta}>
+          {companionStatus.statusMessage || companionStatus.lastError || "Open companion setup to manage glasses connection and status."}
+        </Text>
+        {canReconnectCompanion ? (
+          <Text style={styles.meta}>{getProfileReconnectCopy(companionStatus)}</Text>
+        ) : null}
+        {lastCommandResult ? (
+          <>
+            <Text style={styles.meta}>
+              Last command: {lastCommandResult.commandType} · {lastCommandResult.result.ok ? "ok" : "failed"}
+            </Text>
+            <Text style={styles.meta}>{lastCommandResult.result.message}</Text>
+          </>
+        ) : null}
+        {canReconnectCompanion ? (
+          <PrimaryButton
+            onPress={() => void reconnectCompanionFromProfile()}
+            disabled={loadingAction !== null}
+            label={loadingAction === "companion-reconnect" ? "Reconnecting..." : getProfileReconnectLabel(companionStatus)}
+          />
+        ) : null}
+        <PrimaryButton
+          onPress={() => void refreshCompanionFromProfile()}
+          disabled={loadingAction !== null}
+          label={loadingAction === "companion-refresh" ? "Refreshing..." : "Refresh Companion Status"}
+        />
+        <PrimaryButton onPress={onOpenCompanion || (() => undefined)} disabled={!onOpenCompanion} label="Open Companion Setup" />
+      </Card>
 
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Membership</Text>
         <Text style={styles.copy}>
-          Unlock premium tours and future upgrades with a simple pass instead of cluttering the app with store mechanics.
+          Unlock premium tours and full audio history with one membership.
         </Text>
         <View style={styles.chips}>
           <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
@@ -311,6 +337,7 @@ export function ProfileScreen({
             tone={entitlementStatus === "offline" ? "danger" : entitlementStatus.startsWith("active:") ? "success" : "default"}
           />
         </View>
+        <Text style={styles.meta}>Full audio history is included with membership.</Text>
         <Text style={styles.meta}>Status: {entitlementStatus}</Text>
         {statusMessage ? <Text style={styles.warning}>{statusMessage}</Text> : null}
         <PrimaryButton
@@ -321,24 +348,47 @@ export function ProfileScreen({
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Audio History Only</Text>
+        <Text style={styles.sectionTitle}>Follow + Contact</Text>
         <Text style={styles.copy}>
-          This option is available for guests who are unable to travel but still have a willingness to learn Philadelphia Founders history through the narrated stops.
+          {Platform.OS === "web"
+            ? "Keep up with Founders Threads and Philly Tours from the web app with direct links to every live social channel."
+            : "Keep the app connected to the live Founders Threads channels while the native experience continues to grow."}
         </Text>
-        <Text style={styles.meta}>
-          Purchase audio history only to listen through the tour stories from home, without needing to physically complete the route.
-        </Text>
-        {audioHistoryOnlyUnlocked ? (
-          <View style={styles.chips}>
-            <Chip label="Audio history unlocked" tone="success" />
-            <Chip label="All stops available" tone="default" />
-          </View>
-        ) : null}
-        <PrimaryButton
-          disabled={loadingAction !== null || audioHistoryOnlyUnlocked}
-          onPress={() => startHostedCheckout(999, "Philly Tours Audio History Only", "audio_history_only")}
-          label={audioHistoryOnlyUnlocked ? "Audio History Unlocked" : loadingAction === "hosted" ? "Preparing..." : "Purchase Audio History Only"}
-        />
+        <View style={styles.socialGrid}>
+          {SOCIAL_LINKS.map((link) => (
+            <Pressable
+              key={link.url}
+              onPress={() => void openExternalLink(link.url)}
+              style={styles.socialCard}
+              accessibilityRole="link"
+            >
+              <Text style={styles.socialTitle}>{link.label}</Text>
+              <Text style={styles.socialDetail}>{link.detail}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <View style={styles.newsletterBlock}>
+          <Text style={styles.newsletterTitle}>Newsletter</Text>
+          <Text style={styles.copy}>Get Philly Tours updates by email. We&apos;ll send a confirmation email as soon as you subscribe.</Text>
+          <TextInput
+            value={newsletterEmail}
+            onChangeText={setNewsletterEmail}
+            placeholder="you@example.com"
+            placeholderTextColor="#8e7d99"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            autoCorrect={false}
+            style={styles.input}
+          />
+          {newsletterSubscribedAt ? (
+            <Text style={styles.meta}>Subscribed: {new Date(newsletterSubscribedAt).toLocaleString()}</Text>
+          ) : null}
+          <PrimaryButton
+            disabled={loadingAction !== null}
+            onPress={submitNewsletterSignup}
+            label={loadingAction === "newsletter" ? "Subscribing..." : "Sign Up For Newsletter"}
+          />
+        </View>
       </Card>
 
       <Card style={styles.card}>
@@ -372,56 +422,48 @@ export function ProfileScreen({
         />
       </Card>
 
-      {mode === "builder" ? (
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Admin Deletion Queue</Text>
-          <Text style={styles.copy}>Internal only. Review requested deletions and purge backend records after user confirmation.</Text>
-          <TextInput
-            value={adminKey}
-            onChangeText={setAdminKey}
-            placeholder="ADMIN_API_KEY"
-            placeholderTextColor="#8e7d99"
-            secureTextEntry
-            style={styles.input}
-            autoCapitalize="none"
-          />
-          <PrimaryButton
-            disabled={loadingAction !== null}
-            onPress={refreshAdminDeletionRequests}
-            label={loadingAction === "admin-requests" ? "Loading..." : "Load Deletion Requests"}
-          />
-          {adminRequests.length === 0 ? (
-            <Text style={styles.meta}>No loaded deletion requests yet.</Text>
-          ) : (
-            <View style={styles.adminQueue}>
-              {adminRequests.map((request) => (
-                <View key={request.id} style={styles.adminRequestRow}>
-                  <Text style={styles.adminRequestTitle}>
-                    {request.display_name || request.email || request.user_id}
-                  </Text>
-                  <Text style={styles.meta}>User: {request.user_id}</Text>
-                  <Text style={styles.meta}>Status: {request.status}</Text>
-                  {request.reason ? <Text style={styles.copy}>Reason: {request.reason}</Text> : null}
-                  <Text style={styles.meta}>Requested: {new Date(request.requested_at).toLocaleString()}</Text>
-                  {request.status === "fulfilled" ? (
-                    <Text style={styles.meta}>
-                      Fulfilled by {request.resolved_by || "admin"}{request.resolved_at ? ` on ${new Date(request.resolved_at).toLocaleString()}` : ""}
-                    </Text>
-                  ) : (
-                    <PrimaryButton
-                      disabled={loadingAction !== null}
-                      onPress={() => fulfillDeletionRequestFromQueue(request.id)}
-                      label={loadingAction === `fulfill:${request.id}` ? "Purging..." : "Fulfill & Purge User Data"}
-                    />
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
-        </Card>
-      ) : null}
     </ScrollView>
   );
+}
+
+function getProfileIntegrationLabel(status: WearableStatus) {
+  if (status.integrationMode === "native") {
+    return "Native DAT";
+  }
+
+  if (status.integrationMode === "manual") {
+    return "Universal audio mode";
+  }
+
+  return "Unavailable";
+}
+
+function getProfileCompanionCopy(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "Pair any Bluetooth glasses, headset, or speaker to route narration while keeping tour controls on the phone.";
+  }
+
+  if (status.integrationMode === "native") {
+    return "Your iPhone can route narration to its current audio output, including Bluetooth headphones and glasses. Pair Meta glasses here when you want registration, camera access, and deeper companion controls.";
+  }
+
+  return "Use phone-first touring here, with premium glasses integrations available on supported devices.";
+}
+
+function getProfileReconnectCopy(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "A remembered Bluetooth audio route is available. Restore it to keep narration on the paired audio device.";
+  }
+
+  return "A remembered Meta device is available. Reconnect to restore companion access.";
+}
+
+function getProfileReconnectLabel(status: WearableStatus) {
+  if (status.integrationMode === "manual") {
+    return "Restore Universal Audio Mode";
+  }
+
+  return "Reconnect Companion Device";
 }
 
 function createStyles(
@@ -439,33 +481,58 @@ function createStyles(
     backgroundColor: colors.background
   },
   heroPanel: {
-    backgroundColor: colors.backgroundElevated,
-    borderRadius: 30,
-    padding: 22,
-    gap: 10,
+    position: "relative",
+    overflow: "hidden",
+    minHeight: 252,
+    justifyContent: "flex-end",
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: 32,
     borderWidth: 1,
-    borderColor: colors.border
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.14,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 14 },
+    elevation: 4
+  },
+  heroImage: {
+    borderRadius: 32
+  },
+  heroScrim: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(0,0,0,0.24)"
+  },
+  heroContent: {
+    position: "relative",
+    gap: 12,
+    padding: 24
   },
   heroEyebrow: {
-    color: colors.warn,
+    color: "rgba(255,255,255,0.72)",
     fontSize: type.font(12),
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 1.2
   },
   heroTitle: {
-    color: colors.text,
+    color: "#ffffff",
     fontSize: type.font(30),
     lineHeight: type.line(36),
     fontWeight: "800"
   },
   heroCopy: {
-    color: colors.textSoft,
+    color: "rgba(255,255,255,0.82)",
     lineHeight: type.line(21)
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   card: {
-    gap: 12
+    gap: 12,
+    backgroundColor: colors.surfaceRaised,
+    borderRadius: 26
   },
   sectionTitle: {
     color: colors.text,
@@ -500,16 +567,16 @@ function createStyles(
   },
   appearanceChip: {
     minWidth: 94,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
     borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.borderStrong,
     backgroundColor: colors.surfaceSoft
   },
   appearanceChipActive: {
-    borderColor: "#007eff",
-    backgroundColor: colors.infoSoft
+    borderColor: "#7d63ff",
+    backgroundColor: "rgba(91, 56, 245, 0.18)"
   },
   appearanceChipText: {
     color: colors.textSoft,
@@ -518,7 +585,43 @@ function createStyles(
     fontSize: type.font(14)
   },
   appearanceChipTextActive: {
-    color: colors.info
+    color: "#cfc3ff"
+  },
+  socialGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  socialCard: {
+    flexGrow: 1,
+    minWidth: 140,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceSoft,
+    gap: 4
+  },
+  socialTitle: {
+    color: colors.text,
+    fontSize: type.font(15),
+    fontWeight: "800"
+  },
+  socialDetail: {
+    color: colors.textSoft,
+    fontSize: type.font(13),
+    lineHeight: type.line(18)
+  },
+  newsletterBlock: {
+    marginTop: 10,
+    gap: 10,
+    paddingTop: 6
+  },
+  newsletterTitle: {
+    color: colors.text,
+    fontSize: type.font(16),
+    fontWeight: "800"
   },
   multilineInput: {
     minHeight: 92,

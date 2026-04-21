@@ -116,6 +116,20 @@ esac
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
+if "$darwin" && [ -x /usr/libexec/java_home ] ; then
+    macos_java_21_home=$(/usr/libexec/java_home -v 21 2>/dev/null)
+    if [ -n "$macos_java_21_home" ] ; then
+        if [ -n "$JAVA_HOME" ] ; then
+            java_version=$("$JAVA_HOME/bin/java" -version 2>&1 | sed -n '1s/.* version "\(.*\)".*/\1/p' | cut -d. -f1)
+            if [ "$java_version" = "25" ] ; then
+                JAVA_HOME=$macos_java_21_home
+            fi
+        else
+            JAVA_HOME=$macos_java_21_home
+        fi
+    fi
+fi
+
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then

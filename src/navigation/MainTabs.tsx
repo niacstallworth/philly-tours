@@ -1,10 +1,13 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { CompanionSetupScreen } from "../screens/CompanionSetupScreen";
+import { DriveScreen } from "../screens/DriveScreen";
 import { HomeScreen } from "../screens/HomeScreen";
+import { ProgressScreen } from "../screens/ProgressScreen";
 import { AppMode } from "../screens/OnboardingScreen";
 import { ProfileScreen } from "../screens/ProfileScreen";
-import { ScavengerHuntScreen } from "../screens/ScavengerHuntScreen";
 import { HandoffTarget } from "../services/deepLinks";
+import { ensureMediaButtonsStarted, stopMediaButtons } from "../services/mediaButtons";
 import { dismissScavengerReveal, ensureScavengerHuntCollectorStarted, getScavengerHuntSnapshot, getScavengerTokenById, subscribeToScavengerHunt } from "../services/scavengerHunt";
 import { ThemeSurfaceProvider, useThemeColors, useTypeScale } from "../theme/appTheme";
 
@@ -26,20 +29,28 @@ type Props = {
 export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, fullAppUnlocked, onRefreshEntitlements, onDeleteProfile }: Props) {
   const colors = useThemeColors();
   const type = useTypeScale();
-  const [tab, setTab] = React.useState<"Home" | "Hunt" | "Profile">("Home");
+  const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
+  const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Settings" | "Compass">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
 
   React.useEffect(() => {
     const unsubscribe = subscribeToScavengerHunt(setHuntSnapshot);
     void ensureScavengerHuntCollectorStarted();
+    void ensureMediaButtonsStarted();
     return unsubscribe;
+  }, []);
+
+  React.useEffect(() => {
+    return () => {
+      void stopMediaButtons();
+    };
   }, []);
 
   React.useEffect(() => {
     if (!handoffTarget) {
       return;
     }
-    setTab("Home");
+    setTab("Compass");
   }, [handoffTarget]);
 
   function renderTab() {
@@ -52,15 +63,47 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
             highlightedStopId={handoffTarget?.stopId}
             audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
             fullAppUnlocked={fullAppUnlocked}
-            onOpenPurchase={() => setTab("Profile")}
+            onOpenPurchase={() => setTab("Settings")}
           />
         </ThemeSurfaceProvider>
       );
     }
-    if (tab === "Hunt") {
+    if (tab === "Compass") {
       return (
-        <ThemeSurfaceProvider surface="hunt">
-          <ScavengerHuntScreen />
+        <ThemeSurfaceProvider surface="map">
+          <DriveScreen initialTourId={handoffTarget?.tourId} />
+        </ThemeSurfaceProvider>
+      );
+    }
+    if (tab === "AR") {
+      return (
+        <ThemeSurfaceProvider surface="map">
+          <CompanionSetupScreen
+            audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+            fullAppUnlocked={fullAppUnlocked}
+          />
+        </ThemeSurfaceProvider>
+      );
+    }
+    if (tab === "Board") {
+      return (
+        <ThemeSurfaceProvider surface="home">
+          <ProgressScreen />
+        </ThemeSurfaceProvider>
+      );
+    }
+    if (tab === "Settings") {
+      return (
+        <ThemeSurfaceProvider surface="profile">
+          <ProfileScreen
+            displayName={session.displayName}
+            email={session.email}
+            audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+            fullAppUnlocked={fullAppUnlocked}
+            onRefreshEntitlements={onRefreshEntitlements}
+            onDeleteProfile={onDeleteProfile}
+            onOpenCompanion={() => setTab("AR")}
+          />
         </ThemeSurfaceProvider>
       );
     }
@@ -68,21 +111,23 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
       <ThemeSurfaceProvider surface="profile">
         <ProfileScreen
           displayName={session.displayName}
-          mode={session.mode}
           email={session.email}
           audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
           fullAppUnlocked={fullAppUnlocked}
           onRefreshEntitlements={onRefreshEntitlements}
           onDeleteProfile={onDeleteProfile}
+          onOpenCompanion={() => setTab("AR")}
         />
       </ThemeSurfaceProvider>
     );
   }
 
-  const tabs: Array<{ key: "Home" | "Hunt" | "Profile"; label: string }> = [
-    { key: "Home", label: "Home" },
-    { key: "Hunt", label: "Scavenger Hunt" },
-    { key: "Profile", label: "Profile" }
+  const tabs: Array<{ key: "Home" | "AR" | "Board" | "Settings" | "Compass"; label: string; glyph: string }> = [
+    { key: "Home", label: "Home", glyph: "⌂" },
+    { key: "AR", label: "AR", glyph: "◌" },
+    { key: "Board", label: "Board", glyph: "◔" },
+    { key: "Settings", label: "Settings", glyph: "⚙" },
+    { key: "Compass", label: "Compass", glyph: "⌖" }
   ];
 
   const revealToken = huntSnapshot.latestRevealId ? getScavengerTokenById(huntSnapshot.latestRevealId) : null;
@@ -99,19 +144,34 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
           </Text>
         </Pressable>
       ) : null}
-      <View style={[styles.tabShell, { backgroundColor: colors.background }]}>
-        <View style={[styles.tabBar, { backgroundColor: colors.navBackground, borderColor: colors.navBorder }]}>
+      <View style={[styles.tabShell, { backgroundColor: "transparent" }]}>
+        <View style={[styles.tabBar, { backgroundColor: "rgba(255,255,255,0.96)", borderColor: "rgba(15, 23, 42, 0.08)", shadowColor: colors.shadow }]}>
           {tabs.map((item) => (
-            <Pressable key={item.key} onPress={() => setTab(item.key)} style={styles.tabItem}>
+            <Pressable
+              key={item.key}
+              onPress={() => setTab(item.key)}
+              style={[
+                styles.tabItem,
+                tab === item.key && styles.tabItemActive,
+                { backgroundColor: tab === item.key ? "#4f2df5" : "transparent" }
+              ]}
+            >
+              <Text
+                style={[
+                  styles.tabGlyph,
+                  { color: tab === item.key ? "#fff8f3" : "#64748b", fontSize: type.font(18) }
+                ]}
+              >
+                {item.glyph}
+              </Text>
               <Text
                 style={[
                   styles.tabText,
-                  { color: tab === item.key ? colors.navTextActive : colors.navText, fontSize: type.font(12) }
+                  { color: tab === item.key ? "#fff8f3" : "#64748b", fontSize: type.font(11) }
                 ]}
               >
                 {item.label}
               </Text>
-              {tab === item.key ? <View style={styles.activePill} /> : null}
             </Pressable>
           ))}
         </View>
@@ -120,71 +180,88 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1
-  },
-  content: {
-    flex: 1
-  },
-  tabShell: {
-    paddingHorizontal: 14,
-    paddingBottom: 14,
-    paddingTop: 8
-  },
-  revealShell: {
-    position: "absolute",
-    right: 16,
-    left: 16,
-    bottom: 104,
-    zIndex: 20,
-    borderWidth: 1,
-    borderRadius: 24,
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    shadowOpacity: 0.2,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 6
-  },
-  revealEyebrow: {
-    fontSize: 11,
-    fontWeight: "800",
-    textTransform: "uppercase",
-    letterSpacing: 1
-  },
-  revealTitle: {
-    marginTop: 6,
-    fontSize: 17,
-    fontWeight: "800"
-  },
-  revealCopy: {
-    marginTop: 6,
-    fontSize: 13,
-    lineHeight: 18
-  },
-  tabBar: {
-    borderWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderRadius: 28
-  },
-  tabItem: {
-    alignItems: "center",
-    gap: 6,
-    minWidth: 58,
-    flex: 1
-  },
-  tabText: {
-    fontSize: 12,
-    fontWeight: "700"
-  },
-  activePill: {
-    width: 22,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "#007eff"
-  }
-});
+function createStyles(
+  colors: ReturnType<typeof useThemeColors>,
+  type: ReturnType<typeof useTypeScale>
+) {
+  return StyleSheet.create({
+    root: {
+      flex: 1
+    },
+    content: {
+      flex: 1
+    },
+    tabShell: {
+      paddingHorizontal: 12,
+      paddingBottom: 14,
+      paddingTop: 8
+    },
+    revealShell: {
+      position: "absolute",
+      right: 16,
+      left: 16,
+      bottom: 104,
+      zIndex: 20,
+      borderWidth: 1,
+      borderRadius: 24,
+      paddingHorizontal: 18,
+      paddingVertical: 16,
+      shadowOpacity: 0.2,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 6
+    },
+    revealEyebrow: {
+      fontSize: type.font(11),
+      fontWeight: "800",
+      textTransform: "uppercase",
+      letterSpacing: 1.1
+    },
+    revealTitle: {
+      marginTop: 6,
+      fontSize: type.font(17),
+      fontWeight: "800"
+    },
+    revealCopy: {
+      marginTop: 6,
+      fontSize: type.font(13),
+      lineHeight: type.line(18)
+    },
+    tabBar: {
+      borderWidth: 1,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: 8,
+      borderRadius: 24,
+      shadowOpacity: 0.14,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 8
+    },
+    tabItem: {
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 4,
+      minWidth: 58,
+      flex: 1,
+      borderRadius: 22,
+      paddingVertical: 10,
+      paddingHorizontal: 8
+    },
+    tabItemActive: {
+      shadowColor: "#5b38f5",
+      shadowOpacity: 0.24,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 4
+    },
+    tabGlyph: {
+      fontWeight: "800"
+    },
+    tabText: {
+      fontWeight: "800",
+      letterSpacing: 0.2
+    }
+  });
+}

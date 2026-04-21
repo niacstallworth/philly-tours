@@ -1,0 +1,4875 @@
+{
+  "source": "tour-data",
+  "geocoder": "census",
+  "count": 188,
+  "results": [
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-arch-street-friends-meeting-house",
+      "stopTitle": "Arch Street Friends Meeting House",
+      "location": "320 Arch St, Philadelphia, PA 19106",
+      "lat": 39.95183,
+      "lng": -75.14619,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "320 ARCH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.952160141107,
+          "lng": -75.145606309853
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-arch-street-friends-meeting-house",
+        "location": "320 Arch St, Philadelphia, PA 19106",
+        "suggestion": {
+          "lat": 39.952160141107,
+          "lng": -75.145606309853,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-free-quaker-meeting-house",
+      "stopTitle": "Free Quaker Meeting House",
+      "location": "500 Arch St, Philadelphia, PA",
+      "lat": 39.95139,
+      "lng": -75.14954,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "500 ARCH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.952528509318,
+          "lng": -75.148558439592
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-free-quaker-meeting-house",
+        "location": "500 Arch St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.952528509318,
+          "lng": -75.148558439592,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-pennsylvania-abolition-society",
+      "stopTitle": "Pennsylvania Abolition Society",
+      "location": "525 Chestnut St, Philadelphia, PA",
+      "lat": 39.94961,
+      "lng": -75.14908,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "525 CHESTNUT ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.949137339167,
+          "lng": -75.149601199653
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-pennsylvania-abolition-society",
+        "location": "525 Chestnut St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.949137339167,
+          "lng": -75.149601199653,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church",
+      "stopTitle": "Mother Bethel AME Church",
+      "location": "419 S 6th St, Philadelphia, PA",
+      "lat": 39.94255,
+      "lng": -75.15006,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "419 S 6TH ST, PHILADELPHIA, PA, 19147",
+          "lat": 39.943334757651,
+          "lng": -75.151977924141
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church",
+        "location": "419 S 6th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943334757651,
+          "lng": -75.151977924141,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center",
+      "stopTitle": "President's House / Liberty Bell Center",
+      "location": "526 Market St, Philadelphia, PA",
+      "lat": 39.94961,
+      "lng": -75.15028,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "526 MARKET ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.950546398838,
+          "lng": -75.149351569291
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center",
+        "location": "526 Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.950546398838,
+          "lng": -75.149351569291,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-lombard-street-free-african-society-ho",
+      "stopTitle": "Lombard Street Free African Society homes",
+      "location": "600-700 block Lombard St, Philadelphia, PA",
+      "lat": 39.943168393929,
+      "lng": -75.153778315938,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "700 LOMBARD ST, PHILADELPHIA, PA, 19147",
+          "lat": 39.943168393929,
+          "lng": -75.153778315938
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-lombard-street-free-african-society-ho",
+        "location": "600-700 block Lombard St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943168393929,
+          "lng": -75.153778315938,
+          "coordQuality": "approximate"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-belfield-mansion",
+      "stopTitle": "Belfield Mansion",
+      "location": "2100 W Clarkson Ave, Philadelphia, PA 19144",
+      "lat": 40.038190898967,
+      "lng": -75.156717419902,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2100 W CLARKSON AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.038190898967,
+          "lng": -75.156717419902
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-belfield-mansion",
+        "location": "2100 W Clarkson Ave, Philadelphia, PA 19144",
+        "suggestion": {
+          "lat": 40.038190898967,
+          "lng": -75.156717419902,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-cliveden",
+      "stopTitle": "Cliveden",
+      "location": "6401 Germantown Ave, Philadelphia, PA",
+      "lat": 40.04492,
+      "lng": -75.17806,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6401 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.04597099227,
+          "lng": -75.182161819444
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-cliveden",
+        "location": "6401 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.04597099227,
+          "lng": -75.182161819444,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-upsala",
+      "stopTitle": "Upsala",
+      "location": "6430 Germantown Ave, Philadelphia, PA",
+      "lat": 40.0466326,
+      "lng": -75.1832504,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6430 GERMANTOWN AVE, PHILADELPHIA, PA, 19119",
+          "lat": 40.047001841308,
+          "lng": -75.182841615216
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-upsala",
+        "location": "6430 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.047001841308,
+          "lng": -75.182841615216,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-wyck",
+      "stopTitle": "Wyck",
+      "location": "6026 Germantown Ave, Philadelphia, PA",
+      "lat": 40.03874,
+      "lng": -75.17605,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6026 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.039539389943,
+          "lng": -75.177963310125
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-wyck",
+        "location": "6026 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.039539389943,
+          "lng": -75.177963310125,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-deshler-morris-house",
+      "stopTitle": "Deshler-Morris House",
+      "location": "5442 Germantown Ave, Philadelphia, PA",
+      "lat": 40.0338725,
+      "lng": -75.1722563,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5442 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.034001611268,
+          "lng": -75.172218039541
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-deshler-morris-house",
+        "location": "5442 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.034001611268,
+          "lng": -75.172218039541,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-grumblethorpe",
+      "stopTitle": "Grumblethorpe",
+      "location": "5267 Germantown Ave, Philadelphia, PA",
+      "lat": 40.03195990911,
+      "lng": -75.168420267294,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5267 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.03195990911,
+          "lng": -75.168420267294
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-grumblethorpe",
+        "location": "5267 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.03195990911,
+          "lng": -75.168420267294,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-stenton",
+      "stopTitle": "Stenton",
+      "location": "4601 N 18th St, Philadelphia, PA",
+      "lat": 40.023849953432,
+      "lng": -75.154525511519,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4601 N 18TH ST, PHILADELPHIA, PA, 19140",
+          "lat": 40.023849953432,
+          "lng": -75.154525511519
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-stenton",
+        "location": "4601 N 18th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.023849953432,
+          "lng": -75.154525511519,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-germantown-mennonite-meetinghouse",
+      "stopTitle": "Germantown Mennonite Meetinghouse",
+      "location": "6119 Germantown Ave, Philadelphia, PA",
+      "lat": 40.04134,
+      "lng": -75.17682,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6119 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.041419855634,
+          "lng": -75.179329625593
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-germantown-mennonite-meetinghouse",
+        "location": "6119 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.041419855634,
+          "lng": -75.179329625593,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-johnson-house",
+      "stopTitle": "Johnson House",
+      "location": "6306 Germantown Ave, Philadelphia, PA",
+      "lat": 40.043414697068,
+      "lng": -75.181116152631,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6306 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.043414697068,
+          "lng": -75.181116152631
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-johnson-house",
+        "location": "6306 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.043414697068,
+          "lng": -75.181116152631,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-the-woodlands",
+      "stopTitle": "The Woodlands",
+      "location": "4000 Woodland Ave, Philadelphia, PA 19104",
+      "lat": 39.94933,
+      "lng": -75.20504,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4000 WOODLAND AVE, PHILADELPHIA, PA, 19104",
+          "lat": 39.946761172315,
+          "lng": -75.206946956348
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-the-woodlands",
+        "location": "4000 Woodland Ave, Philadelphia, PA 19104",
+        "suggestion": {
+          "lat": 39.946761172315,
+          "lng": -75.206946956348,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-belmont-mansion",
+      "stopTitle": "Belmont Mansion",
+      "location": "2000 Belmont Mansion Dr, Philadelphia, PA 19131",
+      "lat": 39.98363,
+      "lng": -75.19103,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2000 BELMONT MANSION DR, PHILADELPHIA, PA, 19131",
+          "lat": 39.986759074559,
+          "lng": -75.213670141104
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-belmont-mansion",
+        "location": "2000 Belmont Mansion Dr, Philadelphia, PA 19131",
+        "suggestion": {
+          "lat": 39.986759074559,
+          "lng": -75.213670141104,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-lemon-hill-mansion",
+      "stopTitle": "Lemon Hill Mansion",
+      "location": "Lemon Hill Dr, Philadelphia, PA 19130",
+      "lat": 39.97157,
+      "lng": -75.17377,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-cedar-grove-and-laurel-hill-mansions",
+      "stopTitle": "Cedar Grove & Laurel Hill mansions",
+      "location": "3487 Edgley Dr, Philadelphia, PA",
+      "lat": 39.98306,
+      "lng": -75.18589,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-4700-4800-blocks-of-walnut-street",
+      "stopTitle": "4700-4800 blocks of Walnut Street",
+      "location": "4750 Walnut St, Philadelphia, PA",
+      "lat": 39.9543,
+      "lng": -75.2172,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4750 WALNUT ST, PHILADELPHIA, PA, 19139",
+          "lat": 39.955793136315,
+          "lng": -75.216671616917
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-4700-4800-blocks-of-walnut-street",
+        "location": "4750 Walnut St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.955793136315,
+          "lng": -75.216671616917,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-4600-spruce-street",
+      "stopTitle": "4600 Spruce Street",
+      "location": "4600 Spruce St, Philadelphia, PA",
+      "lat": 39.95505,
+      "lng": -75.21262,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4600 SPRUCE ST, PHILADELPHIA, PA, 19139",
+          "lat": 39.953077084792,
+          "lng": -75.214231014752
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-4600-spruce-street",
+        "location": "4600 Spruce St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953077084792,
+          "lng": -75.214231014752,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-3911-delancey-street",
+      "stopTitle": "3911 Delancey Street",
+      "location": "3911 Delancey St, Philadelphia, PA",
+      "lat": 39.951017022299,
+      "lng": -75.201158513635,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "3911 DELANCEY ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.951017022299,
+          "lng": -75.201158513635
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-3911-delancey-street",
+        "location": "3911 Delancey St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.951017022299,
+          "lng": -75.201158513635,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-christian-street-ymca",
+      "stopTitle": "Christian Street YMCA",
+      "location": "1724 Christian St, Philadelphia, PA",
+      "lat": 39.93954,
+      "lng": -75.17212,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1724 CHRISTIAN ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.940620633837,
+          "lng": -75.171560086836
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-christian-street-ymca",
+        "location": "1724 Christian St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.940620633837,
+          "lng": -75.171560086836,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-w-e-b-du-bois-college-house",
+      "stopTitle": "W.E.B. Du Bois College House",
+      "location": "3900 Walnut St, Philadelphia, PA 19104",
+      "lat": 39.95337,
+      "lng": -75.19844,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "3900 WALNUT ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.95377159312,
+          "lng": -75.200345426144
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-w-e-b-du-bois-college-house",
+        "location": "3900 Walnut St, Philadelphia, PA 19104",
+        "suggestion": {
+          "lat": 39.95377159312,
+          "lng": -75.200345426144,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-strawberry-mansion",
+      "stopTitle": "Strawberry Mansion",
+      "location": "2450 Strawberry Mansion Dr, Philadelphia, PA",
+      "lat": 39.995669245522,
+      "lng": -75.190227022377,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2450 STRAWBERRY MANSION BRIDGE DR, PHILADELPHIA, PA, 19132",
+          "lat": 39.995669245522,
+          "lng": -75.190227022377
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-strawberry-mansion",
+        "location": "2450 Strawberry Mansion Dr, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.995669245522,
+          "lng": -75.190227022377,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-john-coltrane-house",
+      "stopTitle": "John Coltrane House",
+      "location": "1511 N 33rd St, Philadelphia, PA",
+      "lat": 39.97723,
+      "lng": -75.18855,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1511 N 33RD ST, PHILADELPHIA, PA, 19121",
+          "lat": 39.9800611265,
+          "lng": -75.188844766108
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-john-coltrane-house",
+        "location": "1511 N 33rd St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.9800611265,
+          "lng": -75.188844766108,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-cecil-b-moore-avenue",
+      "stopTitle": "Cecil B. Moore Avenue",
+      "location": "1600 Cecil B. Moore Ave, Philadelphia, PA",
+      "lat": 39.9782,
+      "lng": -75.1593,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1600 CECIL B MOORE AVE, PHILADELPHIA, PA, 19121",
+          "lat": 39.979059822157,
+          "lng": -75.161220817288
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-cecil-b-moore-avenue",
+        "location": "1600 Cecil B. Moore Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.979059822157,
+          "lng": -75.161220817288,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-3200-3400-blocks-diamond-and-susquehan",
+      "stopTitle": "3200-3400 blocks Diamond & Susquehanna",
+      "location": "3300 N Broad St, Philadelphia, PA",
+      "lat": 39.9996,
+      "lng": -75.1549,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "3300 N BROAD ST, PHILADELPHIA, PA, 19140",
+          "lat": 40.003248577622,
+          "lng": -75.152611725256
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-3200-3400-blocks-diamond-and-susquehan",
+        "location": "3300 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.003248577622,
+          "lng": -75.152611725256,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-freedom-theatre",
+      "stopTitle": "Freedom Theatre",
+      "location": "1346 N Broad St, Philadelphia, PA 19121",
+      "lat": 39.97376,
+      "lng": -75.15927,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1346 N BROAD ST, PHILADELPHIA, PA, 19121",
+          "lat": 39.973816575007,
+          "lng": -75.159000911022
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-legacy-and-quaker-heritage-freedom-theatre",
+        "location": "1346 N Broad St, Philadelphia, PA 19121",
+        "suggestion": {
+          "lat": 39.973816575007,
+          "lng": -75.159000911022,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-mount-pleasant",
+      "stopTitle": "Mount Pleasant",
+      "location": "Mount Pleasant Dr, Fairmount Park, Philadelphia, PA",
+      "lat": 39.98479,
+      "lng": -75.19125,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "stopId": "black-american-legacy-and-quaker-heritage-ormiston",
+      "stopTitle": "Ormiston",
+      "location": "3300 Reservoir Dr, Philadelphia, PA 19121",
+      "lat": 39.98402,
+      "lng": -75.19283,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-masonic-temple",
+      "stopTitle": "Masonic Temple",
+      "location": "1 N Broad St, Philadelphia, PA 19107",
+      "lat": 39.953405220467,
+      "lng": -75.163235969318,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1 N BROAD ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.953405220467,
+          "lng": -75.163235969318
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "rainbow-girls-philadelphia-masonic-temple",
+        "location": "1 N Broad St, Philadelphia, PA 19107",
+        "suggestion": {
+          "lat": 39.953405220467,
+          "lng": -75.163235969318,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-reading-terminal-market",
+      "stopTitle": "Reading Terminal Market",
+      "location": "1136 Arch St, Philadelphia, PA 19107",
+      "lat": 39.953766169681,
+      "lng": -75.158473474948,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1136 ARCH ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.953766169681,
+          "lng": -75.158473474948
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "rainbow-girls-philadelphia-reading-terminal-market",
+        "location": "1136 Arch St, Philadelphia, PA 19107",
+        "suggestion": {
+          "lat": 39.953766169681,
+          "lng": -75.158473474948,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-covenant-house-pa",
+      "stopTitle": "Covenant House PA",
+      "location": "31 E Armat St, Philadelphia, PA 19144",
+      "lat": 40.035586240392,
+      "lng": -75.173233757808,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "31 E ARMAT ST, PHILADELPHIA, PA, 19144",
+          "lat": 40.035586240392,
+          "lng": -75.173233757808
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "rainbow-girls-philadelphia-covenant-house-pa",
+        "location": "31 E Armat St, Philadelphia, PA 19144",
+        "suggestion": {
+          "lat": 40.035586240392,
+          "lng": -75.173233757808,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-hard-rock-cafe",
+      "stopTitle": "Hard Rock Cafe",
+      "location": "1119 Market St, Philadelphia, PA 19107",
+      "lat": 39.951810696626,
+      "lng": -75.158629946618,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1119 MARKET ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.951810696626,
+          "lng": -75.158629946618
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "rainbow-girls-philadelphia-hard-rock-cafe",
+        "location": "1119 Market St, Philadelphia, PA 19107",
+        "suggestion": {
+          "lat": 39.951810696626,
+          "lng": -75.158629946618,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-arch-street-presbyterian-church",
+      "stopTitle": "Arch Street Presbyterian Church",
+      "location": "1724 Arch St, Philadelphia, PA 19103",
+      "lat": 39.955002597364,
+      "lng": -75.16842574209,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1724 ARCH ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.955002597364,
+          "lng": -75.16842574209
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "rainbow-girls-philadelphia-arch-street-presbyterian-church",
+        "location": "1724 Arch St, Philadelphia, PA 19103",
+        "suggestion": {
+          "lat": 39.955002597364,
+          "lng": -75.16842574209,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-green-eggs-caf",
+      "stopTitle": "Green Eggs Café",
+      "location": "33 S 18th St, Philadelphia, PA 19103",
+      "lat": 39.952138327067,
+      "lng": -75.17016253944,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "33 S 18TH ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.952138327067,
+          "lng": -75.17016253944
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "rainbow-girls-philadelphia-green-eggs-caf",
+        "location": "33 S 18th St, Philadelphia, PA 19103",
+        "suggestion": {
+          "lat": 39.952138327067,
+          "lng": -75.17016253944,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-please-touch-museum",
+      "stopTitle": "Please Touch Museum",
+      "location": "4231 Avenue of the Republic, Philadelphia, PA 19131",
+      "lat": 39.9794694,
+      "lng": -75.2091302,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-shofuso-japanese-house-and-garden",
+      "stopTitle": "Shofuso Japanese House & Garden",
+      "location": "Lansdowne Dr & Horticultural Dr, Philadelphia, PA 19131",
+      "lat": 39.9813449,
+      "lng": -75.212826,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-smith-memorial-playground",
+      "stopTitle": "Smith Memorial Playground",
+      "location": "3500 Reservoir Drive, Philadelphia, PA 19121",
+      "lat": 39.9815169,
+      "lng": -75.1956359,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "stopId": "rainbow-girls-philadelphia-sweetbriar-mansion-lawn",
+      "stopTitle": "Sweetbriar Mansion lawn",
+      "location": "3801 Lansdowne Dr, Philadelphia, PA 19131",
+      "lat": 39.976979,
+      "lng": -75.200787,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut",
+      "stopTitle": "Alpha Phi Alpha - 42nd & Chestnut",
+      "location": "42nd & Chestnut St, Philadelphia, PA",
+      "lat": 39.956112935564,
+      "lng": -75.206126715359,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 42ND ST & CHESTNUT ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.956112935564,
+          "lng": -75.206126715359
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut",
+        "location": "42nd & Chestnut St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.956112935564,
+          "lng": -75.206126715359,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-delta-sigma-theta-40th-and-market",
+      "stopTitle": "Delta Sigma Theta - 40th & Market",
+      "location": "40th & Market St, Philadelphia, PA",
+      "lat": 39.957147935208,
+      "lng": -75.201955216617,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 40TH ST & MARKET ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.957147935208,
+          "lng": -75.201955216617
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-delta-sigma-theta-40th-and-market",
+        "location": "40th & Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.957147935208,
+          "lng": -75.201955216617,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-kappa-alpha-psi-44th-and-chestnut",
+      "stopTitle": "Kappa Alpha Psi - 44th & Chestnut",
+      "location": "44th & Chestnut St, Philadelphia, PA",
+      "lat": 39.956562935605,
+      "lng": -75.209740214188,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 44TH ST & CHESTNUT ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.956562935605,
+          "lng": -75.209740214188
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-kappa-alpha-psi-44th-and-chestnut",
+        "location": "44th & Chestnut St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.956562935605,
+          "lng": -75.209740214188,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-sigma-gamma-rho-48th-and-spruce",
+      "stopTitle": "Sigma Gamma Rho - 48th & Spruce",
+      "location": "48th & Spruce St, Philadelphia, PA",
+      "lat": 39.953610936493,
+      "lng": -75.218132711711,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 48TH ST & SPRUCE ST, PHILADELPHIA, PA, 19139",
+          "lat": 39.953610936493,
+          "lng": -75.218132711711
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-sigma-gamma-rho-48th-and-spruce",
+        "location": "48th & Spruce St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953610936493,
+          "lng": -75.218132711711,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-alpha-kappa-alpha-ivy-legacy",
+      "stopTitle": "Alpha Kappa Alpha - Ivy Legacy",
+      "location": "1824 South St, Philadelphia, PA",
+      "lat": 39.944436616003,
+      "lng": -75.172339660864,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1824 SOUTH ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.944436616003,
+          "lng": -75.172339660864
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-alpha-kappa-alpha-ivy-legacy",
+        "location": "1824 South St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.944436616003,
+          "lng": -75.172339660864,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-zeta-phi-beta-17th-and-jefferson",
+      "stopTitle": "Zeta Phi Beta - 17th & Jefferson",
+      "location": "17th & Jefferson St, Philadelphia, PA",
+      "lat": 39.976470929981,
+      "lng": -75.163327227673,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N 17TH ST & W JEFFERSON ST, PHILADELPHIA, PA, 19121",
+          "lat": 39.976470929981,
+          "lng": -75.163327227673
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-zeta-phi-beta-17th-and-jefferson",
+        "location": "17th & Jefferson St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.976470929981,
+          "lng": -75.163327227673,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-phi-beta-sigma-44th-and-market",
+      "stopTitle": "Phi Beta Sigma - 44th & Market",
+      "location": "44th & Market St, Philadelphia, PA",
+      "lat": 39.958074935293,
+      "lng": -75.209420714197,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 44TH ST & MARKET ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.958074935293,
+          "lng": -75.209420714197
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-phi-beta-sigma-44th-and-market",
+        "location": "44th & Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.958074935293,
+          "lng": -75.209420714197,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "stopId": "divine-9-legacy-tour-iota-phi-theta-temple-greek-row",
+      "stopTitle": "Iota Phi Theta - Temple Greek Row",
+      "location": "1900 N 13th St, Philadelphia, PA",
+      "lat": 39.981469029184,
+      "lng": -75.155126391124,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1900 N 13TH ST, PHILADELPHIA, PA, 19122",
+          "lat": 39.981469029184,
+          "lng": -75.155126391124
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "divine-9-legacy-tour-iota-phi-theta-temple-greek-row",
+        "location": "1900 N 13th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.981469029184,
+          "lng": -75.155126391124,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-the-palestra",
+      "stopTitle": "The Palestra",
+      "location": "235 S 33rd St, Philadelphia, PA",
+      "lat": 39.95196,
+      "lng": -75.19106,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "235 S 33RD ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.951325044425,
+          "lng": -75.190420086879
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-the-palestra",
+        "location": "235 S 33rd St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.951325044425,
+          "lng": -75.190420086879,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-allen-iverson-s-hampton-park-courts",
+      "stopTitle": "Allen Iverson's Hampton Park Courts",
+      "location": "Master St & Hampton St, Philadelphia, PA",
+      "lat": 39.97781,
+      "lng": -75.19236,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-joe-frazier-s-gym-cloverlay",
+      "stopTitle": "Joe Frazier's Gym (Cloverlay)",
+      "location": "2917 N Broad St, Philadelphia, PA",
+      "lat": 39.9971901,
+      "lng": -75.153521,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2917 N BROAD ST, PHILADELPHIA, PA, 19132",
+          "lat": 39.997489442382,
+          "lng": -75.153756782567
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-joe-frazier-s-gym-cloverlay",
+        "location": "2917 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.997489442382,
+          "lng": -75.153756782567,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-maxie-s-pizza",
+      "stopTitle": "Maxie's Pizza",
+      "location": "5500 Germantown Ave, Philadelphia, PA",
+      "lat": 40.034356163144,
+      "lng": -75.172814429981,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5500 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.034356163144,
+          "lng": -75.172814429981
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-maxie-s-pizza",
+        "location": "5500 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.034356163144,
+          "lng": -75.172814429981,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-dell-music-center",
+      "stopTitle": "Dell Music Center",
+      "location": "2400 Strawberry Mansion Dr, Philadelphia, PA",
+      "lat": 39.98336,
+      "lng": -75.1937,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2400 STRAWBERRY MANSION BRIDGE DR, PHILADELPHIA, PA, 19132",
+          "lat": 39.994409261308,
+          "lng": -75.191690712558
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-dell-music-center",
+        "location": "2400 Strawberry Mansion Dr, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.994409261308,
+          "lng": -75.191690712558,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-overbrook-high-school",
+      "stopTitle": "Overbrook High School",
+      "location": "5898 Lancaster Ave, Philadelphia, PA",
+      "lat": 39.96806,
+      "lng": -75.23841,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5898 LANCASTER AVE, PHILADELPHIA, PA, 19131",
+          "lat": 39.981876301635,
+          "lng": -75.239006249807
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-overbrook-high-school",
+        "location": "5898 Lancaster Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.981876301635,
+          "lng": -75.239006249807,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-marian-anderson-rec-center",
+      "stopTitle": "Marian Anderson Rec Center",
+      "location": "740 S 17th St, Philadelphia, PA",
+      "lat": 39.94144,
+      "lng": -75.17072,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "740 S 17TH ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.942521259833,
+          "lng": -75.170791613247
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-marian-anderson-rec-center",
+        "location": "740 S 17th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.942521259833,
+          "lng": -75.170791613247,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-sonny-hill-league-tustin",
+      "stopTitle": "Sonny Hill League @ Tustin",
+      "location": "5900 W Columbia Ave, Philadelphia, PA",
+      "lat": 39.981382810898,
+      "lng": -75.239399628608,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5900 W COLUMBIA AVE, PHILADELPHIA, PA, 19151",
+          "lat": 39.981382810898,
+          "lng": -75.239399628608
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-sonny-hill-league-tustin",
+        "location": "5900 W Columbia Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.981382810898,
+          "lng": -75.239399628608,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "stopId": "black-american-sports-south-kitchen-and-jazz-club",
+      "stopTitle": "South Kitchen & Jazz Club",
+      "location": "600 N Broad St, Philadelphia, PA",
+      "lat": 39.964211,
+      "lng": -75.1618354,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "600 BROAD ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.943618080876,
+          "lng": -75.165662514928
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-american-sports-south-kitchen-and-jazz-club",
+        "location": "600 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943618080876,
+          "lng": -75.165662514928,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-norbert-rillieux-way",
+      "stopTitle": "Norbert Rillieux Way",
+      "location": "33rd & Walnut St, Philadelphia, PA",
+      "lat": 39.95282,
+      "lng": -75.1903,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 33RD ST & WALNUT ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.95255793569,
+          "lng": -75.190034720671
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-inventors-tour-norbert-rillieux-way",
+        "location": "33rd & Walnut St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.95255793569,
+          "lng": -75.190034720671,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-granville-t-woods-railway-site",
+      "stopTitle": "Granville T. Woods Railway Site",
+      "location": "Broad & Girard Ave, Philadelphia, PA",
+      "lat": 39.97148,
+      "lng": -75.15886,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N BROAD ST & W GIRARD AVE, PHILADELPHIA, PA, 19121",
+          "lat": 39.971466930834,
+          "lng": -75.159443729208
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-inventors-tour-granville-t-woods-railway-site",
+        "location": "Broad & Girard Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.971466930834,
+          "lng": -75.159443729208,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-sarah-e-goode-house",
+      "stopTitle": "Sarah E. Goode House",
+      "location": "1724 South St, Philadelphia, PA",
+      "lat": 39.94273,
+      "lng": -75.1716,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1724 SOUTH ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.944238633413,
+          "lng": -75.17076809007
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-inventors-tour-sarah-e-goode-house",
+        "location": "1724 South St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.944238633413,
+          "lng": -75.17076809007,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+      "stopTitle": "Lewis Latimer Light Bulb Exhibit",
+      "location": "15 S 7th St, Philadelphia, PA",
+      "lat": 39.94987,
+      "lng": -75.15239,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "15 S 7TH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.950751020239,
+          "lng": -75.151973988349
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+        "location": "15 S 7th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.950751020239,
+          "lng": -75.151973988349,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-frederick-mckinley-jones-route",
+      "stopTitle": "Frederick McKinley Jones Route",
+      "location": "3400 E Ontario St, Philadelphia, PA",
+      "lat": 40.00452,
+      "lng": -75.09137,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-dr-charles-drew-blood-bank",
+      "stopTitle": "Dr. Charles Drew Blood Bank",
+      "location": "800 Spruce St, Philadelphia, PA",
+      "lat": 39.945680181785,
+      "lng": -75.154845554289,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "800 SPRUCE ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.945680181785,
+          "lng": -75.154845554289
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-inventors-tour-dr-charles-drew-blood-bank",
+        "location": "800 Spruce St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.945680181785,
+          "lng": -75.154845554289,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-garrett-morgan-traffic-signal",
+      "stopTitle": "Garrett Morgan Traffic Signal",
+      "location": "13th & Market St, Philadelphia, PA",
+      "lat": 39.95103,
+      "lng": -75.16077,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 13TH ST & MARKET ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.952098934751,
+          "lng": -75.161437229754
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-inventors-tour-garrett-morgan-traffic-signal",
+        "location": "13th & Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.952098934751,
+          "lng": -75.161437229754,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "stopId": "black-inventors-tour-african-american-museum",
+      "stopTitle": "African American Museum",
+      "location": "701 Arch St, Philadelphia, PA 19106",
+      "lat": 39.953010995469,
+      "lng": -75.151598440748,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "701 ARCH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.953010995469,
+          "lng": -75.151598440748
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-inventors-tour-african-american-museum",
+        "location": "701 Arch St, Philadelphia, PA 19106",
+        "suggestion": {
+          "lat": 39.953010995469,
+          "lng": -75.151598440748,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "stopId": "library-story-hop-tour-library-company-of-philadelphia",
+      "stopTitle": "Library Company of Philadelphia",
+      "location": "1314 Locust St, Philadelphia, PA",
+      "lat": 39.94805,
+      "lng": -75.16285,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1314 LOCUST ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.94795872719,
+          "lng": -75.163002384984
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "library-story-hop-tour-library-company-of-philadelphia",
+        "location": "1314 Locust St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.94795872719,
+          "lng": -75.163002384984,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "stopId": "library-story-hop-tour-athenaeum-of-philadelphia",
+      "stopTitle": "Athenaeum of Philadelphia",
+      "location": "219 S 6th St, Philadelphia, PA",
+      "lat": 39.946715009344,
+      "lng": -75.15123784827,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "219 S 6TH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.946715009344,
+          "lng": -75.15123784827
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "library-story-hop-tour-athenaeum-of-philadelphia",
+        "location": "219 S 6th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.946715009344,
+          "lng": -75.15123784827,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "stopId": "library-story-hop-tour-free-library-central-parkway",
+      "stopTitle": "Free Library - Central Parkway",
+      "location": "1901 Vine St, Philadelphia, PA",
+      "lat": 39.959157790597,
+      "lng": -75.17040431366,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1901 VINE ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.959157790597,
+          "lng": -75.17040431366
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "library-story-hop-tour-free-library-central-parkway",
+        "location": "1901 Vine St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.959157790597,
+          "lng": -75.17040431366,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "stopId": "library-story-hop-tour-rosenbach-museum-and-library",
+      "stopTitle": "Rosenbach Museum & Library",
+      "location": "2008 Delancey Pl, Philadelphia, PA",
+      "lat": 39.947388912205,
+      "lng": -75.17471860127,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2008 DELANCEY PL, PHILADELPHIA, PA, 19103",
+          "lat": 39.947388912205,
+          "lng": -75.17471860127
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "library-story-hop-tour-rosenbach-museum-and-library",
+        "location": "2008 Delancey Pl, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.947388912205,
+          "lng": -75.17471860127,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "stopId": "library-story-hop-tour-historical-society-of-pennsylvania",
+      "stopTitle": "Historical Society of Pennsylvania",
+      "location": "1300 Locust St, Philadelphia, PA",
+      "lat": 39.947885206323,
+      "lng": -75.162446077311,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1300 LOCUST ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.947885206323,
+          "lng": -75.162446077311
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "library-story-hop-tour-historical-society-of-pennsylvania",
+        "location": "1300 Locust St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.947885206323,
+          "lng": -75.162446077311,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "stopId": "library-story-hop-tour-charles-l-blockson-collection",
+      "stopTitle": "Charles L. Blockson Collection",
+      "location": "Sullivan Hall, Temple University, PA",
+      "lat": 39.981367,
+      "lng": -75.1561946,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "stopId": "library-story-hop-tour-parkway-central-children-s-dept",
+      "stopTitle": "Parkway Central Children's Dept",
+      "location": "1901 Vine St, Philadelphia, PA",
+      "lat": 39.959157790597,
+      "lng": -75.17040431366,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1901 VINE ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.959157790597,
+          "lng": -75.17040431366
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "library-story-hop-tour-parkway-central-children-s-dept",
+        "location": "1901 Vine St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.959157790597,
+          "lng": -75.17040431366,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-old-york-road-and-north-broad",
+      "stopTitle": "Old York Road & North Broad",
+      "location": "6704 Old York Road, Philadelphia, PA",
+      "lat": 40.054099719327,
+      "lng": -75.1415888166,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6704 OLD YORK RD, PHILADELPHIA, PA, 19126",
+          "lat": 40.054099719327,
+          "lng": -75.1415888166
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-old-york-road-and-north-broad",
+        "location": "6704 Old York Road, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.054099719327,
+          "lng": -75.1415888166,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-ogontz-theatre-site",
+      "stopTitle": "Ogontz Theatre Site",
+      "location": "6037 Ogontz Avenue, Philadelphia, PA",
+      "lat": 40.04726302459,
+      "lng": -75.150993075727,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6037 OGONTZ AVE, PHILADELPHIA, PA, 19141",
+          "lat": 40.04726302459,
+          "lng": -75.150993075727
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-ogontz-theatre-site",
+        "location": "6037 Ogontz Avenue, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.04726302459,
+          "lng": -75.150993075727,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-cecil-b-moore-law-office",
+      "stopTitle": "Cecil B. Moore Law Office",
+      "location": "7101 Ogontz Avenue, Philadelphia, PA",
+      "lat": 40.062299380483,
+      "lng": -75.151721055766,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "7101 OGONTZ AVE, PHILADELPHIA, PA, 19138",
+          "lat": 40.062299380483,
+          "lng": -75.151721055766
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-cecil-b-moore-law-office",
+        "location": "7101 Ogontz Avenue, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.062299380483,
+          "lng": -75.151721055766,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-relish-restaurant",
+      "stopTitle": "Relish Restaurant",
+      "location": "7152 Ogontz Avenue, Philadelphia, PA",
+      "lat": 40.063297494417,
+      "lng": -75.152580977181,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "7152 OGONTZ AVE, PHILADELPHIA, PA, 19138",
+          "lat": 40.063297494417,
+          "lng": -75.152580977181
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-relish-restaurant",
+        "location": "7152 Ogontz Avenue, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.063297494417,
+          "lng": -75.152580977181,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-happy-hollow-rec-center",
+      "stopTitle": "Happy Hollow Rec Center",
+      "location": "5091 West Haines Street, Philadelphia, PA",
+      "lat": 40.0465,
+      "lng": -75.177,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-johnson-house-historic-site",
+      "stopTitle": "Johnson House Historic Site",
+      "location": "6306 Germantown Avenue, Philadelphia, PA",
+      "lat": 40.043414697068,
+      "lng": -75.181116152631,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6306 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.043414697068,
+          "lng": -75.181116152631
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-johnson-house-historic-site",
+        "location": "6306 Germantown Avenue, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.043414697068,
+          "lng": -75.181116152631,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-cliveden-historic-site",
+      "stopTitle": "Cliveden Historic Site",
+      "location": "6401 Germantown Avenue, Philadelphia, PA",
+      "lat": 40.04597099227,
+      "lng": -75.182161819444,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6401 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.04597099227,
+          "lng": -75.182161819444
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-cliveden-historic-site",
+        "location": "6401 Germantown Avenue, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.04597099227,
+          "lng": -75.182161819444,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-germantown-high-school",
+      "stopTitle": "Germantown High School",
+      "location": "2950 West School House Lane, Philadelphia, PA",
+      "lat": 40.024959254044,
+      "lng": -75.183320092418,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2950 W SCHOOL HOUSE LN, PHILADELPHIA, PA, 19144",
+          "lat": 40.024959254044,
+          "lng": -75.183320092418
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-germantown-high-school",
+        "location": "2950 West School House Lane, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.024959254044,
+          "lng": -75.183320092418,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-woodmere-art-museum",
+      "stopTitle": "Woodmere Art Museum",
+      "location": "9201 Germantown Avenue, Philadelphia, PA",
+      "lat": 40.082166765075,
+      "lng": -75.219813650213,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "9201 GERMANTOWN AVE, PHILADELPHIA, PA, 19118",
+          "lat": 40.082166765075,
+          "lng": -75.219813650213
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-woodmere-art-museum",
+        "location": "9201 Germantown Avenue, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.082166765075,
+          "lng": -75.219813650213,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "stopId": "old-york-road-corridor-the-nile-restaurant-and-lounge",
+      "stopTitle": "The Nile Restaurant & Lounge",
+      "location": "6008 Germantown Avenue, Philadelphia, PA",
+      "lat": 40.039439020352,
+      "lng": -75.177880396133,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6008 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.039439020352,
+          "lng": -75.177880396133
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "old-york-road-corridor-the-nile-restaurant-and-lounge",
+        "location": "6008 Germantown Avenue, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.039439020352,
+          "lng": -75.177880396133,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-black-doctors-row",
+      "stopTitle": "Black Doctors Row",
+      "location": "1724 Christian St, Philadelphia, PA",
+      "lat": 39.93954,
+      "lng": -75.17212,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1724 CHRISTIAN ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.940620633837,
+          "lng": -75.171560086836
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-black-doctors-row",
+        "location": "1724 Christian St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.940620633837,
+          "lng": -75.171560086836,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-frederick-douglass-hospital",
+      "stopTitle": "Frederick Douglass Hospital",
+      "location": "1512 Lombard St, Philadelphia, PA",
+      "lat": 39.944869295981,
+      "lng": -75.167368249045,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1512 LOMBARD ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.944869295981,
+          "lng": -75.167368249045
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-frederick-douglass-hospital",
+        "location": "1512 Lombard St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.944869295981,
+          "lng": -75.167368249045,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-mercy-douglass-hospital",
+      "stopTitle": "Mercy-Douglass Hospital",
+      "location": "5000 Woodland Ave, Philadelphia, PA",
+      "lat": 39.939894967524,
+      "lng": -75.213870665494,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5000 WOODLAND AVE, PHILADELPHIA, PA, 19143",
+          "lat": 39.939894967524,
+          "lng": -75.213870665494
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-mercy-douglass-hospital",
+        "location": "5000 Woodland Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.939894967524,
+          "lng": -75.213870665494,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-dr-virginia-alexander-clinic",
+      "stopTitle": "Dr. Virginia Alexander Clinic",
+      "location": "2104 W Jefferson St, Philadelphia, PA",
+      "lat": 39.977278347644,
+      "lng": -75.170057159918,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2104 W JEFFERSON ST, PHILADELPHIA, PA, 19121",
+          "lat": 39.977278347644,
+          "lng": -75.170057159918
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-dr-virginia-alexander-clinic",
+        "location": "2104 W Jefferson St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.977278347644,
+          "lng": -75.170057159918,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-mercy-hospital-site",
+      "stopTitle": "Mercy Hospital Site",
+      "location": "17th & Fitzwater St, Philadelphia, PA",
+      "lat": 39.94339,
+      "lng": -75.16938,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 17TH ST & FITZWATER ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.942414937009,
+          "lng": -75.170738727397
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-mercy-hospital-site",
+        "location": "17th & Fitzwater St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.942414937009,
+          "lng": -75.170738727397,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-free-african-society",
+      "stopTitle": "Free African Society",
+      "location": "650 Lombard St, Philadelphia, PA",
+      "lat": 39.94396,
+      "lng": -75.15096,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "650 LOMBARD ST, PHILADELPHIA, PA, 19147",
+          "lat": 39.943066577398,
+          "lng": -75.152931353864
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-free-african-society",
+        "location": "650 Lombard St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943066577398,
+          "lng": -75.152931353864,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-mother-bethel-ame-church",
+      "stopTitle": "Mother Bethel AME Church",
+      "location": "419 S. 6th St, Philadelphia, PA",
+      "lat": 39.943334757651,
+      "lng": -75.151977924141,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "419 S 6TH ST, PHILADELPHIA, PA, 19147",
+          "lat": 39.943334757651,
+          "lng": -75.151977924141
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-mother-bethel-ame-church",
+        "location": "419 S. 6th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943334757651,
+          "lng": -75.151977924141,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-philadelphia-general-hospital",
+      "stopTitle": "Philadelphia General Hospital",
+      "location": "3400 Civic Center Blvd, Philadelphia, PA",
+      "lat": 39.948440359796,
+      "lng": -75.192257508702,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "3400 CIVIC CENTER BLVD, PHILADELPHIA, PA, 19104",
+          "lat": 39.948440359796,
+          "lng": -75.192257508702
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-philadelphia-general-hospital",
+        "location": "3400 Civic Center Blvd, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.948440359796,
+          "lng": -75.192257508702,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-mercy-douglass-nurse-training",
+      "stopTitle": "Mercy-Douglass Nurse Training",
+      "location": "5000 Woodland Ave, Philadelphia, PA",
+      "lat": 39.939894967524,
+      "lng": -75.213870665494,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5000 WOODLAND AVE, PHILADELPHIA, PA, 19143",
+          "lat": 39.939894967524,
+          "lng": -75.213870665494
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-mercy-douglass-nurse-training",
+        "location": "5000 Woodland Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.939894967524,
+          "lng": -75.213870665494,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-barbara-bates-center",
+      "stopTitle": "Barbara Bates Center",
+      "location": "418 Curie Blvd, Penn Nursing School, PA",
+      "lat": 39.947704823472,
+      "lng": -75.198449879025,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-holmesburg-prison",
+      "stopTitle": "Holmesburg Prison",
+      "location": "8215 Torresdale Ave, Philadelphia, PA",
+      "lat": 40.03715296261,
+      "lng": -75.02141629538,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "8215 TORRESDALE AVE, PHILADELPHIA, PA, 19136",
+          "lat": 40.03715296261,
+          "lng": -75.02141629538
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-holmesburg-prison",
+        "location": "8215 Torresdale Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.03715296261,
+          "lng": -75.02141629538,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-city-almshouse",
+      "stopTitle": "City Almshouse",
+      "location": "34th & Spruce St, Philadelphia, PA",
+      "lat": 39.94962,
+      "lng": -75.19327,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 34TH ST & SPRUCE ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.950442936202,
+          "lng": -75.192586219991
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-city-almshouse",
+        "location": "34th & Spruce St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.950442936202,
+          "lng": -75.192586219991,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-pennsylvania-hospital",
+      "stopTitle": "Pennsylvania Hospital",
+      "location": "800 Spruce St, Philadelphia, PA",
+      "lat": 39.945680181785,
+      "lng": -75.154845554289,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "800 SPRUCE ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.945680181785,
+          "lng": -75.154845554289
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-pennsylvania-hospital",
+        "location": "800 Spruce St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.945680181785,
+          "lng": -75.154845554289,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-move-bombing-sites",
+      "stopTitle": "MOVE Bombing Sites",
+      "location": "6221 Osage Ave, Philadelphia, PA",
+      "lat": 39.955569337985,
+      "lng": -75.24661904899,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6221 OSAGE AVE, PHILADELPHIA, PA, 19143",
+          "lat": 39.955569337985,
+          "lng": -75.24661904899
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-move-bombing-sites",
+        "location": "6221 Osage Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.955569337985,
+          "lng": -75.24661904899,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-medical-legacy",
+      "tourTitle": "Black Medical Legacy",
+      "stopId": "black-medical-legacy-yellow-fever-sites",
+      "stopTitle": "Yellow Fever Sites",
+      "location": "1 N Front St, Philadelphia, PA",
+      "lat": 39.95102,
+      "lng": -75.14156,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1 N FRONT ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.949965555128,
+          "lng": -75.141994508517
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-medical-legacy-yellow-fever-sites",
+        "location": "1 N Front St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.949965555128,
+          "lng": -75.141994508517,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-masonic-temple",
+      "stopTitle": "Masonic Temple",
+      "location": "1 N Broad St, Philadelphia, PA",
+      "lat": 39.95472,
+      "lng": -75.16353,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1 N BROAD ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.953405220467,
+          "lng": -75.163235969318
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-masonic-temple",
+        "location": "1 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953405220467,
+          "lng": -75.163235969318,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-south-kitchen-and-jazz-club",
+      "stopTitle": "SOUTH Kitchen & Jazz Club",
+      "location": "600 N Broad St, Philadelphia, PA",
+      "lat": 39.964211,
+      "lng": -75.1618354,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "600 BROAD ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.943618080876,
+          "lng": -75.165662514928
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-south-kitchen-and-jazz-club",
+        "location": "600 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943618080876,
+          "lng": -75.165662514928,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-prince-hall-grand-lodge",
+      "stopTitle": "Prince Hall Grand Lodge",
+      "location": "4611 Lancaster Ave, Philadelphia, PA",
+      "lat": 39.96833,
+      "lng": -75.21564,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4611 LANCASTER AVE, PHILADELPHIA, PA, 19131",
+          "lat": 39.970655910531,
+          "lng": -75.21438129055
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-prince-hall-grand-lodge",
+        "location": "4611 Lancaster Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.970655910531,
+          "lng": -75.21438129055,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-most-worshipful-prince-hall-oes",
+      "stopTitle": "Most Worshipful Prince Hall OES",
+      "location": "Prince Hall Grand Lodge complex, 4301 N Broad St, Philadelphia, PA",
+      "lat": 40.018547975624,
+      "lng": -75.149142594173,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4301 N BROAD ST, PHILADELPHIA, PA, 19140",
+          "lat": 40.018547975624,
+          "lng": -75.149142594173
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-most-worshipful-prince-hall-oes",
+        "location": "Prince Hall Grand Lodge complex, 4301 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.018547975624,
+          "lng": -75.149142594173,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-widow-s-son-hall",
+      "stopTitle": "Widow's Son Hall",
+      "location": "3427 Germantown Ave, Philadelphia, PA",
+      "lat": 40.005123777034,
+      "lng": -75.149468170854,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "3427 GERMANTOWN AVE, PHILADELPHIA, PA, 19140",
+          "lat": 40.005123777034,
+          "lng": -75.149468170854
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-widow-s-son-hall",
+        "location": "3427 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.005123777034,
+          "lng": -75.149468170854,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-relish",
+      "stopTitle": "Relish",
+      "location": "7152 Ogontz Ave, Philadelphia, PA",
+      "lat": 40.063297494417,
+      "lng": -75.152580977181,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "7152 OGONTZ AVE, PHILADELPHIA, PA, 19138",
+          "lat": 40.063297494417,
+          "lng": -75.152580977181
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-relish",
+        "location": "7152 Ogontz Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.063297494417,
+          "lng": -75.152580977181,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-mother-bethel-ame-church",
+      "stopTitle": "Mother Bethel AME Church",
+      "location": "419 S 6th St, Philadelphia, PA",
+      "lat": 39.94255,
+      "lng": -75.15006,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "419 S 6TH ST, PHILADELPHIA, PA, 19147",
+          "lat": 39.943334757651,
+          "lng": -75.151977924141
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-mother-bethel-ame-church",
+        "location": "419 S 6th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943334757651,
+          "lng": -75.151977924141,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-the-breakfast-den",
+      "stopTitle": "The Breakfast Den",
+      "location": "1500 South St, Philadelphia, PA",
+      "lat": 39.94307,
+      "lng": -75.16755,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1500 SOUTH ST, PHILADELPHIA, PA, 19146",
+          "lat": 39.943799082836,
+          "lng": -75.167265456106
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-the-breakfast-den",
+        "location": "1500 South St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.943799082836,
+          "lng": -75.167265456106,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-robert-h-johnson-chapter-no-5",
+      "stopTitle": "Robert H. Johnson Chapter No. 5",
+      "location": "3822 Ridge Ave, Philadelphia, PA",
+      "lat": 39.99918,
+      "lng": -75.19836,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "3822 RIDGE AVE, PHILADELPHIA, PA, 19132",
+          "lat": 40.006503752524,
+          "lng": -75.18832700407
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "eastern-star-weekend-robert-h-johnson-chapter-no-5",
+        "location": "3822 Ridge Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.006503752524,
+          "lng": -75.18832700407,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "stopId": "eastern-star-weekend-sweetbriar-mansion",
+      "stopTitle": "Sweetbriar Mansion",
+      "location": "Fairmount Park, Philadelphia, PA",
+      "lat": 39.9769768,
+      "lng": -75.2008632,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-masonic-temple",
+      "stopTitle": "Masonic Temple",
+      "location": "1 N Broad St, Philadelphia, PA",
+      "lat": 39.95472,
+      "lng": -75.16353,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1 N BROAD ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.953405220467,
+          "lng": -75.163235969318
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-masonic-temple",
+        "location": "1 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953405220467,
+          "lng": -75.163235969318,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-reading-terminal-market",
+      "stopTitle": "Reading Terminal Market",
+      "location": "1136 Arch St, Philadelphia, PA",
+      "lat": 39.9532,
+      "lng": -75.15994,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1136 ARCH ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.953766169681,
+          "lng": -75.158473474948
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-reading-terminal-market",
+        "location": "1136 Arch St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953766169681,
+          "lng": -75.158473474948,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-original-bethel-no-1-hall",
+      "stopTitle": "Original Bethel No. 1 Hall",
+      "location": "13th & Arch St, Philadelphia, PA",
+      "lat": 39.95414193433,
+      "lng": -75.161009729765,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N 13TH ST & ARCH ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.95414193433,
+          "lng": -75.161009729765
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-original-bethel-no-1-hall",
+        "location": "13th & Arch St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.95414193433,
+          "lng": -75.161009729765,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-arch-street-united-methodist",
+      "stopTitle": "Arch Street United Methodist",
+      "location": "55 N Broad St, Philadelphia, PA",
+      "lat": 39.953650538487,
+      "lng": -75.163178596547,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "55 N BROAD ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.953650538487,
+          "lng": -75.163178596547
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-arch-street-united-methodist",
+        "location": "55 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953650538487,
+          "lng": -75.163178596547,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-free-quaker-meeting-house",
+      "stopTitle": "Free Quaker Meeting House",
+      "location": "5th & Arch St, Philadelphia, PA",
+      "lat": 39.95257593419,
+      "lng": -75.14847273383,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5TH ST & ARCH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.95257593419,
+          "lng": -75.14847273383
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-free-quaker-meeting-house",
+        "location": "5th & Arch St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.95257593419,
+          "lng": -75.14847273383,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-crystal-tea-room",
+      "stopTitle": "Crystal Tea Room",
+      "location": "100 E Penn Square, Philadelphia, PA",
+      "lat": 39.95176,
+      "lng": -75.16373,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "100 E PENN SQ, PHILADELPHIA, PA, 19107",
+          "lat": 39.952974051177,
+          "lng": -75.162503636264
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-crystal-tea-room",
+        "location": "100 E Penn Square, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.952974051177,
+          "lng": -75.162503636264,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-christ-church",
+      "stopTitle": "Christ Church",
+      "location": "2nd & Market St, Philadelphia, PA",
+      "lat": 39.949929934546,
+      "lng": -75.14373873549,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N 2ND ST & MARKET ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.949929934546,
+          "lng": -75.14373873549
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-christ-church",
+        "location": "2nd & Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.949929934546,
+          "lng": -75.14373873549,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-green-eggs-caf",
+      "stopTitle": "Green Eggs Café",
+      "location": "1306 Dickinson St, Philadelphia, PA",
+      "lat": 39.931432229816,
+      "lng": -75.166487399465,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1306 DICKINSON ST, PHILADELPHIA, PA, 19147",
+          "lat": 39.931432229816,
+          "lng": -75.166487399465
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "job-s-daughters-green-eggs-caf",
+        "location": "1306 Dickinson St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.931432229816,
+          "lng": -75.166487399465,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "stopId": "job-s-daughters-sweetbriar-mansion",
+      "stopTitle": "Sweetbriar Mansion",
+      "location": "Fairmount Park, Philadelphia, PA",
+      "lat": 39.99031,
+      "lng": -75.20989,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "masonic-scavenger-hunt",
+      "tourTitle": "Masonic Scavenger Hunt",
+      "stopId": "masonic-scavenger-hunt-masonic-temple",
+      "stopTitle": "Masonic Temple",
+      "location": "1 N Broad St, Philadelphia, PA",
+      "lat": 39.95472,
+      "lng": -75.16353,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1 N BROAD ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.953405220467,
+          "lng": -75.163235969318
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "masonic-scavenger-hunt-masonic-temple",
+        "location": "1 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953405220467,
+          "lng": -75.163235969318,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "masonic-scavenger-hunt",
+      "tourTitle": "Masonic Scavenger Hunt",
+      "stopId": "masonic-scavenger-hunt-prince-hall-grand-lodge",
+      "stopTitle": "Prince Hall Grand Lodge",
+      "location": "4301 N Broad St, Philadelphia, PA",
+      "lat": 40.018547975624,
+      "lng": -75.149142594173,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4301 N BROAD ST, PHILADELPHIA, PA, 19140",
+          "lat": 40.018547975624,
+          "lng": -75.149142594173
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "masonic-scavenger-hunt-prince-hall-grand-lodge",
+        "location": "4301 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.018547975624,
+          "lng": -75.149142594173,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "masonic-scavenger-hunt",
+      "tourTitle": "Masonic Scavenger Hunt",
+      "stopId": "masonic-scavenger-hunt-pennsylvania-hospital",
+      "stopTitle": "Pennsylvania Hospital",
+      "location": "8th & Spruce St, Philadelphia, PA",
+      "lat": 39.945726935777,
+      "lng": -75.154759232255,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "S 8TH ST & SPRUCE ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.945726935777,
+          "lng": -75.154759232255
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "masonic-scavenger-hunt-pennsylvania-hospital",
+        "location": "8th & Spruce St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.945726935777,
+          "lng": -75.154759232255,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "masonic-scavenger-hunt",
+      "tourTitle": "Masonic Scavenger Hunt",
+      "stopId": "masonic-scavenger-hunt-city-hall",
+      "stopTitle": "City Hall",
+      "location": "Broad & Market St, Philadelphia, PA",
+      "lat": 39.9523995,
+      "lng": -75.1629893,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "BROAD ST & MARKET ST, SANDY LAKE, PA, 16145",
+          "lat": 41.353497862638,
+          "lng": -80.082856086557
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "masonic-scavenger-hunt-city-hall",
+        "location": "Broad & Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 41.353497862638,
+          "lng": -80.082856086557,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-philadelphia-museum-of-art",
+      "stopTitle": "Philadelphia Museum of Art",
+      "location": "2600 Benjamin Franklin Pkwy, Philadelphia, PA",
+      "lat": 39.96559,
+      "lng": -75.18099,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-free-library-central",
+      "stopTitle": "Free Library Central",
+      "location": "1901 Vine St, Philadelphia, PA",
+      "lat": 39.95833,
+      "lng": -75.17,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1901 VINE ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.959157790597,
+          "lng": -75.17040431366
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-free-library-central",
+        "location": "1901 Vine St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.959157790597,
+          "lng": -75.17040431366,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-penn-campus-fisher-library",
+      "stopTitle": "Penn Campus - Fisher Library",
+      "location": "220 S 34th St, Philadelphia, PA",
+      "lat": 39.95224,
+      "lng": -75.19339,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "220 S 34TH ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.952267366429,
+          "lng": -75.192284788855
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-penn-campus-fisher-library",
+        "location": "220 S 34th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.952267366429,
+          "lng": -75.192284788855,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-irvine-auditorium",
+      "stopTitle": "Irvine Auditorium",
+      "location": "3401 Spruce St, Philadelphia, PA",
+      "lat": 39.950508705953,
+      "lng": -75.192647957851,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "3401 SPRUCE ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.950508705953,
+          "lng": -75.192647957851
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-irvine-auditorium",
+        "location": "3401 Spruce St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.950508705953,
+          "lng": -75.192647957851,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-union-league",
+      "stopTitle": "Union League",
+      "location": "140 S Broad St, Philadelphia, PA",
+      "lat": 39.94948,
+      "lng": -75.16454,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "140 S BROAD ST, PHILADELPHIA, PA, 19102",
+          "lat": 39.950063796725,
+          "lng": -75.164260118103
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-union-league",
+        "location": "140 S Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.950063796725,
+          "lng": -75.164260118103,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-berean-savings-and-loan",
+      "stopTitle": "Berean Savings & Loan",
+      "location": "5419 W. Girard Ave, Philadelphia, PA",
+      "lat": 39.971083097331,
+      "lng": -75.229452069444,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5419 W GIRARD AVE, PHILADELPHIA, PA, 19131",
+          "lat": 39.971083097331,
+          "lng": -75.229452069444
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-berean-savings-and-loan",
+        "location": "5419 W. Girard Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.971083097331,
+          "lng": -75.229452069444,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-zion-baptist-church",
+      "stopTitle": "Zion Baptist Church",
+      "location": "3600 N Broad St, Philadelphia, PA",
+      "lat": 40.00649,
+      "lng": -75.15179,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-african-american-museum",
+      "stopTitle": "African American Museum",
+      "location": "701 Arch St, Philadelphia, PA 19106",
+      "lat": 39.953010995469,
+      "lng": -75.151598440748,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "701 ARCH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.953010995469,
+          "lng": -75.151598440748
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-african-american-museum",
+        "location": "701 Arch St, Philadelphia, PA 19106",
+        "suggestion": {
+          "lat": 39.953010995469,
+          "lng": -75.151598440748,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-progress-plaza",
+      "stopTitle": "Progress Plaza",
+      "location": "1501 N Broad St, Philadelphia, PA",
+      "lat": 39.97529,
+      "lng": -75.15924,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1501 N BROAD ST, PHILADELPHIA, PA, 19122",
+          "lat": 39.975896883895,
+          "lng": -75.158439554174
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-progress-plaza",
+        "location": "1501 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.975896883895,
+          "lng": -75.158439554174,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "black-architects-tour",
+      "tourTitle": "Black Architects Tour",
+      "stopId": "black-architects-tour-philadanco-building",
+      "stopTitle": "Philadanco Building",
+      "location": "1735 Market St, Philadelphia, PA",
+      "lat": 39.95364,
+      "lng": -75.16867,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1735 MARKET ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.953100018733,
+          "lng": -75.168995848211
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "black-architects-tour-philadanco-building",
+        "location": "1735 Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953100018733,
+          "lng": -75.168995848211,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-olney-black-history-markers",
+      "stopTitle": "Olney Black History Markers",
+      "location": "5th St & Olney Ave, Philadelphia, PA",
+      "lat": 40.03436,
+      "lng": -75.12988,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N 5TH ST & W OLNEY AVE, PHILADELPHIA, PA, 19120",
+          "lat": 40.036437916906,
+          "lng": -75.130517734416
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "septa-broad-street-line-olney-black-history-markers",
+        "location": "5th St & Olney Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.036437916906,
+          "lng": -75.130517734416,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-hunting-park-centers",
+      "stopTitle": "Hunting Park Centers",
+      "location": "Broad St & Hunting Park Ave, Philadelphia, PA",
+      "lat": 40.01484,
+      "lng": -75.15296,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N BROAD ST & W HUNTING PARK AVE, PHILADELPHIA, PA, 19140",
+          "lat": 40.016934921459,
+          "lng": -75.149584229563
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "septa-broad-street-line-hunting-park-centers",
+        "location": "Broad St & Hunting Park Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.016934921459,
+          "lng": -75.149584229563,
+          "coordQuality": "approximate"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-wyoming-ave-business-district",
+      "stopTitle": "Wyoming Ave Business District",
+      "location": "Wyoming Ave, Philadelphia, PA",
+      "lat": 40.02647,
+      "lng": -75.14532,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-north-philly-black-metropolis",
+      "stopTitle": "North Philly Black Metropolis",
+      "location": "Susquehanna-Dauphin area, Philadelphia, PA",
+      "lat": 39.99262,
+      "lng": -75.15504,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-erie-avenue-cultural-corridor",
+      "stopTitle": "Erie Avenue Cultural Corridor",
+      "location": "Erie Ave, Philadelphia, PA",
+      "lat": 40.0066,
+      "lng": -75.118,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-cecil-b-moore-mural",
+      "stopTitle": "Cecil B. Moore Mural",
+      "location": "Cecil B Moore Ave, Philadelphia, PA",
+      "lat": 39.9782,
+      "lng": -75.1593,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-lehigh-black-labor-sites",
+      "stopTitle": "Lehigh Black Labor Sites",
+      "location": "Lehigh Ave, Philadelphia, PA",
+      "lat": 39.994,
+      "lng": -75.16,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-rockland-black-churches",
+      "stopTitle": "Rockland Black Churches",
+      "location": "Rockland St, Philadelphia, PA",
+      "lat": 40.03954,
+      "lng": -75.13512,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-berks-street-arts-district",
+      "stopTitle": "Berks Street Arts District",
+      "location": "Berks St, Philadelphia, PA",
+      "lat": 39.98195,
+      "lng": -75.14685,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-divine-lorraine-hotel",
+      "stopTitle": "Divine Lorraine Hotel",
+      "location": "Race-Vine area, Philadelphia, PA",
+      "lat": 39.9667237,
+      "lng": -75.1600903,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-william-still-marker",
+      "stopTitle": "William Still Marker",
+      "location": "244 S 12th St, Philadelphia, PA",
+      "lat": 39.947151326964,
+      "lng": -75.160995212827,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "244 S 12TH ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.947151326964,
+          "lng": -75.160995212827
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "septa-broad-street-line-william-still-marker",
+        "location": "244 S 12th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.947151326964,
+          "lng": -75.160995212827,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-julian-abele-sites",
+      "stopTitle": "Julian Abele Sites",
+      "location": "Walnut-Locust area, Philadelphia, PA",
+      "lat": 39.9493,
+      "lng": -75.1645,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-first-african-baptist-church",
+      "stopTitle": "First African Baptist Church",
+      "location": "Lombard-South area, PA",
+      "lat": 39.9401269,
+      "lng": -75.1698384,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "septa-broad-street-line",
+      "tourTitle": "SEPTA Broad Street Line",
+      "stopId": "septa-broad-street-line-aces-museum-black-wwii-veterans",
+      "stopTitle": "Aces Museum Black WWII Veterans",
+      "location": "5801 Germantown Ave, Philadelphia, PA",
+      "lat": 40.036849627915,
+      "lng": -75.175596081946,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5801 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.036849627915,
+          "lng": -75.175596081946
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "septa-broad-street-line-aces-museum-black-wwii-veterans",
+        "location": "5801 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.036849627915,
+          "lng": -75.175596081946,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philadelphia-foundations",
+      "tourTitle": "Philadelphia Foundations",
+      "stopId": "philadelphia-foundations-fair-hill-burial-ground",
+      "stopTitle": "Fair Hill Burial Ground",
+      "location": "2901 Germantown Ave, Philadelphia, PA",
+      "lat": 39.99569,
+      "lng": -75.15044,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2901 GERMANTOWN AVE, PHILADELPHIA, PA, 19133",
+          "lat": 39.996190696018,
+          "lng": -75.146994953189
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philadelphia-foundations-fair-hill-burial-ground",
+        "location": "2901 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.996190696018,
+          "lng": -75.146994953189,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philadelphia-foundations",
+      "tourTitle": "Philadelphia Foundations",
+      "stopId": "philadelphia-foundations-harriet-tubman-mural",
+      "stopTitle": "Harriet Tubman Mural",
+      "location": "2900 Germantown Ave, Philadelphia, PA",
+      "lat": 39.99552,
+      "lng": -75.15028,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2900 GERMANTOWN AVE, PHILADELPHIA, PA, 19133",
+          "lat": 39.996211788425,
+          "lng": -75.147141977427
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philadelphia-foundations-harriet-tubman-mural",
+        "location": "2900 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.996211788425,
+          "lng": -75.147141977427,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philadelphia-foundations",
+      "tourTitle": "Philadelphia Foundations",
+      "stopId": "philadelphia-foundations-belmont-mansion",
+      "stopTitle": "Belmont Mansion",
+      "location": "2000 Belmont Mansion Dr, Philadelphia, PA",
+      "lat": 39.98363,
+      "lng": -75.19103,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2000 BELMONT MANSION DR, PHILADELPHIA, PA, 19131",
+          "lat": 39.986759074559,
+          "lng": -75.213670141104
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philadelphia-foundations-belmont-mansion",
+        "location": "2000 Belmont Mansion Dr, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.986759074559,
+          "lng": -75.213670141104,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philadelphia-foundations",
+      "tourTitle": "Philadelphia Foundations",
+      "stopId": "philadelphia-foundations-johnson-house",
+      "stopTitle": "Johnson House",
+      "location": "6306 Germantown Ave, Philadelphia, PA",
+      "lat": 40.043414697068,
+      "lng": -75.181116152631,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6306 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.043414697068,
+          "lng": -75.181116152631
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philadelphia-foundations-johnson-house",
+        "location": "6306 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.043414697068,
+          "lng": -75.181116152631,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philadelphia-foundations",
+      "tourTitle": "Philadelphia Foundations",
+      "stopId": "philadelphia-foundations-ebenezer-maxwell-mansion",
+      "stopTitle": "Ebenezer Maxwell Mansion",
+      "location": "200 W Tulpehocken St, Philadelphia, PA",
+      "lat": 40.03521,
+      "lng": -75.18642,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "200 W TULPEHOCKEN ST, PHILADELPHIA, PA, 19144",
+          "lat": 40.03852650903,
+          "lng": -75.183654166956
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philadelphia-foundations-ebenezer-maxwell-mansion",
+        "location": "200 W Tulpehocken St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.03852650903,
+          "lng": -75.183654166956,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philadelphia-foundations",
+      "tourTitle": "Philadelphia Foundations",
+      "stopId": "philadelphia-foundations-cliveden",
+      "stopTitle": "Cliveden",
+      "location": "6401 Germantown Ave, Philadelphia, PA",
+      "lat": 40.04492,
+      "lng": -75.17806,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6401 GERMANTOWN AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.04597099227,
+          "lng": -75.182161819444
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philadelphia-foundations-cliveden",
+        "location": "6401 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.04597099227,
+          "lng": -75.182161819444,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "move-bombing-memorial",
+      "tourTitle": "MOVE Bombing Memorial",
+      "stopId": "move-bombing-memorial-municipal-services-building",
+      "stopTitle": "Municipal Services Building",
+      "location": "1401 JFK Blvd, Philadelphia, PA",
+      "lat": 39.95484,
+      "lng": -75.16516,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1401 JOHN F KENNEDY BLVD, PHILADELPHIA, PA, 19102",
+          "lat": 39.953507111002,
+          "lng": -75.163975835726
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "move-bombing-memorial-municipal-services-building",
+        "location": "1401 JFK Blvd, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.953507111002,
+          "lng": -75.163975835726,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "move-bombing-memorial",
+      "tourTitle": "MOVE Bombing Memorial",
+      "stopId": "move-bombing-memorial-powelton-village",
+      "stopTitle": "Powelton Village",
+      "location": "311 N 33rd St, Philadelphia, PA",
+      "lat": 39.96019,
+      "lng": -75.19006,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "311 N 33RD ST, PHILADELPHIA, PA, 19104",
+          "lat": 39.961064589603,
+          "lng": -75.189498501935
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "move-bombing-memorial-powelton-village",
+        "location": "311 N 33rd St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.961064589603,
+          "lng": -75.189498501935,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "move-bombing-memorial",
+      "tourTitle": "MOVE Bombing Memorial",
+      "stopId": "move-bombing-memorial-chef-curt-s-bbq",
+      "stopTitle": "Chef Curt's BBQ",
+      "location": "near 62nd & Market St, Philadelphia, PA",
+      "lat": 39.962448935698,
+      "lng": -75.244709702759,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N 62ND ST & MARKET ST, PHILADELPHIA, PA, 19139",
+          "lat": 39.962448935698,
+          "lng": -75.244709702759
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "move-bombing-memorial-chef-curt-s-bbq",
+        "location": "near 62nd & Market St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.962448935698,
+          "lng": -75.244709702759,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "move-bombing-memorial",
+      "tourTitle": "MOVE Bombing Memorial",
+      "stopId": "move-bombing-memorial-osage-avenue",
+      "stopTitle": "Osage Avenue",
+      "location": "6221 Osage Ave, Philadelphia, PA",
+      "lat": 39.955569337985,
+      "lng": -75.24661904899,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "6221 OSAGE AVE, PHILADELPHIA, PA, 19143",
+          "lat": 39.955569337985,
+          "lng": -75.24661904899
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "move-bombing-memorial-osage-avenue",
+        "location": "6221 Osage Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.955569337985,
+          "lng": -75.24661904899,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "move-bombing-memorial",
+      "tourTitle": "MOVE Bombing Memorial",
+      "stopId": "move-bombing-memorial-cobbs-creek-park",
+      "stopTitle": "Cobbs Creek Park",
+      "location": "63rd & Vine St, Philadelphia, PA",
+      "lat": 39.96591,
+      "lng": -75.24156,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "N 63RD ST & VINE ST, PHILADELPHIA, PA, 19139",
+          "lat": 39.967317934771,
+          "lng": -75.24578970212
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "move-bombing-memorial-cobbs-creek-park",
+        "location": "63rd & Vine St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.967317934771,
+          "lng": -75.24578970212,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "move-bombing-memorial",
+      "tourTitle": "MOVE Bombing Memorial",
+      "stopId": "move-bombing-memorial-african-american-museum",
+      "stopTitle": "African American Museum",
+      "location": "701 Arch St, Philadelphia, PA 19106",
+      "lat": 39.953010995469,
+      "lng": -75.151598440748,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "701 ARCH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.953010995469,
+          "lng": -75.151598440748
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "move-bombing-memorial-african-american-museum",
+        "location": "701 Arch St, Philadelphia, PA 19106",
+        "suggestion": {
+          "lat": 39.953010995469,
+          "lng": -75.151598440748,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-african-american-museum",
+      "stopTitle": "African American Museum",
+      "location": "701 Arch St, Philadelphia, PA 19106",
+      "lat": 39.953010995469,
+      "lng": -75.151598440748,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "701 ARCH ST, PHILADELPHIA, PA, 19106",
+          "lat": 39.953010995469,
+          "lng": -75.151598440748
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-african-american-museum",
+        "location": "701 Arch St, Philadelphia, PA 19106",
+        "suggestion": {
+          "lat": 39.953010995469,
+          "lng": -75.151598440748,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-philadelphia-museum-of-art",
+      "stopTitle": "Philadelphia Museum of Art",
+      "location": "2600 Benjamin Franklin Pkwy, Philadelphia, PA",
+      "lat": 39.96559,
+      "lng": -75.18099,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-barnes-foundation",
+      "stopTitle": "Barnes Foundation",
+      "location": "2025 Benjamin Franklin Pkwy, Philadelphia, PA",
+      "lat": 39.96057,
+      "lng": -75.17272,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2025 BENJAMIN FRANKLIN PKWY, PHILADELPHIA, PA, 19130",
+          "lat": 39.95965360771,
+          "lng": -75.172301646081
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-barnes-foundation",
+        "location": "2025 Benjamin Franklin Pkwy, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.95965360771,
+          "lng": -75.172301646081,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-woodmere-art-museum",
+      "stopTitle": "Woodmere Art Museum",
+      "location": "9201 Germantown Ave, Philadelphia, PA",
+      "lat": 40.0831301,
+      "lng": -75.2194912,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "9201 GERMANTOWN AVE, PHILADELPHIA, PA, 19118",
+          "lat": 40.082166765075,
+          "lng": -75.219813650213
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-woodmere-art-museum",
+        "location": "9201 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.082166765075,
+          "lng": -75.219813650213,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-brandywine-workshop",
+      "stopTitle": "Brandywine Workshop",
+      "location": "1520 Sansom St, Philadelphia, PA",
+      "lat": 39.95008,
+      "lng": -75.16667,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1520 SANSOM ST, PHILADELPHIA, PA, 19102",
+          "lat": 39.950304126019,
+          "lng": -75.166152806496
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-brandywine-workshop",
+        "location": "1520 Sansom St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.950304126019,
+          "lng": -75.166152806496,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-october-gallery",
+      "stopTitle": "October Gallery",
+      "location": "2101 N Front St, Philadelphia, PA",
+      "lat": 39.98167493668,
+      "lng": -75.132794105601,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2101 N FRONT ST, PHILADELPHIA, PA, 19122",
+          "lat": 39.98167493668,
+          "lng": -75.132794105601
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-october-gallery",
+        "location": "2101 N Front St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.98167493668,
+          "lng": -75.132794105601,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-pa-academy-fine-arts",
+      "stopTitle": "PA Academy Fine Arts",
+      "location": "128 N Broad St, Philadelphia, PA 19102",
+      "lat": 39.95589,
+      "lng": -75.16382,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "128 N BROAD ST, PHILADELPHIA, PA, 19102",
+          "lat": 39.955413959919,
+          "lng": -75.16307800416
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-pa-academy-fine-arts",
+        "location": "128 N Broad St, Philadelphia, PA 19102",
+        "suggestion": {
+          "lat": 39.955413959919,
+          "lng": -75.16307800416,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-moody-jones-gallery",
+      "stopTitle": "Moody Jones Gallery",
+      "location": "107 S Easton Rd, Glenside, PA",
+      "lat": 40.10091,
+      "lng": -75.15227,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "107 S EASTON RD, GLENSIDE, PA, 19038",
+          "lat": 40.099848197575,
+          "lng": -75.15410162564
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-moody-jones-gallery",
+        "location": "107 S Easton Rd, Glenside, PA",
+        "suggestion": {
+          "lat": 40.099848197575,
+          "lng": -75.15410162564,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-mural-arts-tour",
+      "stopTitle": "Mural Arts Tour",
+      "location": "1729 Mt Vernon St, Philadelphia, PA",
+      "lat": 39.96171,
+      "lng": -75.16811,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1729 MOUNT VERNON ST, PHILADELPHIA, PA, 19130",
+          "lat": 39.965191350311,
+          "lng": -75.166278675894
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "philly-black-art-odyssey-mural-arts-tour",
+        "location": "1729 Mt Vernon St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.965191350311,
+          "lng": -75.166278675894,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "philly-black-art-odyssey",
+      "tourTitle": "Philly Black Art Odyssey",
+      "stopId": "philly-black-art-odyssey-public-sculptures",
+      "stopTitle": "Public Sculptures",
+      "location": "Center City, Philadelphia, PA",
+      "lat": 39.9526,
+      "lng": -75.1652,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-university-of-pennsylvania",
+      "stopTitle": "University of Pennsylvania",
+      "location": "Locust Walk, Philadelphia, PA",
+      "lat": 39.95222,
+      "lng": -75.19321,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-drexel-university",
+      "stopTitle": "Drexel University",
+      "location": "Market St, Philadelphia, PA",
+      "lat": 39.95661,
+      "lng": -75.18994,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-thomas-jefferson-university",
+      "stopTitle": "Thomas Jefferson University",
+      "location": "4201 Henry Ave, Philadelphia, PA",
+      "lat": 40.0231604,
+      "lng": -75.1917259,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "4201 HENRY AVE, PHILADELPHIA, PA, 19144",
+          "lat": 40.022293225446,
+          "lng": -75.194118790633
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "college-hop-tour-thomas-jefferson-university",
+        "location": "4201 Henry Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.022293225446,
+          "lng": -75.194118790633,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-temple-university",
+      "stopTitle": "Temple University",
+      "location": "1801 N Broad St, Philadelphia, PA",
+      "lat": 39.9812,
+      "lng": -75.155,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1801 N BROAD ST, PHILADELPHIA, PA, 19122",
+          "lat": 39.980270860851,
+          "lng": -75.15749452815
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "college-hop-tour-temple-university",
+        "location": "1801 N Broad St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.980270860851,
+          "lng": -75.15749452815,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-la-salle-university",
+      "stopTitle": "La Salle University",
+      "location": "1900 W Olney Ave, Philadelphia, PA",
+      "lat": 40.03646,
+      "lng": -75.15477,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-chestnut-hill-college",
+      "stopTitle": "Chestnut Hill College",
+      "location": "9601 Germantown Ave, Philadelphia, PA",
+      "lat": 40.08653,
+      "lng": -75.20464,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "9601 GERMANTOWN AVE, PHILADELPHIA, PA, 19118",
+          "lat": 40.084355407553,
+          "lng": -75.226484077259
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "college-hop-tour-chestnut-hill-college",
+        "location": "9601 Germantown Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 40.084355407553,
+          "lng": -75.226484077259,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-saint-joseph-s-university",
+      "stopTitle": "Saint Joseph's University",
+      "location": "5600 City Ave, Philadelphia, PA",
+      "lat": 39.99467,
+      "lng": -75.23712,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "5600 W CITY AVE, PHILADELPHIA, PA, 19131",
+          "lat": 39.995265135631,
+          "lng": -75.239028370772
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "college-hop-tour-saint-joseph-s-university",
+        "location": "5600 City Ave, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.995265135631,
+          "lng": -75.239028370772,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-university-of-the-arts",
+      "stopTitle": "University of the Arts",
+      "location": "Broad St, Philadelphia, PA",
+      "lat": 39.94791,
+      "lng": -75.16473,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "no_match",
+        "match": null
+      },
+      "patchSuggestion": null
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-curtis-institute-of-music",
+      "stopTitle": "Curtis Institute of Music",
+      "location": "1726 Locust St, Philadelphia, PA",
+      "lat": 39.94947,
+      "lng": -75.16903,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1726 LOCUST ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.948865535277,
+          "lng": -75.170347451244
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "college-hop-tour-curtis-institute-of-music",
+        "location": "1726 Locust St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.948865535277,
+          "lng": -75.170347451244,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-community-college-of-philly",
+      "stopTitle": "Community College of Philly",
+      "location": "1700 Spring Garden St, Philadelphia, PA",
+      "lat": 39.96075,
+      "lng": -75.16652,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1700 SPRING GARDEN ST, PHILADELPHIA, PA, 19130",
+          "lat": 39.962942113276,
+          "lng": -75.166338511049
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "college-hop-tour-community-college-of-philly",
+        "location": "1700 Spring Garden St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.962942113276,
+          "lng": -75.166338511049,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "college-hop-tour",
+      "tourTitle": "College Hop Tour",
+      "stopId": "college-hop-tour-pa-academy-of-fine-arts",
+      "stopTitle": "PA Academy of Fine Arts",
+      "location": "128 N Broad St, Philadelphia, PA 19102",
+      "lat": 39.95589,
+      "lng": -75.16382,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "128 N BROAD ST, PHILADELPHIA, PA, 19102",
+          "lat": 39.955413959919,
+          "lng": -75.16307800416
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "college-hop-tour-pa-academy-of-fine-arts",
+        "location": "128 N Broad St, Philadelphia, PA 19102",
+        "suggestion": {
+          "lat": 39.955413959919,
+          "lng": -75.16307800416,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-the-ranstead-room",
+      "stopTitle": "The Ranstead Room",
+      "location": "2013 Ranstead St, Philadelphia, PA",
+      "lat": 39.95103,
+      "lng": -75.17402,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2013 RANSTEAD ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.952703937864,
+          "lng": -75.173642685874
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-the-ranstead-room",
+        "location": "2013 Ranstead St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.952703937864,
+          "lng": -75.173642685874,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-franklin-mortgage-and-investment",
+      "stopTitle": "Franklin Mortgage & Investment",
+      "location": "112 S 18th St, Philadelphia, PA",
+      "lat": 39.95061,
+      "lng": -75.17096,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "112 S 18TH ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.951268402583,
+          "lng": -75.170498442779
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-franklin-mortgage-and-investment",
+        "location": "112 S 18th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.951268402583,
+          "lng": -75.170498442779,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-hop-sing-laundromat",
+      "stopTitle": "Hop Sing Laundromat",
+      "location": "1029 Race St, Philadelphia, PA",
+      "lat": 39.95574,
+      "lng": -75.15523,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1029 RACE ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.955489005711,
+          "lng": -75.156363110093
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-hop-sing-laundromat",
+        "location": "1029 Race St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.955489005711,
+          "lng": -75.156363110093,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-1-tippling-place",
+      "stopTitle": "1 Tippling Place",
+      "location": "2006 Chestnut St, Philadelphia, PA",
+      "lat": 39.95202,
+      "lng": -75.17574,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "2006 CHESTNUT ST, PHILADELPHIA, PA, 19103",
+          "lat": 39.952036272352,
+          "lng": -75.173826478165
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-1-tippling-place",
+        "location": "2006 Chestnut St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.952036272352,
+          "lng": -75.173826478165,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-the-library-bar",
+      "stopTitle": "The Library Bar",
+      "location": "210 W Rittenhouse Sq, Philadelphia, PA",
+      "lat": 39.94887,
+      "lng": -75.17263,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "210 W RITTENHOUSE SQ, PHILADELPHIA, PA, 19103",
+          "lat": 39.949747504291,
+          "lng": -75.172965339681
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-the-library-bar",
+        "location": "210 W Rittenhouse Sq, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.949747504291,
+          "lng": -75.172965339681,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-andra-hem",
+      "stopTitle": "Andra Hem",
+      "location": "218 S 16th St, Philadelphia, PA",
+      "lat": 39.94858,
+      "lng": -75.16987,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "218 S 16TH ST, PHILADELPHIA, PA, 19102",
+          "lat": 39.949189322692,
+          "lng": -75.167719251835
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-andra-hem",
+        "location": "218 S 16th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.949189322692,
+          "lng": -75.167719251835,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-haunt",
+      "stopTitle": "Haunt",
+      "location": "1315 Sansom St, Philadelphia, PA",
+      "lat": 39.94966,
+      "lng": -75.16376,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "1315 SANSOM ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.949972753135,
+          "lng": -75.162565949324
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-haunt",
+        "location": "1315 Sansom St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.949972753135,
+          "lng": -75.162565949324,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-charlie-was-a-sinner",
+      "stopTitle": "Charlie Was A Sinner",
+      "location": "131 S 13th St, Philadelphia, PA",
+      "lat": 39.95013,
+      "lng": -75.16202,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "131 S 13TH ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.94969168351,
+          "lng": -75.161906256905
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-charlie-was-a-sinner",
+        "location": "131 S 13th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.94969168351,
+          "lng": -75.161906256905,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-mask-and-wig-club",
+      "stopTitle": "Mask and Wig Club",
+      "location": "310 S Quince St, Philadelphia, PA",
+      "lat": 39.94573,
+      "lng": -75.15574,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "310 S QUINCE ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.945820040462,
+          "lng": -75.160472352535
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-mask-and-wig-club",
+        "location": "310 S Quince St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.945820040462,
+          "lng": -75.160472352535,
+          "coordQuality": "verified"
+        }
+      }
+    },
+    {
+      "source": "tour",
+      "tourId": "speakeasy-tour",
+      "tourTitle": "Speakeasy Tour",
+      "stopId": "speakeasy-tour-midnight-and-the-wicked",
+      "stopTitle": "Midnight & The Wicked",
+      "location": "111 S 13th St, Philadelphia, PA",
+      "lat": 39.95044,
+      "lng": -75.16177,
+      "coordQuality": "verified",
+      "geocode": {
+        "status": "ok",
+        "match": {
+          "address": "111 S 13TH ST, PHILADELPHIA, PA, 19107",
+          "lat": 39.950084319127,
+          "lng": -75.161819399966
+        }
+      },
+      "patchSuggestion": {
+        "stopId": "speakeasy-tour-midnight-and-the-wicked",
+        "location": "111 S 13th St, Philadelphia, PA",
+        "suggestion": {
+          "lat": 39.950084319127,
+          "lng": -75.161819399966,
+          "coordQuality": "verified"
+        }
+      }
+    }
+  ]
+}

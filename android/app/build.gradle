@@ -67,6 +67,11 @@ react {
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
 def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInReleaseBuilds') ?: false).toBoolean()
+def releaseStoreFilePath = (findProperty("phillyToursUploadStoreFile") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_FILE"))?.toString()
+def releaseStorePassword = (findProperty("phillyToursUploadStorePassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_PASSWORD"))?.toString()
+def releaseKeyAlias = (findProperty("phillyToursUploadKeyAlias") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_ALIAS"))?.toString()
+def releaseKeyPassword = (findProperty("phillyToursUploadKeyPassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_PASSWORD"))?.toString()
+def hasReleaseSigningConfig = releaseStoreFilePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -95,6 +100,34 @@ android {
         versionCode 1
         versionName "0.1.0"
         multiDexEnabled true
+        buildConfigField "boolean", "META_WEARABLES_DAT_ENABLED", ((findProperty("metaWearablesDatEnabled") ?: "false").toString())
+        buildConfigField "String", "META_WEARABLES_DAT_VERSION", "\"${(findProperty("metaWearablesDatVersion") ?: "0.5.0")}\""
+        buildConfigField "String", "VUZIX_ULTRALITE_SDK_VERSION", "\"${(findProperty("vuzixUltraliteSdkVersion") ?: "1.9")}\""
+        manifestPlaceholders = [
+            metaWearablesApplicationId: (findProperty("metaWearablesApplicationId") ?: "0").toString(),
+            googleMapsApiKey: (
+                findProperty("googleMapsApiKey")
+                    ?: System.getenv("GOOGLE_MAPS_ANDROID_API_KEY")
+                    ?: System.getenv("GOOGLE_MAPS_API_KEY")
+                    ?: System.getenv("EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY")
+                    ?: ""
+            ).toString()
+        ]
+    }
+    flavorDimensions "hardware"
+    productFlavors {
+        standard {
+            dimension "hardware"
+            minSdkVersion rootProject.ext.minSdkVersion
+            buildConfigField "boolean", "VUZIX_ULTRALITE_SDK_ENABLED", "false"
+        }
+        vuzix {
+            dimension "hardware"
+            minSdkVersion 30
+            applicationIdSuffix ".vuzix"
+            versionNameSuffix "-vuzix"
+            buildConfigField "boolean", "VUZIX_ULTRALITE_SDK_ENABLED", "true"
+        }
     }
     signingConfigs {
         debug {
@@ -103,15 +136,23 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (hasReleaseSigningConfig) {
+                storeFile file(releaseStoreFilePath)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            if (hasReleaseSigningConfig) {
+                signingConfig signingConfigs.release
+            }
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -152,6 +193,13 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation("androidx.multidex:multidex:2.0.1")
+    implementation("com.google.ar:core:1.53.0")
+
+    if ((findProperty("metaWearablesDatEnabled") ?: "false").toString().toBoolean()) {
+        implementation("com.meta.wearable:mwdat-core:${findProperty("metaWearablesDatVersion") ?: "0.5.0"}")
+    }
+
+    vuzixImplementation("com.vuzix:ultralite-sdk-android:${findProperty("vuzixUltraliteSdkVersion") ?: "1.9"}")
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

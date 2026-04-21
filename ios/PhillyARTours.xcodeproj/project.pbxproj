@@ -7,12 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C798C182F74CFF90021C790 /* MWDATCamera in Frameworks */ = {isa = PBXBuildFile; productRef = 0C798C172F74CFF90021C790 /* MWDATCamera */; };
+		0C798C1A2F74CFF90021C790 /* MWDATCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0C798C192F74CFF90021C790 /* MWDATCore */; };
+		0C798C1C2F74CFF90021C790 /* MWDATMockDevice in Frameworks */ = {isa = PBXBuildFile; productRef = 0C798C1B2F74CFF90021C790 /* MWDATMockDevice */; };
+		0F3D1C8C2F778D7A003A7D91 /* PhillyNativeWearables.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		21F3448A9B3A40CA8E0B87C4 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82D739086344C3F8AD79F33 /* noop-file.swift */; };
 		2AB64DD80F8F4A2DA73F2410 /* PhillyNativeAR.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4D37B92A5D39417EB8ECFD3F /* PhillyNativeAR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */; };
-		4F62A77D09B640B7A3DB1001 /* ARAssets in Resources */ = {isa = PBXBuildFile; fileRef = 4F62A77C09B640B7A3DB1001 /* ARAssets */; };
+		4F62A77D09B640B7A3DB1001 /* PhillyARTours/ARAssets in Resources */ = {isa = PBXBuildFile; fileRef = 4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */; };
 		500A59858DC61308115345EC /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD0F864B1788E6C51A6EDDE /* ExpoModulesProvider.swift */; };
 		B1AAC3206819EBE0582E08BE /* libPods-PhillyARTours.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BDDF101B2AE11840D415836 /* libPods-PhillyARTours.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -23,13 +27,16 @@
 /* Begin PBXFileReference section */
 		03E26A4356903BA54F95B8F6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = PhillyARTours/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		0CDE2D762F68F086006B5D36 /* PhillyARToursRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = PhillyARToursRelease.entitlements; path = PhillyARTours/PhillyARToursRelease.entitlements; sourceTree = "<group>"; };
+		0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PhillyNativeWearables.m; path = PhillyARTours/PhillyNativeWearables.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* PhillyARTours.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhillyARTours.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PhillyARTours/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PhillyARTours/Info.plist; sourceTree = "<group>"; };
 		1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PhillyNativeAR.m; path = PhillyARTours/PhillyNativeAR.m; sourceTree = "<group>"; };
 		465585F82E1E3BAF2554DE0B /* Pods-PhillyARTours.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.release.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.release.xcconfig"; sourceTree = "<group>"; };
-		4F62A77C09B640B7A3DB1001 /* ARAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PhillyARTours/ARAssets; sourceTree = "<group>"; };
+		4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PhillyARTours/ARAssets; sourceTree = "<group>"; };
 		5B9641E3C10325E7974FA90C /* Pods-PhillyARTours.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.debug.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.debug.xcconfig"; sourceTree = "<group>"; };
+		5D99C5012F8011110021C790 /* PhillyARTours.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PhillyARTours.debug.xcconfig; path = PhillyARTours.debug.xcconfig; sourceTree = "<group>"; };
+		5D99C5022F8011120021C790 /* PhillyARTours.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PhillyARTours.release.xcconfig; path = PhillyARTours.release.xcconfig; sourceTree = "<group>"; };
 		7BDDF101B2AE11840D415836 /* libPods-PhillyARTours.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PhillyARTours.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PhillyNativeAR.swift; path = PhillyARTours/PhillyNativeAR.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = PhillyARTours/SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -47,6 +54,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1AAC3206819EBE0582E08BE /* libPods-PhillyARTours.a in Frameworks */,
+				0C798C1A2F74CFF90021C790 /* MWDATCore in Frameworks */,
+				0C798C1C2F74CFF90021C790 /* MWDATMockDevice in Frameworks */,
+				0C798C182F74CFF90021C790 /* MWDATCamera in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +71,8 @@
 				F11748442D0722820044C1D9 /* PhillyARTours-Bridging-Header.h */,
 				8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */,
 				1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */,
-				4F62A77C09B640B7A3DB1001 /* ARAssets */,
+				0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */,
+				4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -124,6 +135,8 @@
 			isa = PBXGroup;
 			children = (
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
+				5D99C5012F8011110021C790 /* PhillyARTours.debug.xcconfig */,
+				5D99C5022F8011120021C790 /* PhillyARTours.release.xcconfig */,
 			);
 			name = Supporting;
 			path = PhillyARTours/Supporting;
@@ -192,6 +205,9 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			packageReferences = (
+				0C798C162F74CFF90021C790 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */,
+			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -210,7 +226,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				C683B35FEC2C478303881DFF /* PrivacyInfo.xcprivacy in Resources */,
-				4F62A77D09B640B7A3DB1001 /* ARAssets in Resources */,
+				4F62A77D09B640B7A3DB1001 /* PhillyARTours/ARAssets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,6 +367,7 @@
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				4D37B92A5D39417EB8ECFD3F /* PhillyNativeAR.swift in Sources */,
 				2AB64DD80F8F4A2DA73F2410 /* PhillyNativeAR.m in Sources */,
+				0F3D1C8C2F778D7A003A7D91 /* PhillyNativeWearables.m in Sources */,
 				21F3448A9B3A40CA8E0B87C4 /* noop-file.swift in Sources */,
 				500A59858DC61308115345EC /* ExpoModulesProvider.swift in Sources */,
 			);
@@ -361,7 +378,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B9641E3C10325E7974FA90C /* Pods-PhillyARTours.debug.xcconfig */;
+			baseConfigurationReference = 5D99C5012F8011110021C790 /* PhillyARTours.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -375,7 +392,7 @@
 					"FB_SONARKIT_ENABLED=1",
 				);
 				INFOPLIST_FILE = PhillyARTours/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Philly AR Tours";
+				INFOPLIST_KEY_CFBundleDisplayName = "Philly Tours";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -389,7 +406,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.founders.phillyartours;
+				PRODUCT_BUNDLE_IDENTIFIER = com.niacstallworth.phillyartours.dev;
 				PRODUCT_NAME = PhillyARTours;
 				SWIFT_OBJC_BRIDGING_HEADER = "PhillyARTours/PhillyARTours-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -401,7 +418,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 465585F82E1E3BAF2554DE0B /* Pods-PhillyARTours.release.xcconfig */;
+			baseConfigurationReference = 5D99C5022F8011120021C790 /* PhillyARTours.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
@@ -410,7 +427,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T5WMAN8PDL;
 				INFOPLIST_FILE = PhillyARTours/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Philly AR Tours";
+				INFOPLIST_KEY_CFBundleDisplayName = "Philly Tours";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -424,7 +441,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.niacstallworth.phillyartours.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.founders.phillyartours;
 				PRODUCT_NAME = PhillyARTours;
 				SWIFT_OBJC_BRIDGING_HEADER = "PhillyARTours/PhillyARTours-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -488,10 +505,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -546,10 +560,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -579,6 +590,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0C798C162F74CFF90021C790 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/meta-wearables-dat-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0C798C172F74CFF90021C790 /* MWDATCamera */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0C798C162F74CFF90021C790 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */;
+			productName = MWDATCamera;
+		};
+		0C798C192F74CFF90021C790 /* MWDATCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0C798C162F74CFF90021C790 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */;
+			productName = MWDATCore;
+		};
+		0C798C1B2F74CFF90021C790 /* MWDATMockDevice */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0C798C162F74CFF90021C790 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */;
+			productName = MWDATMockDevice;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }

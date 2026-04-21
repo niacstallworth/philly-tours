@@ -5,6 +5,8 @@ dist/
 build/
 generated/
 tmp/
+web-dist/
+web-release/
 *.log
 *.tmp
 *.temp
@@ -17,6 +19,7 @@ ios/Pods/
 ios/.xcode.env.local
 ios/*.xcworkspace/
 ios/**/*.xcuserdata/
+ios/PhillyARTours/Supporting/MetaWearables.local.xcconfig
 .DS_Store
 *.swp
 *.swo
@@ -24,6 +27,12 @@ ios/**/*.xcuserdata/
 .env
 .env.*
 !.env.example
+server.local.env
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
 server/payments.db
 server/payments.db-shm
 server/payments.db-wal
+webapp/site-config.local.js

@@ -25,6 +25,9 @@ class MainApplication : Application(), ReactApplication {
             val packages = PackageList(this).packages
             // Packages that cannot be autolinked yet can be added manually here, for example:
             packages.add(PhillyNativeARPackage())
+            packages.add(PhillyNativeWearablesPackage())
+            packages.add(PhillyMediaButtonsPackage())
+            packages.add(PhillyNativeVuzixPackage())
             return packages
           }
 

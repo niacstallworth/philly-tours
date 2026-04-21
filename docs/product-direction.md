@@ -20,6 +20,30 @@ It should not read as:
 - developer-first
 - sci-fi for its own sake
 
+## Story Logistics
+
+Philly Tours routes should feel arranged by someone who understands both the city and the human experience of moving through it.
+
+Story Logistics is the Founders route logic:
+
+```txt
+next stop = closest meaningful stop that keeps the story moving forward
+```
+
+In simple program language:
+
+```ts
+nextStop = bestStop({
+  nearEnough: true,
+  keepsMomentum: true,
+  avoidsBacktracking: true,
+  fitsStoryArc: true,
+  respectsNorthStar: true
+});
+```
+
+This is not generic pin sorting. It is distance plus direction plus story logic plus no annoying jumps. The route should feel like Philadelphia unfolding in the user's body, not like a spreadsheet of landmarks.
+
 ## Consumer App Rules
 
 ### What the user should see
@@ -136,6 +160,23 @@ Meta-style monocular display changes the design target.
 - rely on complex menus in AR
 - assume the user can comfortably read dense text in space
 
+## Vision Pro / Spatial Computing Rules
+
+Vision Pro should extend the product upward into premium spatial computing, not replace the drive-first app.
+
+### Do
+- treat Vision Pro as passenger, parked, or post-drive only
+- use immersive scenes for the strongest landmarks and reconstructions
+- preserve the route and narration spine from the phone experience
+- favor volumetric landmarks, restrained labels, and shared narration controls
+- keep the transition between phone and immersive mode obvious and low-friction
+
+### Do not
+- imply headset use while driving
+- fork the product into a separate tourism concept disconnected from the route
+- rebuild every screen as spatial UI before the hero moments are proven
+- force every stop into an immersive scene
+
 ### Best overlay types for this hardware
 - single 3D artifact
 - subtle architectural ghost overlay
@@ -211,6 +252,16 @@ Each should get:
 3. Build true 3D hero stops one by one.
 4. Use audio as the narrative layer and AR as the visual jewel.
 5. Design overlays specifically for small-eye-display hardware.
+
+## Next App Shape Plan
+
+The next product-shape pass is tracked in `docs/app-shape-next-plan.md`.
+
+Focus areas:
+- visual Founders Board share cards
+- richer Board state and set logic
+- production-quality AR moment assets
+- more human Compass arrival states
 
 ## Execution Recommendation
 

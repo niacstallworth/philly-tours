@@ -1,14 +1,16 @@
 import "react-native-gesture-handler";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Linking, Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { MainTabs } from "./src/navigation/MainTabs";
-import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
-import { isBuilderEmailAllowed } from "./src/services/builderAccess";
+import { StripeProvider } from "./src/providers/StripeProvider";
+import { AuthenticatedSession, createAuthenticatedSession, setAuthToken, validateAuthenticatedSession } from "./src/services/auth";
 import { HandoffTarget, parseHandoffUrl } from "./src/services/deepLinks";
 import { subscribeToHandoffTarget } from "./src/services/handoffBus";
 import { getEntitlements, setApiUserId } from "./src/services/payments";
+import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
+import { clearGameProgress } from "./src/services/gameProgress";
 import { AppThemeProvider, ThemeSurfaceProvider, useAppTheme, useTypeScale } from "./src/theme/appTheme";
 
 type AppSession = {
@@ -16,11 +18,10 @@ type AppSession = {
   email: string;
   mode: AppMode;
   userId: string;
+  roles?: string[];
+  authToken?: string | null;
+  authExpiresAt?: number | null;
 };
-
-function toUserId(email: string) {
-  return email.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "demo-user";
-}
 
 export default function App() {
   const isExpoGo = Constants.appOwnership === "expo";
@@ -32,6 +33,13 @@ export default function App() {
   const [handoffTarget, setHandoffTarget] = useState<HandoffTarget | null>(null);
   const [audioHistoryOnlyUnlocked, setAudioHistoryOnlyUnlocked] = useState(false);
   const [fullAppUnlocked, setFullAppUnlocked] = useState(false);
+
+  function applySession(nextSession: AuthenticatedSession) {
+    setAuthToken(nextSession.authToken);
+    setApiUserId(nextSession.userId);
+    setSession(nextSession);
+    return saveSession(nextSession);
+  }
 
   async function refreshEntitlements() {
     if (!session) {
@@ -59,12 +67,45 @@ export default function App() {
         if (!stored) {
           return;
         }
-        if (stored.mode === "builder" && !isBuilderEmailAllowed(stored.email)) {
-          clearSession().catch(() => undefined);
-          return;
+        if (stored.mode !== "tourist") {
+          setAuthToken(null);
+          setApiUserId("demo-user");
+          return clearSession();
         }
         setApiUserId(stored.userId);
-        setSession(stored);
+        setAuthToken(stored.authToken);
+        if (!stored.authToken) {
+          if (Platform.OS !== "web") {
+            setAuthToken(null);
+            setApiUserId("demo-user");
+            return clearSession();
+          }
+          return createAuthenticatedSession({
+            displayName: stored.displayName,
+            email: stored.email,
+            mode: "tourist"
+          })
+            .then((nextSession) => {
+              return applySession(nextSession);
+            })
+            .catch(() => {
+              setAuthToken(null);
+              setApiUserId("demo-user");
+              return clearSession();
+            });
+        }
+        return validateAuthenticatedSession(stored.authToken)
+          .then((validated) => {
+            setApiUserId(validated.userId);
+            setAuthToken(validated.authToken);
+            setSession(validated);
+            return saveSession(validated);
+          })
+          .catch(() => {
+            setAuthToken(null);
+            setApiUserId("demo-user");
+            return clearSession();
+          });
       })
       .finally(() => setBooting(false));
   }, []);
@@ -106,16 +147,23 @@ export default function App() {
     };
   }, []);
 
-  function completeOnboarding(payload: OnboardingPayload) {
-    const userId = toUserId(payload.email);
-    const nextSession = { ...payload, userId };
-    setApiUserId(userId);
-    setSession(nextSession);
-    saveSession(nextSession).catch(() => undefined);
+  async function completeOnboarding(payload: OnboardingPayload) {
+    try {
+      const nextSession = await createAuthenticatedSession(payload);
+      await applySession(nextSession);
+      return null;
+    } catch (error) {
+      return (error as Error).message || "Unable to sign in.";
+    }
+  }
+
+  async function completeProviderOnboarding(nextSession: AuthenticatedSession) {
+    await applySession(nextSession);
   }
 
   function signOut() {
     setSession(null);
+    setAuthToken(null);
     setApiUserId("demo-user");
     clearSession().catch(() => undefined);
   }
@@ -123,8 +171,10 @@ export default function App() {
   function deleteProfile() {
     setSession(null);
     setHandoffTarget(null);
+    setAuthToken(null);
     setApiUserId("demo-user");
     clearSession().catch(() => undefined);
+    clearGameProgress().catch(() => undefined);
   }
 
   const appBody = (
@@ -143,11 +193,10 @@ export default function App() {
     </AppThemeProvider>
   );
 
-  if (isExpoGo) {
+  if (isExpoGo || Platform.OS === "web") {
     return appBody;
   }
 
-  const { StripeProvider } = require("@stripe/stripe-react-native") as typeof import("@stripe/stripe-react-native");
   return (
     <StripeProvider publishableKey={publishableKey} merchantIdentifier="merchant.com.founders.phillyartours">
       {appBody}
@@ -162,12 +211,22 @@ type AppShellProps = {
   audioHistoryOnlyUnlocked: boolean;
   fullAppUnlocked: boolean;
   onRefreshEntitlements: () => Promise<void>;
-  onComplete: (payload: OnboardingPayload) => void;
+  onComplete: (payload: OnboardingPayload) => Promise<string | null>;
   onDeleteProfile: () => void;
   onSignOut: () => void;
 };
 
-function AppShell({ booting, session, handoffTarget, audioHistoryOnlyUnlocked, fullAppUnlocked, onRefreshEntitlements, onComplete, onDeleteProfile, onSignOut }: AppShellProps) {
+function AppShell({
+  booting,
+  session,
+  handoffTarget,
+  audioHistoryOnlyUnlocked,
+  fullAppUnlocked,
+  onRefreshEntitlements,
+  onComplete,
+  onDeleteProfile,
+  onSignOut
+}: AppShellProps) {
   const { colors, resolvedAppearanceMode } = useAppTheme();
   const type = useTypeScale();
 
@@ -181,17 +240,6 @@ function AppShell({ booting, session, handoffTarget, audioHistoryOnlyUnlocked, f
         </View>
       ) : (
         <View style={styles.content}>
-          {session && (
-            <View style={[styles.header, { borderBottomColor: colors.headerBorder, backgroundColor: colors.headerBackground }]}>
-              <View>
-                <Text style={[styles.headerName, { color: colors.text, fontSize: type.font(16) }]}>{session.displayName}</Text>
-                <Text style={[styles.headerMeta, { color: colors.textMuted, fontSize: type.font(12) }]}>{session.mode === "builder" ? "Builder Mode" : "Tourist Mode"}</Text>
-              </View>
-              <Pressable style={[styles.signOutButton, { borderColor: colors.borderStrong }]} onPress={onSignOut}>
-                <Text style={[styles.signOutText, { color: colors.textSoft, fontSize: type.font(12) }]}>Sign Out</Text>
-              </Pressable>
-            </View>
-          )}
           {!session ? (
             <ThemeSurfaceProvider surface="login">
               <OnboardingScreen onComplete={onComplete} />
@@ -216,25 +264,5 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#020617" },
   boot: { flex: 1, justifyContent: "center", alignItems: "center", gap: 12 },
   bootText: { color: "#cbd5e1", fontWeight: "600" },
-  header: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#1f2937",
-    backgroundColor: "#020617",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-  headerName: { color: "#f8fafc", fontWeight: "800", fontSize: 16 },
-  headerMeta: { color: "#94a3b8", fontSize: 12 },
-  signOutButton: {
-    borderWidth: 1,
-    borderColor: "#334155",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10
-  },
-  signOutText: { color: "#e2e8f0", fontWeight: "700", fontSize: 12 },
   content: { flex: 1 }
 });

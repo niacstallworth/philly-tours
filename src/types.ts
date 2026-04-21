@@ -1,3 +1,16 @@
+export type StopStreetView = {
+  panoId?: string;
+  heading?: number;
+  pitch?: number;
+  zoom?: number;
+  radiusM?: number;
+  source?: "outdoor" | "default";
+  viewpoint?: {
+    lat: number;
+    lng: number;
+  };
+};
+
 export type Stop = {
   id: string;
   title: string;
@@ -9,6 +22,7 @@ export type Stop = {
   modelUrl: string;
   audioUrl: string;
   verticalOffsetM?: number;
+  streetView?: StopStreetView;
   arType?:
     | "hero"
     | "light"
@@ -26,11 +40,19 @@ export type Stop = {
   estimatedEffort?: "low" | "medium" | "high";
 };
 
+export type TourCardMedia = {
+  type: "image" | "video";
+  src: string;
+  poster?: string;
+  alt?: string;
+};
+
 export type Tour = {
   id: string;
   title: string;
   durationMin: number;
   distanceMiles: number;
   rating: number;
+  cardMedia?: TourCardMedia;
   stops: Stop[];
 };
