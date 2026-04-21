@@ -2,6 +2,27 @@
 
 Philly Tours is a premium Philadelphia cultural touring platform built for beautiful city driving, layered narration, and selective native AR handoff when a stop deserves more than audio alone.
 
+## Live Production Status
+
+Production backend is live at `https://api.philly-tours.com`.
+
+Verified on April 21, 2026:
+
+- Live Production API responds from `/health`
+- `/api/config/status` reports `mode: "production"`
+- Payments are configured through Stripe, Apple IAP production, and Google Play purchase verification
+- Auth and builder/admin auth are configured
+- Database is connected
+- External services are integrated, including Cloudflare Turnstile and Google Maps
+- Health and config endpoints are verified
+
+Public checks:
+
+```bash
+curl -fsS https://api.philly-tours.com/health
+curl -fsS https://api.philly-tours.com/api/config/status
+```
+
 The platform now has two aligned faces:
 
 - a cinematic web companion at `https://api.philly-tours.com`
