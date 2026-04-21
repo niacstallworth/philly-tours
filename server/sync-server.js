@@ -957,11 +957,6 @@ function turnstileConfigured() {
   return !!CLOUDFLARE_TURNSTILE_SECRET_KEY;
 }
 
-function isNativeAppRequest(req) {
-  const nativeApp = String(req.header("x-philly-tours-native-app") || "").trim().toLowerCase();
-  return nativeApp === "ios" || nativeApp === "android";
-}
-
 async function fetchSupabaseUserProfile(accessToken) {
   if (!supabaseAuthConfigured()) {
     throw new Error("Supabase Auth is not configured.");
@@ -2071,12 +2066,10 @@ app.post("/api/auth/session", authLimiter, async (req, res) => {
   }
 
   const body = parsed.data;
-  if (!(body.mode === "tourist" && isNativeAppRequest(req))) {
-    const turnstileResult = await verifyTurnstileToken(body.turnstileToken, req.ip);
-    if (!turnstileResult.ok) {
-      res.status(403).json({ error: turnstileResult.error });
-      return;
-    }
+  const turnstileResult = await verifyTurnstileToken(body.turnstileToken, req.ip);
+  if (!turnstileResult.ok) {
+    res.status(403).json({ error: turnstileResult.error });
+    return;
   }
   const normalizedEmail = normalizeEmail(body.email);
   const fallbackDisplayName = defaultDisplayNameFromEmail(normalizedEmail);

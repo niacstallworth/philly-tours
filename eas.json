@@ -20,7 +20,13 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SYNC_SERVER_URL": "https://api.philly-tours.com",
+        "EXPO_PUBLIC_WEB_SYNC_SERVER_URL": "https://api.philly-tours.com",
+        "EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY": "0x4AAAAAACyMqxdcuuRnVfpL",
+        "EXPO_PUBLIC_APP_SCHEME": "phillyartours"
+      }
     }
   },
   "submit": {
