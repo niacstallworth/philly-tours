@@ -28,6 +28,10 @@ ios/PhillyARTours/Supporting/MetaWearables.local.xcconfig
 .env.*
 !.env.example
 server.local.env
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
 server/payments.db
 server/payments.db-shm
 server/payments.db-wal
