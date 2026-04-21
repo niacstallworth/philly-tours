@@ -182,6 +182,12 @@ The tracked patterns live in `.gitattributes`. If you add new large binary SDK f
 
 The local sync server lives in `server/sync-server.js`.
 
+Live production state:
+
+- Production API: `https://api.philly-tours.com`
+- Current public status: live production API, payments configured, auth configured, builder/admin auth configured, database connected, external services integrated, and health/config endpoints verified
+- Verification record: `docs/live-production-backend-status.md`
+
 Production-oriented auth notes:
 
 - Every app session is now issued by the backend as a signed JWT.
@@ -191,6 +197,7 @@ Production-oriented auth notes:
 
 Deployment docs:
 
+- `docs/live-production-backend-status.md`
 - `docs/server-deployment.md`
 - `docs/webapp-deployment.md`
 - `docs/production-launch-checklist.md`

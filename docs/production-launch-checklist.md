@@ -2,6 +2,24 @@
 
 Use this checklist before shipping the live backend and store-ready app builds.
 
+## Current Live Backend
+
+The production backend is live at `https://api.philly-tours.com`.
+
+Public health and config checks verified on April 21, 2026:
+
+- live production API is reachable
+- auth is configured
+- builder/admin auth is configured
+- database is connected
+- Stripe payments are configured
+- Apple IAP is configured for production
+- Google Play purchase verification is configured
+- Cloudflare Turnstile is configured
+- Google Maps server integration is configured
+
+See `docs/live-production-backend-status.md` for the current public verification record.
+
 ## 1. Prepare Server Secrets
 
 - Create a production env file from `deploy/sync-server.env.example`
