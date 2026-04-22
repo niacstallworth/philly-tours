@@ -2,7 +2,7 @@
 
 This document records the public production backend state that is live for Philly Tours.
 
-Verified on April 21, 2026 against:
+Verified on April 21, 2026 and April 22, 2026 against:
 
 - `https://api.philly-tours.com/health`
 - `https://api.philly-tours.com/api/config/status`
@@ -13,6 +13,7 @@ Verified on April 21, 2026 against:
 - Runtime mode: `production`
 - Health endpoint: up
 - Config status endpoint: up
+- AWS EC2 backend: healthy behind Nginx
 - Reverse proxy / HTTPS edge: Cloudflare in front of the Express sync server
 
 ## Verified Capabilities
