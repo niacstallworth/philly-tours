@@ -429,7 +429,7 @@ export function DriveScreen({ initialTourId }: Props) {
     }
     const parsed = parseHandoffUrl(targetStop.handoffDeepLink);
     if (!parsed) {
-      Alert.alert("Handoff unavailable", "Could not resolve the handoff target.");
+      Alert.alert("Stop unavailable", "Could not open this stop yet.");
       return;
     }
     triggerHandoffTarget(parsed);
@@ -712,12 +712,16 @@ export function DriveScreen({ initialTourId }: Props) {
               <Text style={styles.copy}>{currentStop.arrivalSummary}</Text>
               <View style={styles.chips}>
                 <Chip label={activeSession?.mode === "arrived" ? "Arrived" : "Driving now"} tone="success" />
-                <Chip label={currentHandoffMeta?.chipLabel || "On-foot handoff"} tone="warn" />
+                <Chip label={currentHandoffMeta?.chipLabel || "Continue on foot"} tone="warn" />
                 <Chip {...getCoverageMeta(getNarrationCoverage(currentStop.id))} />
               </View>
               {activeSession?.mode === "arrived" && currentHandoffMeta ? <Text style={styles.arrivalCallout}>{currentHandoffMeta.summary}</Text> : null}
-              <Text style={styles.specLabel}>Handoff link</Text>
-              <Text style={styles.handoffLink}>{currentStop.handoffDeepLink}</Text>
+              {__DEV__ ? (
+                <>
+                  <Text style={styles.specLabel}>Deep link</Text>
+                  <Text style={styles.handoffLink}>{currentStop.handoffDeepLink}</Text>
+                </>
+              ) : null}
             </>
           ) : null}
 

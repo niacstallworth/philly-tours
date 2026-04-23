@@ -32,6 +32,8 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
   const context = getCurrentTourContext();
   const [selectedTourId, setSelectedTourId] = React.useState<string>(context?.tour.id || tours[0]?.id || "");
   const mockPairingAvailable = status.integrationMode === "native" && status.platformLabel === "iOS";
+  const showDevelopmentControls = __DEV__;
+  const showMockPairing = showDevelopmentControls && mockPairingAvailable;
   const isConnected = status.connectionState === "connected";
   const isMockConnected = isConnected && !!status.pairedDevice?.isMock;
   const isNativeRealFlow = status.integrationMode === "native" && !isMockConnected;
@@ -194,27 +196,27 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
       <View style={styles.heroPanel}>
         <View style={styles.heroGlowPrimary} />
         <View style={styles.heroGlowSecondary} />
-        <Text style={styles.heroEyebrow}>{Platform.OS === "android" ? "Android companion" : "iPhone companion"}</Text>
-        <Text style={styles.title}>{Platform.OS === "android" ? "XR companion for route playback and Bluetooth audio." : "XR companion for route playback, audio, and AR handoff."}</Text>
+        <Text style={styles.heroEyebrow}>AR guide</Text>
+        <Text style={styles.title}>{Platform.OS === "android" ? "Route audio and AR moments, ready from your phone." : "Route audio, smart glasses, and AR moments, ready from your phone."}</Text>
         <Text style={styles.copy}>
           {Platform.OS === "android"
-            ? "Use Android as the route-pack controller: choose a tour, step through stops, and keep narration on Bluetooth glasses or headphones."
-            : "Use iPhone as the route-pack controller: keep the tour on screen, route narration to audio devices, and step into native AR when the stop is ready."}
+            ? "Choose a tour, step through stops, and keep narration flowing through your preferred Bluetooth audio."
+            : "Keep the tour on screen, send narration to your preferred audio device, and step into AR when a stop is ready."}
         </Text>
         <View style={styles.chips}>
-          <Chip label={Platform.OS === "android" ? "Android first" : "iOS first"} tone="default" />
-          <Chip label={hasPremiumAudio ? "Premium audio unlocked" : "Preview audio mode"} tone={hasPremiumAudio ? "success" : "warn"} />
-          <Chip label={status.integrationMode === "native" ? "Native companion path" : status.integrationMode === "manual" ? "Bluetooth audio path" : "Phone-only path"} tone="default" />
+          <Chip label={Platform.OS === "android" ? "Android guide" : "iPhone guide"} tone="default" />
+          <Chip label={hasPremiumAudio ? "Premium audio unlocked" : "Audio preview"} tone={hasPremiumAudio ? "success" : "warn"} />
+          <Chip label={getIntegrationChipLabel(status)} tone="default" />
           {Platform.OS === "ios" && nativeArStatus ? (
-            <Chip label={nativeArStatus.available ? "Native AR ready" : "Native AR unavailable"} tone={nativeArStatus.available ? "success" : "warn"} />
+            <Chip label={nativeArStatus.available ? "AR ready" : "AR not available"} tone={nativeArStatus.available ? "success" : "warn"} />
           ) : null}
         </View>
       </View>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Live now</Text>
+        <Text style={styles.sectionTitle}>Current moment</Text>
         <View style={styles.chips}>
-          <Chip label={status.connectionState === "connected" ? "Companion connected" : "Companion standby"} tone={status.connectionState === "connected" ? "success" : "warn"} />
+          <Chip label={status.connectionState === "connected" ? "Audio connected" : "Audio ready"} tone={status.connectionState === "connected" ? "success" : "warn"} />
           <Chip label={getIntegrationChipLabel(status)} tone={status.integrationMode === "none" ? "danger" : "success"} />
           <Chip label={routeProgressLabel} tone="default" />
         </View>
@@ -225,7 +227,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
             <Text style={styles.copy}>
               {currentStop
                 ? `${currentStop.description.split("|")[0]?.trim() || currentStop.description}`
-                : "Load a route pack to make the next stop, narration, and AR handoff feel immediate."}
+                : "Start a route to prepare the next stop, narration, and AR moment."}
             </Text>
           </View>
           <View style={styles.liveSecondary}>
@@ -235,7 +237,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
             </View>
             <View style={styles.liveStatCard}>
               <Text style={styles.label}>Audio route</Text>
-              <Text style={styles.value}>{status.pairedDevice?.displayName || (status.integrationMode === "manual" ? "Bluetooth output" : "Phone output")}</Text>
+              <Text style={styles.value}>{getAudioRouteLabel(status)}</Text>
             </View>
           </View>
         </View>
@@ -243,9 +245,9 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Choose route pack</Text>
+        <Text style={styles.sectionTitle}>Choose a route</Text>
         <Text style={styles.copy}>
-          Load one route pack into the companion flow, then step through stops without hunting through the rest of the app.
+          Start one route at a time, then move through each stop with audio and AR controls close at hand.
         </Text>
         <View style={styles.chips}>
           <Chip label={selectedTour?.title || "No route"} tone="default" />
@@ -266,7 +268,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           })}
         </ScrollView>
         <View style={styles.featureCallout}>
-          <Text style={styles.label}>Companion route state</Text>
+          <Text style={styles.label}>Route progress</Text>
           <Text style={styles.value}>{routeProgressLabel}</Text>
           <Text style={styles.meta}>
             {context?.tour && selectedTour && context.tour.id === selectedTour.id
@@ -275,12 +277,12 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           </Text>
           {!hasPremiumAudio ? (
             <Text style={styles.meta}>
-              Preview audio mode is active. Premium purchase is still required for the full paid narration experience.
+              Audio preview is active. Upgrade in Profile to unlock the full narration experience.
             </Text>
           ) : null}
         </View>
         <PrimaryButton
-          label={busy === "command" ? "Loading Route..." : Platform.OS === "android" ? "Load Route Pack On Android" : "Load Route Pack On iPhone"}
+          label={busy === "command" ? "Starting Route..." : "Start Route"}
           onPress={() => void onStartSelectedTour()}
           disabled={busy !== null || !selectedTour}
         />
@@ -289,7 +291,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Playback controls</Text>
         <Text style={styles.copy}>
-          Use these controls to move through the active route pack, replay stop audio, and hand the phone over to AR when the current stop is ready.
+          Move through the active route, replay stop audio, and open AR when the current stop is ready.
         </Text>
         <View style={styles.chips}>
           <Chip label={context?.tour?.title || "No active tour"} tone="default" />
@@ -327,17 +329,17 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
         </View>
         {lastCommandResult ? (
           <View style={styles.featureCallout}>
-            <Text style={styles.label}>Latest action</Text>
+            <Text style={styles.label}>Last action</Text>
             <Text style={styles.value}>{lastCommandResult.result.message}</Text>
             <Text style={styles.meta}>
-              {new Date(lastCommandResult.recordedAt).toLocaleTimeString()} · {lastCommandResult.commandType}
+              {new Date(lastCommandResult.recordedAt).toLocaleTimeString()}
             </Text>
           </View>
         ) : null}
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Device connection</Text>
+        <Text style={styles.sectionTitle}>Audio and glasses</Text>
         <Text style={styles.copy}>{getCompanionIntroCopy(status)}</Text>
         <Text style={styles.copy}>{getCompanionDetailCopy(status)}</Text>
         {Platform.OS === "ios" && nativeArStatus ? <Text style={styles.copy}>{nativeArStatus.reason}</Text> : null}
@@ -347,13 +349,15 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           <Chip label={status.platformLabel} tone="default" />
         </View>
         <View style={styles.featureCallout}>
-          <Text style={styles.label}>Paired device</Text>
-          <Text style={styles.value}>{status.pairedDevice?.displayName || "No device paired"}</Text>
+          <Text style={styles.label}>Current audio</Text>
+          <Text style={styles.value}>{getAudioRouteLabel(status)}</Text>
           <Text style={styles.meta}>
-            {status.grantedPermissions.length ? `Permissions: ${status.grantedPermissions.join(", ")}` : "No companion permissions granted yet."}
+            {status.connectionState === "connected"
+              ? "Narration is ready for the current route."
+              : "Use your phone speaker, headphones, or supported glasses for narration."}
           </Text>
-          {status.pairedDevice?.isMock ? <Text style={styles.meta}>Mock device mode is active for companion testing on iOS.</Text> : null}
-          {isMockConnected ? <Text style={styles.meta}>Disconnect the mock device before starting real Ray-Ban Meta registration.</Text> : null}
+          {showDevelopmentControls && status.pairedDevice?.isMock ? <Text style={styles.meta}>Mock device mode is active for companion testing on iOS.</Text> : null}
+          {showDevelopmentControls && isMockConnected ? <Text style={styles.meta}>Disconnect the mock device before starting real Ray-Ban Meta registration.</Text> : null}
           {canReconnect ? <Text style={styles.meta}>{getReconnectCopy(status)}</Text> : null}
           {isNativeRealFlow ? <Text style={styles.meta}>{getNativePairingHint(status)}</Text> : null}
         </View>
@@ -364,7 +368,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
             disabled={busy !== null}
           />
         ) : null}
-        {mockPairingAvailable && !isConnected ? (
+        {showMockPairing && !isConnected ? (
           <PrimaryButton
             label={busy === "pair-mock" ? "Connecting Mock..." : "Pair Mock Ray-Ban Meta"}
             onPress={() => void onPairMock()}
@@ -377,11 +381,11 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           </Pressable>
           <Pressable style={styles.secondaryActionButton} onPress={() => void onDisconnect()} disabled={busy !== null}>
             <Text style={styles.secondaryActionLabel}>
-              {busy === "disconnect" ? "Disconnecting..." : isMockConnected ? "Disconnect mock" : "Disconnect"}
+              {busy === "disconnect" ? "Disconnecting..." : showDevelopmentControls && isMockConnected ? "Disconnect mock" : "Disconnect"}
             </Text>
           </Pressable>
         </View>
-        {lastCommandResult?.result.deepLink ? (
+        {showDevelopmentControls && lastCommandResult?.result.deepLink ? (
           <View style={styles.featureCallout}>
             <Text style={styles.label}>Latest handoff link</Text>
             <Text style={styles.meta}>{lastCommandResult.result.deepLink}</Text>
@@ -394,78 +398,86 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
 
 function getConnectLabel(status: WearableStatus, canReconnect: boolean) {
   if (status.integrationMode === "manual") {
-    return canReconnect ? "Restore Universal Audio Mode" : "Enable Universal Audio Mode";
+    return canReconnect ? "Restore Bluetooth Audio" : "Use Bluetooth Audio";
   }
 
   if (status.integrationMode === "native") {
     if (status.connectionState === "pairing") {
-      return "Continue Ray-Ban Meta Pairing";
+      return "Continue Glasses Setup";
     }
 
     if (canReconnect) {
-      return "Reconnect Ray-Ban Meta";
+      return "Reconnect Glasses";
     }
 
-    return status.pairedDevice ? "Activate Ray-Ban Meta Session" : "Start Ray-Ban Meta Registration";
+    return status.pairedDevice ? "Use Paired Glasses" : "Set Up Smart Glasses";
   }
 
-  return canReconnect ? "Reconnect Companion Device" : "Connect Companion Device";
+  return canReconnect ? "Reconnect Audio" : "Set Up Audio";
 }
 
 function getIntegrationChipLabel(status: WearableStatus) {
   if (status.integrationMode === "native") {
-    return "Native DAT";
+    return "Smart glasses ready";
   }
 
   if (status.integrationMode === "manual") {
-    return "Universal audio mode";
+    return "Bluetooth audio";
   }
 
-  return "Integration unavailable";
+  return "Phone audio";
+}
+
+function getAudioRouteLabel(status: WearableStatus) {
+  if (status.pairedDevice?.isMock && !__DEV__) {
+    return "Smart glasses";
+  }
+
+  return status.pairedDevice?.displayName || (status.integrationMode === "manual" ? "Bluetooth audio" : "Phone audio");
 }
 
 function getCompanionIntroCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Universal audio mode uses the phone for controls while narration follows your current Bluetooth audio route.";
+    return "Use the phone for route controls while narration follows your current Bluetooth audio.";
   }
 
   if (status.integrationMode === "native") {
-    return "Your phone can always play narration through its current audio output, including Bluetooth headphones and glasses. Meta setup adds deeper companion controls, stop context, and AR handoff.";
+    return "Your phone can play narration through its current audio output, including Bluetooth headphones and supported glasses.";
   }
 
-  return "Phone-first touring is available here even when native glasses controls are not.";
+  return "Phone-first touring is ready here, with audio, route controls, and AR moments in one place.";
 }
 
 function getCompanionDetailCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Pair any Bluetooth glasses, headset, or speaker in Android settings first, then enable this mode to keep narration on that output.";
+    return "Pair any Bluetooth glasses, headset, or speaker in Android settings first, then return here to keep narration on that output.";
   }
 
   if (status.integrationMode === "native") {
-    return "Use your iPhone with any Bluetooth audio device for universal narration. Registration, device state, and camera permission are available here when you want the Meta-specific experience.";
+    return "Use your iPhone with headphones or supported glasses for narration, then open AR at stops that include a spatial scene.";
   }
 
-  return "Use the phone app for route planning, narration, and handoff.";
+  return "Use the phone app for route planning, narration, and AR.";
 }
 
 function getReconnectCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "A remembered Bluetooth audio route was found. Restore it to keep narration on your current audio output.";
+    return "A previous Bluetooth audio route is available. Restore it to keep narration on that output.";
   }
 
-  return "A previously known Meta device was found. Reconnect to resume companion access.";
+  return "Previously paired glasses are available. Reconnect when you want narration and route controls there.";
 }
 
 function getNativePairingHint(status: WearableStatus) {
   if (status.connectionState === "pairing") {
-    return "Finish the Ray-Ban Meta setup in the Meta AI app, then return here. If the glasses are already paired there, tap refresh after the callback completes.";
+    return "Finish setup in the glasses app, then return here. If the glasses are already paired there, tap refresh after setup completes.";
   }
 
   if (status.pairedDevice) {
-    return "Your Ray-Ban Meta registration is already known to this app. Power on the glasses, open the companion flow, and grant camera access when prompted.";
+    return "Your glasses are known to this app. Power them on, then grant camera access when an AR stop asks for it.";
   }
 
-  return "Start registration here, complete the handoff in the Meta AI app, then come back to this screen to confirm the glasses session is active.";
+  return "Start setup here, finish it in the glasses app, then return to continue your route.";
 }
 
 function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>) {

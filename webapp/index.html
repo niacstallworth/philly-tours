@@ -6,15 +6,38 @@
     <meta name="theme-color" content="#07070d" />
     <meta
       name="description"
-      content="Explore story-driven Philadelphia tours with maps, narration, compass guidance, and playful history stops."
+      content="Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes."
     />
-    <meta property="og:title" content="Philly Tours" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href="https://philly-tours.com/" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/brand/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/brand/favicon-96x96.png" />
+    <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" as="image" href="/assets/search/philly-tours-search-thumbnail.jpg" />
+    <meta property="og:title" content="Philly Tours | Self-Guided Philadelphia Audio & AR Walking Tours" />
     <meta
       property="og:description"
-      content="Philadelphia tours shaped by story, geography, narration, compass guidance, and playful history stops."
+      content="Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes."
     />
+    <meta property="og:url" content="https://philly-tours.com/" />
     <meta property="og:type" content="website" />
-    <title>Philly Tours</title>
+    <meta property="og:image" content="https://philly-tours.com/assets/search/philly-tours-search-thumbnail.jpg" />
+    <meta property="og:image:secure_url" content="https://philly-tours.com/assets/search/philly-tours-search-thumbnail.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Philadelphia history image for Philly Tours walking routes" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Philly Tours | Self-Guided Philadelphia Audio & AR Walking Tours" />
+    <meta
+      name="twitter:description"
+      content="Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes."
+    />
+    <meta name="twitter:image" content="https://philly-tours.com/assets/search/philly-tours-search-thumbnail.jpg" />
+    <meta name="twitter:image:alt" content="Philadelphia history image for Philly Tours walking routes" />
+    <title>Philly Tours | Self-Guided Philadelphia Audio & AR Walking Tours</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -42,7 +65,7 @@
         </button>
         <button type="button" data-action="set-tab" data-tab="profile">
           <span class="tabbar-icon">⚙</span>
-          <span class="tabbar-label">Settings</span>
+          <span class="tabbar-label">Profile</span>
         </button>
         <button type="button" data-action="set-tab" data-tab="map">
           <span class="tabbar-icon">⌖</span>
@@ -74,6 +97,93 @@
       async
       defer
     ></script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": ["Organization", "TravelAgency"],
+            "@id": "https://philly-tours.com/#organization",
+            "name": "Philly Tours",
+            "url": "https://philly-tours.com/",
+            "logo": "https://philly-tours.com/assets/brand/site-icon-512.png",
+            "image": "https://philly-tours.com/assets/search/philly-tours-search-thumbnail.jpg",
+            "description": "Self-guided Philadelphia walking tours with audio narration, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden city routes.",
+            "areaServed": {
+              "@type": "City",
+              "name": "Philadelphia",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Philadelphia",
+                "addressRegion": "PA",
+                "addressCountry": "US"
+              }
+            },
+            "knowsAbout": [
+              "Philadelphia walking tours",
+              "Philadelphia audio tours",
+              "Black history tours in Philadelphia",
+              "Philadelphia architecture tours",
+              "self-guided city tours",
+              "AR-guided walking tours"
+            ],
+            "makesOffer": {
+              "@type": "OfferCatalog",
+              "name": "Philadelphia walking tour routes",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "name": "Self-guided Philadelphia walking tours",
+                  "itemOffered": {
+                    "@type": "TouristTrip",
+                    "name": "Self-guided Philadelphia walking tours"
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Black history Philadelphia routes",
+                  "itemOffered": {
+                    "@type": "TouristTrip",
+                    "name": "Black history Philadelphia routes"
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "name": "Compass-guided audio routes",
+                  "itemOffered": {
+                    "@type": "TouristTrip",
+                    "name": "Compass-guided audio routes"
+                  }
+                }
+              ]
+            },
+            "sameAs": ["https://philly-tours.com/"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://philly-tours.com/#website",
+            "name": "Philly Tours",
+            "url": "https://philly-tours.com/",
+            "publisher": { "@id": "https://philly-tours.com/#organization" }
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://philly-tours.com/#webpage",
+            "name": "Philly Tours | Self-Guided Philadelphia Audio & AR Walking Tours",
+            "url": "https://philly-tours.com/",
+            "description": "Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes.",
+            "isPartOf": { "@id": "https://philly-tours.com/#website" },
+            "primaryImageOfPage": {
+              "@type": "ImageObject",
+              "url": "https://philly-tours.com/assets/search/philly-tours-search-thumbnail.jpg",
+              "width": 1200,
+              "height": 630
+            },
+            "publisher": { "@id": "https://philly-tours.com/#organization" }
+          }
+        ]
+      }
+    </script>
     <script src="/app.js?v=20260420b"></script>
   </body>
 </html>

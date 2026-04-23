@@ -59,15 +59,15 @@ let currentStatus: WearableStatus = {
   connectionState: nativeWearablesModule != null ? "idle" : supportsManualCompanionMode ? "idle" : "unsupported",
   pairedDevice: null,
   grantedPermissions: [],
-  lastError: nativeWearablesModule != null || supportsManualCompanionMode ? null : "Meta wearables toolkit is not integrated yet.",
+  lastError: nativeWearablesModule != null || supportsManualCompanionMode ? null : "Smart glasses controls are not available on this platform.",
   integrationMode: nativeWearablesModule != null ? "native" : supportsManualCompanionMode ? "manual" : "none",
   platformLabel: Platform.OS === "ios" ? "iOS" : Platform.OS === "android" ? "Android" : "Web",
   statusMessage:
     nativeWearablesModule != null
-      ? "Meta wearables native toolkit is ready."
+      ? "Smart glasses controls are ready."
       : supportsManualCompanionMode
-        ? "Universal audio mode is available on Android. Pair any Bluetooth glasses, headset, or speaker in system settings, then connect here to keep narration on that output."
-        : "This build does not expose Meta glasses integration on this platform."
+        ? "Bluetooth audio is available on Android. Pair glasses, a headset, or a speaker in system settings, then return here to keep narration on that output."
+        : "Use phone audio for narration on this platform."
 };
 let didHydrateStoredStatus = false;
 
@@ -111,8 +111,8 @@ function getManualAndroidStatus(connectionState: WearableConnectionState = "conn
     integrationMode: "manual",
     platformLabel: "Android",
     statusMessage: connected
-      ? "Universal audio mode is active. Narration will follow Android audio routing to the connected Bluetooth audio device."
-      : "Universal audio mode is available. Pair any Bluetooth glasses, headset, or speaker in Android settings, then connect here to keep narration on that audio output."
+      ? "Bluetooth audio is active. Narration will follow Android audio routing to the connected device."
+      : "Bluetooth audio is available. Pair glasses, a headset, or a speaker in Android settings, then return here to keep narration on that output."
   };
 }
 
@@ -193,9 +193,9 @@ export async function pairWearable() {
 
   emit({
     connectionState: "error",
-    lastError: "Meta Wearables Device Access Toolkit integration is not wired in this build yet."
+    lastError: "Smart glasses controls are not available in this build yet."
   });
-  throw new Error("Meta Wearables Device Access Toolkit integration is not wired in this build yet.");
+  throw new Error("Smart glasses controls are not available in this build yet.");
 }
 
 export async function pairMockWearable() {

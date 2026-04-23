@@ -518,7 +518,7 @@ function scrollViewportToTop() {
 function scrollHomeMapIntoView() {
   window.requestAnimationFrame(() => {
     const mapElement = document.getElementById("home-map");
-    const target = mapElement?.closest(".home-hero-panel") || mapElement;
+    const target = mapElement?.closest(".route-pack-map") || mapElement;
     if (!target) {
       return;
     }
@@ -745,6 +745,11 @@ function deriveTags(tour, stops) {
   return [...new Set([...titleWords, ...stopWords])].slice(0, 4);
 }
 
+function getTourSeoUrl(tourOrId) {
+  const id = typeof tourOrId === "string" ? tourOrId : tourOrId?.id;
+  return id ? `/tours/${encodeURIComponent(id)}/` : "/";
+}
+
 function getNarrationEntry(stopId) {
   return narrationData.catalogByStopId?.[stopId] || null;
 }
@@ -789,7 +794,7 @@ function getNarrationLabel(stopId) {
     return "Recorded narration";
   }
   if (mode === "speech") {
-    return "Amy voice fallback";
+    return "Preview narration";
   }
   return "No narration yet";
 }
@@ -1580,34 +1585,34 @@ function getResolvedModelUrl(modelUrl) {
 
 function getModelReadinessLabel(meta) {
   if (meta?.webModelAvailable) {
-    return "web preview ready";
+    return "AR preview ready";
   }
 
   if (meta?.iosModelAvailable) {
-    return "ios model ready";
+    return "mobile AR ready";
   }
 
   if (meta?.modelUrl) {
-    return "web model planned";
+    return "AR moment planned";
   }
 
   return "story overlay";
 }
 
 function getGlassesModeLabel() {
-  return state.glassesMode ? "Bluetooth audio mode on" : "Bluetooth audio mode off";
+  return state.glassesMode ? "Bluetooth audio on" : "Phone audio";
 }
 
 function getGlassesModeButtonLabel() {
-  return state.glassesMode ? "Disable Bluetooth audio mode" : "Enable Bluetooth audio mode";
+  return state.glassesMode ? "Use phone audio" : "Use Bluetooth audio";
 }
 
 function getGlassesModeCopy() {
   if (state.glassesMode) {
-    return "Browser narration will follow this device's current audio output. Use this when you want tour audio to play through your connected Bluetooth headphones or glasses while keeping route and AR controls on the phone.";
+    return "Narration will follow this device's current audio output. Use this when you want tour audio through connected headphones or supported glasses.";
   }
 
-  return "Turn this on when your Bluetooth headphones or glasses are already paired to this phone or computer and you want the tour audio routed there.";
+  return "Turn this on after pairing Bluetooth headphones, a speaker, or supported glasses with this phone or computer.";
 }
 
 function formatCoordinateDegrees(value, positiveSuffix, negativeSuffix) {
@@ -3468,6 +3473,10 @@ function handleClick(event) {
     return;
   }
 
+  if (actionTarget instanceof HTMLAnchorElement) {
+    event.preventDefault();
+  }
+
   const { action, tab, tourId, stopId, theme, provider } = actionTarget.dataset;
 
   if (action === "set-tab" && tab) {
@@ -3492,9 +3501,9 @@ function handleClick(event) {
     if (!nextGlassesMode) {
       stopNarration();
       stopArLive();
-      state.glassesModeNotice = "Bluetooth audio mode turned off. Reopen the route or AR screen if you want to continue in standard phone mode.";
+      state.glassesModeNotice = "Bluetooth audio turned off. Narration will use your normal phone or browser audio.";
     } else {
-      state.glassesModeNotice = "Bluetooth audio mode turned on. Narration will follow your active Bluetooth audio output.";
+      state.glassesModeNotice = "Bluetooth audio turned on. Narration will follow your active audio output.";
     }
     state.glassesMode = nextGlassesMode;
     saveGlassesMode();
@@ -4083,7 +4092,7 @@ function renderAuthScreen() {
         <div class="auth-form auth-form--cinematic">
           <div class="auth-form-top">
             <span class="status-pill">Private access</span>
-            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Ready" : "Coming soon"}</span>
+            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Ready" : "Invite list"}</span>
           </div>
           <div class="auth-provider-row auth-provider-row--waiver">
             <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${providerButtonsEnabled ? "" : "disabled"}>
@@ -4112,12 +4121,12 @@ function renderAuthScreen() {
           ${
             hasProviderAuth
               ? ""
-              : '<p class="subscription-status">Sign-in is coming soon.</p>'
+              : '<p class="subscription-status">Join the newsletter for access updates.</p>'
           }
           ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
           <div class="drawer-copy">
             <strong>Follow Founders Threads</strong>
-            <p>The socials live on the front door too, not buried lower in settings.</p>
+            <p>Follow for route drops, field notes, and launch updates.</p>
           </div>
           ${renderSocialChannels()}
           <div class="button-row auth-button-row">
@@ -4149,7 +4158,7 @@ function renderSettingsSignInCard() {
           <h3>${activeUser ? "You are signed in" : "Sign in with Google or Apple"}</h3>
         </div>
         <span class="status-pill ${activeUser || hasProviderAuth ? "is-live" : ""}">${
-          activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Coming soon"
+          activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Invite list"
         }</span>
       </div>
       ${
@@ -4183,7 +4192,7 @@ function renderSettingsSignInCard() {
       ${
         hasProviderAuth
           ? ""
-          : '<p class="subscription-status">Sign-in is coming soon.</p>'
+          : '<p class="subscription-status">Join the newsletter for access updates.</p>'
       }
       ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
       <div class="button-row">
@@ -4267,20 +4276,20 @@ function renderPlatformBadgeGrid() {
       })}
       ${renderStoreBadge({
         label: "App Store",
-        copy: iosAppStoreUrl ? "Download on iPhone and iPad" : "iPhone + iPad listing coming soon",
+        copy: iosAppStoreUrl ? "Download on iPhone and iPad" : "iPhone + iPad release in progress",
         href: iosAppStoreUrl,
         iconMarkup: getAppleStoreIconMarkup()
       })}
       ${renderStoreBadge({
         label: "Google Play",
-        copy: androidPlayStoreUrl ? "Get it on Android" : "Android listing coming soon",
+        copy: androidPlayStoreUrl ? "Get it on Android" : "Android release in progress",
         href: androidPlayStoreUrl,
         iconMarkup: getGooglePlayIconMarkup(),
         hideCopy: true
       })}
       ${renderStoreBadge({
         label: "AR field mode",
-        copy: "Camera handoff for on-site tours",
+        copy: "Camera guide for on-site tours",
         href: "",
         iconMarkup: `<span class="platform-glyph">◌</span>`
       })}
@@ -4646,27 +4655,52 @@ function getChromeTabKey() {
 function getSceneConfig(selectedTour, globalStats) {
   switch (state.activeTab) {
     case "home":
+      const heroTours = [selectedTour, ...tours.filter((tour) => tour.id !== selectedTour.id)].slice(0, 3);
       return {
-        eyebrow: "Home atlas",
-        title: "Welcome to Philadelphia Tours by Founders Threads.",
-        body: "",
+        eyebrow: "Philly is ready",
+        title: "Big city stories. Your route, your pace.",
+        body: "Choose a Philadelphia route, follow the Compass, hear the story, and open AR moments when the street is ready for you.",
+        actions: [
+          { label: "Explore tours", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Open AR mode", action: "set-tab", tab: "ar", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card hero-floating-card--compact">
-            <strong>${state.home.focusTourId ? "Focused tour" : "Collection overview"}</strong>
-            <h3>${state.home.focusTourId ? selectedTour.title : `${tours.length} tours available`}</h3>
-            <p>${state.home.focusTourId ? truncateCopy(selectedTour.summary, 136) : "Choose a tour below to isolate its compass points on the map."}</p>
-          </article>
+          <div class="home-hero-collage" aria-label="Featured Philadelphia tour imagery">
+            ${heroTours
+              .map((tour, index) => {
+                const artwork = getTourCardArtwork(tour);
+                return `
+                  <figure class="home-hero-collage__image home-hero-collage__image--${index + 1}">
+                    ${artwork.url ? `<img src="${escapeHtml(artwork.url)}" alt="${escapeHtml(artwork.title)}" ${index === 0 ? "loading=\"eager\"" : "loading=\"lazy\""} />` : `<span>${escapeHtml(tour.neighborhood)}</span>`}
+                    <figcaption>${escapeHtml(tour.theme)}</figcaption>
+                  </figure>
+                `;
+              })
+              .join("")}
+            <article class="home-hero-ticket">
+              <span>Tours available</span>
+              <strong>${tours.length}</strong>
+              <p>Maps, narration, Compass guidance, and AR-ready stops.</p>
+            </article>
+          </div>
         `
       };
     case "map":
       return {
-        eyebrow: "Founders Compass",
-        title: "Point the webapp at the next meaningful Philadelphia stop.",
-        body: "Choose a Compass path, start location and heading, then let the selected card steer the live bearing, distance, and story order.",
+        eyebrow: "Kelly Green Compass",
+        title: "Pick the route. Philly pulls you forward.",
+        body: "The Compass turns a Philadelphia walk into a clear next move: route, bearing, distance, story, then the next place that matters.",
+        actions: [
+          { label: "Start Compass", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Open Board", action: "set-tab", tab: "progress", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card">
+          <article class="hero-impact-card hero-impact-card--green">
+            <span class="hero-impact-card__badge">Selected route</span>
+            <strong class="hero-impact-card__number">${selectedTour.stops.length}</strong>
+            <span class="hero-impact-card__label">story stops</span>
             <h3>${selectedTour.title}</h3>
             <p>${truncateCopy(selectedTour.summary, 138)}</p>
             <div class="hero-floating-meta">
@@ -4679,13 +4713,19 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "ar":
       return {
-        eyebrow: "AR field mode",
-        title: "Use AR when you are near a stop and ready to look closer.",
-        body: "The AR tab helps you get oriented, hear the story, and move into the mobile app when it is time for the full camera experience.",
+        eyebrow: "Pennsylvania Blue AR",
+        title: "When the street is ready, the story opens.",
+        body: "Use AR near a stop to orient yourself, hear the moment, and move into the camera guide without losing the route.",
+        actions: [
+          { label: "Open Compass", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "View Board", action: "set-tab", tab: "progress", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card hero-floating-card--compact">
-            <strong>Selected tour</strong>
+          <article class="hero-impact-card hero-impact-card--blue">
+            <span class="hero-impact-card__badge">Camera guide</span>
+            <strong class="hero-impact-card__number">AR</strong>
+            <span class="hero-impact-card__label">on-site mode</span>
             <h3>${selectedTour.title}</h3>
             <p>${selectedTour.arFocus}</p>
           </article>
@@ -4693,31 +4733,50 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "progress":
       return {
-        eyebrow: "Founders board",
-        title: "Your Collection Board",
-        body: "Keep a clean record of what you have started and what still deserves a visit, without turning the experience into a cluttered dashboard.",
+        eyebrow: "Tour Board",
+        title: "Every stop joins your Philly story.",
+        body: "Keep the visit playful and legible: completed stops, active collections, earned moments, and the next route worth chasing.",
+        actions: [
+          { label: "Browse routes", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Open AR Guide", action: "set-tab", tab: "ar", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card hero-floating-card--compact">
-            <strong>Current streak</strong>
+          <article class="hero-impact-card hero-impact-card--yellow">
+            <span class="hero-impact-card__badge">Collection board</span>
+            <strong class="hero-impact-card__number">${globalStats.completedStops}</strong>
+            <span class="hero-impact-card__label">stops saved</span>
             <h3>${Math.max(globalStats.toursStarted, 1)} active collections</h3>
-            <p>Every completed stop feeds the same cross-device memory of your journey.</p>
+            <p>Progress stays useful, celebratory, and ready for the next walk.</p>
           </article>
         `
       };
     case "profile":
       return {
-        eyebrow: "Settings",
-        title: "Settings, sign-in, contact, and platform access",
-        body: "Use Settings to sign in, stay connected, and move between the web experience and the mobile apps.",
+        eyebrow: "Philly Tours profile",
+        title: "Keep your route access close.",
+        body: "Sign in, unlock audio, follow launch updates, and move between the web companion and the mobile touring app.",
+        actions: [
+          { label: "Browse routes", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Back home", action: "set-tab", tab: "home", variant: "ghost" }
+        ],
         metrics: [],
-        floatingCard: ""
+        floatingCard: `
+          <article class="hero-impact-card hero-impact-card--white">
+            <span class="hero-impact-card__badge">Access pass</span>
+            <strong class="hero-impact-card__number">PT</strong>
+            <span class="hero-impact-card__label">member ready</span>
+            <h3>Audio, app links, and updates in one place.</h3>
+            <p>Profile should feel like a polished pass, not a settings drawer.</p>
+          </article>
+        `
       };
     default:
       return {
         eyebrow: "",
         title: "",
         body: "",
+        actions: [],
         metrics: [],
         floatingCard: ""
       };
@@ -4855,6 +4914,12 @@ function renderSceneHero(selectedTour, globalStats) {
   if (!scene.eyebrow && !scene.title && !scene.body && !scene.metrics.length && !scene.floatingCard) {
     return "";
   }
+  const heroActions = scene.actions?.length
+    ? scene.actions
+    : [
+        { label: "Explore tours", action: "set-tab", tab: "map", variant: "primary" },
+        { label: "Open AR mode", action: "set-tab", tab: "ar", variant: "ghost" }
+      ];
   return `
     <section class="scene-hero scene-hero--${getChromeTabKey()}">
       <div class="scene-hero__veil"></div>
@@ -4864,8 +4929,20 @@ function renderSceneHero(selectedTour, globalStats) {
           <h2>${scene.title}</h2>
           <p class="hero-text">${scene.body}</p>
           <div class="hero-button-row">
-            <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Explore tours</button>
-            <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">Open AR mode</button>
+            ${heroActions
+              .map(
+                (action) => `
+                  <button
+                    type="button"
+                    class="${action.variant === "ghost" ? "ghost-button" : "primary-button"}"
+                    data-action="${escapeHtml(action.action)}"
+                    ${action.tab ? `data-tab="${escapeHtml(action.tab)}"` : ""}
+                  >
+                    ${escapeHtml(action.label)}
+                  </button>
+                `
+              )
+              .join("")}
           </div>
           <div class="hero-social-row">
             <span>routes</span>
@@ -5047,6 +5124,44 @@ function renderHomeTab(selectedTour) {
         ${focusedTour
           ? ""
           : `<p class="lede">Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map.</p>`}
+        <section class="home-local-seo-panel" aria-label="Philadelphia walking tour overview">
+          <div class="home-local-seo-panel__lead">
+            <p class="eyebrow">Philadelphia walking tours</p>
+            <h3>Walk Philly with the story behind the block.</h3>
+          </div>
+          <div class="home-local-seo-panel__copy">
+            <p>
+              Philly Tours is a self-guided Philadelphia tour companion for visitors, families, locals, students, and
+              culture lovers who want more than a generic sightseeing loop. Choose a route, follow the map, hear
+              narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture,
+              sports, libraries, neighborhoods, and hidden city routes.
+            </p>
+            <div class="home-trust-strip home-trust-strip--local">
+              <span>Self-guided audio tours</span>
+              <span>Black history routes</span>
+              <span>Compass walking guidance</span>
+              <span>AR-ready stops</span>
+              <span>Philadelphia neighborhoods</span>
+            </div>
+          </div>
+        </section>
+        <section class="home-value-grid" aria-label="Why Philly Tours is different">
+          <article class="home-value-card">
+            <span>01</span>
+            <strong>Not a bus loop.</strong>
+            <p>Routes are built for walkers who want context, momentum, and time to notice the city around them.</p>
+          </article>
+          <article class="home-value-card">
+            <span>02</span>
+            <strong>Stories with direction.</strong>
+            <p>Each route connects stops in a useful order so the walk feels intentional, not like a list of pins.</p>
+          </article>
+          <article class="home-value-card">
+            <span>03</span>
+            <strong>Made for Philly depth.</strong>
+            <p>Explore heritage, public memory, sports culture, architecture, libraries, and neighborhood history.</p>
+          </article>
+        </section>
         ${renderStoryLogisticsCard(focusedTour || previewTour)}
         <div class="panel panel--map-host route-pack-map">
           <div class="route-map-shell route-map-shell--home">
@@ -5057,12 +5172,20 @@ function renderHomeTab(selectedTour) {
           <strong>Want the best map view?</strong>
           <p>Open this page in your phone browser for the smoothest map and compass experience.</p>
         </div>
+        <div class="home-tour-section-heading">
+          <div>
+            <p class="eyebrow">Choose your route</p>
+            <h3>Pick a Philadelphia story and go.</h3>
+          </div>
+          <span>${tours.length} guided routes</span>
+        </div>
         <div class="home-tour-grid">
           ${tours
             .map((tour, index) => {
               const progress = getProgressForTour(tour);
               const isFocused = focusedTour?.id === tour.id;
               const artwork = renderTourCardArtwork(tour);
+              const progressLabel = progress.percent > 0 ? `${progress.percent}% complete` : "Ready to start";
               const palette = [
                 ["#5d42ff", "#a68eff"],
                 ["#ff8b5c", "#ffd38b"],
@@ -5081,12 +5204,12 @@ function renderHomeTab(selectedTour) {
                     </div>
                   </div>
                   <div class="experience-card-body">
-                    <p>${truncateCopy(tour.summary, 154)}</p>
+                    <p>${truncateCopy(tour.summary, 126)}</p>
                     <div class="tour-card-meta">
                       <span>${tour.durationMin} min</span>
                       <span>${tour.distanceMiles} mi</span>
                       <span>${tour.stops.length} stops</span>
-                      <span>${progress.percent}% complete</span>
+                      <span>${progressLabel}</span>
                     </div>
                     <div class="button-row compact">
                       <button
@@ -5095,11 +5218,11 @@ function renderHomeTab(selectedTour) {
                         data-action="${isFocused ? "show-all-home-tours" : "focus-home-tour"}"
                         ${isFocused ? "" : `data-tour-id="${tour.id}"`}
                       >
-                        ${isFocused ? "Show all tours" : "Focus tour"}
+                        ${isFocused ? "Show all routes" : "Preview route"}
                       </button>
-                      <button type="button" class="ghost-button" data-action="open-route-page" data-tour-id="${tour.id}">
-                        Open route page
-                      </button>
+                      <a class="ghost-button seo-route-link" href="${getTourSeoUrl(tour)}" data-action="open-route-page" data-tour-id="${tour.id}">
+                        View details
+                      </a>
                     </div>
                   </div>
                 </article>
@@ -5383,9 +5506,9 @@ function renderRouteTab(selectedTour, selectedStop) {
                 <p class="eyebrow">In-person tour guide</p>
                 <h3>Purchase a guided version of this route</h3>
               </div>
-              <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Available on May 1st"}</span>
+              <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Booking ready" : "Available on May 1st"}</span>
             </div>
-            <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
+            <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and a shareable route map for the group.</p>
             <div class="button-row">
               <button
                 type="button"
@@ -5393,9 +5516,9 @@ function renderRouteTab(selectedTour, selectedStop) {
                 data-action="start-tour-guide-checkout"
                 ${state.checkout.status === "submitting" || !guideConfig.amountCents ? "disabled" : ""}
               >
-                ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Configure guide checkout"}
+                ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Guide booking unavailable"}
               </button>
-              ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open Google map pack</a>` : ""}
+              ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open route map</a>` : ""}
             </div>
             ${getCheckoutStatusMarkup()}
           </div>
@@ -5403,7 +5526,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             <div class="panel-header">
               <div>
                 <p class="eyebrow">Audio posture</p>
-                <h3>Cross-device companion mode</h3>
+                <h3>Audio and glasses</h3>
               </div>
               <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
             </div>
@@ -5420,7 +5543,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             <div class="panel-header">
               <div>
                 <p class="eyebrow">Narration</p>
-                <h3>Live runtime audio</h3>
+                <h3>Selected stop audio</h3>
               </div>
               <span class="status-pill ${state.audioAccess.fullUnlocked ? "is-live" : ""}">${audioAccess.pill}</span>
             </div>
@@ -5440,7 +5563,7 @@ function renderRouteTab(selectedTour, selectedStop) {
                 data-stop-id="${selectedStop.id}"
                 ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
               >
-                ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
+                ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play preview narration"}
               </button>
               <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
               ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
@@ -5467,7 +5590,7 @@ function renderRouteTab(selectedTour, selectedStop) {
           </div>
           <div class="drawer-copy emphasis">
             <strong>Compass points in this path</strong>
-            <p>Select a point below to update the compass, narration controls, and phone handoff target.</p>
+            <p>Select a point below to update the Compass, narration controls, and phone app link.</p>
           </div>
           <div class="stop-list">
             ${selectedTour.stops
@@ -5572,9 +5695,9 @@ function renderRouteCatalogTab(selectedTour) {
                       <span>Start with ${nextStop.title}</span>
                     </div>
                     <div class="button-row compact">
-                      <button type="button" class="primary-button" data-action="open-route-page" data-tour-id="${tour.id}">
+                      <a class="primary-button seo-route-link" href="${getTourSeoUrl(tour)}" data-action="open-route-page" data-tour-id="${tour.id}">
                         Open route page
-                      </button>
+                      </a>
                       <button type="button" class="ghost-button" data-action="select-tour" data-tour-id="${tour.id}">
                         ${isSelected ? "Selected" : "Select route"}
                       </button>
@@ -5677,9 +5800,9 @@ function renderRouteProductPage(selectedTour, selectedStop) {
               <p class="eyebrow">In-person tour guide</p>
               <h3>Purchase a guided version of this route</h3>
             </div>
-            <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Available on May 1st"}</span>
+            <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Booking ready" : "Available on May 1st"}</span>
           </div>
-          <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
+          <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and a shareable route map for the group.</p>
           <div class="button-row">
             <button
               type="button"
@@ -5687,9 +5810,9 @@ function renderRouteProductPage(selectedTour, selectedStop) {
               data-action="start-tour-guide-checkout"
               ${state.checkout.status === "submitting" || !guideConfig.amountCents ? "disabled" : ""}
             >
-              ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Configure guide checkout"}
+              ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Guide booking unavailable"}
             </button>
-            ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open Google map pack</a>` : ""}
+            ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open route map</a>` : ""}
           </div>
           ${getCheckoutStatusMarkup()}
         </div>
@@ -5697,7 +5820,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
           <div class="panel-header">
             <div>
               <p class="eyebrow">Audio posture</p>
-              <h3>Cross-device companion mode</h3>
+              <h3>Audio and glasses</h3>
             </div>
             <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
           </div>
@@ -5734,7 +5857,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
               data-stop-id="${selectedStop.id}"
               ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
             >
-              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
+              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play preview narration"}
             </button>
             <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
             ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
@@ -5760,7 +5883,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
         </div>
         <div class="drawer-copy emphasis">
           <strong>Stops in this route</strong>
-          <p>Select a stop below to update the route page details, narration controls, and phone handoff target.</p>
+          <p>Select a stop below to update the route details, narration controls, and phone app link.</p>
         </div>
         <div class="stop-list">
           ${selectedTour.stops
@@ -5876,31 +5999,31 @@ function renderDrawer() {
           </div>
           <div class="drawer-stats">
             <div><strong>${tour.title}</strong><span>Tour collection</span></div>
-            <div><strong>${stop.radius}m</strong><span>Trigger radius</span></div>
+            <div><strong>${stop.radius}m</strong><span>Story radius</span></div>
             <div><strong>${state.completedStopIds.includes(stop.id) ? "Done" : "Upcoming"}</strong><span>Progress state</span></div>
           </div>
           <div class="drawer-copy">
-            <strong>Coordinates</strong>
+            <strong>Map point</strong>
             <p>${stop.lat.toFixed(4)}, ${stop.lng.toFixed(4)}</p>
           </div>
           <div class="drawer-copy">
-            <strong>Narration source</strong>
-            <p>${getNarrationLabel(stop.id)}${state.narrationState.source === "speech" ? " using Amy when available" : ""}</p>
+            <strong>Narration</strong>
+            <p>${getNarrationLabel(stop.id)}</p>
           </div>
           <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
             <strong>${audioAccess.pill}</strong>
             <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
           </div>
           <div class="drawer-copy">
-            <strong>Model readiness</strong>
+            <strong>AR preview</strong>
             <p>${
               arOverlayMeta?.webModelAvailable
-                ? `Web preview available at ${resolvedModelUrl}`
+                ? "A web AR preview is available for this stop."
                 : arOverlayMeta?.iosModelAvailable
-                  ? "An iOS model exists for this stop, but there is no deployed web model yet."
+                  ? "A mobile AR scene is prepared for this stop."
                   : arOverlayMeta?.modelUrl
-                    ? `This stop has a planned web model target (${resolvedModelUrl}) but the runtime file has not been deployed yet.`
-                    : "No model target is attached to this stop yet."
+                    ? "An AR moment is planned for this stop."
+                    : "This stop currently uses story, map, and audio guidance."
             }</p>
           </div>
           <div class="variant-toggle">
@@ -5915,7 +6038,7 @@ function renderDrawer() {
               data-stop-id="${stop.id}"
               ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
             >
-              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
+              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play preview narration"}
             </button>
             ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
           </div>
@@ -5960,12 +6083,12 @@ function renderArTab(selectedTour) {
     : false;
   const arDistanceLabel =
     state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m` : effectiveStop && state.ar.locationReady ? "Located" : "Locating";
-  const arRangeLabel = state.ar.inRange ? "Within trigger radius" : "Move closer to trigger";
+  const arRangeLabel = state.ar.inRange ? "Within arrival zone" : "Move closer to the stop";
   const arCameraLabel = state.ar.cameraReady ? "Camera live" : "Camera pending";
   const arGpsLabel = state.ar.locationReady ? "GPS locked" : "Acquiring GPS";
   const arCoordinateLabel = getArCoordinateLabel();
-  const focusStateLabel = state.ar.inRange ? "Ready to trigger" : effectiveStop && state.ar.locationReady ? "Located" : state.ar.locationReady ? "Navigating" : "Scanning";
-  const focusAutomationLabel = state.ar.autoNarrationEnabled ? "Auto narration armed" : "Manual narration";
+  const focusStateLabel = state.ar.inRange ? "Ready for the story" : effectiveStop && state.ar.locationReady ? "Located" : state.ar.locationReady ? "Navigating" : "Finding your place";
+  const focusAutomationLabel = state.ar.autoNarrationEnabled ? "Auto narration on" : "Manual narration";
   const focusSourceLabel =
     nearestStop && nearestStopTour?.id === selectedTour.id ? "Following nearest live stop" : "Following selected route stop";
   const audioAccess = effectiveStop ? getAudioAccessSummary(effectiveStop.id) : getAudioAccessSummary("");
@@ -5995,12 +6118,12 @@ function renderArTab(selectedTour) {
       <article class="panel panel--hero-callout">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Launch mode</p>
-            <h3>AR camera handoff for when you are already on location</h3>
+            <p class="eyebrow">On-site mode</p>
+            <h3>AR guide for when you are already near a stop</h3>
           </div>
           <span class="status-pill ${state.ar.mode === "live" ? "is-live" : ""}">${state.ar.mode === "live" ? "Live now" : "Standby"}</span>
         </div>
-        <p class="lede">Use the AR tab after you have chosen a route and reached the area. It helps you orient, trigger nearby stops, and keep narration moving without guessing what to do next.</p>
+        <p class="lede">Use the AR tab after you have chosen a route and reached the area. It helps you orient, open nearby stops, and keep narration moving without guessing what to do next.</p>
         <div class="quick-start-grid">
           <article class="quick-start-card">
             <span class="quick-start-step">1</span>
@@ -6010,12 +6133,12 @@ function renderArTab(selectedTour) {
           <article class="quick-start-card">
             <span class="quick-start-step">2</span>
             <strong>Reach the site</strong>
-            <p>Walk into the trigger radius and let the stop become active.</p>
+            <p>Walk into the arrival zone and let the stop become active.</p>
           </article>
           <article class="quick-start-card">
             <span class="quick-start-step">3</span>
             <strong>Hear the story</strong>
-            <p>Use phone audio or Bluetooth glasses for the narration handoff.</p>
+            <p>Use phone audio, headphones, or supported glasses for narration.</p>
           </article>
         </div>
       </article>
@@ -6023,8 +6146,8 @@ function renderArTab(selectedTour) {
       <article class="panel ar-live-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">AR live</p>
-            <h3>Camera-first field mode</h3>
+            <p class="eyebrow">Camera guide</p>
+            <h3>Camera-first route view</h3>
           </div>
           <span class="status-pill">${state.ar.mode === "live" ? "AR Live" : "Standby"}</span>
         </div>
@@ -6049,9 +6172,9 @@ function renderArTab(selectedTour) {
         </div>
         <div class="button-row">
           <button type="button" class="primary-button" data-action="${state.ar.mode === "live" ? "stop-ar-live" : "start-ar-live"}">
-            ${state.ar.mode === "live" ? "Stop AR Live" : "Launch AR Camera"}
+            ${state.ar.mode === "live" ? "Stop Camera Guide" : "Launch Camera Guide"}
           </button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open Compass</button>
         </div>
         ${state.ar.error ? `<div class="drawer-copy"><strong>Status</strong><p>${state.ar.error}</p></div>` : ""}
         ${headsetMarkup}
@@ -6090,8 +6213,8 @@ function renderArTab(selectedTour) {
             <p>${state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m away` : "Waiting for location lock"}</p>
           </div>
           <div>
-            <strong>Range trigger</strong>
-            <p>${effectiveStop ? `${effectiveStop.radius}m activation radius` : "No stop selected"}</p>
+            <strong>Arrival zone</strong>
+            <p>${effectiveStop ? `${effectiveStop.radius}m story radius` : "No stop selected"}</p>
           </div>
         </div>
         ${
@@ -6138,7 +6261,7 @@ function renderArTab(selectedTour) {
                   <p>${effectiveStop.fullAddress || effectiveStop.locationLabel || effectiveStop.title}</p>
                 </div>
                 <div>
-                  <strong>Coordinates</strong>
+                  <strong>Map point</strong>
                   <p>${effectiveStop.lat.toFixed(5)}, ${effectiveStop.lng.toFixed(5)}</p>
                 </div>
                 <div>
@@ -6156,7 +6279,7 @@ function renderArTab(selectedTour) {
                   Open in maps
                 </a>
                 <button type="button" class="ghost-button" data-action="select-stop" data-stop-id="${effectiveStop.id}">Lock this stop</button>
-                <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
+                <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open Compass</button>
               </div>
               ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
               <div class="button-row">
@@ -6164,7 +6287,7 @@ function renderArTab(selectedTour) {
                   ${state.ar.autoNarrationEnabled ? "Auto narration on" : "Auto narration off"}
                 </button>
                 <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
-                  ${state.glassesMode ? "Glasses audio on" : "Glasses audio off"}
+                  ${state.glassesMode ? "Bluetooth audio on" : "Phone audio"}
                 </button>
               </div>
               <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
@@ -6179,7 +6302,7 @@ function renderArTab(selectedTour) {
                   data-stop-id="${effectiveStop.id}"
                   ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
                 >
-                  ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play stop narration" : "Play Amy fallback"}
+                  ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play stop narration" : "Play preview narration"}
                 </button>
                 <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${effectiveStop.id}">Open stop brief</button>
                 ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
@@ -6189,7 +6312,7 @@ function renderArTab(selectedTour) {
             : ""
         }
         <div class="button-row">
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Inspect stops</button>
+          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">View stops</button>
           <button type="button" class="ghost-button" data-action="select-tour" data-tour-id="${selectedTour.id}">Keep this route selected</button>
         </div>
       </article>

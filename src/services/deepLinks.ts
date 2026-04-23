@@ -16,7 +16,7 @@ export function getHandoffModeMeta(mode: HandoffMode) {
   }
   return {
     ctaLabel: "Continue On Foot",
-    chipLabel: "On-foot handoff",
+    chipLabel: "Continue on foot",
     summary: "Step out and continue the story on foot."
   };
 }

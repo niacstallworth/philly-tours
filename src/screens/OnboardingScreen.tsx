@@ -62,26 +62,26 @@ export function OnboardingScreen({ onComplete }: Props) {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
         <Text style={styles.kicker}>Welcome</Text>
-        <Text style={styles.title}>Set up your Philly Tours profile.</Text>
-        <Text style={styles.subtitle}>Choose a name, add your email, and continue into the app.</Text>
+        <Text style={styles.title}>Start your Philadelphia story.</Text>
+        <Text style={styles.subtitle}>Create a simple profile so Philly Tours can save your routes, progress, and discoveries on this device.</Text>
         <View style={styles.heroChips}>
-          <Chip label="Elegant city tours" tone="default" />
-          <Chip label="Story-first stops" tone="success" />
+          <Chip label="Guided city routes" tone="default" />
+          <Chip label="Story-rich stops" tone="success" />
         </View>
       </View>
 
       <Card style={styles.card}>
         <Text style={styles.label}>Experience</Text>
         <View style={styles.heroChips}>
-          <Chip label="Tourist" tone="success" />
-          <Chip label="Tour access" tone="default" />
+          <Chip label="City guide" tone="success" />
+          <Chip label="Route progress" tone="default" />
         </View>
 
-        <Text style={styles.label}>Display name</Text>
+        <Text style={styles.label}>Name</Text>
         <TextInput
           value={displayName}
           onChangeText={setDisplayName}
-          placeholder="Founder Name"
+          placeholder="Your name"
           placeholderTextColor={colors.textMuted}
           style={styles.input}
           autoCapitalize="words"
@@ -99,14 +99,10 @@ export function OnboardingScreen({ onComplete }: Props) {
         />
 
         <Text style={styles.modeHint}>
-          This device profile gets you into the app on this device.
+          Your email keeps your profile connected to purchases, support, and privacy requests.
         </Text>
         {showInlineTurnstile ? (
           <CloudflareTurnstileChallenge siteKey={cloudflareSiteKey} onTokenChange={setTurnstileToken} />
-        ) : Platform.OS === "web" ? (
-          <Text style={styles.modeHint}>
-            Cloudflare Turnstile is not configured yet for this build, so secure challenge mode is currently bypassed.
-          </Text>
         ) : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
       </Card>
@@ -115,13 +111,13 @@ export function OnboardingScreen({ onComplete }: Props) {
         <Text style={styles.noteTitle}>What happens next</Text>
         <Text style={styles.noteCopy}>
           {requiresTurnstile
-            ? "Complete the security check, then continue into the app."
-            : "Continue into the app."}
+            ? "Complete the quick check, then choose a route and begin exploring."
+            : "Choose a route, open the Compass, and begin exploring."}
         </Text>
       </Card>
 
       <PrimaryButton
-        label={submitting ? "Signing in..." : "Enter App"}
+        label={submitting ? "Starting..." : "Start Touring"}
         onPress={() => void submit()}
         disabled={!canContinue || submitting}
       />

@@ -278,7 +278,7 @@ export function ProfileScreen({
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Audio and Glasses Companion</Text>
+        <Text style={styles.sectionTitle}>Audio and Glasses</Text>
         <Text style={styles.copy}>
           {getProfileCompanionCopy(companionStatus)}
         </Text>
@@ -287,11 +287,11 @@ export function ProfileScreen({
             label={companionStatus.connectionState === "connected" ? "Connected" : companionStatus.connectionState.replace(/_/g, " ")}
             tone={companionStatus.connectionState === "connected" ? "success" : companionStatus.connectionState === "error" ? "danger" : "warn"}
           />
-          <Chip label={companionStatus.pairedDevice?.displayName || "No paired glasses"} tone="default" />
+          <Chip label={getProfileAudioLabel(companionStatus)} tone="default" />
           <Chip label={getProfileIntegrationLabel(companionStatus)} tone={companionStatus.integrationMode === "none" ? "danger" : "success"} />
         </View>
         <Text style={styles.meta}>
-          {companionStatus.statusMessage || companionStatus.lastError || "Open companion setup to manage glasses connection and status."}
+          {companionStatus.statusMessage || companionStatus.lastError || "Open AR to manage audio, glasses, and route controls."}
         </Text>
         {canReconnectCompanion ? (
           <Text style={styles.meta}>{getProfileReconnectCopy(companionStatus)}</Text>
@@ -299,7 +299,7 @@ export function ProfileScreen({
         {lastCommandResult ? (
           <>
             <Text style={styles.meta}>
-              Last command: {lastCommandResult.commandType} · {lastCommandResult.result.ok ? "ok" : "failed"}
+              Last action: {lastCommandResult.result.ok ? "completed" : "needs attention"}
             </Text>
             <Text style={styles.meta}>{lastCommandResult.result.message}</Text>
           </>
@@ -314,9 +314,9 @@ export function ProfileScreen({
         <PrimaryButton
           onPress={() => void refreshCompanionFromProfile()}
           disabled={loadingAction !== null}
-          label={loadingAction === "companion-refresh" ? "Refreshing..." : "Refresh Companion Status"}
+          label={loadingAction === "companion-refresh" ? "Refreshing..." : "Refresh Audio Status"}
         />
-        <PrimaryButton onPress={onOpenCompanion || (() => undefined)} disabled={!onOpenCompanion} label="Open Companion Setup" />
+        <PrimaryButton onPress={onOpenCompanion || (() => undefined)} disabled={!onOpenCompanion} label="Open AR Guide" />
       </Card>
 
       <Card style={styles.card}>
@@ -428,14 +428,22 @@ export function ProfileScreen({
 
 function getProfileIntegrationLabel(status: WearableStatus) {
   if (status.integrationMode === "native") {
-    return "Native DAT";
+    return "Smart glasses ready";
   }
 
   if (status.integrationMode === "manual") {
-    return "Universal audio mode";
+    return "Bluetooth audio";
   }
 
-  return "Unavailable";
+  return "Phone audio";
+}
+
+function getProfileAudioLabel(status: WearableStatus) {
+  if (status.pairedDevice?.isMock && !__DEV__) {
+    return "Smart glasses";
+  }
+
+  return status.pairedDevice?.displayName || (status.integrationMode === "manual" ? "Bluetooth audio" : "Phone audio");
 }
 
 function getProfileCompanionCopy(status: WearableStatus) {
@@ -444,10 +452,10 @@ function getProfileCompanionCopy(status: WearableStatus) {
   }
 
   if (status.integrationMode === "native") {
-    return "Your iPhone can route narration to its current audio output, including Bluetooth headphones and glasses. Pair Meta glasses here when you want registration, camera access, and deeper companion controls.";
+    return "Your iPhone can route narration to headphones or supported glasses, then open AR at stops with a spatial scene.";
   }
 
-  return "Use phone-first touring here, with premium glasses integrations available on supported devices.";
+  return "Use phone-first touring here, with narration and AR available from supported devices.";
 }
 
 function getProfileReconnectCopy(status: WearableStatus) {
@@ -455,15 +463,15 @@ function getProfileReconnectCopy(status: WearableStatus) {
     return "A remembered Bluetooth audio route is available. Restore it to keep narration on the paired audio device.";
   }
 
-  return "A remembered Meta device is available. Reconnect to restore companion access.";
+  return "Previously paired glasses are available. Reconnect when you want narration and route controls there.";
 }
 
 function getProfileReconnectLabel(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Restore Universal Audio Mode";
+    return "Restore Bluetooth Audio";
   }
 
-  return "Reconnect Companion Device";
+  return "Reconnect Glasses";
 }
 
 function createStyles(

@@ -30,7 +30,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   const colors = useThemeColors();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
-  const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Settings" | "Compass">("Home");
+  const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Profile" | "Compass">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
 
   React.useEffect(() => {
@@ -63,7 +63,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
             highlightedStopId={handoffTarget?.stopId}
             audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
             fullAppUnlocked={fullAppUnlocked}
-            onOpenPurchase={() => setTab("Settings")}
+            onOpenPurchase={() => setTab("Profile")}
           />
         </ThemeSurfaceProvider>
       );
@@ -92,7 +92,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
         </ThemeSurfaceProvider>
       );
     }
-    if (tab === "Settings") {
+    if (tab === "Profile") {
       return (
         <ThemeSurfaceProvider surface="profile">
           <ProfileScreen
@@ -122,11 +122,11 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
     );
   }
 
-  const tabs: Array<{ key: "Home" | "AR" | "Board" | "Settings" | "Compass"; label: string; glyph: string }> = [
+  const tabs: Array<{ key: "Home" | "AR" | "Board" | "Profile" | "Compass"; label: string; glyph: string }> = [
     { key: "Home", label: "Home", glyph: "⌂" },
     { key: "AR", label: "AR", glyph: "◌" },
     { key: "Board", label: "Board", glyph: "◔" },
-    { key: "Settings", label: "Settings", glyph: "⚙" },
+    { key: "Profile", label: "Profile", glyph: "⚙" },
     { key: "Compass", label: "Compass", glyph: "⌖" }
   ];
 
