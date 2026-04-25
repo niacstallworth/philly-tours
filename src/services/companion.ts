@@ -1,4 +1,4 @@
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
 import { buildHandoffUrl } from "./deepLinks";
 import { getNarrationState, startNarration, stopNarration } from "./narration";
 import { getCurrentTourContext, openTourStopOnPhone } from "./tourControl";
@@ -39,6 +39,7 @@ type CompanionCommandListener = (entry: CompanionCommandLog) => void;
 
 const commandListeners = new Set<CompanionCommandListener>();
 let lastCommandLog: CompanionCommandLog = null;
+const tours = getCityTours();
 
 function emitCommandResult(command: CompanionCommand, result: CompanionCommandResult) {
   lastCommandLog = {

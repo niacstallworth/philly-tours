@@ -1,7 +1,9 @@
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
 import type { HandoffMode } from "./deepLinks";
 import { triggerHandoffTarget } from "./handoffBus";
 import { recordStopOpened } from "./gameProgress";
+
+const tours = getCityTours();
 
 type TourSelection = {
   tourId: string | null;

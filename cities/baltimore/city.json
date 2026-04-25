@@ -1,0 +1,21 @@
+{
+  "id": "baltimore",
+  "name": "Baltimore Tours",
+  "shortName": "Baltimore",
+  "cityName": "Baltimore",
+  "stateCode": "MD",
+  "countryCode": "US",
+  "timezone": "America/New_York",
+  "slug": "baltimore-tours",
+  "websiteOrigin": "https://baltimore-tours.com",
+  "serviceArea": [
+    "Baltimore, MD"
+  ],
+  "defaultMapCenter": {
+    "lat": 39.2904,
+    "lng": -76.6122,
+    "zoom": 12
+  },
+  "defaultTourId": "pennsylvania-avenue-black-arts",
+  "launchStatus": "starter"
+}

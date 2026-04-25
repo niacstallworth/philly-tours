@@ -1,0 +1,13 @@
+{
+  "businessName": "Philly Tours",
+  "website": "https://philly-tours.com",
+  "serviceArea": "Philadelphia, PA",
+  "primaryCategory": "Tour agency",
+  "secondaryCategories": [
+    "Sightseeing tour agency",
+    "Tour operator",
+    "Tourist attraction"
+  ],
+  "shortDescription": "Self-guided Philadelphia walking tours with audio, maps, Compass guidance, AR-ready stops, and hidden city stories.",
+  "fullDescription": "Philly Tours helps visitors, locals, families, students, and culture lovers walk Philadelphia with more context. Choose a self-guided route, follow the map, hear audio narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes."
+}

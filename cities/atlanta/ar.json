@@ -1,0 +1,210 @@
+{
+  "sweet-auburn-black-enterprise-and-civil-rights-mlk-visitor-center": {
+    "id": "sweet-auburn-black-enterprise-and-civil-rights-mlk-visitor-center",
+    "title": "Martin Luther King, Jr. National Historical Park",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "sweet-auburn-black-enterprise-and-civil-rights-ebenezer-baptist": {
+    "id": "sweet-auburn-black-enterprise-and-civil-rights-ebenezer-baptist",
+    "title": "Ebenezer Baptist Church",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "sweet-auburn-black-enterprise-and-civil-rights-king-center": {
+    "id": "sweet-auburn-black-enterprise-and-civil-rights-king-center",
+    "title": "The King Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "sweet-auburn-black-enterprise-and-civil-rights-auburn-library": {
+    "id": "sweet-auburn-black-enterprise-and-civil-rights-auburn-library",
+    "title": "Auburn Avenue Research Library",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "sweet-auburn-black-enterprise-and-civil-rights-big-bethel": {
+    "id": "sweet-auburn-black-enterprise-and-civil-rights-big-bethel",
+    "title": "Big Bethel A.M.E. Church",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "sweet-auburn-black-enterprise-and-civil-rights-prince-hall": {
+    "id": "sweet-auburn-black-enterprise-and-civil-rights-prince-hall",
+    "title": "Prince Hall Masonic Temple",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "atlanta-university-center-and-black-intellectual-capital-woodruff-library": {
+    "id": "atlanta-university-center-and-black-intellectual-capital-woodruff-library",
+    "title": "Robert W. Woodruff Library",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "atlanta-university-center-and-black-intellectual-capital-clark-atlanta": {
+    "id": "atlanta-university-center-and-black-intellectual-capital-clark-atlanta",
+    "title": "Clark Atlanta University",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "atlanta-university-center-and-black-intellectual-capital-morehouse": {
+    "id": "atlanta-university-center-and-black-intellectual-capital-morehouse",
+    "title": "Morehouse College",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "atlanta-university-center-and-black-intellectual-capital-spelman": {
+    "id": "atlanta-university-center-and-black-intellectual-capital-spelman",
+    "title": "Spelman College",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "atlanta-university-center-and-black-intellectual-capital-morehouse-medicine": {
+    "id": "atlanta-university-center-and-black-intellectual-capital-morehouse-medicine",
+    "title": "Morehouse School of Medicine",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-public-power-and-national-memory-cchr": {
+    "id": "civil-rights-public-power-and-national-memory-cchr",
+    "title": "National Center for Civil and Human Rights",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-public-power-and-national-memory-city-hall": {
+    "id": "civil-rights-public-power-and-national-memory-city-hall",
+    "title": "Atlanta City Hall",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-public-power-and-national-memory-state-capitol": {
+    "id": "civil-rights-public-power-and-national-memory-state-capitol",
+    "title": "Georgia State Capitol",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-public-power-and-national-memory-king-center": {
+    "id": "civil-rights-public-power-and-national-memory-king-center",
+    "title": "The King Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-public-power-and-national-memory-mlk-park": {
+    "id": "civil-rights-public-power-and-national-memory-mlk-park",
+    "title": "Martin Luther King, Jr. National Historical Park",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-atlanta-arts-music-and-contemporary-culture-apex": {
+    "id": "black-atlanta-arts-music-and-contemporary-culture-apex",
+    "title": "APEX Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-atlanta-arts-music-and-contemporary-culture-trap-museum": {
+    "id": "black-atlanta-arts-music-and-contemporary-culture-trap-museum",
+    "title": "Trap Music Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-atlanta-arts-music-and-contemporary-culture-bmewf-district": {
+    "id": "black-atlanta-arts-music-and-contemporary-culture-bmewf-district",
+    "title": "Black Music & Entertainment Walk of Fame District",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-atlanta-arts-music-and-contemporary-culture-hammonds-house": {
+    "id": "black-atlanta-arts-music-and-contemporary-culture-hammonds-house",
+    "title": "Hammonds House Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-atlanta-arts-music-and-contemporary-culture-beltline-westside": {
+    "id": "black-atlanta-arts-music-and-contemporary-culture-beltline-westside",
+    "title": "Atlanta BeltLine Westside Trail",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "west-end-beltline-and-neighborhood-change-west-end-historic-district": {
+    "id": "west-end-beltline-and-neighborhood-change-west-end-historic-district",
+    "title": "West End Historic District",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "west-end-beltline-and-neighborhood-change-hammonds-house": {
+    "id": "west-end-beltline-and-neighborhood-change-hammonds-house",
+    "title": "Hammonds House Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "west-end-beltline-and-neighborhood-change-wrens-nest": {
+    "id": "west-end-beltline-and-neighborhood-change-wrens-nest",
+    "title": "The Wren's Nest",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "west-end-beltline-and-neighborhood-change-shrine-black-madonna": {
+    "id": "west-end-beltline-and-neighborhood-change-shrine-black-madonna",
+    "title": "Shrine of the Black Madonna",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "west-end-beltline-and-neighborhood-change-beltline-southwest": {
+    "id": "west-end-beltline-and-neighborhood-change-beltline-southwest",
+    "title": "Atlanta BeltLine Southwest Trail",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  }
+}

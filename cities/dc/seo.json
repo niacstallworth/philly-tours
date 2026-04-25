@@ -1,0 +1,29 @@
+{
+  "homeTitle": "DC Tours | Self-Guided Black History, Culture & Walking Routes",
+  "homeDescription": "Explore DC with self-guided routes through Black arts, Howard, go-go, freedom landmarks, law, policy, and neighborhood memory.",
+  "catalogTitle": "DC Walking Tours | Black History, Culture & Neighborhood Routes",
+  "catalogDescription": "Browse self-guided Washington, DC routes built around Black history, public memory, neighborhood culture, and story-rich landmarks.",
+  "homePanelEyebrow": "Washington routes",
+  "homePanelTitle": "See DC through Black memory, public power, and neighborhood culture.",
+  "homePanelBody": "Start with U Street, Howard, the Mall, or go-go, then follow self-guided routes built for story, place, and real city texture.",
+  "searchImage": "/assets/search/dc-tours-search-thumbnail.jpg",
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "knowsAbout": [
+    "DC walking tours",
+    "Washington DC Black history tours",
+    "Washington DC audio tours",
+    "U Street history",
+    "Howard University history",
+    "Washington DC go-go culture",
+    "National Mall civil rights history"
+  ],
+  "homePanelHighlights": [
+    "Black arts and nightlife",
+    "Howard and Shaw legacy",
+    "Law, policy, and freedom routes",
+    "Go-go and neighborhood memory"
+  ]
+}

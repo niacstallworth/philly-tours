@@ -12,5 +12,77 @@ window.PHILLY_TOURS_CONFIG = {
   "inPersonTourGuidePriceCents": "",
   "inPersonTourGuideLabel": "In-person tour guide",
   "iosAppStoreUrl": "",
-  "androidPlayStoreUrl": ""
+  "androidPlayStoreUrl": "",
+  "city": {
+    "id": "atlanta",
+    "name": "Atlanta Tours",
+    "shortName": "Atlanta",
+    "cityName": "Atlanta",
+    "stateCode": "GA",
+    "countryCode": "US",
+    "timezone": "America/New_York",
+    "slug": "atlanta-tours",
+    "websiteOrigin": "https://atlanta-tours.com",
+    "serviceArea": [
+      "Atlanta, GA"
+    ],
+    "defaultMapCenter": {
+      "lat": 33.749,
+      "lng": -84.388,
+      "zoom": 12
+    },
+    "defaultTourId": "sweet-auburn-black-enterprise-and-civil-rights",
+    "launchStatus": "draft"
+  },
+  "branding": {
+    "primary": "#f7c02a",
+    "secondary": "#353432",
+    "kellyGreen": "#007a33",
+    "cityBlue": "#002d72",
+    "ink": "#15100a",
+    "paper": "#fff9df",
+    "heroEyebrow": "Atlanta is ready",
+    "heroTitle": "Black Atlanta moves through enterprise, culture, and change.",
+    "heroBody": "Follow Atlanta through Sweet Auburn, the Atlanta University Center, civil-rights power, contemporary music culture, and West End neighborhood memory."
+  },
+  "seo": {
+    "homeTitle": "Atlanta Tours | Self-Guided Black History, Culture & Walking Routes",
+    "homeDescription": "Explore Atlanta with self-guided routes through Sweet Auburn, the Atlanta University Center, civil-rights landmarks, Black arts, music culture, and West End neighborhood memory.",
+    "catalogTitle": "Atlanta Walking Tours | Black History, Culture & Neighborhood Routes",
+    "catalogDescription": "Browse self-guided Atlanta routes built around Black enterprise, campus legacy, civil-rights memory, contemporary culture, and neighborhood change.",
+    "homePanelEyebrow": "Atlanta routes",
+    "homePanelTitle": "See Atlanta through Black enterprise, scholarship, culture, and neighborhood change.",
+    "homePanelBody": "Start with Sweet Auburn, the Atlanta University Center, arts and music, or West End, then follow self-guided routes built for institutions, public memory, and real city texture.",
+    "searchImage": "/assets/search/atlanta-tours-search-thumbnail.jpg",
+    "organizationType": [
+      "Organization",
+      "TravelAgency"
+    ],
+    "knowsAbout": [
+      "Atlanta walking tours",
+      "Atlanta Black history tours",
+      "Sweet Auburn history",
+      "Atlanta University Center history",
+      "Atlanta civil rights history",
+      "Atlanta Black arts and music",
+      "West End Atlanta history",
+      "Atlanta BeltLine Black history"
+    ],
+    "homePanelHighlights": [
+      "Sweet Auburn civil-rights corridor",
+      "Atlanta University Center legacy",
+      "Black arts and music culture",
+      "West End and BeltLine memory"
+    ]
+  },
+  "social": {
+    "sameAs": []
+  },
+  "businessProfile": {
+    "businessName": "Atlanta Tours",
+    "website": "https://atlanta-tours.com",
+    "primaryCategory": "Tour operator",
+    "shortDescription": "Self-guided Atlanta tours with Black history, music culture, neighborhood story, maps, and narration.",
+    "fullDescription": "Atlanta Tours offers self-guided routes through Sweet Auburn, the Atlanta University Center, civil-rights landmarks, Black arts and music culture, and West End neighborhood memory across the city."
+  }
 };

@@ -1,0 +1,254 @@
+[
+  {
+    "id": "sweet-auburn-black-enterprise-and-civil-rights",
+    "title": "Sweet Auburn Black Enterprise & Civil Rights",
+    "theme": "freedom",
+    "durationMin": 100,
+    "distanceMiles": 1.1,
+    "summary": "Follow Sweet Auburn through Black church life, civil-rights memory, archives, enterprise, and the institutions that gave Atlanta one of its defining historic corridors.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/sweet-auburn-black-enterprise-and-civil-rights-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "sweet-auburn-black-enterprise-and-civil-rights-mlk-visitor-center",
+        "title": "Martin Luther King, Jr. National Historical Park",
+        "description": "Open the route inside the King district, where Sweet Auburn reads as both neighborhood ground and national freedom terrain.",
+        "lat": 33.7563822,
+        "lng": -84.3734662
+      },
+      {
+        "id": "sweet-auburn-black-enterprise-and-civil-rights-ebenezer-baptist",
+        "title": "Ebenezer Baptist Church",
+        "description": "Anchor the route in Black church life, ministry, and movement leadership at one of Atlanta's most consequential sacred spaces.",
+        "lat": 33.7548065,
+        "lng": -84.3742353
+      },
+      {
+        "id": "sweet-auburn-black-enterprise-and-civil-rights-king-center",
+        "title": "The King Center",
+        "description": "Move from neighborhood history into movement memory at the institution that carries King's public legacy into the present.",
+        "lat": 33.7547816,
+        "lng": -84.3727671
+      },
+      {
+        "id": "sweet-auburn-black-enterprise-and-civil-rights-auburn-library",
+        "title": "Auburn Avenue Research Library",
+        "description": "Read Sweet Auburn through archives, stewardship, and the long preservation of Black Atlanta's intellectual life.",
+        "lat": 33.7553049,
+        "lng": -84.3839114
+      },
+      {
+        "id": "sweet-auburn-black-enterprise-and-civil-rights-big-bethel",
+        "title": "Big Bethel A.M.E. Church",
+        "description": "Expand the route beyond the King family orbit into the wider church and civic infrastructure that shaped Auburn Avenue.",
+        "lat": 33.7558597,
+        "lng": -84.3804979
+      },
+      {
+        "id": "sweet-auburn-black-enterprise-and-civil-rights-prince-hall",
+        "title": "Prince Hall Masonic Temple",
+        "description": "Close with Black enterprise and fraternal power at a site that helps Sweet Auburn feel broader than one movement story.",
+        "lat": 33.7556711,
+        "lng": -84.3768155
+      }
+    ]
+  },
+  {
+    "id": "atlanta-university-center-and-black-intellectual-capital",
+    "title": "Atlanta University Center & Black Intellectual Capital",
+    "theme": "institutions",
+    "durationMin": 110,
+    "distanceMiles": 2.6,
+    "summary": "Trace Black intellectual life through the Atlanta University Center's shared library, historic campuses, medical training, and the institutions that shaped national leadership.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/atlanta-university-center-and-black-intellectual-capital-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "atlanta-university-center-and-black-intellectual-capital-woodruff-library",
+        "title": "Robert W. Woodruff Library",
+        "description": "Begin at the shared intellectual commons of the AUC, where archives, scholarship, and institutional memory meet.",
+        "lat": 33.7515384,
+        "lng": -84.4135596
+      },
+      {
+        "id": "atlanta-university-center-and-black-intellectual-capital-clark-atlanta",
+        "title": "Clark Atlanta University",
+        "description": "Set the route inside the consortium's academic scale at a campus that ties Black professional formation to Atlanta's civic life.",
+        "lat": 33.7501247,
+        "lng": -84.411589
+      },
+      {
+        "id": "atlanta-university-center-and-black-intellectual-capital-morehouse",
+        "title": "Morehouse College",
+        "description": "Move into one of the city's defining institutions for Black leadership, scholarship, ministry, and public voice.",
+        "lat": 33.7473741,
+        "lng": -84.4160951
+      },
+      {
+        "id": "atlanta-university-center-and-black-intellectual-capital-spelman",
+        "title": "Spelman College",
+        "description": "Center Black women's intellectual leadership at a campus that is indispensable to any honest reading of Atlanta's educational legacy.",
+        "lat": 33.7450889,
+        "lng": -84.4113833
+      },
+      {
+        "id": "atlanta-university-center-and-black-intellectual-capital-morehouse-medicine",
+        "title": "Morehouse School of Medicine",
+        "description": "Close with Black medical training, public service, and institutional ambition in a place where scholarship becomes care infrastructure.",
+        "lat": 33.7429841,
+        "lng": -84.4120247
+      }
+    ]
+  },
+  {
+    "id": "civil-rights-public-power-and-national-memory",
+    "title": "Civil Rights, Public Power & National Memory",
+    "theme": "policy",
+    "durationMin": 115,
+    "distanceMiles": 4.4,
+    "summary": "Move between movement memory and governing power through Atlanta's civil-rights institutions, city leadership spaces, and the landmarks that turned local struggle into national history.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/civil-rights-public-power-and-national-memory-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "civil-rights-public-power-and-national-memory-cchr",
+        "title": "National Center for Civil and Human Rights",
+        "description": "Open at Atlanta's most public-facing civil-rights institution, where local movement history is framed inside a national freedom narrative.",
+        "lat": 33.7640485,
+        "lng": -84.3930405
+      },
+      {
+        "id": "civil-rights-public-power-and-national-memory-city-hall",
+        "title": "Atlanta City Hall",
+        "description": "Read public power at the city scale, where governance, executive leadership, and local policy decisions shape the life of Atlanta.",
+        "lat": 33.7486218,
+        "lng": -84.3907809
+      },
+      {
+        "id": "civil-rights-public-power-and-national-memory-state-capitol",
+        "title": "Georgia State Capitol",
+        "description": "Add state power, protest geography, and legal consequence to the route at one of Georgia's most visible political sites.",
+        "lat": 33.7490553,
+        "lng": -84.3881711
+      },
+      {
+        "id": "civil-rights-public-power-and-national-memory-king-center",
+        "title": "The King Center",
+        "description": "Return to movement stewardship and public ritual at the institution that carries King's legacy into Atlanta's present civic life.",
+        "lat": 33.7547816,
+        "lng": -84.3727671
+      },
+      {
+        "id": "civil-rights-public-power-and-national-memory-mlk-park",
+        "title": "Martin Luther King, Jr. National Historical Park",
+        "description": "Close where neighborhood ground and national memory meet, tying public power back to the lived geography of Black Atlanta.",
+        "lat": 33.7563822,
+        "lng": -84.3734662
+      }
+    ]
+  },
+  {
+    "id": "black-atlanta-arts-music-and-contemporary-culture",
+    "title": "Black Atlanta Arts, Music & Contemporary Culture",
+    "theme": "arts",
+    "durationMin": 120,
+    "distanceMiles": 8.8,
+    "summary": "Trace Black Atlanta's creative life through museums, trap-era culture, public art districts, visual art, and the moving landscape of the BeltLine.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/black-atlanta-arts-music-and-contemporary-culture-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "black-atlanta-arts-music-and-contemporary-culture-apex",
+        "title": "APEX Museum",
+        "description": "Open with a museum that roots Black Atlanta's present-day creativity in the longer social and cultural life of Sweet Auburn.",
+        "lat": 33.7554342,
+        "lng": -84.383103
+      },
+      {
+        "id": "black-atlanta-arts-music-and-contemporary-culture-trap-museum",
+        "title": "Trap Music Museum",
+        "description": "Move into Atlanta's modern sound at the route's clearest contemporary music anchor, where trap becomes public cultural history.",
+        "lat": 33.7718008,
+        "lng": -84.4086896
+      },
+      {
+        "id": "black-atlanta-arts-music-and-contemporary-culture-bmewf-district",
+        "title": "Black Music & Entertainment Walk of Fame District",
+        "description": "Hold Atlanta's public music legacy in the downtown entertainment district where the city honors Black artists as part of its living cultural identity.",
+        "lat": 33.7554123,
+        "lng": -84.4008493
+      },
+      {
+        "id": "black-atlanta-arts-music-and-contemporary-culture-hammonds-house",
+        "title": "Hammonds House Museum",
+        "description": "Bring in Black visual art, curatorial depth, and West End cultural life at one of the city's strongest arts institutions.",
+        "lat": 33.7412088,
+        "lng": -84.4208754
+      },
+      {
+        "id": "black-atlanta-arts-music-and-contemporary-culture-beltline-westside",
+        "title": "Atlanta BeltLine Westside Trail",
+        "description": "Close with a public-art and public-space corridor where contemporary culture, redevelopment, and city movement all become visible at once.",
+        "lat": 33.7802957,
+        "lng": -84.4292636
+      }
+    ]
+  },
+  {
+    "id": "west-end-beltline-and-neighborhood-change",
+    "title": "West End, BeltLine & Neighborhood Change",
+    "theme": "neighborhoods",
+    "durationMin": 105,
+    "distanceMiles": 2.4,
+    "summary": "Read historic West End through neighborhood memory, Black cultural institutions, and the BeltLine corridor where preservation, public space, and redevelopment meet closer to home.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/west-end-beltline-and-neighborhood-change-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "west-end-beltline-and-neighborhood-change-west-end-historic-district",
+        "title": "West End Historic District",
+        "description": "Open with the neighborhood itself, using West End's preservation history to frame the route around memory, infrastructure, and change over time.",
+        "lat": 33.7409,
+        "lng": -84.4148
+      },
+      {
+        "id": "west-end-beltline-and-neighborhood-change-hammonds-house",
+        "title": "Hammonds House Museum",
+        "description": "Anchor the route in Black visual art and West End cultural life at one of the city's strongest neighborhood-scale arts institutions.",
+        "lat": 33.7412088,
+        "lng": -84.4208754
+      },
+      {
+        "id": "west-end-beltline-and-neighborhood-change-wrens-nest",
+        "title": "The Wren's Nest",
+        "description": "Add long neighborhood texture and literary memory at a landmark that helps West End read as a layered historic district rather than a single theme.",
+        "lat": 33.7403,
+        "lng": -84.4202
+      },
+      {
+        "id": "west-end-beltline-and-neighborhood-change-shrine-black-madonna",
+        "title": "Shrine of the Black Madonna",
+        "description": "Bring in Black institutional and spiritual life through a West End anchor that connects neighborhood identity to broader cultural and political traditions.",
+        "lat": 33.7405,
+        "lng": -84.4192
+      },
+      {
+        "id": "west-end-beltline-and-neighborhood-change-beltline-southwest",
+        "title": "Atlanta BeltLine Southwest Trail",
+        "description": "Close where neighborhood memory meets redevelopment pressure, public art, and new city movement on the BeltLine segment that actually borders West End.",
+        "lat": 33.7447896,
+        "lng": -84.4328112
+      }
+    ]
+  }
+]

@@ -1,8 +1,7 @@
 import { Audio, InterruptionModeIOS, type AVPlaybackStatus } from "expo-av";
 import * as Speech from "expo-speech";
+import { getCityNarration } from "../city-runtime/getCityNarration";
 import { narrationAudioMap } from "../data/narrationAudioMap";
-import { narrationCatalogByStopId, type NarrationVariant } from "../data/narrationCatalog";
-import { narrationScriptMapByStopId } from "../data/narrationScriptMap";
 import { recordNarrationStarted, recordStopCompleted } from "./gameProgress";
 import { getWearableStatus, subscribeToWearableStatus, type WearableStatus } from "./wearables";
 
@@ -11,6 +10,7 @@ export type NarrationTarget = "phone" | "companion" | "none";
 export type NarrationStatus = "idle" | "loading" | "playing" | "stopped" | "error";
 export type NarrationCoverage = "full_audio" | "partial_audio" | "script_only" | "basic";
 export type NarrationTone = "default" | "success" | "warn" | "danger";
+export type NarrationVariant = "drive" | "walk";
 
 export type NarrationState = {
   status: NarrationStatus;
@@ -46,6 +46,9 @@ export type NarrationStop = {
 };
 
 const listeners = new Set<NarrationListener>();
+const narrationPack = getCityNarration();
+const narrationCatalogByStopId = narrationPack.catalogByStopId;
+const narrationScriptMapByStopId = narrationPack.scriptMapByStopId;
 
 let sound: Audio.Sound | null = null;
 let preferredSpeechVoiceId: string | null | undefined;

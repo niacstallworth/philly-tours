@@ -251,6 +251,32 @@ const siteConfig = {
   ...(window.PHILLY_TOURS_CONFIG || {}),
   ...(window.PHILLY_TOURS_LOCAL_CONFIG || {})
 };
+const cityConfig = siteConfig.city || {};
+const brandingConfig = siteConfig.branding || {};
+const seoConfig = siteConfig.seo || {};
+const SITE_NAME = cityConfig.name || "Philly Tours";
+const CITY_NAME = cityConfig.cityName || "Philadelphia";
+const HOME_HERO_EYEBROW = brandingConfig.heroEyebrow || "Philly is ready";
+const HOME_HERO_TITLE = brandingConfig.heroTitle || "Big city stories. Your route, your pace.";
+const HOME_HERO_BODY =
+  brandingConfig.heroBody ||
+  `Choose a ${CITY_NAME} route, follow the Compass, hear the story, and open AR moments when the street is ready for you.`;
+const HOME_PANEL_EYEBROW = seoConfig.homePanelEyebrow || brandingConfig.homeSeoPanelEyebrow || `${CITY_NAME} walking tours`;
+const HOME_PANEL_TITLE =
+  seoConfig.homePanelTitle || brandingConfig.homeSeoPanelTitle || `Walk ${CITY_NAME} with the story behind the block.`;
+const HOME_PANEL_BODY =
+  seoConfig.homePanelBody ||
+  `${SITE_NAME} is a self-guided ${CITY_NAME} tour companion for visitors, families, locals, students, and culture lovers who want more than a generic sightseeing loop. Choose a route, follow the map, hear narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes.`;
+const HOME_PANEL_HIGHLIGHTS =
+  Array.isArray(seoConfig.homePanelHighlights) && seoConfig.homePanelHighlights.length
+    ? seoConfig.homePanelHighlights
+    : [
+        "Self-guided audio tours",
+        "Black history routes",
+        "Compass walking guidance",
+        "AR-ready stops",
+        `${CITY_NAME} neighborhoods`
+      ];
 
 const STORAGE_KEY = "philly-ar-tours-web-progress";
 const GLASSES_MODE_KEY = "philly-ar-tours-web-glasses-mode";
@@ -4657,16 +4683,16 @@ function getSceneConfig(selectedTour, globalStats) {
     case "home":
       const heroTours = [selectedTour, ...tours.filter((tour) => tour.id !== selectedTour.id)].slice(0, 3);
       return {
-        eyebrow: "Philly is ready",
-        title: "Big city stories. Your route, your pace.",
-        body: "Choose a Philadelphia route, follow the Compass, hear the story, and open AR moments when the street is ready for you.",
+        eyebrow: HOME_HERO_EYEBROW,
+        title: HOME_HERO_TITLE,
+        body: HOME_HERO_BODY,
         actions: [
           { label: "Explore tours", action: "set-tab", tab: "map", variant: "primary" },
           { label: "Open AR mode", action: "set-tab", tab: "ar", variant: "ghost" }
         ],
         metrics: [],
         floatingCard: `
-          <div class="home-hero-collage" aria-label="Featured Philadelphia tour imagery">
+          <div class="home-hero-collage" aria-label="Featured ${escapeHtml(CITY_NAME)} tour imagery">
             ${heroTours
               .map((tour, index) => {
                 const artwork = getTourCardArtwork(tour);
@@ -5124,28 +5150,19 @@ function renderHomeTab(selectedTour) {
         ${focusedTour
           ? ""
           : `<p class="lede">Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map.</p>`}
-        <section class="home-local-seo-panel" aria-label="Philadelphia walking tour overview">
+        <section class="home-local-seo-panel" aria-label="${escapeHtml(`${CITY_NAME} walking tour overview`)}">
           <div class="home-local-seo-panel__lead">
-            <p class="eyebrow">Philadelphia walking tours</p>
-            <h3>Walk Philly with the story behind the block.</h3>
+            <p class="eyebrow">${escapeHtml(HOME_PANEL_EYEBROW)}</p>
+            <h3>${escapeHtml(HOME_PANEL_TITLE)}</h3>
           </div>
           <div class="home-local-seo-panel__copy">
-            <p>
-              Philly Tours is a self-guided Philadelphia tour companion for visitors, families, locals, students, and
-              culture lovers who want more than a generic sightseeing loop. Choose a route, follow the map, hear
-              narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture,
-              sports, libraries, neighborhoods, and hidden city routes.
-            </p>
+            <p>${escapeHtml(HOME_PANEL_BODY)}</p>
             <div class="home-trust-strip home-trust-strip--local">
-              <span>Self-guided audio tours</span>
-              <span>Black history routes</span>
-              <span>Compass walking guidance</span>
-              <span>AR-ready stops</span>
-              <span>Philadelphia neighborhoods</span>
+              ${HOME_PANEL_HIGHLIGHTS.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
             </div>
           </div>
         </section>
-        <section class="home-value-grid" aria-label="Why Philly Tours is different">
+        <section class="home-value-grid" aria-label="${escapeHtml(`Why ${SITE_NAME} is different`)}">
           <article class="home-value-card">
             <span>01</span>
             <strong>Not a bus loop.</strong>
@@ -5158,7 +5175,7 @@ function renderHomeTab(selectedTour) {
           </article>
           <article class="home-value-card">
             <span>03</span>
-            <strong>Made for Philly depth.</strong>
+            <strong>Made for ${escapeHtml(CITY_NAME)} depth.</strong>
             <p>Explore heritage, public memory, sports culture, architecture, libraries, and neighborhood history.</p>
           </article>
         </section>
@@ -5175,7 +5192,7 @@ function renderHomeTab(selectedTour) {
         <div class="home-tour-section-heading">
           <div>
             <p class="eyebrow">Choose your route</p>
-            <h3>Pick a Philadelphia story and go.</h3>
+            <h3>${escapeHtml(`Pick a ${CITY_NAME} story and go.`)}</h3>
           </div>
           <span>${tours.length} guided routes</span>
         </div>
@@ -7264,7 +7281,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
       : focusedRenderableStops[0]
         ? { lat: focusedRenderableStops[0].lat, lng: focusedRenderableStops[0].lng }
         : collectionCenter,
-    title: focusedTour ? focusedTour.title : "Philly Tours",
+    title: focusedTour ? focusedTour.title : SITE_NAME,
     zoom: focusedTour ? 14 : 12,
     maps,
     map: routeMap

@@ -1,11 +1,13 @@
 import React from "react";
 import { Alert, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
 import { getCurrentTourSelection } from "../services/tourControl";
 import { getGameProgressSnapshot, subscribeToGameProgress } from "../services/gameProgress";
 import { getPendingCommunityRoomPostCount } from "../services/communityRooms";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
+
+const tours = getCityTours();
 
 type Badge = {
   title: string;

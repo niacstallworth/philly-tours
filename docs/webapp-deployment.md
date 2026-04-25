@@ -1,8 +1,31 @@
 # Webapp Deployment
 
 This repo now includes a static browser webapp in `webapp/` backed by generated tour and narration data.
+The build flow is city-aware through the `CITY` environment variable.
 
 Use this guide when you want to deploy the webapp to your own server instead of opening local files directly.
+
+## Choose The Active City
+
+All city-aware commands default to `CITY=philly`.
+
+Examples:
+
+```bash
+CITY=philly npm run webapp:build
+CITY=baltimore npm run webapp:build
+```
+
+If you omit `CITY`, the scripts will use the Philly pack.
+
+The deploy command also uses the active city pack:
+
+```bash
+CITY=philly npm run deploy
+```
+
+By default it deploys to the Cloudflare Pages project named after the city slug.
+If your Pages project name differs, set `CLOUDFLARE_PAGES_PROJECT_NAME` in the deploy environment.
 
 ## What Needs To Be Hosted
 
@@ -24,7 +47,7 @@ Web model previews should be deployed at `/assets/models/...`.
 Before deploying, regenerate the browser data bundles:
 
 ```bash
-npm run webapp:data
+CITY=philly npm run webapp:data
 ```
 
 That command rebuilds:
@@ -35,19 +58,19 @@ That command rebuilds:
 If you want a fresh upload package for Cloudflare Pages or another static host:
 
 ```bash
-npm run webapp:package
+CITY=philly npm run webapp:package
 ```
 
 That command rebuilds `web-dist/` and creates:
 
-- `web-release/philly-ar-tours-webapp.zip`
+- `web-release/<city-slug>-webapp.zip`
 
 ## Local Verification
 
 Run the local static server:
 
 ```bash
-npm run webapp:serve
+CITY=philly npm run webapp:serve
 ```
 
 Then open:
@@ -99,7 +122,7 @@ Recommended structure for Cloudflare:
 
 ```bash
 npm install
-npm run webapp:build
+CITY=philly npm run webapp:build
 ```
 
 2. Make sure this deploy directory exists:
@@ -126,7 +149,7 @@ It should include:
 - set the build command to:
 
 ```bash
-npm run webapp:build
+CITY=philly npm run webapp:build
 ```
 
 - set the output directory to:
@@ -148,6 +171,7 @@ Keep the browser key restricted in Google Cloud:
 - restrict it to the `Maps JavaScript API`
 - restrict referrers to your actual domains, such as `https://philly-tours.com/*` and any preview host you intentionally use
 - do not reuse the server-only `GOOGLE_MAPS_API_KEY` in the browser build
+- if the Pages project name does not match the city slug, set `CLOUDFLARE_PAGES_PROJECT_NAME`
 
 ### Important Cloudflare Note
 
@@ -169,7 +193,7 @@ If you prefer Cloudflare's direct upload flow instead of Git integration:
 1. Run:
 
 ```bash
-npm run webapp:package
+CITY=philly npm run webapp:package
 ```
 
 2. In Cloudflare Pages choose the static file upload path.
@@ -232,7 +256,7 @@ If you use Caddy, make sure `/assets/audio/...` resolves to files under `assets/
 1. Pull the latest repo on the server.
 2. Run `npm install`.
 3. Provide browser-safe deploy env values, either in your host's build settings or in an ignored local file such as `.env.production.local`.
-4. Run `npm run webapp:data`.
+4. Run `CITY=<city> npm run webapp:data`.
 5. Confirm `webapp/tours-data.js`, `webapp/narration-data.js`, and `webapp/site-config.js` were regenerated with the expected browser-safe config.
 6. Point your web server root at `webapp/`.
 7. Expose `assets/audio/` at `/assets/audio/`.
@@ -251,3 +275,4 @@ If you use Caddy, make sure `/assets/audio/...` resolves to files under `assets/
 - Leaflet map tiles are fetched from OpenStreetMap at runtime, so the client still needs network access.
 - The webapp is static; it does not require the sync server just to render tours, maps, or narration.
 - If you later add authenticated browser features or payments, keep those behind your existing backend instead of embedding secrets in the webapp.
+- `npm run city:web:build` and `npm run city:data` are the underlying city-aware wrappers if you want to use the multi-city command names directly.

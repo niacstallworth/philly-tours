@@ -1,0 +1,102 @@
+{
+  "pennsylvania-avenue-black-arts-upton-mansion": {
+    "id": "pennsylvania-avenue-black-arts-upton-mansion",
+    "title": "Upton Mansion",
+    "arType": "story_card",
+    "assetNeeded": "neighborhood intro card; corridor orientation overlay",
+    "modelUrl": "",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "pennsylvania-avenue-black-arts-main-street-gateway": {
+    "id": "pennsylvania-avenue-black-arts-main-street-gateway",
+    "title": "Pennsylvania Avenue Main Street Gateway",
+    "arType": "story_card",
+    "assetNeeded": "district overview card; route timeline labels",
+    "modelUrl": "",
+    "estimatedEffort": "low",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "pennsylvania-avenue-black-arts-billie-holiday-statue": {
+    "id": "pennsylvania-avenue-black-arts-billie-holiday-statue",
+    "title": "Billie Holiday Statue",
+    "arType": "story_card",
+    "assetNeeded": "performance-era photo card; jazz lineage annotations",
+    "modelUrl": "",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "pennsylvania-avenue-black-arts-royal-theatre-marker": {
+    "id": "pennsylvania-avenue-black-arts-royal-theatre-marker",
+    "title": "Royal Theatre Marker",
+    "arType": "before_after_overlay",
+    "assetNeeded": "venue facade overlay; marquee timeline",
+    "modelUrl": "",
+    "estimatedEffort": "high",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "pennsylvania-avenue-black-arts-the-avenue-bakery": {
+    "id": "pennsylvania-avenue-black-arts-the-avenue-bakery",
+    "title": "The Avenue Bakery",
+    "arType": "story_card",
+    "assetNeeded": "corridor continuity card; neighborhood voice quotes",
+    "modelUrl": "",
+    "estimatedEffort": "low",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "pennsylvania-avenue-black-arts-arch-social-club": {
+    "id": "pennsylvania-avenue-black-arts-arch-social-club",
+    "title": "Arch Social Club",
+    "arType": "story_card",
+    "assetNeeded": "street-sign card; corridor overlay; oral history pull quotes",
+    "modelUrl": "",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "harbor-labor-and-freedom-president-street-station": {
+    "id": "harbor-labor-and-freedom-president-street-station",
+    "title": "President Street Station",
+    "arType": "before_after_overlay",
+    "assetNeeded": "rail corridor overlay; freedom route annotations",
+    "modelUrl": "",
+    "estimatedEffort": "high",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "harbor-labor-and-freedom-douglass-place": {
+    "id": "harbor-labor-and-freedom-douglass-place",
+    "title": "Douglass Place",
+    "arType": "before_after_overlay",
+    "assetNeeded": "rowhouse overlay; Douglass timeline card",
+    "modelUrl": "",
+    "estimatedEffort": "high",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "harbor-labor-and-freedom-ship-caulkers-houses": {
+    "id": "harbor-labor-and-freedom-ship-caulkers-houses",
+    "title": "Ship Caulkers' Houses",
+    "arType": "before_after_overlay",
+    "assetNeeded": "house overlay; caulker trade card; waterfront labor timeline",
+    "modelUrl": "",
+    "estimatedEffort": "high",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "harbor-labor-and-freedom-douglass-myers-maritime-park": {
+    "id": "harbor-labor-and-freedom-douglass-myers-maritime-park",
+    "title": "Frederick Douglass-Isaac Myers Maritime Park",
+    "arType": "before_after_overlay",
+    "assetNeeded": "waterfront overlay; dock labor scene card; shipyard annotations",
+    "modelUrl": "",
+    "estimatedEffort": "high",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  }
+}

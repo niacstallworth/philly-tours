@@ -1,0 +1,21 @@
+{
+  "id": "dc",
+  "name": "DC Tours",
+  "shortName": "DC",
+  "cityName": "Washington",
+  "stateCode": "DC",
+  "countryCode": "US",
+  "timezone": "America/New_York",
+  "slug": "dc-tours",
+  "websiteOrigin": "https://dc-tours.com",
+  "serviceArea": [
+    "Washington, DC"
+  ],
+  "defaultMapCenter": {
+    "lat": 38.9072,
+    "lng": -77.0369,
+    "zoom": 12
+  },
+  "defaultTourId": "black-power-law-and-policy-dc",
+  "launchStatus": "draft"
+}

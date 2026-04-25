@@ -1,0 +1,160 @@
+[
+  {
+    "id": "pennsylvania-avenue-black-arts",
+    "title": "Pennsylvania Avenue Black Arts",
+    "durationMin": 72,
+    "distanceMiles": 2.6,
+    "rating": 4.8,
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/brand/site-icon-512.png",
+      "alt": "Baltimore Tours draft route badge for the Pennsylvania Avenue Black Arts corridor."
+    },
+    "stops": [
+      {
+        "id": "pennsylvania-avenue-black-arts-upton-mansion",
+        "title": "Upton Mansion",
+        "description": "Historic mansion and cultural landmark in Upton, useful as a route opener for neighborhood memory and institution-building | Day: Day 1 | Time: Late Morning | Location: 811 W Lanvale St, Baltimore, MD 21217",
+        "lat": 39.2980326,
+        "lng": -76.6329945,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "story_card",
+        "arPriority": 3,
+        "assetNeeded": "neighborhood intro card; corridor orientation overlay",
+        "estimatedEffort": "medium"
+      },
+      {
+        "id": "pennsylvania-avenue-black-arts-main-street-gateway",
+        "title": "Pennsylvania Avenue Main Street Gateway",
+        "description": "Gateway block for the Black Arts & Entertainment District and a strong orientation stop for the avenue's creative corridor | Day: Day 1 | Time: Noon | Location: 1700 Pennsylvania Ave, Baltimore, MD 21217",
+        "lat": 39.3039574,
+        "lng": -76.6354428,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "story_card",
+        "arPriority": 2,
+        "assetNeeded": "district overview card; route timeline labels",
+        "estimatedEffort": "low"
+      },
+      {
+        "id": "pennsylvania-avenue-black-arts-billie-holiday-statue",
+        "title": "Billie Holiday Statue",
+        "description": "Public memorial honoring Billie Holiday and the avenue's deep musical legacy | Day: Day 1 | Time: Early Afternoon | Location: 1400 Pennsylvania Ave, Baltimore, MD 21217",
+        "lat": 39.301213,
+        "lng": -76.631919,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "story_card",
+        "arPriority": 1,
+        "assetNeeded": "performance-era photo card; jazz lineage annotations",
+        "estimatedEffort": "medium"
+      },
+      {
+        "id": "pennsylvania-avenue-black-arts-royal-theatre-marker",
+        "title": "Royal Theatre Marker",
+        "description": "Marker for the Royal Theatre, a defining venue in Baltimore's Black performance history | Day: Day 1 | Time: Early Afternoon | Location: 1329 Pennsylvania Ave, Baltimore, MD 21217",
+        "lat": 39.3006383,
+        "lng": -76.6309159,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "before_after_overlay",
+        "arPriority": 1,
+        "assetNeeded": "venue facade overlay; marquee timeline",
+        "estimatedEffort": "high"
+      },
+      {
+        "id": "pennsylvania-avenue-black-arts-the-avenue-bakery",
+        "title": "The Avenue Bakery",
+        "description": "Contemporary corridor anchor that ties the avenue's history to present-day neighborhood gathering and entrepreneurship | Day: Day 1 | Time: Mid Afternoon | Location: 2229 Pennsylvania Ave, Baltimore, MD 21217",
+        "lat": 39.3082127,
+        "lng": -76.6398316,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "story_card",
+        "arPriority": 4,
+        "assetNeeded": "corridor continuity card; neighborhood voice quotes",
+        "estimatedEffort": "low"
+      },
+      {
+        "id": "pennsylvania-avenue-black-arts-arch-social-club",
+        "title": "Arch Social Club",
+        "description": "Historic Pennsylvania Avenue club tied to Black arts, performance, and civic gathering in Baltimore | Day: Day 1 | Time: Late Afternoon | Location: 2426 Pennsylvania Ave, Baltimore, MD 21217",
+        "lat": 39.3097148,
+        "lng": -76.642491,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "story_card",
+        "arPriority": 2,
+        "assetNeeded": "street-sign card; corridor overlay; oral history pull quotes",
+        "estimatedEffort": "medium"
+      }
+    ]
+  },
+  {
+    "id": "harbor-labor-and-freedom",
+    "title": "Harbor Labor & Freedom",
+    "durationMin": 64,
+    "distanceMiles": 1.9,
+    "rating": 4.8,
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/brand/site-icon-512.png",
+      "alt": "Baltimore Tours draft route badge for harbor labor and freedom stories."
+    },
+    "stops": [
+      {
+        "id": "harbor-labor-and-freedom-president-street-station",
+        "title": "President Street Station",
+        "description": "Rail station and Civil War-era landmark that helps connect Baltimore's freedom stories to movement, escape routes, and political tension | Day: Day 1 | Time: Mid Afternoon | Location: 601 S President St, Baltimore, MD 21202",
+        "lat": 39.2839865,
+        "lng": -76.6024556,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "before_after_overlay",
+        "arPriority": 2,
+        "assetNeeded": "rail corridor overlay; freedom route annotations",
+        "estimatedEffort": "high"
+      },
+      {
+        "id": "harbor-labor-and-freedom-douglass-place",
+        "title": "Douglass Place",
+        "description": "Rowhouses associated with Frederick Douglass in Fell's Point, tying built environment to labor, freedom, and Black urban life on the waterfront | Day: Day 1 | Time: Mid Afternoon | Location: 520 S Dallas St, Baltimore, MD 21231",
+        "lat": 39.2847845,
+        "lng": -76.5961411,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "before_after_overlay",
+        "arPriority": 1,
+        "assetNeeded": "rowhouse overlay; Douglass timeline card",
+        "estimatedEffort": "high"
+      },
+      {
+        "id": "harbor-labor-and-freedom-ship-caulkers-houses",
+        "title": "Ship Caulkers' Houses",
+        "description": "Historic houses at 612-614 South Wolfe Street that interpret Baltimore's Black ship caulkers and working-class maritime life in Fell's Point | Day: Day 1 | Time: Mid Afternoon | Location: 612-614 S Wolfe St, Baltimore, MD 21231",
+        "lat": 39.28435,
+        "lng": -76.590158,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "before_after_overlay",
+        "arPriority": 1,
+        "assetNeeded": "house overlay; caulker trade card; waterfront labor timeline",
+        "estimatedEffort": "high"
+      },
+      {
+        "id": "harbor-labor-and-freedom-douglass-myers-maritime-park",
+        "title": "Frederick Douglass-Isaac Myers Maritime Park",
+        "description": "Waterfront site connecting Black maritime labor, entrepreneurship, and freedom stories in Fell's Point | Day: Day 1 | Time: Late Afternoon | Location: 1417 Thames St, Baltimore, MD 21231",
+        "lat": 39.279419,
+        "lng": -76.5959877,
+        "coordQuality": "verified",
+        "triggerRadiusM": 45,
+        "arType": "before_after_overlay",
+        "arPriority": 1,
+        "assetNeeded": "waterfront overlay; dock labor scene card; shipyard annotations",
+        "estimatedEffort": "high"
+      }
+    ]
+  }
+]

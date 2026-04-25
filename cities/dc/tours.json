@@ -1,0 +1,268 @@
+[
+  {
+    "id": "black-power-law-and-policy-dc",
+    "title": "Black Power, Law & Policy in DC",
+    "theme": "policy",
+    "durationMin": 110,
+    "distanceMiles": 6.4,
+    "summary": "Trace Black legal strategy, civic power, and home-rule leadership across Howard Law, major public institutions, and the core of District government.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/black-power-law-and-policy-dc-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "black-power-law-and-policy-dc-howard-law-school",
+        "title": "Howard University School of Law",
+        "description": "Start with the Black legal tradition that trained generations of civil-rights lawyers, policy thinkers, and movement strategists.",
+        "lat": 38.9431268,
+        "lng": -77.058673
+      },
+      {
+        "id": "black-power-law-and-policy-dc-thurgood-marshall-center",
+        "title": "Thurgood Marshall Center",
+        "description": "Bridge legal power and civic memory at the old Dunbar High School building, now home to Black institutional convening and policy work.",
+        "lat": 38.9149156,
+        "lng": -77.028495
+      },
+      {
+        "id": "black-power-law-and-policy-dc-mlk-library",
+        "title": "Martin Luther King Jr. Memorial Library",
+        "description": "Center the route in public knowledge, civic literacy, and the archival life of organizing inside one of DC's most visible public institutions.",
+        "lat": 38.8986914,
+        "lng": -77.0247662
+      },
+      {
+        "id": "black-power-law-and-policy-dc-marion-barry-building",
+        "title": "Marion S. Barry, Jr. Building",
+        "description": "Read Black local political power through the legacy of Marion Barry and the city's long fight to govern itself on its own terms.",
+        "lat": 38.8954456,
+        "lng": -77.0156522
+      },
+      {
+        "id": "black-power-law-and-policy-dc-wilson-building",
+        "title": "John A. Wilson Building",
+        "description": "Close at the seat of District government, where home rule, hearings, executive power, and city policy all meet.",
+        "lat": 38.8949687,
+        "lng": -77.0313372
+      }
+    ]
+  },
+  {
+    "id": "u-street-black-arts-and-nightlife",
+    "title": "U Street Black Arts & Nightlife",
+    "theme": "arts",
+    "durationMin": 95,
+    "distanceMiles": 1.4,
+    "summary": "Follow Black Broadway through freedom memory, jazz rooms, neighborhood institutions, and the nightlife corridor that shaped modern Black DC culture.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/u-street-black-arts-and-nightlife-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "u-street-black-arts-and-nightlife-civil-war-memorial",
+        "title": "African American Civil War Memorial",
+        "description": "Open the route with a freedom anchor that places U Street inside a longer story of Black service, sacrifice, and public memory.",
+        "lat": 38.9165424,
+        "lng": -77.02597
+      },
+      {
+        "id": "u-street-black-arts-and-nightlife-true-reformer-building",
+        "title": "True Reformer Building",
+        "description": "Read U Street as a corridor of Black institution-building, business ambition, and civic infrastructure before the music fully takes over.",
+        "lat": 38.9167392,
+        "lng": -77.0283304
+      },
+      {
+        "id": "u-street-black-arts-and-nightlife-bens-chili-bowl",
+        "title": "Ben's Chili Bowl",
+        "description": "Hold neighborhood continuity, movement memory, and everyday social life at one of the corridor's most enduring gathering places.",
+        "lat": 38.9171584,
+        "lng": -77.0287742
+      },
+      {
+        "id": "u-street-black-arts-and-nightlife-lincoln-theatre",
+        "title": "Lincoln Theatre",
+        "description": "Anchor the route in Black Broadway stage history, performance glamour, and the public face of U Street's cultural power.",
+        "lat": 38.9173973,
+        "lng": -77.028986
+      },
+      {
+        "id": "u-street-black-arts-and-nightlife-bohemian-caverns",
+        "title": "Bohemian Caverns",
+        "description": "Move into the more intimate jazz-club side of the corridor, where performance history lived below street level and late into the night.",
+        "lat": 38.9171838,
+        "lng": -77.0268253
+      },
+      {
+        "id": "u-street-black-arts-and-nightlife-howard-theatre",
+        "title": "Howard Theatre",
+        "description": "Close with one of DC's defining Black performance landmarks, where neighborhood identity and national entertainment history meet.",
+        "lat": 38.9153136,
+        "lng": -77.0210937
+      }
+    ]
+  },
+  {
+    "id": "howard-shaw-black-intellectual-capital",
+    "title": "Howard, Shaw & Black Intellectual Capital",
+    "theme": "institutions",
+    "durationMin": 105,
+    "distanceMiles": 2.3,
+    "summary": "Trace Black intellectual life through Howard University, archives, sacred space, medicine, and elite public education in the neighborhoods around Shaw.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/howard-shaw-black-intellectual-capital-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "howard-shaw-black-intellectual-capital-main-gate",
+        "title": "Howard University Main Gate",
+        "description": "Begin at the threshold of the institution that made Black scholarship, leadership, and professional formation central to the city.",
+        "lat": 38.9218972,
+        "lng": -77.0195931
+      },
+      {
+        "id": "howard-shaw-black-intellectual-capital-founders-library",
+        "title": "Founders Library",
+        "description": "Use Howard's symbolic core to frame the route around archives, intellectual ambition, and the built language of Black institutional confidence.",
+        "lat": 38.922505,
+        "lng": -77.0197031
+      },
+      {
+        "id": "howard-shaw-black-intellectual-capital-moorland-spingarn",
+        "title": "Moorland-Spingarn Research Center",
+        "description": "Stop at one of the country's great Black archival centers, where scholarship, memory, and collection-building become part of the route itself.",
+        "lat": 38.9223149,
+        "lng": -77.019519
+      },
+      {
+        "id": "howard-shaw-black-intellectual-capital-rankin-chapel",
+        "title": "Andrew Rankin Memorial Chapel",
+        "description": "Add moral leadership, ceremony, and public voice to the route through one of Howard's most recognizable civic-spiritual spaces.",
+        "lat": 38.9222007,
+        "lng": -77.0205862
+      },
+      {
+        "id": "howard-shaw-black-intellectual-capital-cramton-auditorium",
+        "title": "Cramton Auditorium",
+        "description": "Bring in lectures, assemblies, campus culture, and the performance of public ideas inside Howard's collective gathering spaces.",
+        "lat": 38.9245287,
+        "lng": -77.0209814
+      },
+      {
+        "id": "howard-shaw-black-intellectual-capital-howard-hospital",
+        "title": "Howard University Hospital",
+        "description": "Read Black medical training, care infrastructure, and the Freedmen's Hospital lineage through a living institutional site.",
+        "lat": 38.9178339,
+        "lng": -77.0201005
+      },
+      {
+        "id": "howard-shaw-black-intellectual-capital-dunbar-high-school",
+        "title": "Dunbar High School",
+        "description": "Close with Black public-school excellence, showing that intellectual capital in DC extended beyond campus and into the citywide education tradition.",
+        "lat": 38.9079122,
+        "lng": -77.0139012
+      }
+    ]
+  },
+  {
+    "id": "freedom-on-the-mall",
+    "title": "Freedom on the Mall",
+    "theme": "freedom",
+    "durationMin": 100,
+    "distanceMiles": 2.1,
+    "summary": "Move from Black women's organizing into national memory, protest space, and civil-rights commemoration across the Mall's most resonant public landmarks.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/freedom-on-the-mall-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "freedom-on-the-mall-bethune-council-house",
+        "title": "Mary McLeod Bethune Council House",
+        "description": "Open with Black women's leadership, organizing strategy, and the institutional groundwork that helped shape freedom politics in Washington.",
+        "lat": 38.908189,
+        "lng": -77.0309106
+      },
+      {
+        "id": "freedom-on-the-mall-nmaahc",
+        "title": "National Museum of African American History and Culture",
+        "description": "Step into the national archive of Black memory, struggle, culture, and achievement at the Mall's clearest institutional anchor for this story.",
+        "lat": 38.891067,
+        "lng": -77.032704
+      },
+      {
+        "id": "freedom-on-the-mall-washington-monument",
+        "title": "Washington Monument Grounds",
+        "description": "Read the Mall as protest space, where marches, assemblies, and mass public presence turned national symbolism into democratic pressure.",
+        "lat": 38.8894754,
+        "lng": -77.0352426
+      },
+      {
+        "id": "freedom-on-the-mall-lincoln-memorial",
+        "title": "Lincoln Memorial",
+        "description": "Hold both Marian Anderson's 1939 performance and King's 1963 speech at a site where Black claims on the nation became impossible to ignore.",
+        "lat": 38.8892122,
+        "lng": -77.050172
+      },
+      {
+        "id": "freedom-on-the-mall-mlk-memorial",
+        "title": "Martin Luther King, Jr. Memorial",
+        "description": "Close with a memorial that turns movement into national civic memory while keeping the unfinished work of freedom in view.",
+        "lat": 38.8861001,
+        "lng": -77.0443408
+      }
+    ]
+  },
+  {
+    "id": "go-go-neighborhood-memory-and-everyday-black-dc",
+    "title": "Go-Go, Neighborhood Memory & Everyday Black DC",
+    "theme": "culture",
+    "durationMin": 115,
+    "distanceMiles": 9.3,
+    "summary": "Follow Black DC's living pulse through go-go memory, neighborhood creative spaces, Ward 8 reinvestment, Chuck Brown's public legacy, and the city's present-day cultural stage.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/go-go-neighborhood-memory-and-everyday-black-dc-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "go-go-neighborhood-memory-and-everyday-black-dc-go-go-museum",
+        "title": "Go-Go Museum & Cafe",
+        "description": "Open with a space devoted to the city's homegrown sound, where go-go is framed as local memory, public rhythm, and cultural inheritance.",
+        "lat": 38.8669302,
+        "lng": -76.9885911
+      },
+      {
+        "id": "go-go-neighborhood-memory-and-everyday-black-dc-anacostia-arts-center",
+        "title": "Anacostia Arts Center",
+        "description": "Read neighborhood creativity through storefront art, small business energy, and the everyday cultural infrastructure that keeps Black DC visible.",
+        "lat": 38.8669208,
+        "lng": -76.9876074
+      },
+      {
+        "id": "go-go-neighborhood-memory-and-everyday-black-dc-mlk-gateway",
+        "title": "MLK Gateway",
+        "description": "Use this Ward 8 reinvestment corridor to think about how Black neighborhoods carry memory forward while still negotiating change, development, and ownership.",
+        "lat": 38.8673005,
+        "lng": -76.9887924
+      },
+      {
+        "id": "go-go-neighborhood-memory-and-everyday-black-dc-chuck-brown-memorial-park",
+        "title": "Chuck Brown Memorial Park",
+        "description": "Hold go-go's most public hometown tribute at the park named for the city's defining bandleader and cultural ambassador.",
+        "lat": 38.9268434,
+        "lng": -76.9758109
+      },
+      {
+        "id": "go-go-neighborhood-memory-and-everyday-black-dc-carefirst-arena",
+        "title": "CareFirst Arena",
+        "description": "Close at the arena that keeps go-go in contemporary city branding, showing how the sound still travels through present-day DC life.",
+        "lat": 38.846957,
+        "lng": -76.993047
+      }
+    ]
+  }
+]

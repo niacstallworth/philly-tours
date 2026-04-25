@@ -1,0 +1,21 @@
+{
+  "id": "new-orleans",
+  "name": "New Orleans Tours",
+  "shortName": "NOLA",
+  "cityName": "New Orleans",
+  "stateCode": "LA",
+  "countryCode": "US",
+  "timezone": "America/New_York",
+  "slug": "new-orleans-tours",
+  "websiteOrigin": "https://neworleans-tours.com",
+  "serviceArea": [
+    "New Orleans, LA"
+  ],
+  "defaultMapCenter": {
+    "lat": 29.9511,
+    "lng": -90.0715,
+    "zoom": 12
+  },
+  "defaultTourId": "treme-black-culture-brass-and-procession",
+  "launchStatus": "draft"
+}

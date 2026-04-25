@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
+
+const tours = getCityTours();
 
 export type GameProgressSnapshot = {
   openedStopIds: string[];

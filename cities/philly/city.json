@@ -1,0 +1,20 @@
+{
+  "id": "philly",
+  "name": "Philly Tours",
+  "shortName": "Philly",
+  "cityName": "Philadelphia",
+  "stateCode": "PA",
+  "countryCode": "US",
+  "timezone": "America/New_York",
+  "slug": "philly-tours",
+  "websiteOrigin": "https://philly-tours.com",
+  "serviceArea": [
+    "Philadelphia, PA"
+  ],
+  "defaultMapCenter": {
+    "lat": 39.9526,
+    "lng": -75.1652,
+    "zoom": 12
+  },
+  "defaultTourId": "black-american-legacy-and-quaker-heritage"
+}

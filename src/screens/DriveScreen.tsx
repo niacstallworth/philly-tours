@@ -3,7 +3,7 @@ import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
 import { useDriveSession } from "../hooks/useDriveSession";
 import { useCompanionSession } from "../hooks/useCompanionSession";
 import { getHandoffModeMeta, parseHandoffUrl } from "../services/deepLinks";
@@ -31,6 +31,8 @@ import {
   markDriveArrived,
   startDriveSession
 } from "../services/driveMode";
+
+const tours = getCityTours();
 
 type Props = {
   initialTourId?: string;

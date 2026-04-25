@@ -1,0 +1,230 @@
+{
+  "catalogByStopId": {
+    "black-power-law-and-policy-dc-howard-law-school": {
+      "drive": "/audio/black-power-law-and-policy-dc-howard-law-school-drive.mp3",
+      "walk": "/audio/black-power-law-and-policy-dc-howard-law-school-walk.mp3"
+    },
+    "black-power-law-and-policy-dc-thurgood-marshall-center": {
+      "drive": "/audio/black-power-law-and-policy-dc-thurgood-marshall-center-drive.mp3",
+      "walk": "/audio/black-power-law-and-policy-dc-thurgood-marshall-center-walk.mp3"
+    },
+    "black-power-law-and-policy-dc-mlk-library": {
+      "drive": "/audio/black-power-law-and-policy-dc-mlk-library-drive.mp3",
+      "walk": "/audio/black-power-law-and-policy-dc-mlk-library-walk.mp3"
+    },
+    "black-power-law-and-policy-dc-marion-barry-building": {
+      "drive": "/audio/black-power-law-and-policy-dc-marion-barry-building-drive.mp3",
+      "walk": "/audio/black-power-law-and-policy-dc-marion-barry-building-walk.mp3"
+    },
+    "black-power-law-and-policy-dc-wilson-building": {
+      "drive": "/audio/black-power-law-and-policy-dc-wilson-building-drive.mp3",
+      "walk": "/audio/black-power-law-and-policy-dc-wilson-building-walk.mp3"
+    },
+    "u-street-black-arts-and-nightlife-civil-war-memorial": {
+      "drive": "/audio/u-street-black-arts-and-nightlife-civil-war-memorial-drive.mp3",
+      "walk": "/audio/u-street-black-arts-and-nightlife-civil-war-memorial-walk.mp3"
+    },
+    "u-street-black-arts-and-nightlife-true-reformer-building": {
+      "drive": "/audio/u-street-black-arts-and-nightlife-true-reformer-building-drive.mp3",
+      "walk": "/audio/u-street-black-arts-and-nightlife-true-reformer-building-walk.mp3"
+    },
+    "u-street-black-arts-and-nightlife-bens-chili-bowl": {
+      "drive": "/audio/u-street-black-arts-and-nightlife-bens-chili-bowl-drive.mp3",
+      "walk": "/audio/u-street-black-arts-and-nightlife-bens-chili-bowl-walk.mp3"
+    },
+    "u-street-black-arts-and-nightlife-lincoln-theatre": {
+      "drive": "/audio/u-street-black-arts-and-nightlife-lincoln-theatre-drive.mp3",
+      "walk": "/audio/u-street-black-arts-and-nightlife-lincoln-theatre-walk.mp3"
+    },
+    "u-street-black-arts-and-nightlife-bohemian-caverns": {
+      "drive": "/audio/u-street-black-arts-and-nightlife-bohemian-caverns-drive.mp3",
+      "walk": "/audio/u-street-black-arts-and-nightlife-bohemian-caverns-walk.mp3"
+    },
+    "u-street-black-arts-and-nightlife-howard-theatre": {
+      "drive": "/audio/u-street-black-arts-and-nightlife-howard-theatre-drive.mp3",
+      "walk": "/audio/u-street-black-arts-and-nightlife-howard-theatre-walk.mp3"
+    },
+    "howard-shaw-black-intellectual-capital-main-gate": {
+      "drive": "/audio/howard-shaw-black-intellectual-capital-main-gate-drive.mp3",
+      "walk": "/audio/howard-shaw-black-intellectual-capital-main-gate-walk.mp3"
+    },
+    "howard-shaw-black-intellectual-capital-founders-library": {
+      "drive": "/audio/howard-shaw-black-intellectual-capital-founders-library-drive.mp3",
+      "walk": "/audio/howard-shaw-black-intellectual-capital-founders-library-walk.mp3"
+    },
+    "howard-shaw-black-intellectual-capital-moorland-spingarn": {
+      "drive": "/audio/howard-shaw-black-intellectual-capital-moorland-spingarn-drive.mp3",
+      "walk": "/audio/howard-shaw-black-intellectual-capital-moorland-spingarn-walk.mp3"
+    },
+    "howard-shaw-black-intellectual-capital-rankin-chapel": {
+      "drive": "/audio/howard-shaw-black-intellectual-capital-rankin-chapel-drive.mp3",
+      "walk": "/audio/howard-shaw-black-intellectual-capital-rankin-chapel-walk.mp3"
+    },
+    "howard-shaw-black-intellectual-capital-cramton-auditorium": {
+      "drive": "/audio/howard-shaw-black-intellectual-capital-cramton-auditorium-drive.mp3",
+      "walk": "/audio/howard-shaw-black-intellectual-capital-cramton-auditorium-walk.mp3"
+    },
+    "howard-shaw-black-intellectual-capital-howard-hospital": {
+      "drive": "/audio/howard-shaw-black-intellectual-capital-howard-hospital-drive.mp3",
+      "walk": "/audio/howard-shaw-black-intellectual-capital-howard-hospital-walk.mp3"
+    },
+    "howard-shaw-black-intellectual-capital-dunbar-high-school": {
+      "drive": "/audio/howard-shaw-black-intellectual-capital-dunbar-high-school-drive.mp3",
+      "walk": "/audio/howard-shaw-black-intellectual-capital-dunbar-high-school-walk.mp3"
+    },
+    "freedom-on-the-mall-bethune-council-house": {
+      "drive": "/audio/freedom-on-the-mall-bethune-council-house-drive.mp3",
+      "walk": "/audio/freedom-on-the-mall-bethune-council-house-walk.mp3"
+    },
+    "freedom-on-the-mall-nmaahc": {
+      "drive": "/audio/freedom-on-the-mall-nmaahc-drive.mp3",
+      "walk": "/audio/freedom-on-the-mall-nmaahc-walk.mp3"
+    },
+    "freedom-on-the-mall-washington-monument": {
+      "drive": "/audio/freedom-on-the-mall-washington-monument-drive.mp3",
+      "walk": "/audio/freedom-on-the-mall-washington-monument-walk.mp3"
+    },
+    "freedom-on-the-mall-lincoln-memorial": {
+      "drive": "/audio/freedom-on-the-mall-lincoln-memorial-drive.mp3",
+      "walk": "/audio/freedom-on-the-mall-lincoln-memorial-walk.mp3"
+    },
+    "freedom-on-the-mall-mlk-memorial": {
+      "drive": "/audio/freedom-on-the-mall-mlk-memorial-drive.mp3",
+      "walk": "/audio/freedom-on-the-mall-mlk-memorial-walk.mp3"
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-go-go-museum": {
+      "drive": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-go-go-museum-drive.mp3",
+      "walk": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-go-go-museum-walk.mp3"
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-anacostia-arts-center": {
+      "drive": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-anacostia-arts-center-drive.mp3",
+      "walk": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-anacostia-arts-center-walk.mp3"
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-mlk-gateway": {
+      "drive": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-mlk-gateway-drive.mp3",
+      "walk": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-mlk-gateway-walk.mp3"
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-chuck-brown-memorial-park": {
+      "drive": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-chuck-brown-memorial-park-drive.mp3",
+      "walk": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-chuck-brown-memorial-park-walk.mp3"
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-carefirst-arena": {
+      "drive": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-carefirst-arena-drive.mp3",
+      "walk": "/audio/go-go-neighborhood-memory-and-everyday-black-dc-carefirst-arena-walk.mp3"
+    }
+  },
+  "scriptMapByStopId": {
+    "black-power-law-and-policy-dc-howard-law-school": {
+      "drive": "Ahead is Howard Law, where Black legal strategy, civil-rights doctrine, and the training of social engineers shaped national change.",
+      "walk": "You are at Howard Law, one of the clearest anchors for Black legal power in Washington. This is where the route begins its story of policy, movement, and institutional strategy."
+    },
+    "black-power-law-and-policy-dc-thurgood-marshall-center": {
+      "drive": "Next is the Thurgood Marshall Center, a powerful bridge between Black education history, civic convening, and legal leadership in the city.",
+      "walk": "You are at the Thurgood Marshall Center, where the route connects Black legal tradition to the civic institutions that carried it into public life."
+    },
+    "black-power-law-and-policy-dc-mlk-library": {
+      "drive": "Approaching the Martin Luther King Jr. Memorial Library, the route moves from legal training into public knowledge, archives, and organizing memory.",
+      "walk": "You are at the MLK Library, a public-facing civic anchor where law, literacy, archives, and movement memory meet."
+    },
+    "black-power-law-and-policy-dc-marion-barry-building": {
+      "drive": "Ahead is the Marion S. Barry, Jr. Building, where the route turns toward Black local governance, home rule, and the politics of city power.",
+      "walk": "You are at the Marion Barry Building, a strong place to read Black political leadership through the institutions of District government."
+    },
+    "black-power-law-and-policy-dc-wilson-building": {
+      "drive": "The route closes at the John A. Wilson Building, the seat of District government and a fitting capstone for law, policy, and home-rule power.",
+      "walk": "You are at the Wilson Building, where the route ends with the machinery of city government itself: hearings, executive authority, and the ongoing struggle over who governs Washington."
+    },
+    "u-street-black-arts-and-nightlife-civil-war-memorial": {
+      "drive": "Ahead is the African American Civil War Memorial, where the route opens with Black service, sacrifice, and public memory before moving into U Street's cultural corridor.",
+      "walk": "You are at the African American Civil War Memorial, a strong opening point for reading U Street through freedom memory as well as performance history."
+    },
+    "u-street-black-arts-and-nightlife-true-reformer-building": {
+      "drive": "Next is the True Reformer Building, a reminder that Black U Street was built through institutions, enterprise, and civic ambition as much as nightlife.",
+      "walk": "You are at the True Reformer Building, where the route widens from entertainment into Black business, institution-building, and neighborhood infrastructure."
+    },
+    "u-street-black-arts-and-nightlife-bens-chili-bowl": {
+      "drive": "Ahead is Ben's Chili Bowl, one of the clearest symbols of neighborhood continuity, political memory, and everyday gathering on the corridor.",
+      "walk": "You are at Ben's Chili Bowl, a living social anchor where culture, activism, tourism, and local identity still overlap."
+    },
+    "u-street-black-arts-and-nightlife-lincoln-theatre": {
+      "drive": "Approaching the Lincoln Theatre, the route moves into the bright public face of Black Broadway and U Street stage history.",
+      "walk": "You are at the Lincoln Theatre, a major performance anchor that helps define U Street as one of Black America's great cultural corridors."
+    },
+    "u-street-black-arts-and-nightlife-bohemian-caverns": {
+      "drive": "Next is Bohemian Caverns, where the route drops into the more intimate, underground side of U Street jazz history.",
+      "walk": "You are at the Bohemian Caverns site, a place to think about late-night performance, experimentation, and the club life that shaped U Street's sound."
+    },
+    "u-street-black-arts-and-nightlife-howard-theatre": {
+      "drive": "The route closes at the Howard Theatre, a defining Black performance landmark where neighborhood life and national entertainment history meet.",
+      "walk": "You are at the Howard Theatre, a fitting capstone for the U Street route and one of the clearest symbols of Black DC performance history."
+    },
+    "howard-shaw-black-intellectual-capital-main-gate": {
+      "drive": "Ahead is the Howard University campus threshold, where the route opens into Black scholarship, leadership, and institutional formation.",
+      "walk": "You are at Howard's main gate, a strong opening point for tracing Black intellectual capital through the campus and surrounding neighborhoods."
+    },
+    "howard-shaw-black-intellectual-capital-founders-library": {
+      "drive": "Next is Founders Library, the symbolic heart of Howard and one of the route's strongest markers of Black institutional confidence.",
+      "walk": "You are at Founders Library, where architecture, archives, and institutional ambition give the route its intellectual center."
+    },
+    "howard-shaw-black-intellectual-capital-moorland-spingarn": {
+      "drive": "Approaching the Moorland-Spingarn Research Center, the route turns directly into Black archival power and the stewardship of memory.",
+      "walk": "You are at Moorland-Spingarn, one of the country's great centers for Black research collections, historical preservation, and scholarly access."
+    },
+    "howard-shaw-black-intellectual-capital-rankin-chapel": {
+      "drive": "Next is Rankin Chapel, where the route adds moral leadership, assembly, and public voice to the story of Howard's intellectual life.",
+      "walk": "You are at Rankin Chapel, a campus space where Black intellectual, spiritual, and civic traditions meet."
+    },
+    "howard-shaw-black-intellectual-capital-cramton-auditorium": {
+      "drive": "Ahead is Cramton Auditorium, where lectures, performances, and public gatherings turn campus life into shared civic experience.",
+      "walk": "You are at Cramton Auditorium, a fitting stop for thinking about speeches, performances, and the public life of ideas at Howard."
+    },
+    "howard-shaw-black-intellectual-capital-howard-hospital": {
+      "drive": "Approaching Howard University Hospital, the route shifts into Black medical training, care institutions, and the Freedmen's Hospital legacy.",
+      "walk": "You are at Howard University Hospital, where Black intellectual capital takes the form of medicine, care, and professional service."
+    },
+    "howard-shaw-black-intellectual-capital-dunbar-high-school": {
+      "drive": "The route closes at Dunbar High School, a landmark of Black public-school excellence that expands the city's intellectual story beyond the university.",
+      "walk": "You are at Dunbar High School, a capstone stop that ties Black scholarship, aspiration, and public education into the wider life of DC."
+    },
+    "freedom-on-the-mall-bethune-council-house": {
+      "drive": "Ahead is the Mary McLeod Bethune Council House, where Black women's organizing power helps frame the freedom story before the route reaches the Mall itself.",
+      "walk": "You are at the Bethune Council House, a strong opening point for reading freedom through Black women's leadership, institution-building, and national strategy."
+    },
+    "freedom-on-the-mall-nmaahc": {
+      "drive": "Next is the National Museum of African American History and Culture, where the route turns toward the national archive of Black struggle, memory, and achievement.",
+      "walk": "You are at NMAAHC, the Mall's clearest institutional anchor for Black memory, culture, and the long public story of freedom in America."
+    },
+    "freedom-on-the-mall-washington-monument": {
+      "drive": "Approaching the Washington Monument grounds, the route reads the Mall as protest space, where mass gatherings transformed symbolic land into democratic pressure.",
+      "walk": "You are at the Washington Monument grounds, a powerful place to think about assembly, marching, and the public geography of freedom claims in the capital."
+    },
+    "freedom-on-the-mall-lincoln-memorial": {
+      "drive": "Ahead is the Lincoln Memorial, where Marian Anderson's 1939 performance and King's 1963 speech made Black presence central to the nation's self-image.",
+      "walk": "You are at the Lincoln Memorial, one of the route's strongest freedom anchors and a place where performance, protest, and national symbolism converge."
+    },
+    "freedom-on-the-mall-mlk-memorial": {
+      "drive": "The route closes at the Martin Luther King, Jr. Memorial, where movement becomes memorial and the promise of freedom is held against the nation's unfinished work.",
+      "walk": "You are at the Martin Luther King, Jr. Memorial, a fitting capstone for this route and a place where public memory asks what freedom still requires."
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-go-go-museum": {
+      "drive": "Ahead is the Go-Go Museum and Cafe, where the route opens with the city's own sound and the neighborhood memory carried inside it.",
+      "walk": "You are at the Go-Go Museum and Cafe, a strong starting point for reading Black DC through rhythm, local pride, and cultural inheritance."
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-anacostia-arts-center": {
+      "drive": "Next is the Anacostia Arts Center, where everyday Black creativity takes the form of storefront art, makers, and neighborhood cultural infrastructure.",
+      "walk": "You are at the Anacostia Arts Center, where the route widens from music into the small-business and arts ecosystem that keeps Black DC visible."
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-mlk-gateway": {
+      "drive": "Approaching MLK Gateway, the route turns toward neighborhood reinvestment and the question of how Black DC carries memory through change.",
+      "walk": "You are at MLK Gateway, a useful place to think about development, ownership, and the everyday future of Black neighborhoods in Ward 8."
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-chuck-brown-memorial-park": {
+      "drive": "Ahead is Chuck Brown Memorial Park, where the city's defining bandleader is honored in public space and go-go becomes civic memory.",
+      "walk": "You are at Chuck Brown Memorial Park, a hometown tribute that makes clear how deeply go-go lives inside the public identity of Washington."
+    },
+    "go-go-neighborhood-memory-and-everyday-black-dc-carefirst-arena": {
+      "drive": "The route closes at CareFirst Arena, where go-go still echoes through present-day DC branding, crowds, and city-scale cultural visibility.",
+      "walk": "You are at CareFirst Arena, a fitting final stop for seeing how Black DC's homegrown sound still travels through contemporary city life."
+    }
+  }
+}

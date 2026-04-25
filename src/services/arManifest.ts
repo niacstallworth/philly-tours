@@ -1,3 +1,4 @@
+import { getCityAr } from "../city-runtime/getCityAr";
 import { arAssetCatalogByStopId } from "../data/arAssetCatalog";
 import { Stop } from "../types";
 
@@ -20,6 +21,8 @@ export type ARSceneManifest = {
   productionChecklist: string[];
   negativePrompt: string;
 };
+
+const cityAr = getCityAr();
 
 function headlineForType(arType: string) {
   switch (arType) {
@@ -106,14 +109,15 @@ function checklistForType(arType: string) {
 
 export function toARSceneManifest(stop: Stop): ARSceneManifest {
   const catalogEntry = arAssetCatalogByStopId.get(stop.id);
-  const arType = catalogEntry?.arType || stop.arType || "none";
+  const runtimeEntry = cityAr[stop.id];
+  const arType = catalogEntry?.arType || runtimeEntry?.arType || stop.arType || "none";
 
   return {
     stopId: stop.id,
     stopTitle: stop.title,
     arType,
     headline: headlineForType(arType),
-    summary: stop.assetNeeded || catalogEntry?.assetNeeded || stop.description,
+    summary: runtimeEntry?.assetNeeded || stop.assetNeeded || catalogEntry?.assetNeeded || stop.description,
     historicalEra: catalogEntry?.historicalEra || "historic Philadelphia",
     stylePreset: catalogEntry?.stylePreset || "documentary",
     visualPriority: catalogEntry?.visualPriority || "historical_accuracy",
@@ -121,7 +125,7 @@ export function toARSceneManifest(stop: Stop): ARSceneManifest {
     runtimeAssets: {
       ios: catalogEntry?.iosAsset || stop.modelUrl,
       android: catalogEntry?.androidAsset || stop.modelUrl,
-      web: catalogEntry?.webAsset || stop.modelUrl
+      web: catalogEntry?.webAsset || runtimeEntry?.modelUrl || stop.modelUrl
     },
     contentLayers: contentLayersForType(arType, catalogEntry?.assetNeeded || stop.assetNeeded || ""),
     productionChecklist: checklistForType(arType),

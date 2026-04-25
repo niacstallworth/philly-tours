@@ -1,3 +1,4 @@
+import { getCityAr } from "../city-runtime/getCityAr";
 import { arAssetCatalogByStopId } from "../data/arAssetCatalog";
 import { Stop } from "../types";
 import { ARSceneManifest, toARSceneManifest } from "./arManifest";
@@ -27,9 +28,12 @@ export type ARProductionBrief = {
   productionChecklist: string[];
 };
 
+const cityAr = getCityAr();
+
 export function toARProductionBrief(stop: Stop, tourTitle: string): ARProductionBrief {
   const manifest = toARSceneManifest(stop);
   const catalogEntry = arAssetCatalogByStopId.get(stop.id);
+  const runtimeEntry = cityAr[stop.id];
 
   return {
     stopId: stop.id,
@@ -42,12 +46,12 @@ export function toARProductionBrief(stop: Stop, tourTitle: string): ARProduction
     historicalEra: manifest.historicalEra,
     stylePreset: manifest.stylePreset,
     visualPriority: manifest.visualPriority,
-    estimatedEffort: catalogEntry?.estimatedEffort || stop.estimatedEffort || "n/a",
+    estimatedEffort: runtimeEntry?.estimatedEffort || catalogEntry?.estimatedEffort || stop.estimatedEffort || "n/a",
     anchorStyle: catalogEntry?.anchorStyle || "front_of_user",
     fallbackType: catalogEntry?.fallbackType || "card",
     coordQuality: catalogEntry?.coordQuality || stop.coordQuality || "approximate",
     triggerRadiusM: catalogEntry?.triggerRadiusM || stop.triggerRadiusM,
-    assetNeeded: catalogEntry?.assetNeeded || stop.assetNeeded || "No asset brief entered yet.",
+    assetNeeded: runtimeEntry?.assetNeeded || catalogEntry?.assetNeeded || stop.assetNeeded || "No asset brief entered yet.",
     negativePrompt: manifest.negativePrompt,
     briefPath: `docs/ar-briefs/${stop.id}.md`,
     manifestPath: `docs/ar-scene-manifests/${stop.id}.json`,

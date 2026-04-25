@@ -121,25 +121,25 @@ npm run start:metro:dev-client
 Run the static webapp with generated data:
 
 ```bash
-npm run webapp:serve
+CITY=philly npm run webapp:serve
 ```
 
 Build a deployable static bundle:
 
 ```bash
-npm run webapp:build
+CITY=philly npm run webapp:build
 ```
 
 Build and package an upload-ready release:
 
 ```bash
-npm run webapp:package
+CITY=philly npm run webapp:package
 ```
 
 Build and deploy the static webapp to Cloudflare Pages:
 
 ```bash
-npm run deploy
+CITY=philly npm run deploy
 ```
 
 Run the local backend:
@@ -161,7 +161,7 @@ Notes:
 - If the app shows `localhost:4000` in a release build, that build was created without the correct EAS public env baked in.
 - Web camera and geolocation features work on `http://localhost`, but public browser deployments should use `https`.
 - Android device builds should avoid root-level server secret files that Metro might try to parse.
-- Some generated web assets in `webapp/` are build outputs. Rebuild with `npm run webapp:build` before deploys when data or config changes.
+- Some generated web assets in `webapp/` are build outputs. Rebuild with `CITY=<city> npm run webapp:build` before deploys when data or config changes.
 
 ## Environment
 

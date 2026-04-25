@@ -1,0 +1,86 @@
+{
+  "catalogByStopId": {
+    "treme-black-culture-brass-and-procession-backstreet": {
+      "drive": "/audio/treme-black-culture-brass-and-procession-backstreet-drive.mp3",
+      "walk": "/audio/treme-black-culture-brass-and-procession-backstreet-walk.mp3"
+    },
+    "treme-black-culture-brass-and-procession-petit-jazz": {
+      "drive": "/audio/treme-black-culture-brass-and-procession-petit-jazz-drive.mp3",
+      "walk": "/audio/treme-black-culture-brass-and-procession-petit-jazz-walk.mp3"
+    },
+    "treme-black-culture-brass-and-procession-noaam": {
+      "drive": "/audio/treme-black-culture-brass-and-procession-noaam-drive.mp3",
+      "walk": "/audio/treme-black-culture-brass-and-procession-noaam-walk.mp3"
+    },
+    "treme-black-culture-brass-and-procession-st-augustine": {
+      "drive": "/audio/treme-black-culture-brass-and-procession-st-augustine-drive.mp3",
+      "walk": "/audio/treme-black-culture-brass-and-procession-st-augustine-walk.mp3"
+    },
+    "treme-black-culture-brass-and-procession-mahalia-jackson": {
+      "drive": "/audio/treme-black-culture-brass-and-procession-mahalia-jackson-drive.mp3",
+      "walk": "/audio/treme-black-culture-brass-and-procession-mahalia-jackson-walk.mp3"
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-congo-square": {
+      "drive": "/audio/congo-square-freedom-and-black-new-orleans-origins-congo-square-drive.mp3",
+      "walk": "/audio/congo-square-freedom-and-black-new-orleans-origins-congo-square-walk.mp3"
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-armstrong-park": {
+      "drive": "/audio/congo-square-freedom-and-black-new-orleans-origins-armstrong-park-drive.mp3",
+      "walk": "/audio/congo-square-freedom-and-black-new-orleans-origins-armstrong-park-walk.mp3"
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-st-augustine": {
+      "drive": "/audio/congo-square-freedom-and-black-new-orleans-origins-st-augustine-drive.mp3",
+      "walk": "/audio/congo-square-freedom-and-black-new-orleans-origins-st-augustine-walk.mp3"
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-noaam": {
+      "drive": "/audio/congo-square-freedom-and-black-new-orleans-origins-noaam-drive.mp3",
+      "walk": "/audio/congo-square-freedom-and-black-new-orleans-origins-noaam-walk.mp3"
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor": {
+      "drive": "/audio/congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor-drive.mp3",
+      "walk": "/audio/congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor-walk.mp3"
+    }
+  },
+  "scriptMapByStopId": {
+    "treme-black-culture-brass-and-procession-backstreet": {
+      "drive": "Ahead is the Backstreet Cultural Museum, where Tremé's second lines, Black masking traditions, and neighborhood pageantry come fully into view.",
+      "walk": "You are at the Backstreet Cultural Museum, a powerful opening point for reading Tremé through the Black cultural practices that keep the neighborhood in motion."
+    },
+    "treme-black-culture-brass-and-procession-petit-jazz": {
+      "drive": "Next is Tremé's Petit Jazz Museum, where jazz history stays intimate, local, and rooted in neighborhood memory rather than distant legend.",
+      "walk": "You are at Tremé's Petit Jazz Museum, a fitting stop for thinking about how jazz lives on the block, in family memory, and in everyday New Orleans culture."
+    },
+    "treme-black-culture-brass-and-procession-noaam": {
+      "drive": "Approaching the New Orleans African American Museum, the route adds public interpretation and Black historical stewardship to the cultural story.",
+      "walk": "You are at the New Orleans African American Museum, where Tremé's neighborhood life opens into a broader story of Black preservation, interpretation, and public history."
+    },
+    "treme-black-culture-brass-and-procession-st-augustine": {
+      "drive": "Next is St. Augustine Church, where the route deepens into sacred history, spiritual memory, and the religious life of Black New Orleans.",
+      "walk": "You are at St. Augustine Church, a strong place to widen the route from procession and performance into spiritual life and deeper historical memory."
+    },
+    "treme-black-culture-brass-and-procession-mahalia-jackson": {
+      "drive": "The route closes at Mahalia Jackson Theater, where neighborhood cultural practice meets a larger civic stage inside the New Orleans performance world.",
+      "walk": "You are at Mahalia Jackson Theater, a fitting capstone for seeing how Tremé's neighborhood traditions connect to the city's larger public performance life."
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-congo-square": {
+      "drive": "Ahead is Congo Square, where Black gathering, retention, rhythm, and survival form one of the deepest cultural foundations in New Orleans.",
+      "walk": "You are at Congo Square, the strongest opening point for reading Black New Orleans through public gathering, continuity, and freedom under constraint."
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-armstrong-park": {
+      "drive": "Next is Louis Armstrong Park, where the route broadens from the square into a larger landscape of Black cultural memory and civic recognition.",
+      "walk": "You are in Louis Armstrong Park, where the route expands from Congo Square into a broader public memory space tied to Black New Orleans origins."
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-st-augustine": {
+      "drive": "Approaching St. Augustine Church, the route brings sacred history and freedom memory into conversation with New Orleans' Black cultural foundations.",
+      "walk": "You are at St. Augustine Church, a powerful stop for reading Black New Orleans through spiritual life, sacred memory, and the long arc of freedom."
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-noaam": {
+      "drive": "Next is the New Orleans African American Museum, where public interpretation helps hold the city's deeper Black story together.",
+      "walk": "You are at the New Orleans African American Museum, where the route turns toward preservation, interpretation, and the institutional care of Black history."
+    },
+    "congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor": {
+      "drive": "The route closes along North Claiborne, where Black origins and freedom memory extend into the longer neighborhood history of Tremé and Claiborne.",
+      "walk": "You are along North Claiborne, a fitting capstone for thinking about how Black New Orleans origins live on in corridor memory, neighborhood change, and public space."
+    }
+  }
+}

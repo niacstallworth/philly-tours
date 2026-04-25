@@ -1,0 +1,29 @@
+{
+  "homeTitle": "Baltimore Tours | Self-Guided Baltimore Story Routes Preview",
+  "homeDescription": "Explore draft Baltimore walking tours for Pennsylvania Avenue Black Arts and Harbor Labor & Freedom with live script narration, maps, and Compass guidance.",
+  "catalogTitle": "Baltimore Walking Tours | Baltimore Tours",
+  "catalogDescription": "Browse the draft Baltimore city pack with routes for Pennsylvania Avenue Black Arts, harbor labor, freedom stories, and neighborhood memory.",
+  "homePanelEyebrow": "Baltimore walking tours",
+  "homePanelTitle": "The second city is now real enough to walk and review.",
+  "homePanelBody": "Baltimore is the first non-Philly city pack in the platform. This draft release now includes two researched routes with real landmarks, live script narration, and enough structure to pressure-test the same codebase outside Philadelphia while the remaining launch tours are still being built.",
+  "homePanelHighlights": [
+    "2 draft Baltimore routes",
+    "Black arts corridor",
+    "Harbor labor stories",
+    "Compass walking guidance",
+    "Script-first narration"
+  ],
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "searchImage": "/assets/brand/site-icon-512.png",
+  "knowsAbout": [
+    "Baltimore walking tours",
+    "Baltimore Black history tours",
+    "Pennsylvania Avenue Baltimore",
+    "self-guided Baltimore tours",
+    "Baltimore harbor history",
+    "Baltimore Black arts"
+  ]
+}

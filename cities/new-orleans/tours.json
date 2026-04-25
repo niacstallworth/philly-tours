@@ -1,0 +1,100 @@
+[
+  {
+    "id": "treme-black-culture-brass-and-procession",
+    "title": "Tremé Black Culture, Brass & Procession",
+    "theme": "culture",
+    "durationMin": 95,
+    "distanceMiles": 1.2,
+    "summary": "Follow Tremé through second lines, brass-band memory, Black cultural institutions, sacred history, and the neighborhood traditions that make New Orleans unmistakable.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/treme-black-culture-brass-and-procession-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "treme-black-culture-brass-and-procession-backstreet",
+        "title": "Backstreet Cultural Museum",
+        "description": "Open with a museum that centers second lines, Mardi Gras Indians, and the Black neighborhood practices that keep Tremé's cultural life in motion.",
+        "lat": 29.9645834,
+        "lng": -90.0662146
+      },
+      {
+        "id": "treme-black-culture-brass-and-procession-petit-jazz",
+        "title": "Tremé's Petit Jazz Museum",
+        "description": "Keep the route intimate and neighborhood-rooted at a stop where jazz history stays local, lived, and close to the block.",
+        "lat": 29.9669294,
+        "lng": -90.0682018
+      },
+      {
+        "id": "treme-black-culture-brass-and-procession-noaam",
+        "title": "New Orleans African American Museum",
+        "description": "Bring in public interpretation, preservation, and Black historical stewardship at one of Tremé's strongest institutional anchors.",
+        "lat": 29.9665108,
+        "lng": -90.0679482
+      },
+      {
+        "id": "treme-black-culture-brass-and-procession-st-augustine",
+        "title": "St. Augustine Church",
+        "description": "Add spiritual memory and the deeper sacred history of Black New Orleans at a church that expands the route beyond performance alone.",
+        "lat": 29.9653925,
+        "lng": -90.0664638
+      },
+      {
+        "id": "treme-black-culture-brass-and-procession-mahalia-jackson",
+        "title": "Mahalia Jackson Theater",
+        "description": "Close with a civic-scale performance anchor that links neighborhood cultural practice to the larger public stage of New Orleans.",
+        "lat": 29.9632013,
+        "lng": -90.0693976
+      }
+    ]
+  },
+  {
+    "id": "congo-square-freedom-and-black-new-orleans-origins",
+    "title": "Congo Square, Freedom & Black New Orleans Origins",
+    "theme": "freedom",
+    "durationMin": 90,
+    "distanceMiles": 1.4,
+    "summary": "Move through Congo Square, Armstrong Park, sacred memory, and the Tremé corridor to read the deepest Black origins of New Orleans in public space.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/congo-square-freedom-and-black-new-orleans-origins-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "congo-square-freedom-and-black-new-orleans-origins-congo-square",
+        "title": "Congo Square",
+        "description": "Open where Black gathering, retention, rhythm, and survival formed one of the deepest cultural foundations in New Orleans.",
+        "lat": 29.9612536,
+        "lng": -90.0686153
+      },
+      {
+        "id": "congo-square-freedom-and-black-new-orleans-origins-armstrong-park",
+        "title": "Louis Armstrong Park",
+        "description": "Expand the route from the square into a broader public memory landscape tied to Black cultural origins and civic recognition.",
+        "lat": 29.962742,
+        "lng": -90.0687227
+      },
+      {
+        "id": "congo-square-freedom-and-black-new-orleans-origins-st-augustine",
+        "title": "St. Augustine Church",
+        "description": "Bring sacred history and freedom memory into the route through one of Tremé's most resonant Black religious sites.",
+        "lat": 29.9653925,
+        "lng": -90.0664638
+      },
+      {
+        "id": "congo-square-freedom-and-black-new-orleans-origins-noaam",
+        "title": "New Orleans African American Museum",
+        "description": "Add public interpretation and Black historical stewardship at an institution that helps hold the city's deeper story together.",
+        "lat": 29.9665108,
+        "lng": -90.0679482
+      },
+      {
+        "id": "congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor",
+        "title": "North Claiborne Corridor",
+        "description": "Close with a corridor that bridges Black origins and freedom memory into the longer neighborhood history of Tremé and Claiborne.",
+        "lat": 29.9676548,
+        "lng": -90.0698804
+      }
+    ]
+  }
+]

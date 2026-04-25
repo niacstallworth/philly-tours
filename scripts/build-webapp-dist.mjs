@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { loadCityPack } from "./lib/city-pack.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,9 +11,35 @@ const webappDir = path.join(repoRoot, "webapp");
 const assetsDir = path.join(repoRoot, "assets");
 const outputDir = path.join(repoRoot, "web-dist");
 const assetVersion = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
-const siteOrigin = "https://philly-tours.com";
+const cityPack = loadCityPack(repoRoot);
+const siteOrigin = cityPack.city.websiteOrigin || "https://philly-tours.com";
+const siteName = cityPack.city.name || "Philly Tours";
+const cityName = cityPack.city.cityName || "Philadelphia";
+const stateCode = cityPack.city.stateCode || "PA";
+const countryCode = cityPack.city.countryCode || "US";
+const homeTitle = cityPack.seo.homeTitle || `${siteName} | Self-Guided ${cityName} Audio & AR Walking Tours`;
+const homeDescription =
+  cityPack.seo.homeDescription ||
+  `Walk ${cityName} with self-guided audio tours, maps, Compass guidance, AR-ready stops, and hidden routes.`;
+const catalogTitle = cityPack.seo.catalogTitle || `${cityName} Walking Tours | ${siteName}`;
+const catalogDescription =
+  cityPack.seo.catalogDescription ||
+  `Browse self-guided ${cityName} walking tours with audio narration, maps, Compass guidance, and AR-ready story stops.`;
 const siteLogoPath = "/assets/brand/site-icon-512.png";
-const defaultSearchImagePath = "/assets/search/philly-tours-search-thumbnail.jpg";
+const defaultSearchImagePath = cityPack.seo.searchImage || "/assets/search/philly-tours-search-thumbnail.jpg";
+const organizationType = Array.isArray(cityPack.seo.organizationType) && cityPack.seo.organizationType.length
+  ? cityPack.seo.organizationType
+  : ["Organization", "TravelAgency"];
+const knowsAbout = Array.isArray(cityPack.seo.knowsAbout) ? cityPack.seo.knowsAbout : [];
+const sameAs = Array.isArray(cityPack.social.sameAs) && cityPack.social.sameAs.length ? cityPack.social.sameAs : [siteOrigin];
+const organizationDescription =
+  cityPack.businessProfile.fullDescription ||
+  cityPack.businessProfile.shortDescription ||
+  homeDescription;
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function loadDotEnvFile(filePath) {
   if (!fs.existsSync(filePath)) {
@@ -76,12 +103,12 @@ function parseStopMetadata(description) {
       ?.replace(/^location:\s*/i, "")
       .trim() ?? "";
   const locationLabel = fullAddress
-    .replace(/,\s*philadelphia,\s*pa(?:\s*\d{5})?$/i, "")
-    .replace(/,\s*pa(?:\s*\d{5})?$/i, "")
+    .replace(new RegExp(`,\\s*${escapeRegExp(cityName)},\\s*${escapeRegExp(stateCode)}(?:\\s*\\d{5})?$`, "i"), "")
+    .replace(new RegExp(`,\\s*${escapeRegExp(stateCode)}(?:\\s*\\d{5})?$`, "i"), "")
     .trim();
   const summary =
     parts.find((part) => !/^day:|^time:|^location:/i.test(part)) ||
-    "Philadelphia story stop";
+    `${cityName} story stop`;
 
   return { fullAddress, locationLabel, summary };
 }
@@ -106,7 +133,7 @@ function deriveNeighborhood(stops) {
   if (first && last && first !== last) {
     return `${first} to ${last}`;
   }
-  return first || last || "Philadelphia";
+  return first || last || cityName;
 }
 
 function deriveSummary(tour) {
@@ -114,7 +141,7 @@ function deriveSummary(tour) {
   const leadStops = stops.slice(0, 2).map((stop) => stop.title).filter(Boolean);
   const opener = leadStops.length
     ? `${leadStops.join(" and ")} anchor this route.`
-    : "A story-led Philadelphia route.";
+    : `A story-led ${cityName} route.`;
   return `${opener} ${stops.length} stops across ${tour.distanceMiles} miles with maps, narration, Compass guidance, and AR-ready context.`;
 }
 
@@ -186,9 +213,9 @@ function renderTourPage(tour, allTours) {
   const theme = deriveTheme(tour.title, tour.id);
   const neighborhood = deriveNeighborhood(stops);
   const summary = deriveSummary(tour);
-  const title = `${tour.title} Tour in Philadelphia | Philly Tours`;
+  const title = `${tour.title} Tour in ${cityName} | ${siteName}`;
   const description = truncateMeta(
-    `${tour.title}: ${stops.length} Philadelphia stops across ${tour.distanceMiles} miles with maps, audio narration, Compass guidance, and AR-ready route context.`
+    `${tour.title}: ${stops.length} ${cityName} stops across ${tour.distanceMiles} miles with maps, audio narration, Compass guidance, and AR-ready route context.`
   );
   const canonicalPath = `/tours/${tour.id}/`;
   const imagePath = tour.cardMedia?.src || "";
@@ -217,7 +244,7 @@ function renderTourPage(tour, allTours) {
     description,
     url: absoluteUrl(canonicalPath),
     image: imagePath ? absoluteUrl(imagePath) : undefined,
-    touristType: ["Visitors", "Philadelphia explorers", "History travelers"],
+    touristType: ["Visitors", `${cityName} explorers`, "History travelers"],
     itinerary: {
       "@type": "ItemList",
       numberOfItems: stops.length,
@@ -245,7 +272,7 @@ function renderTourPage(tour, allTours) {
     },
     provider: {
       "@type": "Organization",
-      name: "Philly Tours",
+      name: siteName,
       url: siteOrigin,
       logo: absoluteUrl(siteLogoPath),
       image: absoluteUrl(defaultSearchImagePath)
@@ -401,7 +428,7 @@ ${renderHead({ title, description, canonicalPath, imagePath })}
   </head>
   <body>
     <main class="shell">
-      <a class="back" href="/">Back to all Philly tours</a>
+      <a class="back" href="/">Back to all ${escapeHtml(siteName)} routes</a>
       <section class="hero">
         <div class="hero-copy">
           <span class="eyebrow">${escapeHtml(theme)} route</span>
@@ -433,7 +460,7 @@ ${stopList}
       </section>
 
       <section class="section">
-        <span class="eyebrow">More Philadelphia routes</span>
+        <span class="eyebrow">More ${escapeHtml(cityName)} routes</span>
         <h2>Keep exploring</h2>
         <div class="related">${otherTours}</div>
       </section>
@@ -444,8 +471,8 @@ ${stopList}
 }
 
 function renderToursIndexPage(tours) {
-  const title = "Philadelphia Tour Catalog | Philly Tours";
-  const description = "Browse self-guided Philadelphia walking tours with maps, audio narration, Compass guidance, and AR-ready story stops.";
+  const title = catalogTitle;
+  const description = catalogDescription;
   const cards = tours
     .map((tour) => {
       const stops = tour.stops || [];
@@ -469,7 +496,7 @@ function renderToursIndexPage(tours) {
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Philadelphia tour catalog",
+    name: `${cityName} tour catalog`,
     image: absoluteUrl(defaultSearchImagePath),
     numberOfItems: tours.length,
     itemListElement: tours.map((tour, index) => ({
@@ -568,16 +595,193 @@ ${renderHead({
   </head>
   <body>
     <main class="shell">
-      <a class="back" href="/">Back to Philly Tours</a>
+      <a class="back" href="/">Back to ${escapeHtml(siteName)}</a>
       <section class="hero">
         <span class="eyebrow">Tour catalog</span>
-        <h1>Pick a Philadelphia story.</h1>
+        <h1>Pick a ${escapeHtml(cityName)} story.</h1>
         <p>${escapeHtml(description)}</p>
       </section>
-      <section class="grid" aria-label="Philadelphia tours">
+      <section class="grid" aria-label="${escapeHtml(cityName)} tours">
 ${cards}
       </section>
     </main>
+  </body>
+</html>
+`;
+}
+
+function renderHomeAppShellPage() {
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": organizationType,
+        "@id": `${siteOrigin}/#organization`,
+        name: siteName,
+        url: `${siteOrigin}/`,
+        logo: absoluteUrl(siteLogoPath),
+        image: absoluteUrl(defaultSearchImagePath),
+        description: organizationDescription,
+        areaServed: {
+          "@type": "City",
+          name: cityName,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: cityName,
+            addressRegion: stateCode,
+            addressCountry: countryCode
+          }
+        },
+        knowsAbout,
+        makesOffer: {
+          "@type": "OfferCatalog",
+          name: `${cityName} walking tour routes`,
+          itemListElement: [
+            {
+              "@type": "Offer",
+              name: `Self-guided ${cityName} walking tours`,
+              itemOffered: {
+                "@type": "TouristTrip",
+                name: `Self-guided ${cityName} walking tours`
+              }
+            },
+            {
+              "@type": "Offer",
+              name: `Black history ${cityName} routes`,
+              itemOffered: {
+                "@type": "TouristTrip",
+                name: `Black history ${cityName} routes`
+              }
+            },
+            {
+              "@type": "Offer",
+              name: "Compass-guided audio routes",
+              itemOffered: {
+                "@type": "TouristTrip",
+                name: "Compass-guided audio routes"
+              }
+            }
+          ]
+        },
+        sameAs
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteOrigin}/#website`,
+        name: siteName,
+        url: `${siteOrigin}/`,
+        publisher: { "@id": `${siteOrigin}/#organization` }
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${siteOrigin}/#webpage`,
+        name: homeTitle,
+        url: `${siteOrigin}/`,
+        description: homeDescription,
+        isPartOf: { "@id": `${siteOrigin}/#website` },
+        primaryImageOfPage: {
+          "@type": "ImageObject",
+          url: absoluteUrl(defaultSearchImagePath),
+          width: 1200,
+          height: 630
+        },
+        publisher: { "@id": `${siteOrigin}/#organization` }
+      }
+    ]
+  };
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07070d" />
+    <meta name="description" content="${escapeHtml(homeDescription)}" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href="${escapeHtml(`${siteOrigin}/`)}" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/brand/favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/brand/favicon-96x96.png" />
+    <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" as="image" href="${escapeHtml(defaultSearchImagePath)}" />
+    <meta property="og:title" content="${escapeHtml(homeTitle)}" />
+    <meta property="og:description" content="${escapeHtml(homeDescription)}" />
+    <meta property="og:url" content="${escapeHtml(`${siteOrigin}/`)}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="${escapeHtml(absoluteUrl(defaultSearchImagePath))}" />
+    <meta property="og:image:secure_url" content="${escapeHtml(absoluteUrl(defaultSearchImagePath))}" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${escapeHtml(`${cityName} history image for ${siteName} walking routes`)}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(homeTitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(homeDescription)}" />
+    <meta name="twitter:image" content="${escapeHtml(absoluteUrl(defaultSearchImagePath))}" />
+    <meta name="twitter:image:alt" content="${escapeHtml(`${cityName} history image for ${siteName} walking routes`)}" />
+    <title>${escapeHtml(homeTitle)}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=20260420b" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main id="app" aria-live="polite"></main>
+
+      <nav id="tabs" class="tabbar" aria-label="Primary">
+        <button type="button" data-action="set-tab" data-tab="home" class="active">
+          <span class="tabbar-icon">⌂</span>
+          <span class="tabbar-label">Home</span>
+        </button>
+        <button type="button" data-action="set-tab" data-tab="ar">
+          <span class="tabbar-icon">◌</span>
+          <span class="tabbar-label">AR</span>
+        </button>
+        <button type="button" data-action="set-tab" data-tab="progress">
+          <span class="tabbar-icon">◔</span>
+          <span class="tabbar-label">Board</span>
+        </button>
+        <button type="button" data-action="set-tab" data-tab="profile">
+          <span class="tabbar-icon">⚙</span>
+          <span class="tabbar-label">Profile</span>
+        </button>
+        <button type="button" data-action="set-tab" data-tab="map">
+          <span class="tabbar-icon">⌖</span>
+          <span class="tabbar-label">Compass</span>
+        </button>
+      </nav>
+    </div>
+
+    <script>
+      (function () {
+        var current = new URL(window.location.href);
+        var host = String(current.hostname || "").toLowerCase();
+
+        if (host === "api.philly-tours.com") {
+          current.protocol = "https:";
+          current.hostname = "philly-tours.com";
+          current.port = "";
+          window.location.replace(current.toString());
+        }
+      })();
+    </script>
+    <script src="/tours-data.js?v=20260420b"></script>
+    <script src="/narration-data.js?v=20260420b"></script>
+    <script src="/ar-data.js?v=20260420b"></script>
+    <script src="/site-config.js?v=20260420b"></script>
+    <script src="/site-config.local.js?v=20260409a"></script>
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+      async
+      defer
+    ></script>
+    <script type="application/ld+json">${JSON.stringify(organizationJsonLd)}</script>
+    <script src="/app.js?v=20260420b"></script>
   </body>
 </html>
 `;
@@ -652,7 +856,12 @@ const siteConfig = {
   inPersonTourGuidePriceCents: process.env.EXPO_PUBLIC_IN_PERSON_TOUR_GUIDE_PRICE_CENTS || "",
   inPersonTourGuideLabel: process.env.EXPO_PUBLIC_IN_PERSON_TOUR_GUIDE_LABEL || "In-person tour guide",
   iosAppStoreUrl: process.env.EXPO_PUBLIC_IOS_APP_STORE_URL || "",
-  androidPlayStoreUrl: process.env.EXPO_PUBLIC_ANDROID_PLAY_STORE_URL || ""
+  androidPlayStoreUrl: process.env.EXPO_PUBLIC_ANDROID_PLAY_STORE_URL || "",
+  city: cityPack.city,
+  branding: cityPack.branding,
+  seo: cityPack.seo,
+  social: cityPack.social,
+  businessProfile: cityPack.businessProfile
 };
 const configBanner = [
   "// Auto-generated by scripts/build-webapp-dist.mjs",
@@ -661,6 +870,7 @@ const configBanner = [
   ""
 ].join("\n");
 fs.writeFileSync(path.join(outputDir, "site-config.js"), configBanner);
+fs.writeFileSync(path.join(outputDir, "index.html"), renderHomeAppShellPage());
 writeSeoFiles();
 
 for (const entry of fs.readdirSync(outputDir, { withFileTypes: true })) {

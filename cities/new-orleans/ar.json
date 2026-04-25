@@ -1,0 +1,82 @@
+{
+  "treme-black-culture-brass-and-procession-backstreet": {
+    "id": "treme-black-culture-brass-and-procession-backstreet",
+    "title": "Backstreet Cultural Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "treme-black-culture-brass-and-procession-petit-jazz": {
+    "id": "treme-black-culture-brass-and-procession-petit-jazz",
+    "title": "Tremé's Petit Jazz Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "treme-black-culture-brass-and-procession-noaam": {
+    "id": "treme-black-culture-brass-and-procession-noaam",
+    "title": "New Orleans African American Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "treme-black-culture-brass-and-procession-st-augustine": {
+    "id": "treme-black-culture-brass-and-procession-st-augustine",
+    "title": "St. Augustine Church",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "treme-black-culture-brass-and-procession-mahalia-jackson": {
+    "id": "treme-black-culture-brass-and-procession-mahalia-jackson",
+    "title": "Mahalia Jackson Theater",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "congo-square-freedom-and-black-new-orleans-origins-congo-square": {
+    "id": "congo-square-freedom-and-black-new-orleans-origins-congo-square",
+    "title": "Congo Square",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "congo-square-freedom-and-black-new-orleans-origins-armstrong-park": {
+    "id": "congo-square-freedom-and-black-new-orleans-origins-armstrong-park",
+    "title": "Louis Armstrong Park",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "congo-square-freedom-and-black-new-orleans-origins-st-augustine": {
+    "id": "congo-square-freedom-and-black-new-orleans-origins-st-augustine",
+    "title": "St. Augustine Church",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "congo-square-freedom-and-black-new-orleans-origins-noaam": {
+    "id": "congo-square-freedom-and-black-new-orleans-origins-noaam",
+    "title": "New Orleans African American Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor": {
+    "id": "congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor",
+    "title": "North Claiborne Corridor",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  }
+}

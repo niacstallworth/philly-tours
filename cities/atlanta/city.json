@@ -1,0 +1,21 @@
+{
+  "id": "atlanta",
+  "name": "Atlanta Tours",
+  "shortName": "Atlanta",
+  "cityName": "Atlanta",
+  "stateCode": "GA",
+  "countryCode": "US",
+  "timezone": "America/New_York",
+  "slug": "atlanta-tours",
+  "websiteOrigin": "https://atlanta-tours.com",
+  "serviceArea": [
+    "Atlanta, GA"
+  ],
+  "defaultMapCenter": {
+    "lat": 33.749,
+    "lng": -84.388,
+    "zoom": 12
+  },
+  "defaultTourId": "sweet-auburn-black-enterprise-and-civil-rights",
+  "launchStatus": "draft"
+}

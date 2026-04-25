@@ -1,7 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
 import { haversineDistanceM } from "./geofence";
 import { getCurrentPosition, requestForegroundLocationPermission, startLocationWatch, type PositionWatcher, type UserPosition } from "./location";
+
+const tours = getCityTours();
 
 const SCAVENGER_STORAGE_KEY = "philly_tours_scavenger_hunt_v1";
 const SCAVENGER_STARTED_STORAGE_KEY = "philly_tours_scavenger_hunt_started_v1";

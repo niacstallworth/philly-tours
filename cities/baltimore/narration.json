@@ -1,0 +1,86 @@
+{
+  "catalogByStopId": {
+    "pennsylvania-avenue-black-arts-upton-mansion": {
+      "drive": "",
+      "walk": ""
+    },
+    "pennsylvania-avenue-black-arts-main-street-gateway": {
+      "drive": "",
+      "walk": ""
+    },
+    "pennsylvania-avenue-black-arts-billie-holiday-statue": {
+      "drive": "",
+      "walk": ""
+    },
+    "pennsylvania-avenue-black-arts-royal-theatre-marker": {
+      "drive": "",
+      "walk": ""
+    },
+    "pennsylvania-avenue-black-arts-the-avenue-bakery": {
+      "drive": "",
+      "walk": ""
+    },
+    "pennsylvania-avenue-black-arts-arch-social-club": {
+      "drive": "",
+      "walk": ""
+    },
+    "harbor-labor-and-freedom-president-street-station": {
+      "drive": "",
+      "walk": ""
+    },
+    "harbor-labor-and-freedom-douglass-place": {
+      "drive": "",
+      "walk": ""
+    },
+    "harbor-labor-and-freedom-ship-caulkers-houses": {
+      "drive": "",
+      "walk": ""
+    },
+    "harbor-labor-and-freedom-douglass-myers-maritime-park": {
+      "drive": "",
+      "walk": ""
+    }
+  },
+  "scriptMapByStopId": {
+    "pennsylvania-avenue-black-arts-upton-mansion": {
+      "drive": "Upton Mansion is ahead. This route opens in Upton so Baltimore's arts corridor starts with neighborhood memory and civic infrastructure, not just performance highlights alone.",
+      "walk": "You are at Upton Mansion. Use this stop to frame Pennsylvania Avenue as a neighborhood story about institutions, memory, and the built environment that held Black Baltimore together."
+    },
+    "pennsylvania-avenue-black-arts-main-street-gateway": {
+      "drive": "The Pennsylvania Avenue Main Street gateway is ahead. This stop orients the full corridor and helps the route move from district overview into specific artists, venues, and gathering spaces.",
+      "walk": "You are at the Pennsylvania Avenue Main Street gateway. This is the right place to read the avenue as a cultural spine and to set up the rest of the route as a walk through Black arts infrastructure."
+    },
+    "pennsylvania-avenue-black-arts-billie-holiday-statue": {
+      "drive": "The Billie Holiday statue is ahead. This stop grounds the route in one iconic artist while keeping the larger point clear: Pennsylvania Avenue made room for a wider Black performance ecosystem.",
+      "walk": "You are at the Billie Holiday statue. Let this stop hold both star power and neighborhood context, because the story here is not only Billie Holiday the icon but also the avenue that made Baltimore's music life visible."
+    },
+    "pennsylvania-avenue-black-arts-royal-theatre-marker": {
+      "drive": "The Royal Theatre marker is ahead. This is one of the key stops on the route because it lets us talk about touring circuits, Black audiences, and the avenue's role as a major performance corridor.",
+      "walk": "You are at the Royal Theatre marker. Even as a marker, this stop carries real weight: it is where the route can widen from one venue into a fuller story about performers, crowds, and the cultural economy of the avenue."
+    },
+    "pennsylvania-avenue-black-arts-the-avenue-bakery": {
+      "drive": "The Avenue Bakery is ahead. This stop keeps the route from feeling frozen in the past by showing how present-day gathering places continue the avenue's social life and neighborhood identity.",
+      "walk": "You are at The Avenue Bakery. This is a useful contemporary stop because it connects heritage storytelling to the living corridor and reminds us that cultural routes need present-tense neighborhood anchors too."
+    },
+    "pennsylvania-avenue-black-arts-arch-social-club": {
+      "drive": "Arch Social Club is ahead on Pennsylvania Avenue. This stop anchors Baltimore's long Black arts corridor and gives the route a real site of performance, gathering, and civic exchange.",
+      "walk": "You are at Arch Social Club on Pennsylvania Avenue. Use this stop to pull together nightlife, performance, local memory, and the ways a single club can stand in for a much larger cultural network."
+    },
+    "harbor-labor-and-freedom-president-street-station": {
+      "drive": "President Street Station is ahead. This stop lets the route talk about movement through Baltimore, Civil War tension, and the infrastructures that shaped freedom and constraint.",
+      "walk": "You are at President Street Station. Use this stop to connect transportation, conflict, and escape routes, so the harbor story is not only about ships and docks but also about networks of movement through the city."
+    },
+    "harbor-labor-and-freedom-douglass-place": {
+      "drive": "Douglass Place is ahead in Fell's Point. This stop ties Frederick Douglass to the built waterfront and keeps the route grounded in labor, housing, and everyday Black urban life.",
+      "walk": "You are at Douglass Place. This is where the route can slow down and read the streetscape itself, using the rowhouses to connect freedom narratives to the material city Frederick Douglass knew."
+    },
+    "harbor-labor-and-freedom-ship-caulkers-houses": {
+      "drive": "The Ship Caulkers' Houses are ahead on South Wolfe Street. This stop sharpens the route around Black maritime labor by focusing on the workers, trades, and working-class households that made Fell's Point run.",
+      "walk": "You are at the Ship Caulkers' Houses. This is one of the best stops on the route for tying Frederick Douglass, Black maritime labor, and waterfront working-class life together in one built site."
+    },
+    "harbor-labor-and-freedom-douglass-myers-maritime-park": {
+      "drive": "Frederick Douglass-Isaac Myers Maritime Park is ahead. This is the route's harbor anchor and the place where labor, entrepreneurship, and waterfront change come fully into view.",
+      "walk": "You are at the Frederick Douglass-Isaac Myers Maritime Park. This stop gives the route its strongest waterfront payoff, holding space for Black maritime work, shipyard labor, enterprise, and freedom stories at the edge of the harbor."
+    }
+  }
+}

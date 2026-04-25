@@ -1,0 +1,214 @@
+{
+  "catalogByStopId": {
+    "sweet-auburn-black-enterprise-and-civil-rights-mlk-visitor-center": {
+      "drive": "/audio/sweet-auburn-black-enterprise-and-civil-rights-mlk-visitor-center-drive.mp3",
+      "walk": "/audio/sweet-auburn-black-enterprise-and-civil-rights-mlk-visitor-center-walk.mp3"
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-ebenezer-baptist": {
+      "drive": "/audio/sweet-auburn-black-enterprise-and-civil-rights-ebenezer-baptist-drive.mp3",
+      "walk": "/audio/sweet-auburn-black-enterprise-and-civil-rights-ebenezer-baptist-walk.mp3"
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-king-center": {
+      "drive": "/audio/sweet-auburn-black-enterprise-and-civil-rights-king-center-drive.mp3",
+      "walk": "/audio/sweet-auburn-black-enterprise-and-civil-rights-king-center-walk.mp3"
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-auburn-library": {
+      "drive": "/audio/sweet-auburn-black-enterprise-and-civil-rights-auburn-library-drive.mp3",
+      "walk": "/audio/sweet-auburn-black-enterprise-and-civil-rights-auburn-library-walk.mp3"
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-big-bethel": {
+      "drive": "/audio/sweet-auburn-black-enterprise-and-civil-rights-big-bethel-drive.mp3",
+      "walk": "/audio/sweet-auburn-black-enterprise-and-civil-rights-big-bethel-walk.mp3"
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-prince-hall": {
+      "drive": "/audio/sweet-auburn-black-enterprise-and-civil-rights-prince-hall-drive.mp3",
+      "walk": "/audio/sweet-auburn-black-enterprise-and-civil-rights-prince-hall-walk.mp3"
+    },
+    "atlanta-university-center-and-black-intellectual-capital-woodruff-library": {
+      "drive": "/audio/atlanta-university-center-and-black-intellectual-capital-woodruff-library-drive.mp3",
+      "walk": "/audio/atlanta-university-center-and-black-intellectual-capital-woodruff-library-walk.mp3"
+    },
+    "atlanta-university-center-and-black-intellectual-capital-clark-atlanta": {
+      "drive": "/audio/atlanta-university-center-and-black-intellectual-capital-clark-atlanta-drive.mp3",
+      "walk": "/audio/atlanta-university-center-and-black-intellectual-capital-clark-atlanta-walk.mp3"
+    },
+    "atlanta-university-center-and-black-intellectual-capital-morehouse": {
+      "drive": "/audio/atlanta-university-center-and-black-intellectual-capital-morehouse-drive.mp3",
+      "walk": "/audio/atlanta-university-center-and-black-intellectual-capital-morehouse-walk.mp3"
+    },
+    "atlanta-university-center-and-black-intellectual-capital-spelman": {
+      "drive": "/audio/atlanta-university-center-and-black-intellectual-capital-spelman-drive.mp3",
+      "walk": "/audio/atlanta-university-center-and-black-intellectual-capital-spelman-walk.mp3"
+    },
+    "atlanta-university-center-and-black-intellectual-capital-morehouse-medicine": {
+      "drive": "/audio/atlanta-university-center-and-black-intellectual-capital-morehouse-medicine-drive.mp3",
+      "walk": "/audio/atlanta-university-center-and-black-intellectual-capital-morehouse-medicine-walk.mp3"
+    },
+    "civil-rights-public-power-and-national-memory-cchr": {
+      "drive": "/audio/civil-rights-public-power-and-national-memory-cchr-drive.mp3",
+      "walk": "/audio/civil-rights-public-power-and-national-memory-cchr-walk.mp3"
+    },
+    "civil-rights-public-power-and-national-memory-city-hall": {
+      "drive": "/audio/civil-rights-public-power-and-national-memory-city-hall-drive.mp3",
+      "walk": "/audio/civil-rights-public-power-and-national-memory-city-hall-walk.mp3"
+    },
+    "civil-rights-public-power-and-national-memory-state-capitol": {
+      "drive": "/audio/civil-rights-public-power-and-national-memory-state-capitol-drive.mp3",
+      "walk": "/audio/civil-rights-public-power-and-national-memory-state-capitol-walk.mp3"
+    },
+    "civil-rights-public-power-and-national-memory-king-center": {
+      "drive": "/audio/civil-rights-public-power-and-national-memory-king-center-drive.mp3",
+      "walk": "/audio/civil-rights-public-power-and-national-memory-king-center-walk.mp3"
+    },
+    "civil-rights-public-power-and-national-memory-mlk-park": {
+      "drive": "/audio/civil-rights-public-power-and-national-memory-mlk-park-drive.mp3",
+      "walk": "/audio/civil-rights-public-power-and-national-memory-mlk-park-walk.mp3"
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-apex": {
+      "drive": "/audio/black-atlanta-arts-music-and-contemporary-culture-apex-drive.mp3",
+      "walk": "/audio/black-atlanta-arts-music-and-contemporary-culture-apex-walk.mp3"
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-trap-museum": {
+      "drive": "/audio/black-atlanta-arts-music-and-contemporary-culture-trap-museum-drive.mp3",
+      "walk": "/audio/black-atlanta-arts-music-and-contemporary-culture-trap-museum-walk.mp3"
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-bmewf-district": {
+      "drive": "/audio/black-atlanta-arts-music-and-contemporary-culture-bmewf-district-drive.mp3",
+      "walk": "/audio/black-atlanta-arts-music-and-contemporary-culture-bmewf-district-walk.mp3"
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-hammonds-house": {
+      "drive": "/audio/black-atlanta-arts-music-and-contemporary-culture-hammonds-house-drive.mp3",
+      "walk": "/audio/black-atlanta-arts-music-and-contemporary-culture-hammonds-house-walk.mp3"
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-beltline-westside": {
+      "drive": "/audio/black-atlanta-arts-music-and-contemporary-culture-beltline-westside-drive.mp3",
+      "walk": "/audio/black-atlanta-arts-music-and-contemporary-culture-beltline-westside-walk.mp3"
+    },
+    "west-end-beltline-and-neighborhood-change-west-end-historic-district": {
+      "drive": "/audio/west-end-beltline-and-neighborhood-change-west-end-historic-district-drive.mp3",
+      "walk": "/audio/west-end-beltline-and-neighborhood-change-west-end-historic-district-walk.mp3"
+    },
+    "west-end-beltline-and-neighborhood-change-hammonds-house": {
+      "drive": "/audio/west-end-beltline-and-neighborhood-change-hammonds-house-drive.mp3",
+      "walk": "/audio/west-end-beltline-and-neighborhood-change-hammonds-house-walk.mp3"
+    },
+    "west-end-beltline-and-neighborhood-change-wrens-nest": {
+      "drive": "/audio/west-end-beltline-and-neighborhood-change-wrens-nest-drive.mp3",
+      "walk": "/audio/west-end-beltline-and-neighborhood-change-wrens-nest-walk.mp3"
+    },
+    "west-end-beltline-and-neighborhood-change-shrine-black-madonna": {
+      "drive": "/audio/west-end-beltline-and-neighborhood-change-shrine-black-madonna-drive.mp3",
+      "walk": "/audio/west-end-beltline-and-neighborhood-change-shrine-black-madonna-walk.mp3"
+    },
+    "west-end-beltline-and-neighborhood-change-beltline-southwest": {
+      "drive": "/audio/west-end-beltline-and-neighborhood-change-beltline-southwest-drive.mp3",
+      "walk": "/audio/west-end-beltline-and-neighborhood-change-beltline-southwest-walk.mp3"
+    }
+  },
+  "scriptMapByStopId": {
+    "sweet-auburn-black-enterprise-and-civil-rights-mlk-visitor-center": {
+      "drive": "Ahead is the Martin Luther King, Jr. National Historical Park, where Sweet Auburn opens as neighborhood ground and national freedom terrain at the same time.",
+      "walk": "You are at the Martin Luther King, Jr. district, a powerful opening point for reading Auburn Avenue through both local life and national civil-rights memory."
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-ebenezer-baptist": {
+      "drive": "Next is Ebenezer Baptist Church, where Black church life, ministry, and movement leadership converge inside one of Atlanta's defining sacred spaces.",
+      "walk": "You are at Ebenezer Baptist Church, where the route turns fully into Black church life, public voice, and the leadership traditions that shaped Sweet Auburn."
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-king-center": {
+      "drive": "Approaching The King Center, the route moves from neighborhood history into the institutional care of movement memory and public ritual.",
+      "walk": "You are at The King Center, where the story of Sweet Auburn expands into how Atlanta preserves, interprets, and extends the civil-rights legacy."
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-auburn-library": {
+      "drive": "Ahead is Auburn Avenue Research Library, where archives and stewardship help preserve the intellectual life of Black Atlanta.",
+      "walk": "You are at the Auburn Avenue Research Library, a crucial stop for thinking about how Black Atlanta remembers itself through collections, scholarship, and public history."
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-big-bethel": {
+      "drive": "Next is Big Bethel A.M.E. Church, which widens the route beyond one family or one movement story into the broader church infrastructure of Auburn Avenue.",
+      "walk": "You are at Big Bethel A.M.E. Church, a strong place to read Sweet Auburn through Black worship, civic life, and institutional continuity."
+    },
+    "sweet-auburn-black-enterprise-and-civil-rights-prince-hall": {
+      "drive": "The route closes at Prince Hall Masonic Temple, where Black enterprise, fraternal power, and media history help complete the Auburn Avenue picture.",
+      "walk": "You are at the Prince Hall site, a fitting capstone for a route about Black enterprise, civic infrastructure, and the wider institutional world of Sweet Auburn."
+    },
+    "atlanta-university-center-and-black-intellectual-capital-woodruff-library": {
+      "drive": "Ahead is Woodruff Library, the shared intellectual commons of the AUC and a strong opening point for Atlanta's Black scholarly ecosystem.",
+      "walk": "You are at Woodruff Library, where the route begins with archives, research, and the shared infrastructure that links Atlanta's major Black colleges."
+    },
+    "atlanta-university-center-and-black-intellectual-capital-clark-atlanta": {
+      "drive": "Next is Clark Atlanta University, where the route moves into the scale and civic reach of Black higher education in Atlanta.",
+      "walk": "You are at Clark Atlanta University, a key stop for reading the AUC as a living network of scholarship, leadership formation, and public service."
+    },
+    "atlanta-university-center-and-black-intellectual-capital-morehouse": {
+      "drive": "Approaching Morehouse College, the route enters one of the city's most influential sites for Black leadership, ministry, and intellectual formation.",
+      "walk": "You are at Morehouse College, an indispensable anchor in Atlanta's story of Black intellectual capital and public voice."
+    },
+    "atlanta-university-center-and-black-intellectual-capital-spelman": {
+      "drive": "Next is Spelman College, where Black women's intellectual leadership becomes central to the route rather than secondary to it.",
+      "walk": "You are at Spelman College, a necessary stop for understanding Atlanta's educational legacy through Black women's scholarship, leadership, and institutional power."
+    },
+    "atlanta-university-center-and-black-intellectual-capital-morehouse-medicine": {
+      "drive": "The route closes at Morehouse School of Medicine, where scholarship turns directly toward care, medicine, and Black professional service.",
+      "walk": "You are at Morehouse School of Medicine, a fitting capstone that links Black intellectual life to health, public service, and institutional ambition."
+    },
+    "civil-rights-public-power-and-national-memory-cchr": {
+      "drive": "Ahead is the National Center for Civil and Human Rights, where Atlanta's civil-rights legacy is framed inside a broader public history of freedom and human dignity.",
+      "walk": "You are at the Center for Civil and Human Rights, a strong starting point for reading Atlanta's movement legacy through a public-facing national lens."
+    },
+    "civil-rights-public-power-and-national-memory-city-hall": {
+      "drive": "Next is Atlanta City Hall, where the route turns from movement memory toward the city-scale institutions that exercise public power.",
+      "walk": "You are at Atlanta City Hall, a useful place to think about how local governance, executive leadership, and civic decision-making shape the city."
+    },
+    "civil-rights-public-power-and-national-memory-state-capitol": {
+      "drive": "Approaching the Georgia State Capitol, the route adds state power, law, and protest geography to Atlanta's story of civil rights.",
+      "walk": "You are at the Georgia State Capitol, where public memory meets law, policy, and the wider political machinery of the state."
+    },
+    "civil-rights-public-power-and-national-memory-king-center": {
+      "drive": "Ahead is The King Center, where the route returns to the stewardship of movement memory and the public ritual of remembrance.",
+      "walk": "You are at The King Center, where Atlanta's role in civil-rights memory is held, interpreted, and carried forward into the present."
+    },
+    "civil-rights-public-power-and-national-memory-mlk-park": {
+      "drive": "The route closes at the Martin Luther King, Jr. district, where national civil-rights memory resolves back into neighborhood ground.",
+      "walk": "You are at the Martin Luther King, Jr. National Historical Park, a fitting capstone for a route that moves between public power and the local places that gave it meaning."
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-apex": {
+      "drive": "Ahead is APEX Museum, where the route opens by tying Black Atlanta's contemporary culture back to the long civic and social life of Sweet Auburn.",
+      "walk": "You are at APEX Museum, a strong opening point for reading Black Atlanta's present creativity through deeper neighborhood and historical memory."
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-trap-museum": {
+      "drive": "Next is the Trap Music Museum, where Atlanta's modern sound is presented as public history rather than just nightlife or celebrity culture.",
+      "walk": "You are at the Trap Music Museum, a clear anchor for Atlanta's contemporary music identity and the route's strongest modern-cultural signal."
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-bmewf-district": {
+      "drive": "Approaching the Black Music and Entertainment Walk of Fame district, the route turns toward how Atlanta publicly honors Black artists inside its modern cultural brand.",
+      "walk": "You are in the Walk of Fame district, a useful stop for thinking about how Atlanta celebrates Black music legacy in public space rather than only inside museums."
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-hammonds-house": {
+      "drive": "Next is Hammonds House Museum, where Black visual art, curatorial care, and West End cultural life bring another layer of Atlanta's creative identity into view.",
+      "walk": "You are at Hammonds House Museum, one of the city's strongest anchors for Black visual art and a key bridge between neighborhood history and contemporary culture."
+    },
+    "black-atlanta-arts-music-and-contemporary-culture-beltline-westside": {
+      "drive": "The route closes on the BeltLine Westside Trail, where public art, redevelopment, and city movement make contemporary Atlanta legible in motion.",
+      "walk": "You are on the BeltLine Westside Trail, a fitting capstone for seeing how culture, circulation, and redevelopment shape the city around you."
+    },
+    "west-end-beltline-and-neighborhood-change-west-end-historic-district": {
+      "drive": "Ahead is West End, where the route opens by treating the neighborhood itself as a historic record of transportation, preservation, and change.",
+      "walk": "You are in the West End Historic District, a strong opening point for reading neighborhood memory through buildings, streets, and the long history of urban change."
+    },
+    "west-end-beltline-and-neighborhood-change-hammonds-house": {
+      "drive": "Next is Hammonds House Museum, where neighborhood memory and Black cultural life come into focus through visual art and institutional care.",
+      "walk": "You are at Hammonds House Museum, a key anchor for understanding West End not just as preserved architecture but as living Black cultural ground."
+    },
+    "west-end-beltline-and-neighborhood-change-wrens-nest": {
+      "drive": "Approaching The Wren's Nest, the route adds another layer of West End's historic texture and reminds us that neighborhoods carry many overlapping narratives.",
+      "walk": "You are at The Wren's Nest, a landmark that helps the route hold literary memory and neighborhood depth alongside Black cultural and civic history."
+    },
+    "west-end-beltline-and-neighborhood-change-shrine-black-madonna": {
+      "drive": "Next is the Shrine of the Black Madonna, where West End's neighborhood life connects to Black spiritual, cultural, and political tradition.",
+      "walk": "You are at the Shrine of the Black Madonna, a meaningful stop for reading West End through Black institution-building, spirituality, and community identity."
+    },
+    "west-end-beltline-and-neighborhood-change-beltline-southwest": {
+      "drive": "The route closes on the BeltLine Southwest Trail, where preservation, public space, redevelopment, and neighborhood memory all press against one another much closer to West End itself.",
+      "walk": "You are on the BeltLine Southwest Trail, a fitting capstone for thinking about what changes, what survives, and who gets to shape the future of West End."
+    }
+  }
+}

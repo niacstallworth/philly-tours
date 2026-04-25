@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
+
+const tours = getCityTours();
 
 const DRIVE_SESSION_KEY = "philly_tours_drive_session_v1";
 const driveSessionListeners = new Set<(session: DriveSession | null) => void>();

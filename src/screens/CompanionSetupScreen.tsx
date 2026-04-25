@@ -1,7 +1,7 @@
 import React from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
 import {
   connectCompanion,
   connectMockCompanion,
@@ -15,6 +15,8 @@ import { getNativeArStatus, type NativeArStatus } from "../services/nativeAr";
 import { getNarrationCoverage } from "../services/narration";
 import { useCompanionSession } from "../hooks/useCompanionSession";
 import { type AppPalette, useTypeScale, useThemeColors } from "../theme/appTheme";
+
+const tours = getCityTours();
 
 type Props = {
   audioHistoryOnlyUnlocked?: boolean;

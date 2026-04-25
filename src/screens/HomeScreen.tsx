@@ -1,13 +1,15 @@
 import React from "react";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
+import { getCityTours } from "../city-runtime/getCityTours";
 import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { setCurrentTourSelection } from "../services/tourControl";
 import { getPhiladelphiaCurrentWeather, type CurrentWeather } from "../services/weather";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
 import { TourDetailScreen } from "./TourDetailScreen";
+
+const tours = getCityTours();
 
 type Props = {
   displayName?: string;

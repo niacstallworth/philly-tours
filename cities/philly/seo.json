@@ -1,0 +1,29 @@
+{
+  "homeTitle": "Philly Tours | Self-Guided Philadelphia Audio & AR Walking Tours",
+  "homeDescription": "Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes.",
+  "catalogTitle": "Philadelphia Walking Tours | Philly Tours",
+  "catalogDescription": "Browse self-guided Philadelphia walking tours with audio narration, maps, Compass guidance, and AR-ready story stops.",
+  "homePanelEyebrow": "Philadelphia walking tours",
+  "homePanelTitle": "Walk Philly with the story behind the block.",
+  "homePanelBody": "Philly Tours is a self-guided Philadelphia tour companion for visitors, families, locals, students, and culture lovers who want more than a generic sightseeing loop. Choose a route, follow the map, hear narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes.",
+  "homePanelHighlights": [
+    "Self-guided audio tours",
+    "Black history routes",
+    "Compass walking guidance",
+    "AR-ready stops",
+    "Philadelphia neighborhoods"
+  ],
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "searchImage": "/assets/search/philly-tours-search-thumbnail.jpg",
+  "knowsAbout": [
+    "Philadelphia walking tours",
+    "Philadelphia audio tours",
+    "Black history tours in Philadelphia",
+    "Philadelphia architecture tours",
+    "self-guided city tours",
+    "AR-guided walking tours"
+  ]
+}

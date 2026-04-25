@@ -5718,6 +5718,11 @@ body {
     font-weight: 680;
   }
 
+  .scene-hero--home .hero-button-row .ghost-button {
+    display: inline-flex;
+    justify-content: center;
+  }
+
   .home-trust-strip--local {
     display: grid;
     grid-template-columns: 1fr;

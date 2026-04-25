@@ -1,0 +1,24 @@
+{
+  "homeTitle": "New Orleans Tours | Self-Guided Audio & AR Walking Tours",
+  "homeDescription": "Explore New Orleans with self-guided walking tours, map guidance, narration, and AR-ready stops.",
+  "catalogTitle": "New Orleans Walking Tours | New Orleans Tours",
+  "catalogDescription": "Browse self-guided New Orleans routes built for story, place, and neighborhood depth.",
+  "homePanelEyebrow": "LA city pack",
+  "homePanelTitle": "Plan the New Orleans launch routes.",
+  "homePanelBody": "Start with a signature route, validate the stops, and layer in narration, AR, and search assets.",
+  "searchImage": "/assets/search/new-orleans-tours-search-thumbnail.jpg",
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "knowsAbout": [
+    "New Orleans walking tours",
+    "New Orleans audio tours",
+    "New Orleans history tours"
+  ],
+  "homePanelHighlights": [
+    "City launch in progress",
+    "Signature route draft",
+    "Narration-ready stops"
+  ]
+}
