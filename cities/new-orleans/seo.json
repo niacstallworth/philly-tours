@@ -1,11 +1,11 @@
 {
-  "homeTitle": "New Orleans Tours | Self-Guided Audio & AR Walking Tours",
-  "homeDescription": "Explore New Orleans with self-guided walking tours, map guidance, narration, and AR-ready stops.",
-  "catalogTitle": "New Orleans Walking Tours | New Orleans Tours",
-  "catalogDescription": "Browse self-guided New Orleans routes built for story, place, and neighborhood depth.",
-  "homePanelEyebrow": "LA city pack",
-  "homePanelTitle": "Plan the New Orleans launch routes.",
-  "homePanelBody": "Start with a signature route, validate the stops, and layer in narration, AR, and search assets.",
+  "homeTitle": "New Orleans Tours | Self-Guided Black History, Culture & Walking Routes",
+  "homeDescription": "Explore Black New Orleans through self-guided walking tours with maps, narration, and routes across Tremé, Congo Square, Claiborne, arts institutions, and civil-rights landmarks.",
+  "catalogTitle": "New Orleans Walking Tours | Black History & Culture Routes",
+  "catalogDescription": "Browse self-guided New Orleans routes built around Tremé culture, Congo Square origins, Claiborne memory, Black arts institutions, and civil-rights history.",
+  "homePanelEyebrow": "Black New Orleans routes",
+  "homePanelTitle": "See New Orleans through rhythm, memory, and neighborhood power.",
+  "homePanelBody": "Start with a self-guided route through second lines, freedom ground, Bayou Road commerce, Black arts institutions, and the civic spaces where New Orleans history keeps moving.",
   "searchImage": "/assets/search/new-orleans-tours-search-thumbnail.jpg",
   "organizationType": [
     "Organization",
@@ -13,12 +13,15 @@
   ],
   "knowsAbout": [
     "New Orleans walking tours",
-    "New Orleans audio tours",
-    "New Orleans history tours"
+    "Black New Orleans history",
+    "Tremé cultural history",
+    "Congo Square history",
+    "Claiborne corridor memory",
+    "New Orleans civil rights landmarks"
   ],
   "homePanelHighlights": [
-    "City launch in progress",
-    "Signature route draft",
-    "Narration-ready stops"
+    "Tremé culture routes",
+    "Claiborne neighborhood memory",
+    "Civil-rights and arts landmarks"
   ]
 }

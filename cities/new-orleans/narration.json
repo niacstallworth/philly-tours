@@ -39,6 +39,66 @@
     "congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor": {
       "drive": "/audio/congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor-drive.mp3",
       "walk": "/audio/congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor-walk.mp3"
+    },
+    "claiborne-neighborhood-memory-and-urban-change-dooky-chase": {
+      "drive": "/audio/claiborne-neighborhood-memory-and-urban-change-dooky-chase-drive.mp3",
+      "walk": "/audio/claiborne-neighborhood-memory-and-urban-change-dooky-chase-walk.mp3"
+    },
+    "claiborne-neighborhood-memory-and-urban-change-treme-center": {
+      "drive": "/audio/claiborne-neighborhood-memory-and-urban-change-treme-center-drive.mp3",
+      "walk": "/audio/claiborne-neighborhood-memory-and-urban-change-treme-center-walk.mp3"
+    },
+    "claiborne-neighborhood-memory-and-urban-change-claiborne-cid": {
+      "drive": "/audio/claiborne-neighborhood-memory-and-urban-change-claiborne-cid-drive.mp3",
+      "walk": "/audio/claiborne-neighborhood-memory-and-urban-change-claiborne-cid-walk.mp3"
+    },
+    "claiborne-neighborhood-memory-and-urban-change-community-book-center": {
+      "drive": "/audio/claiborne-neighborhood-memory-and-urban-change-community-book-center-drive.mp3",
+      "walk": "/audio/claiborne-neighborhood-memory-and-urban-change-community-book-center-walk.mp3"
+    },
+    "claiborne-neighborhood-memory-and-urban-change-bayou-road": {
+      "drive": "/audio/claiborne-neighborhood-memory-and-urban-change-bayou-road-drive.mp3",
+      "walk": "/audio/claiborne-neighborhood-memory-and-urban-change-bayou-road-walk.mp3"
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-ashe": {
+      "drive": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-ashe-drive.mp3",
+      "walk": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-ashe-walk.mp3"
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-le-musee-fpc": {
+      "drive": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-le-musee-fpc-drive.mp3",
+      "walk": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-le-musee-fpc-walk.mp3"
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-noaam": {
+      "drive": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-noaam-drive.mp3",
+      "walk": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-noaam-walk.mp3"
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-jazz-museum": {
+      "drive": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-jazz-museum-drive.mp3",
+      "walk": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-jazz-museum-walk.mp3"
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-nocca": {
+      "drive": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-nocca-drive.mp3",
+      "walk": "/audio/black-new-orleans-arts-performance-and-cultural-institutions-nocca-walk.mp3"
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-dryades-ymca": {
+      "drive": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-dryades-ymca-drive.mp3",
+      "walk": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-dryades-ymca-walk.mp3"
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-civil-rights-museum": {
+      "drive": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-civil-rights-museum-drive.mp3",
+      "walk": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-civil-rights-museum-walk.mp3"
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-william-frantz": {
+      "drive": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-william-frantz-drive.mp3",
+      "walk": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-william-frantz-walk.mp3"
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-homer-plessy-way": {
+      "drive": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-homer-plessy-way-drive.mp3",
+      "walk": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-homer-plessy-way-walk.mp3"
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-city-hall": {
+      "drive": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-city-hall-drive.mp3",
+      "walk": "/audio/civil-rights-resistance-and-public-power-in-new-orleans-city-hall-walk.mp3"
     }
   },
   "scriptMapByStopId": {
@@ -81,6 +141,66 @@
     "congo-square-freedom-and-black-new-orleans-origins-claiborne-corridor": {
       "drive": "The route closes along North Claiborne, where Black origins and freedom memory extend into the longer neighborhood history of Tremé and Claiborne.",
       "walk": "You are along North Claiborne, a fitting capstone for thinking about how Black New Orleans origins live on in corridor memory, neighborhood change, and public space."
+    },
+    "claiborne-neighborhood-memory-and-urban-change-dooky-chase": {
+      "drive": "Ahead is Dooky Chase's Restaurant, where neighborhood institution, civil-rights strategy, and Black New Orleans public life meet at the same table.",
+      "walk": "You are at Dooky Chase's Restaurant, a strong opening point for reading Claiborne through food, gathering, strategy, and the neighborhood institutions that held public life together."
+    },
+    "claiborne-neighborhood-memory-and-urban-change-treme-center": {
+      "drive": "Next is the Tremé Recreation Community Center, where the route turns toward everyday civic life and the neighborhood spaces people actually use.",
+      "walk": "You are at the Tremé Recreation Community Center, a helpful place to read Claiborne through community use, youth life, and the ordinary institutions that make neighborhood memory durable."
+    },
+    "claiborne-neighborhood-memory-and-urban-change-claiborne-cid": {
+      "drive": "Approaching the Claiborne Corridor Cultural Innovation District, the route focuses on repair, cultural reuse, and Black-led efforts to reclaim the corridor under the overpass.",
+      "walk": "You are in the Claiborne Corridor Cultural Innovation District, where neighborhood memory, infrastructure harm, and cultural reactivation sit in direct conversation."
+    },
+    "claiborne-neighborhood-memory-and-urban-change-community-book-center": {
+      "drive": "Next is Community Book Center, where Black-owned continuity, literary memory, and Bayou Road cultural life give the route a living neighborhood voice.",
+      "walk": "You are at Community Book Center, a powerful stop for thinking about Bayou Road as a corridor of Black-owned continuity, reading, exchange, and neighborhood endurance."
+    },
+    "claiborne-neighborhood-memory-and-urban-change-bayou-road": {
+      "drive": "The route closes along Bayou Road, where commerce, cultural resilience, and Black local life push the story beyond preservation into ongoing survival.",
+      "walk": "You are on Bayou Road, a fitting capstone for reading Claiborne and Tremé through neighborhood commerce, cultural resilience, and the Black local life that keeps these streets active."
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-ashe": {
+      "drive": "Ahead is Ashé Cultural Arts Center, where Black-led cultural work ties art directly to community power, diaspora memory, and neighborhood life.",
+      "walk": "You are at Ashé Cultural Arts Center, a strong opening point for reading New Orleans art as community practice, cultural stewardship, and Black civic energy."
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-le-musee-fpc": {
+      "drive": "Next is Le Musée de f.p.c., where the history of free people of color enters the route through material culture, architecture, and creative inheritance.",
+      "walk": "You are at Le Musée de f.p.c., a thoughtful stop for reading Black New Orleans through domestic space, free people of color history, and the city's layered cultural memory."
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-noaam": {
+      "drive": "Approaching the New Orleans African American Museum, the route centers Black art, history, and exhibition practice as living cultural work.",
+      "walk": "You are at the New Orleans African American Museum, where the route turns toward Black exhibition practice, preservation, and the institutions that keep cultural memory active."
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-jazz-museum": {
+      "drive": "Next is the New Orleans Jazz Museum, where music stewardship, public performance, and research keep jazz in active circulation.",
+      "walk": "You are at the New Orleans Jazz Museum, a fitting stop for thinking about how jazz remains a living public art through performance, research, and institutional care."
+    },
+    "black-new-orleans-arts-performance-and-cultural-institutions-nocca": {
+      "drive": "The route closes at NOCCA, where arts training and future-facing creative practice shape the next generation of New Orleans performers and makers.",
+      "walk": "You are at NOCCA, a strong capstone for reading Black New Orleans arts not only through heritage, but through training, experimentation, and the city's creative future."
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-dryades-ymca": {
+      "drive": "Ahead is the Dryades YMCA, where the route opens on a Black community institution tied to gathering, organizing, and neighborhood public life.",
+      "walk": "You are at the Dryades YMCA, a strong opening point for reading civil rights and public power in New Orleans through community institution-building and movement ground."
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-civil-rights-museum": {
+      "drive": "Next is the Louisiana Civil Rights Museum, where New Orleans enters a larger statewide story of organizing, resistance, and civil-rights change.",
+      "walk": "You are at the Louisiana Civil Rights Museum, where the route widens from neighborhood movement ground into a broader Louisiana story of civil rights and public memory."
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-william-frantz": {
+      "drive": "Approaching the William Frantz School site, the route turns toward school desegregation, child-centered courage, and the national visibility of New Orleans resistance.",
+      "walk": "You are at the William Frantz School site, a powerful stop for thinking about Ruby Bridges, desegregation, and the way New Orleans entered the national civil-rights imagination."
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-homer-plessy-way": {
+      "drive": "Next is Homer Plessy Way, where legal challenge, segregation history, and the long afterlife of Plessy v. Ferguson come into focus.",
+      "walk": "You are on Homer Plessy Way, a fitting stop for reading New Orleans through legal challenge, segregation, and the local geography behind a case that shaped the nation."
+    },
+    "civil-rights-resistance-and-public-power-in-new-orleans-city-hall": {
+      "drive": "The route closes at New Orleans City Hall, where movement pressure, Black public power, and the machinery of local policy meet face to face.",
+      "walk": "You are at New Orleans City Hall, a strong capstone for reading how civil-rights struggle, Black public power, and local governance connect in everyday city life."
     }
   }
 }

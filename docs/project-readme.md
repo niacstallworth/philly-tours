@@ -31,7 +31,9 @@ The platform now has two aligned faces:
 The next platform extension is spatial computing:
 
 - iPhone remains the route, narration, Compass, and AR handoff companion
-- Meta and other glasses remain lightweight audio, notification, and future overlay hardware
+- Meta Quest 2 is the practical mixed reality build and test headset for a Unity passthrough lane
+- Orion is the future lightweight true AR design target
+- Meta glasses companion flows remain lightweight audio, notification, and control surfaces in the current mobile app lane
 - Apple Vision Pro is the premium passenger, parked, and post-drive immersive layer
 
 ## Current App Shape
@@ -47,6 +49,8 @@ The next platform extension is spatial computing:
 - Native iOS AR bridge: `ios/PhillyARTours/PhillyNativeAR.swift`
 - Glasses companion scaffolding: `src/services/wearables.ts`, `src/services/companion.ts`, `src/services/glassesDisplay.ts`, `src/screens/CompanionSetupScreen.tsx`
 - Maps are point-based in the app; route polylines are intentionally suppressed so the product reads as compass points instead of a generic route line.
+- Quest 2 / Orion spatial architecture: `docs/meta-quest-orion-spatial-plan.md`
+- Generated Quest runtime payload: `spatial/runtime/philly/quest-scenes.json`
 - visionOS roadmap and positioning: `docs/visionos-integration-plan.md`
 - Hosted payments + entitlement sync: `src/services/payments.ts` and `server/sync-server.js`
 - Server-issued session auth: `src/services/auth.ts` and `server/sync-server.js`
@@ -94,6 +98,7 @@ This is especially strong for:
 - culturally curious locals
 - Black heritage, innovation, and architecture routes
 - passengers who want a premium spatial layer on Apple Vision Pro without changing the drive-first core product
+- future mixed reality users reached first through Quest 2 passthrough prototyping and later through Orion-style lightweight AR
 
 Supporting docs:
 
@@ -102,6 +107,7 @@ Supporting docs:
 - `docs/app-shape-next-plan.md`
 - `docs/drive-mode-positioning.md`
 - `docs/visionos-integration-plan.md`
+- `docs/meta-quest-orion-spatial-plan.md`
 - `docs/google-maps-platform-plan.md`
 
 ## Local Development
@@ -128,6 +134,12 @@ Build a deployable static bundle:
 
 ```bash
 CITY=philly npm run webapp:build
+```
+
+Build the Quest 2 / Unity spatial runtime payload:
+
+```bash
+CITY=philly npm run spatial:quest:build
 ```
 
 Build and package an upload-ready release:

@@ -1,0 +1,21 @@
+{
+  "id": "detroit",
+  "name": "Detroit Tours",
+  "shortName": "Detroit",
+  "cityName": "Detroit",
+  "stateCode": "MI",
+  "countryCode": "US",
+  "timezone": "America/New_York",
+  "slug": "detroit-tours",
+  "websiteOrigin": "https://detroit-tours.com",
+  "serviceArea": [
+    "Detroit, MI"
+  ],
+  "defaultMapCenter": {
+    "lat": 42.3314,
+    "lng": -83.0458,
+    "zoom": 12
+  },
+  "defaultTourId": "motown-black-music-and-cultural-memory",
+  "launchStatus": "draft"
+}

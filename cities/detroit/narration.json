@@ -1,0 +1,206 @@
+{
+  "catalogByStopId": {
+    "motown-black-music-and-cultural-memory-motown-museum": {
+      "drive": "/audio/motown-black-music-and-cultural-memory-motown-museum-drive.mp3",
+      "walk": "/audio/motown-black-music-and-cultural-memory-motown-museum-walk.mp3"
+    },
+    "motown-black-music-and-cultural-memory-new-bethel": {
+      "drive": "/audio/motown-black-music-and-cultural-memory-new-bethel-drive.mp3",
+      "walk": "/audio/motown-black-music-and-cultural-memory-new-bethel-walk.mp3"
+    },
+    "motown-black-music-and-cultural-memory-blue-bird-inn": {
+      "drive": "/audio/motown-black-music-and-cultural-memory-blue-bird-inn-drive.mp3",
+      "walk": "/audio/motown-black-music-and-cultural-memory-blue-bird-inn-walk.mp3"
+    },
+    "motown-black-music-and-cultural-memory-wright-museum": {
+      "drive": "/audio/motown-black-music-and-cultural-memory-wright-museum-drive.mp3",
+      "walk": "/audio/motown-black-music-and-cultural-memory-wright-museum-walk.mp3"
+    },
+    "motown-black-music-and-cultural-memory-aretha-amphitheatre": {
+      "drive": "/audio/motown-black-music-and-cultural-memory-aretha-amphitheatre-drive.mp3",
+      "walk": "/audio/motown-black-music-and-cultural-memory-aretha-amphitheatre-walk.mp3"
+    },
+    "black-bottom-paradise-valley-and-urban-removal-black-bottom-site": {
+      "drive": "/audio/black-bottom-paradise-valley-and-urban-removal-black-bottom-site-drive.mp3",
+      "walk": "/audio/black-bottom-paradise-valley-and-urban-removal-black-bottom-site-walk.mp3"
+    },
+    "black-bottom-paradise-valley-and-urban-removal-paradise-valley-site": {
+      "drive": "/audio/black-bottom-paradise-valley-and-urban-removal-paradise-valley-site-drive.mp3",
+      "walk": "/audio/black-bottom-paradise-valley-and-urban-removal-paradise-valley-site-walk.mp3"
+    },
+    "black-bottom-paradise-valley-and-urban-removal-brewster-wheeler": {
+      "drive": "/audio/black-bottom-paradise-valley-and-urban-removal-brewster-wheeler-drive.mp3",
+      "walk": "/audio/black-bottom-paradise-valley-and-urban-removal-brewster-wheeler-walk.mp3"
+    },
+    "black-bottom-paradise-valley-and-urban-removal-historical-museum": {
+      "drive": "/audio/black-bottom-paradise-valley-and-urban-removal-historical-museum-drive.mp3",
+      "walk": "/audio/black-bottom-paradise-valley-and-urban-removal-historical-museum-walk.mp3"
+    },
+    "black-bottom-paradise-valley-and-urban-removal-i375-corridor": {
+      "drive": "/audio/black-bottom-paradise-valley-and-urban-removal-i375-corridor-drive.mp3",
+      "walk": "/audio/black-bottom-paradise-valley-and-urban-removal-i375-corridor-walk.mp3"
+    },
+    "labor-industry-and-black-detroit-piquette": {
+      "drive": "/audio/labor-industry-and-black-detroit-piquette-drive.mp3",
+      "walk": "/audio/labor-industry-and-black-detroit-piquette-walk.mp3"
+    },
+    "labor-industry-and-black-detroit-dia-murals": {
+      "drive": "/audio/labor-industry-and-black-detroit-dia-murals-drive.mp3",
+      "walk": "/audio/labor-industry-and-black-detroit-dia-murals-walk.mp3"
+    },
+    "labor-industry-and-black-detroit-solidarity-house": {
+      "drive": "/audio/labor-industry-and-black-detroit-solidarity-house-drive.mp3",
+      "walk": "/audio/labor-industry-and-black-detroit-solidarity-house-walk.mp3"
+    },
+    "labor-industry-and-black-detroit-rouge": {
+      "drive": "/audio/labor-industry-and-black-detroit-rouge-drive.mp3",
+      "walk": "/audio/labor-industry-and-black-detroit-rouge-walk.mp3"
+    },
+    "labor-industry-and-black-detroit-joe-louis": {
+      "drive": "/audio/labor-industry-and-black-detroit-joe-louis-drive.mp3",
+      "walk": "/audio/labor-industry-and-black-detroit-joe-louis-walk.mp3"
+    },
+    "black-political-power-in-detroit-michigan-chronicle": {
+      "drive": "/audio/black-political-power-in-detroit-michigan-chronicle-drive.mp3",
+      "walk": "/audio/black-political-power-in-detroit-michigan-chronicle-walk.mp3"
+    },
+    "black-political-power-in-detroit-second-baptist": {
+      "drive": "/audio/black-political-power-in-detroit-second-baptist-drive.mp3",
+      "walk": "/audio/black-political-power-in-detroit-second-baptist-walk.mp3"
+    },
+    "black-political-power-in-detroit-shrine": {
+      "drive": "/audio/black-political-power-in-detroit-shrine-drive.mp3",
+      "walk": "/audio/black-political-power-in-detroit-shrine-walk.mp3"
+    },
+    "black-political-power-in-detroit-rosa-parks": {
+      "drive": "/audio/black-political-power-in-detroit-rosa-parks-drive.mp3",
+      "walk": "/audio/black-political-power-in-detroit-rosa-parks-walk.mp3"
+    },
+    "black-political-power-in-detroit-coleman-young": {
+      "drive": "/audio/black-political-power-in-detroit-coleman-young-drive.mp3",
+      "walk": "/audio/black-political-power-in-detroit-coleman-young-walk.mp3"
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-historical-museum": {
+      "drive": "/audio/neighborhood-memory-from-midtown-to-the-west-side-historical-museum-drive.mp3",
+      "walk": "/audio/neighborhood-memory-from-midtown-to-the-west-side-historical-museum-walk.mp3"
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-durfee": {
+      "drive": "/audio/neighborhood-memory-from-midtown-to-the-west-side-durfee-drive.mp3",
+      "walk": "/audio/neighborhood-memory-from-midtown-to-the-west-side-durfee-walk.mp3"
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-lincoln-art-park": {
+      "drive": "/audio/neighborhood-memory-from-midtown-to-the-west-side-lincoln-art-park-drive.mp3",
+      "walk": "/audio/neighborhood-memory-from-midtown-to-the-west-side-lincoln-art-park-walk.mp3"
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-marygrove": {
+      "drive": "/audio/neighborhood-memory-from-midtown-to-the-west-side-marygrove-drive.mp3",
+      "walk": "/audio/neighborhood-memory-from-midtown-to-the-west-side-marygrove-walk.mp3"
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-joe-louis-greenway": {
+      "drive": "/audio/neighborhood-memory-from-midtown-to-the-west-side-joe-louis-greenway-drive.mp3",
+      "walk": "/audio/neighborhood-memory-from-midtown-to-the-west-side-joe-louis-greenway-walk.mp3"
+    }
+  },
+  "scriptMapByStopId": {
+    "motown-black-music-and-cultural-memory-motown-museum": {
+      "drive": "Ahead is Motown Museum, where Black Detroit turned studio discipline, neighborhood ambition, and national crossover into a world-changing sound.",
+      "walk": "You are at Motown Museum, a powerful opening point for reading Black Detroit through studio craft, neighborhood ambition, and one of the city's defining cultural exports."
+    },
+    "motown-black-music-and-cultural-memory-new-bethel": {
+      "drive": "Next is New Bethel Baptist Church, where gospel power, public voice, and the Franklin family deepen the route beyond the label itself.",
+      "walk": "You are at New Bethel Baptist Church, a strong stop for thinking about how gospel, ministry, and Black Detroit musical life shaped voices that traveled far beyond the city."
+    },
+    "motown-black-music-and-cultural-memory-blue-bird-inn": {
+      "drive": "Approaching the Blue Bird Inn, the route turns toward Detroit jazz, nightlife, and the neighborhood club circuit that helped hold Black music culture together.",
+      "walk": "You are at the Blue Bird Inn, where Detroit jazz, nightlife, and neighborhood performance history keep the city's musical memory broader than Motown alone."
+    },
+    "motown-black-music-and-cultural-memory-wright-museum": {
+      "drive": "Next is the Wright Museum, where Black cultural stewardship and public history help place Detroit sound inside a larger story of migration, struggle, and memory.",
+      "walk": "You are at the Charles H. Wright Museum of African American History, a fitting stop for reading Black Detroit music through public history, cultural stewardship, and longer movement memory."
+    },
+    "motown-black-music-and-cultural-memory-aretha-amphitheatre": {
+      "drive": "The route closes at the Aretha Franklin Amphitheatre, where riverfront performance and civic celebration keep Black Detroit sound alive in public space.",
+      "walk": "You are at the Aretha Franklin Amphitheatre, a strong capstone for thinking about how Black Detroit music remains public, communal, and tied to the city's civic imagination."
+    },
+    "black-bottom-paradise-valley-and-urban-removal-black-bottom-site": {
+      "drive": "Ahead is the former Black Bottom landscape, where the route opens on neighborhood removal and the hard question of what a city chooses to replace.",
+      "walk": "You are standing in the former Black Bottom landscape, a powerful opening point for reading Detroit through neighborhood loss, urban renewal, and the memory of a once-dense Black district."
+    },
+    "black-bottom-paradise-valley-and-urban-removal-paradise-valley-site": {
+      "drive": "Next is the old Paradise Valley corridor, where nightlife, commerce, and Black public life flourished before freeway building and redevelopment reshaped the district.",
+      "walk": "You are in the old Paradise Valley area, a fitting stop for thinking about how Black nightlife, commerce, and public life were concentrated here before removal and redevelopment changed the ground itself."
+    },
+    "black-bottom-paradise-valley-and-urban-removal-brewster-wheeler": {
+      "drive": "Approaching Brewster-Wheeler Recreation Center, the route turns toward public-housing legacy, neighborhood continuity, and the lived geography of Black Detroit.",
+      "walk": "You are at Brewster-Wheeler Recreation Center, where public-housing memory, neighborhood continuity, and the Brewster-Douglass landscape come into sharper view."
+    },
+    "black-bottom-paradise-valley-and-urban-removal-historical-museum": {
+      "drive": "Next is Detroit Historical Museum, where the city tries to interpret migration, labor, and the neighborhoods that were displaced in the name of progress.",
+      "walk": "You are at Detroit Historical Museum, a strong place to think about how Black Bottom, migration, labor, and urban removal get translated into public history."
+    },
+    "black-bottom-paradise-valley-and-urban-removal-i375-corridor": {
+      "drive": "The route closes along the I-375 corridor, where freeway construction made Black Bottom's removal impossible to ignore.",
+      "walk": "You are along the I-375 corridor, a fitting capstone for reading Black Bottom through freeway construction, erased street grids, and the infrastructure that replaced neighborhood life."
+    },
+    "labor-industry-and-black-detroit-piquette": {
+      "drive": "Ahead is Ford Piquette Avenue Plant, where Detroit's factory story begins to scale and the working city comes into view.",
+      "walk": "You are at Ford Piquette Avenue Plant, a strong opening point for reading Detroit as a working city shaped by factory space, industrial ambition, and the systems that came before later labor struggles."
+    },
+    "labor-industry-and-black-detroit-dia-murals": {
+      "drive": "Next are the Detroit Industry Murals, where industrial labor, machines, and the human body become part of the city's civic self-portrait.",
+      "walk": "You are at the Detroit Institute of Arts, where Rivera's Detroit Industry Murals turn labor, machines, and the industrial city into a public image of Detroit itself."
+    },
+    "labor-industry-and-black-detroit-solidarity-house": {
+      "drive": "Approaching UAW Solidarity House, the route turns toward organized labor, bargaining power, and the politics of the industrial city.",
+      "walk": "You are at UAW Solidarity House, a fitting stop for thinking about Black Detroit through organized labor, worker power, and the institutions that shaped industrial politics."
+    },
+    "labor-industry-and-black-detroit-rouge": {
+      "drive": "Next is the Rouge factory landscape, where scale, discipline, and industrial geography make Detroit's labor story feel concrete.",
+      "walk": "You are at the Ford Rouge landscape, a strong stop for reading Black Detroit through factory scale, industrial discipline, and the geography of the working city."
+    },
+    "labor-industry-and-black-detroit-joe-louis": {
+      "drive": "The route closes at the Monument to Joe Louis, where Black public strength and working-class self-definition stay visible in downtown Detroit.",
+      "walk": "You are at the Monument to Joe Louis, a fitting capstone for thinking about how Black Detroit turned labor, endurance, and public strength into a lasting civic image."
+    },
+    "black-political-power-in-detroit-michigan-chronicle": {
+      "drive": "Ahead is the Michigan Chronicle Building, where Black Detroit's public voice helped shape civic debate and political aspiration.",
+      "walk": "You are at the Michigan Chronicle Building, a strong opening point for reading Black political power through the press, public argument, and the making of Detroit's Black civic sphere."
+    },
+    "black-political-power-in-detroit-second-baptist": {
+      "drive": "Next is Second Baptist Church, where abolition memory and Black institutional leadership deepen the route beyond formal politics alone.",
+      "walk": "You are at Second Baptist Church, a fitting stop for thinking about how church leadership, freedom struggle, and long Black institutional life fed Detroit's later political power."
+    },
+    "black-political-power-in-detroit-shrine": {
+      "drive": "Approaching the Shrine of the Black Madonna, the route turns toward Black nationalism, self-determination, and community power in Detroit.",
+      "walk": "You are at the Shrine of the Black Madonna, where Black political theology, self-determination, and community institution-building come into sharper view."
+    },
+    "black-political-power-in-detroit-rosa-parks": {
+      "drive": "Next is Rosa Parks Transit Center, where public memory and movement history sit inside the everyday circulation of downtown Detroit.",
+      "walk": "You are at Rosa Parks Transit Center, a strong place to think about how resistance memory, public infrastructure, and everyday city movement overlap in Detroit."
+    },
+    "black-political-power-in-detroit-coleman-young": {
+      "drive": "The route closes at Coleman A. Young Municipal Center, where Black city power becomes visible in the buildings and decisions of municipal government.",
+      "walk": "You are at Coleman A. Young Municipal Center, a fitting capstone for reading Black political power through the machinery of city government and the legacy of Detroit municipal leadership."
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-historical-museum": {
+      "drive": "Ahead is Detroit Historical Museum, where the city tells its story before the route turns outward toward neighborhood memory on the ground.",
+      "walk": "You are at Detroit Historical Museum, a strong opening point for thinking about the difference between official city story and neighborhood memory lived block by block."
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-durfee": {
+      "drive": "Next is Durfee Innovation Society, where an old school building now carries neighborhood creativity, learning, and mutual support into the present.",
+      "walk": "You are at Durfee Innovation Society, a strong stop for thinking about how west-side neighborhood memory survives through adaptive reuse, learning space, and community-centered creative life."
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-lincoln-art-park": {
+      "drive": "Approaching Lincoln Street Art Park, the route turns toward west-side public art, reuse, and the insistence that neighborhood space can become its own archive.",
+      "walk": "You are at Lincoln Street Art Park, where west-side neighborhood memory, reuse, and public art make block-scale Detroit story visible."
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-marygrove": {
+      "drive": "Next is Marygrove Conservancy, where campus reinvention turns neighborhood change into a question of learning, culture, and who gets to belong in the future city.",
+      "walk": "You are at Marygrove Conservancy, a fitting stop for reading neighborhood memory through reinvestment, education, and the long horizon of west-side place-making."
+    },
+    "neighborhood-memory-from-midtown-to-the-west-side-joe-louis-greenway": {
+      "drive": "The route closes at the Joe Louis Greenway gateway, where Detroit's future gets imagined through reconnection, mobility, and the neighborhood stakes of reinvestment.",
+      "walk": "You are at the Joe Louis Greenway gateway, a fitting capstone for thinking about how neighborhood memory, mobility, and reinvestment might reshape the west side without erasing what is already here."
+    }
+  }
+}

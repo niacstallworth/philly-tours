@@ -1,0 +1,2051 @@
+{
+  "generatedAt": "2026-04-25T23:13:15.066Z",
+  "cityId": "philly",
+  "designTarget": {
+    "buildHardwareNow": "Quest 2",
+    "designHardwareLater": "Orion",
+    "runtimeStack": [
+      "Unity",
+      "Meta XR All-in-One SDK",
+      "OpenXR",
+      "Quest Passthrough"
+    ],
+    "primaryInputs": [
+      "voice",
+      "hand_tracking",
+      "gaze"
+    ],
+    "fallbackInputs": [
+      "controller"
+    ],
+    "uiRules": [
+      "small floating cards",
+      "one primary object at a time",
+      "no giant VR menus",
+      "no controller-only dependency",
+      "assume glasses-sized field of view later"
+    ]
+  },
+  "sourceFiles": {
+    "tours": "cities/philly/tours.json",
+    "ar": "cities/philly/ar.json",
+    "narration": "cities/philly/narration.json",
+    "assetCatalog": "docs/ar-asset-catalog.csv",
+    "sceneManifests": "docs/ar-scene-manifests"
+  },
+  "tours": [
+    {
+      "id": "black-american-legacy-and-quaker-heritage",
+      "title": "Black American Legacy & Quaker Heritage",
+      "durationMin": 248,
+      "distanceMiles": 5.6,
+      "arSceneCount": 4,
+      "heroSceneCount": 4,
+      "firstSceneId": "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church",
+      "firstHeroSceneId": "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church"
+    },
+    {
+      "id": "rainbow-girls-philadelphia",
+      "title": "Rainbow Girls Philadelphia",
+      "durationMin": 80,
+      "distanceMiles": 1.8,
+      "arSceneCount": 2,
+      "heroSceneCount": 2,
+      "firstSceneId": "rainbow-girls-philadelphia-masonic-temple",
+      "firstHeroSceneId": "rainbow-girls-philadelphia-masonic-temple"
+    },
+    {
+      "id": "divine-9-legacy-tour",
+      "title": "Divine 9 Legacy Tour",
+      "durationMin": 64,
+      "distanceMiles": 1.4,
+      "arSceneCount": 2,
+      "heroSceneCount": 2,
+      "firstSceneId": "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut",
+      "firstHeroSceneId": "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut"
+    },
+    {
+      "id": "black-american-sports",
+      "title": "Black American Sports",
+      "durationMin": 72,
+      "distanceMiles": 1.6,
+      "arSceneCount": 2,
+      "heroSceneCount": 2,
+      "firstSceneId": "black-american-sports-allen-iverson-s-hampton-park-courts",
+      "firstHeroSceneId": "black-american-sports-the-palestra"
+    },
+    {
+      "id": "black-inventors-tour",
+      "title": "Black Inventors Tour",
+      "durationMin": 64,
+      "distanceMiles": 1.4,
+      "arSceneCount": 3,
+      "heroSceneCount": 3,
+      "firstSceneId": "black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+      "firstHeroSceneId": "black-inventors-tour-lewis-latimer-light-bulb-exhibit"
+    },
+    {
+      "id": "library-story-hop-tour",
+      "title": "Library Story Hop Tour",
+      "durationMin": 56,
+      "distanceMiles": 1.3,
+      "arSceneCount": 1,
+      "heroSceneCount": 1,
+      "firstSceneId": "library-story-hop-tour-rosenbach-museum-and-library",
+      "firstHeroSceneId": "library-story-hop-tour-charles-l-blockson-collection"
+    },
+    {
+      "id": "old-york-road-corridor",
+      "title": "Old York Road Corridor",
+      "durationMin": 80,
+      "distanceMiles": 1.8,
+      "arSceneCount": 3,
+      "heroSceneCount": 3,
+      "firstSceneId": "old-york-road-corridor-ogontz-theatre-site",
+      "firstHeroSceneId": "old-york-road-corridor-ogontz-theatre-site"
+    },
+    {
+      "id": "eastern-star-weekend",
+      "title": "Eastern Star Weekend",
+      "durationMin": 80,
+      "distanceMiles": 1.8,
+      "arSceneCount": 1,
+      "heroSceneCount": 1,
+      "firstSceneId": "eastern-star-weekend-sweetbriar-mansion",
+      "firstHeroSceneId": "eastern-star-weekend-sweetbriar-mansion"
+    },
+    {
+      "id": "job-s-daughters",
+      "title": "Job's Daughters",
+      "durationMin": 72,
+      "distanceMiles": 1.6,
+      "arSceneCount": 1,
+      "heroSceneCount": 1,
+      "firstSceneId": "job-s-daughters-original-bethel-no-1-hall",
+      "firstHeroSceneId": "job-s-daughters-original-bethel-no-1-hall"
+    }
+  ],
+  "scenes": [
+    {
+      "sceneId": "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church",
+      "stopId": "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church",
+      "stopTitle": "Mother Bethel AME Church",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "sortOrder": 5,
+      "geo": {
+        "lat": 39.943334757651,
+        "lng": -75.151977924141,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "portal_reconstruction",
+        "priority": 1,
+        "estimatedEffort": "high",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Hero portal reconstruction",
+        "summary": "exterior reconstruction scene; site card; archival textures",
+        "description": "Founded 1794 by Richard Allen, oldest parcel owned by African Americans | Day: Day 1 | Time: Morning | Location: 419 S 6th St, Philadelphia, PA 19147",
+        "historicalEra": "18th to 19th century Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "atmosphere",
+        "contentLayers": [
+          "exterior reconstruction scene",
+          "site card",
+          "archival textures",
+          "portal frame",
+          "foreground occlusion pass",
+          "historic depth backdrop"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Mother Bethel AME Church",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to reveal card",
+          "voice next stop",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/mother-bethel-ame-church.glb",
+          "ios": "/models/mother-bethel-ame-church.usdz",
+          "android": "/models/mother-bethel-ame-church.glb",
+          "web": "/models/mother-bethel-ame-church.glb"
+        },
+        "audio": {
+          "default": "/audio/mother-bethel-ame-church.mp3",
+          "drive": "/audio/mother-bethel-ame-church-drive.mp3",
+          "walk": "/audio/mother-bethel-ame-church-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center",
+      "stopId": "black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center",
+      "stopTitle": "President's House / Liberty Bell Center",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "sortOrder": 1,
+      "geo": {
+        "lat": 39.950546398838,
+        "lng": -75.149351569291,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "portal_reconstruction",
+        "priority": 2,
+        "estimatedEffort": "high",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Hero portal reconstruction",
+        "summary": "household reconstruction; figure markers; timeline overlays",
+        "description": "George Washington's enslaved household exhibits | Day: Day 1 | Time: Afternoon | Location: 526 Market St, Philadelphia, PA 19106",
+        "historicalEra": "18th to 19th century Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "atmosphere",
+        "contentLayers": [
+          "household reconstruction",
+          "figure markers",
+          "timeline overlays",
+          "portal frame",
+          "foreground occlusion pass",
+          "historic depth backdrop"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start President's House / Liberty Bell Center",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to reveal card",
+          "voice next stop",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/president-s-house-liberty-bell-center.glb",
+          "ios": "/models/president-s-house-liberty-bell-center.usdz",
+          "android": "/models/president-s-house-liberty-bell-center.glb",
+          "web": "/models/president-s-house-liberty-bell-center.glb"
+        },
+        "audio": {
+          "default": "/audio/president-s-house-liberty-bell-center.mp3",
+          "drive": "/audio/presidents-house-liberty-bell-center-drive.mp3",
+          "walk": "/audio/presidents-house-liberty-bell-center-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-american-legacy-and-quaker-heritage-johnson-house",
+      "stopId": "black-american-legacy-and-quaker-heritage-johnson-house",
+      "stopTitle": "Johnson House",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "sortOrder": 29,
+      "geo": {
+        "lat": 40.043414697068,
+        "lng": -75.181116152631,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "historical_figure_presence",
+        "priority": 3,
+        "estimatedEffort": "high",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Figure-led historic scene",
+        "summary": "Underground Railroad scene; host figure silhouette; route overlay",
+        "description": "Underground Railroad station | Day: Day 2 | Time: Afternoon | Location: 6306 Germantown Ave, Philadelphia, PA",
+        "historicalEra": "18th to 19th century Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "silhouette",
+        "contentLayers": [
+          "Underground Railroad scene",
+          "host figure silhouette",
+          "route overlay",
+          "hero figure silhouette",
+          "staging marker",
+          "supporting context card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Johnson House",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to hear identity cue",
+          "voice repeat",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/johnson-house.glb",
+          "ios": "/models/johnson-house.usdz",
+          "android": "/models/johnson-house.glb",
+          "web": "/models/johnson-house.glb"
+        },
+        "audio": {
+          "default": "/audio/johnson-house.mp3",
+          "drive": "/audio/johnson-house-drive.mp3",
+          "walk": "/audio/johnson-house-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-american-legacy-and-quaker-heritage-the-woodlands",
+      "stopId": "black-american-legacy-and-quaker-heritage-the-woodlands",
+      "stopTitle": "The Woodlands",
+      "tourId": "black-american-legacy-and-quaker-heritage",
+      "tourTitle": "Black American Legacy & Quaker Heritage",
+      "sortOrder": 8,
+      "geo": {
+        "lat": 39.946761172315,
+        "lng": -75.206946956348,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "before_after_overlay",
+        "priority": 4,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Facade-accurate overlay",
+        "summary": "mansion overlay; cemetery context cards",
+        "description": "1770s neoclassical mansion and cemetery | Day: Day 3 | Time: Morning | Location: 4000 Woodland Ave, Philadelphia, PA 19104",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "architectural",
+        "visualPriority": "facade_accuracy",
+        "contentLayers": [
+          "mansion overlay",
+          "cemetery context cards",
+          "facade alignment overlay",
+          "material correction pass",
+          "street-edge guide"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start The Woodlands",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to toggle overlay",
+          "voice hide panel",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/the-woodlands.glb",
+          "ios": "/models/the-woodlands.usdz",
+          "android": "/models/the-woodlands.glb",
+          "web": "/models/the-woodlands.glb"
+        },
+        "audio": {
+          "default": "/audio/the-woodlands.mp3",
+          "drive": "/audio/the-woodlands-drive.mp3",
+          "walk": "/audio/the-woodlands-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "location_marker",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "overlay_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "rainbow-girls-philadelphia-masonic-temple",
+      "stopId": "rainbow-girls-philadelphia-masonic-temple",
+      "stopTitle": "Masonic Temple",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "sortOrder": 1,
+      "geo": {
+        "lat": 39.953405220467,
+        "lng": -75.163235969318,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "object_on_plinth",
+        "priority": 5,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Museum-style object scene",
+        "summary": "Rainbow jewels; ceremonial symbols; spatial story cards",
+        "description": "Rainbow Check-In & Tour - Seven lodge rooms, Rainbow jewels, 1922 charter | Day: Day 1 | Time: 9:00 AM | Location: 1 N Broad St, Philadelphia, PA 19107",
+        "historicalEra": "late 19th to 20th century Philadelphia",
+        "stylePreset": "architectural",
+        "visualPriority": "historical_accuracy",
+        "contentLayers": [
+          "Rainbow jewels",
+          "ceremonial symbols",
+          "spatial story cards",
+          "hero object",
+          "plinth/base",
+          "annotation card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Masonic Temple",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to inspect object",
+          "voice repeat",
+          "hold to reposition"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/masonic-temple.glb",
+          "ios": "/models/masonic-temple.usdz",
+          "android": "/models/masonic-temple.glb",
+          "web": "/models/masonic-temple.glb"
+        },
+        "audio": {
+          "default": "/audio/masonic-temple.mp3",
+          "drive": "/audio/masonic-temple-drive.mp3",
+          "walk": "/audio/masonic-temple-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "rainbow-girls-philadelphia-shofuso-japanese-house-and-garden",
+      "stopId": "rainbow-girls-philadelphia-shofuso-japanese-house-and-garden",
+      "stopTitle": "Shofuso Japanese House & Garden",
+      "tourId": "rainbow-girls-philadelphia",
+      "tourTitle": "Rainbow Girls Philadelphia",
+      "sortOrder": 9,
+      "geo": {
+        "lat": 39.9815027,
+        "lng": -75.2129462,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "portal_reconstruction",
+        "priority": 7,
+        "estimatedEffort": "high",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Hero portal reconstruction",
+        "summary": "garden scene extension; cultural context overlay",
+        "description": "Walk the rainbow bridge | Day: Day 2 | Location: Lansdowne Dr & Horticultural Dr, Philadelphia, PA 19131",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "atmosphere",
+        "contentLayers": [
+          "garden scene extension",
+          "cultural context overlay",
+          "portal frame",
+          "foreground occlusion pass",
+          "historic depth backdrop"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Shofuso Japanese House & Garden",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to reveal card",
+          "voice next stop",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/shofuso-japanese-house-and-garden.glb",
+          "ios": "/models/shofuso-japanese-house-and-garden.usdz",
+          "android": "/models/shofuso-japanese-house-and-garden.glb",
+          "web": "/models/shofuso-japanese-house-and-garden.glb"
+        },
+        "audio": {
+          "default": "/audio/shofuso-japanese-house-and-garden.mp3",
+          "drive": "/audio/shofuso-japanese-house-and-garden-drive.mp3",
+          "walk": "/audio/shofuso-japanese-house-and-garden-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut",
+      "stopId": "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut",
+      "stopTitle": "Alpha Phi Alpha - 42nd & Chestnut",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "sortOrder": 5,
+      "geo": {
+        "lat": 39.956112935564,
+        "lng": -75.206126715359,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "object_on_plinth",
+        "priority": 8,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Museum-style object scene",
+        "summary": "crest; chapter marker; founding timeline objects",
+        "description": "First graduate chapter house in America (1922) | Day: Day 1 | Time: 9:00 AM | Location: 42nd & Chestnut St, Philadelphia, PA",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "architectural",
+        "visualPriority": "historical_accuracy",
+        "contentLayers": [
+          "crest",
+          "chapter marker",
+          "founding timeline objects",
+          "hero object",
+          "plinth/base",
+          "annotation card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Alpha Phi Alpha - 42nd & Chestnut",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to inspect object",
+          "voice repeat",
+          "hold to reposition"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/alpha-phi-alpha-42nd-and-chestnut.glb",
+          "ios": "/models/alpha-phi-alpha-42nd-and-chestnut.usdz",
+          "android": "/models/alpha-phi-alpha-42nd-and-chestnut.glb",
+          "web": "/models/alpha-phi-alpha-42nd-and-chestnut.glb"
+        },
+        "audio": {
+          "default": "/audio/alpha-phi-alpha-42nd-and-chestnut.mp3",
+          "drive": "/audio/alpha-phi-alpha-42nd-and-chestnut-drive.mp3",
+          "walk": "/audio/alpha-phi-alpha-42nd-and-chestnut-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "divine-9-legacy-tour-iota-phi-theta-temple-greek-row",
+      "stopId": "divine-9-legacy-tour-iota-phi-theta-temple-greek-row",
+      "stopTitle": "Iota Phi Theta - Temple Greek Row",
+      "tourId": "divine-9-legacy-tour",
+      "tourTitle": "Divine 9 Legacy Tour",
+      "sortOrder": 3,
+      "geo": {
+        "lat": 39.981469029184,
+        "lng": -75.155126391124,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "historical_figure_presence",
+        "priority": 10,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Figure-led historic scene",
+        "summary": "legacy scene; organization timeline; marker overlay",
+        "description": "First chapter north of Baltimore (1972) | Day: Day 2 | Time: 2:30 PM | Location: 1900 N 13th St, Philadelphia, PA",
+        "historicalEra": "late 19th to 20th century Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "silhouette",
+        "contentLayers": [
+          "legacy scene",
+          "organization timeline",
+          "marker overlay",
+          "hero figure silhouette",
+          "staging marker",
+          "supporting context card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Iota Phi Theta - Temple Greek Row",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to hear identity cue",
+          "voice repeat",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/iota-phi-theta-temple-greek-row.glb",
+          "ios": "/models/iota-phi-theta-temple-greek-row.usdz",
+          "android": "/models/iota-phi-theta-temple-greek-row.glb",
+          "web": "/models/iota-phi-theta-temple-greek-row.glb"
+        },
+        "audio": {
+          "default": "/audio/iota-phi-theta-temple-greek-row.mp3",
+          "drive": "/audio/iota-phi-theta-temple-greek-row-drive.mp3",
+          "walk": "/audio/iota-phi-theta-temple-greek-row-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-american-sports-the-palestra",
+      "stopId": "black-american-sports-the-palestra",
+      "stopTitle": "The Palestra",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "sortOrder": 3,
+      "geo": {
+        "lat": 39.951325044425,
+        "lng": -75.190420086879,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "portal_reconstruction",
+        "priority": 11,
+        "estimatedEffort": "high",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Hero portal reconstruction",
+        "summary": "historic game scene; score overlay; court reconstruction",
+        "description": "Cathedral of College Basketball, Wilt Chamberlain history | Day: 1 Day | Time: 9:00 AM | Location: 235 S 33rd St, Philadelphia, PA 19104",
+        "historicalEra": "20th century Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "atmosphere",
+        "contentLayers": [
+          "historic game scene",
+          "score overlay",
+          "court reconstruction",
+          "portal frame",
+          "foreground occlusion pass",
+          "historic depth backdrop"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start The Palestra",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to reveal card",
+          "voice next stop",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/the-palestra.glb",
+          "ios": "/models/the-palestra.usdz",
+          "android": "/models/the-palestra.glb",
+          "web": "/models/the-palestra.glb"
+        },
+        "audio": {
+          "default": "/audio/the-palestra.mp3",
+          "drive": "/audio/the-palestra-drive.mp3",
+          "walk": "/audio/the-palestra-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-american-sports-joe-frazier-s-gym-cloverlay",
+      "stopId": "black-american-sports-joe-frazier-s-gym-cloverlay",
+      "stopTitle": "Joe Frazier's Gym (Cloverlay)",
+      "tourId": "black-american-sports",
+      "tourTitle": "Black American Sports",
+      "sortOrder": 4,
+      "geo": {
+        "lat": 39.997489442382,
+        "lng": -75.153756782567,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "historical_figure_presence",
+        "priority": 12,
+        "estimatedEffort": "high",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Museum-style object scene",
+        "summary": "boxing gloves and belt miniature; gym plaque; training card",
+        "description": "Smokin' Joe's legendary training grounds | Day: 1 Day | Time: 11:00 AM | Location: 2917 N Broad St, Philadelphia, PA 19132",
+        "historicalEra": "20th century Philadelphia boxing",
+        "stylePreset": "cinematic",
+        "visualPriority": "silhouette",
+        "contentLayers": [
+          "boxing gloves and belt miniature",
+          "gym plaque",
+          "training card",
+          "hero object",
+          "plinth/base",
+          "annotation card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Joe Frazier's Gym (Cloverlay)",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to hear identity cue",
+          "voice repeat",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/joe-frazier-s-gym-cloverlay.glb",
+          "ios": "/models/joe-frazier-s-gym-cloverlay.usdz",
+          "android": "/models/joe-frazier-s-gym-cloverlay.glb",
+          "web": "/models/joe-frazier-s-gym-cloverlay.glb"
+        },
+        "audio": {
+          "default": "/audio/joe-frazier-s-gym-cloverlay.mp3",
+          "drive": "/audio/joe-frazier-s-gym-cloverlay-drive.mp3",
+          "walk": "/audio/joe-frazier-s-gym-cloverlay-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": 0.78,
+        "rotationYDeg": 180,
+        "verticalOffsetM": 0,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+      "stopId": "black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+      "stopTitle": "Lewis Latimer Light Bulb Exhibit",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "sortOrder": 3,
+      "geo": {
+        "lat": 39.950751020239,
+        "lng": -75.151973988349,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "animated_diagram",
+        "priority": 14,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Animated explainer scene",
+        "summary": "filament model; patent diagram animation; inventor card",
+        "description": "Carbon filament patent (1881) | Day: 1 Day | Time: 1:00 PM | Location: 15 S 7th St, Philadelphia, PA 19106",
+        "historicalEra": "late 19th century innovation",
+        "stylePreset": "documentary",
+        "visualPriority": "readability",
+        "contentLayers": [
+          "filament model",
+          "patent diagram animation",
+          "inventor card",
+          "primary mechanism",
+          "step labels",
+          "motion sequence overlays"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Lewis Latimer Light Bulb Exhibit",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to step animation",
+          "voice next step",
+          "hold to reposition"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/lewis-latimer-light-bulb-exhibit.glb",
+          "ios": "/models/lewis-latimer-light-bulb-exhibit.usdz",
+          "android": "/models/lewis-latimer-light-bulb-exhibit.glb",
+          "web": "/models/lewis-latimer-light-bulb-exhibit.glb"
+        },
+        "audio": {
+          "default": "/audio/lewis-latimer-light-bulb-exhibit.mp3",
+          "drive": "/audio/lewis-latimer-light-bulb-exhibit-drive.mp3",
+          "walk": "/audio/lewis-latimer-light-bulb-exhibit-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": 0.9,
+        "rotationYDeg": 180,
+        "verticalOffsetM": 0,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card_with_step_chip",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-inventors-tour-garrett-morgan-traffic-signal",
+      "stopId": "black-inventors-tour-garrett-morgan-traffic-signal",
+      "stopTitle": "Garrett Morgan Traffic Signal",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "sortOrder": 1,
+      "geo": {
+        "lat": 39.952098934751,
+        "lng": -75.161437229754,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "animated_diagram",
+        "priority": 15,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Animated explainer scene",
+        "summary": "signal mechanism; intersection explainer; patent timeline",
+        "description": "Three-position traffic light inventor (1923) | Day: 1 Day | Time: 5:00 PM | Location: S 13th St & Market St, Philadelphia, PA 19107",
+        "historicalEra": "early 20th century innovation",
+        "stylePreset": "documentary",
+        "visualPriority": "readability",
+        "contentLayers": [
+          "signal mechanism",
+          "intersection explainer",
+          "patent timeline",
+          "primary mechanism",
+          "step labels",
+          "motion sequence overlays"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Garrett Morgan Traffic Signal",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to step animation",
+          "voice next step",
+          "hold to reposition"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/garrett-morgan-traffic-signal.glb",
+          "ios": "/models/garrett-morgan-traffic-signal.usdz",
+          "android": "/models/garrett-morgan-traffic-signal.glb",
+          "web": "/models/garrett-morgan-traffic-signal.glb"
+        },
+        "audio": {
+          "default": "/audio/garrett-morgan-traffic-signal.mp3",
+          "drive": "/audio/garrett-morgan-traffic-signal-drive.mp3",
+          "walk": "/audio/garrett-morgan-traffic-signal-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": 0.9,
+        "rotationYDeg": 180,
+        "verticalOffsetM": 0,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card_with_step_chip",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "black-inventors-tour-dr-charles-drew-blood-bank",
+      "stopId": "black-inventors-tour-dr-charles-drew-blood-bank",
+      "stopTitle": "Dr. Charles Drew Blood Bank",
+      "tourId": "black-inventors-tour",
+      "tourTitle": "Black Inventors Tour",
+      "sortOrder": 4,
+      "geo": {
+        "lat": 39.945680181785,
+        "lng": -75.154845554289,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "animated_diagram",
+        "priority": 16,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Animated explainer scene",
+        "summary": "blood plasma storage explainer; medical card set; tubing sequence",
+        "description": "Blood plasma storage pioneer (1940s) | Day: 1 Day | Time: 3:30 PM | Location: 800 Spruce St, Philadelphia, PA 19107",
+        "historicalEra": "20th century medical innovation",
+        "stylePreset": "documentary",
+        "visualPriority": "readability",
+        "contentLayers": [
+          "blood plasma storage explainer",
+          "medical card set",
+          "tubing sequence",
+          "primary mechanism",
+          "step labels",
+          "motion sequence overlays"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Dr. Charles Drew Blood Bank",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to step animation",
+          "voice next step",
+          "hold to reposition"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/dr-charles-drew-blood-bank.glb",
+          "ios": "/models/dr-charles-drew-blood-bank.usdz",
+          "android": "/models/dr-charles-drew-blood-bank.glb",
+          "web": "/models/dr-charles-drew-blood-bank.glb"
+        },
+        "audio": {
+          "default": "/audio/dr-charles-drew-blood-bank.mp3",
+          "drive": "/audio/dr-charles-drew-blood-bank-drive.mp3",
+          "walk": "/audio/dr-charles-drew-blood-bank-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": 0.88,
+        "rotationYDeg": 180,
+        "verticalOffsetM": 0,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card_with_step_chip",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "library-story-hop-tour-charles-l-blockson-collection",
+      "stopId": "library-story-hop-tour-charles-l-blockson-collection",
+      "stopTitle": "Charles L. Blockson Collection",
+      "tourId": "library-story-hop-tour",
+      "tourTitle": "Library Story Hop Tour",
+      "sortOrder": 7,
+      "geo": {
+        "lat": 39.981367,
+        "lng": -75.1561946,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "object_on_plinth",
+        "priority": 19,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Museum-style object scene",
+        "summary": "hymnbook or archival object model; collection card",
+        "description": "Harriet Tubman's personal hymnbook | Day: 1 Day | Location: Sullivan Hall, 1st Floor, 1330 Polett Walk, Philadelphia, PA 19122",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "architectural",
+        "visualPriority": "historical_accuracy",
+        "contentLayers": [
+          "hymnbook or archival object model",
+          "collection card",
+          "hero object",
+          "plinth/base",
+          "annotation card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Charles L. Blockson Collection",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to inspect object",
+          "voice repeat",
+          "hold to reposition"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/charles-l-blockson-collection.glb",
+          "ios": "/models/charles-l-blockson-collection.usdz",
+          "android": "/models/charles-l-blockson-collection.glb",
+          "web": "/models/charles-l-blockson-collection.glb"
+        },
+        "audio": {
+          "default": "/audio/charles-l-blockson-collection.mp3",
+          "drive": "/audio/charles-l-blockson-collection-drive.mp3",
+          "walk": "/audio/charles-l-blockson-collection-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "old-york-road-corridor-ogontz-theatre-site",
+      "stopId": "old-york-road-corridor-ogontz-theatre-site",
+      "stopTitle": "Ogontz Theatre Site",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "sortOrder": 6,
+      "geo": {
+        "lat": 40.04726302459,
+        "lng": -75.150993075727,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "portal_reconstruction",
+        "priority": 20,
+        "estimatedEffort": "high",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Hero portal reconstruction",
+        "summary": "theatre facade reconstruction; performance poster overlays",
+        "description": "Vaudeville palace for Black artists during segregation | Day: Morning | Time: 9:45 AM | Location: 6037 Ogontz Ave, Philadelphia, PA 19141",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "atmosphere",
+        "contentLayers": [
+          "theatre facade reconstruction",
+          "performance poster overlays",
+          "portal frame",
+          "foreground occlusion pass",
+          "historic depth backdrop"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Ogontz Theatre Site",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to reveal card",
+          "voice next stop",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/ogontz-theatre-site.glb",
+          "ios": "/models/ogontz-theatre-site.usdz",
+          "android": "/models/ogontz-theatre-site.glb",
+          "web": "/models/ogontz-theatre-site.glb"
+        },
+        "audio": {
+          "default": "/audio/ogontz-theatre-site.mp3",
+          "drive": "/audio/ogontz-theatre-site-drive.mp3",
+          "walk": "/audio/ogontz-theatre-site-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "old-york-road-corridor-cecil-b-moore-law-office",
+      "stopId": "old-york-road-corridor-cecil-b-moore-law-office",
+      "stopTitle": "Cecil B. Moore Law Office",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "sortOrder": 8,
+      "geo": {
+        "lat": 40.062299380483,
+        "lng": -75.151721055766,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "historical_figure_presence",
+        "priority": 21,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Figure-led historic scene",
+        "summary": "speech and activism overlay; office card; archival layer",
+        "description": "Civil rights leader's law practice | Day: Morning | Time: 10:30 AM | Location: 7101 Ogontz Ave, Philadelphia, PA 19138",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "silhouette",
+        "contentLayers": [
+          "speech and activism overlay",
+          "office card",
+          "archival layer",
+          "hero figure silhouette",
+          "staging marker",
+          "supporting context card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Cecil B. Moore Law Office",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to hear identity cue",
+          "voice repeat",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/cecil-b-moore-law-office.glb",
+          "ios": "/models/cecil-b-moore-law-office.usdz",
+          "android": "/models/cecil-b-moore-law-office.glb",
+          "web": "/models/cecil-b-moore-law-office.glb"
+        },
+        "audio": {
+          "default": "/audio/cecil-b-moore-law-office.mp3",
+          "drive": "/audio/cecil-b-moore-law-office-drive.mp3",
+          "walk": "/audio/cecil-b-moore-law-office-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "old-york-road-corridor-happy-hollow-rec-center",
+      "stopId": "old-york-road-corridor-happy-hollow-rec-center",
+      "stopTitle": "Happy Hollow Rec Center",
+      "tourId": "old-york-road-corridor",
+      "tourTitle": "Old York Road Corridor",
+      "sortOrder": 1,
+      "geo": {
+        "lat": 40.023831555249,
+        "lng": -75.164942218862,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "before_after_overlay",
+        "priority": 22,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Facade-accurate overlay",
+        "summary": "riot and community timeline; neighborhood memory overlay",
+        "description": "1967 race riots site, now community hub | Day: Afternoon | Time: 1:00 PM | Location: 4740 Wayne Ave, Philadelphia, PA 19144",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "architectural",
+        "visualPriority": "facade_accuracy",
+        "contentLayers": [
+          "riot and community timeline",
+          "neighborhood memory overlay",
+          "facade alignment overlay",
+          "material correction pass",
+          "street-edge guide"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Happy Hollow Rec Center",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to toggle overlay",
+          "voice hide panel",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/happy-hollow-rec-center.glb",
+          "ios": "/models/happy-hollow-rec-center.usdz",
+          "android": "/models/happy-hollow-rec-center.glb",
+          "web": "/models/happy-hollow-rec-center.glb"
+        },
+        "audio": {
+          "default": "/audio/happy-hollow-rec-center.mp3",
+          "drive": "/audio/happy-hollow-rec-center-drive.mp3",
+          "walk": "/audio/happy-hollow-rec-center-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "location_marker",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "overlay_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "eastern-star-weekend-sweetbriar-mansion",
+      "stopId": "eastern-star-weekend-sweetbriar-mansion",
+      "stopTitle": "Sweetbriar Mansion",
+      "tourId": "eastern-star-weekend",
+      "tourTitle": "Eastern Star Weekend",
+      "sortOrder": 5,
+      "geo": {
+        "lat": 39.976605171234,
+        "lng": -75.200781024221,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "object_on_plinth",
+        "priority": 27,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Museum-style object scene",
+        "summary": "ceremonial symbol set; closing ritual object; chapter story card",
+        "description": "Closing ceremony | Day: Day 2 | Location: 1 Sweetbriar Ln, Philadelphia, PA 19131",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "architectural",
+        "visualPriority": "historical_accuracy",
+        "contentLayers": [
+          "ceremonial symbol set",
+          "closing ritual object",
+          "chapter story card",
+          "hero object",
+          "plinth/base",
+          "annotation card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Sweetbriar Mansion",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to inspect object",
+          "voice repeat",
+          "hold to reposition"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/sweetbriar-mansion.glb",
+          "ios": "/models/sweetbriar-mansion.usdz",
+          "android": "/models/sweetbriar-mansion.glb",
+          "web": "/models/sweetbriar-mansion.glb"
+        },
+        "audio": {
+          "default": "/audio/sweetbriar-mansion.mp3",
+          "drive": "/audio/sweetbriar-mansion-drive.mp3",
+          "walk": "/audio/sweetbriar-mansion-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    },
+    {
+      "sceneId": "job-s-daughters-original-bethel-no-1-hall",
+      "stopId": "job-s-daughters-original-bethel-no-1-hall",
+      "stopTitle": "Original Bethel No. 1 Hall",
+      "tourId": "job-s-daughters",
+      "tourTitle": "Job's Daughters",
+      "sortOrder": 4,
+      "geo": {
+        "lat": 39.95414193433,
+        "lng": -75.161009729765,
+        "coordQuality": "verified",
+        "triggerRadiusM": 40
+      },
+      "ar": {
+        "type": "historical_figure_presence",
+        "priority": 28,
+        "estimatedEffort": "medium",
+        "heroMoment": true
+      },
+      "content": {
+        "headline": "Figure-led historic scene",
+        "summary": "legacy hall overlay; youth lineage cards; memory scene",
+        "description": "1921-1930s meeting hall site | Day: Day 1 | Time: 2:00 PM | Location: N 13th St & Arch St, Philadelphia, PA 19107",
+        "historicalEra": "historic Philadelphia",
+        "stylePreset": "cinematic",
+        "visualPriority": "silhouette",
+        "contentLayers": [
+          "legacy hall overlay",
+          "youth lineage cards",
+          "memory scene",
+          "hero figure silhouette",
+          "staging marker",
+          "supporting context card"
+        ],
+        "voicePrompts": {
+          "primary": [
+            "Start Original Bethel No. 1 Hall",
+            "Next stop",
+            "Repeat",
+            "Hide panel",
+            "Open on phone"
+          ],
+          "fallback": [
+            "Pause",
+            "Resume",
+            "Recenter"
+          ]
+        },
+        "interactionHints": [
+          "pinch to hear identity cue",
+          "voice repeat",
+          "look to recenter"
+        ]
+      },
+      "assets": {
+        "models": {
+          "default": "/models/original-bethel-no-1-hall.glb",
+          "ios": "/models/original-bethel-no-1-hall.usdz",
+          "android": "/models/original-bethel-no-1-hall.glb",
+          "web": "/models/original-bethel-no-1-hall.glb"
+        },
+        "audio": {
+          "default": "/audio/original-bethel-no-1-hall.mp3",
+          "drive": "/audio/original-bethel-no-1-hall-drive.mp3",
+          "walk": "/audio/original-bethel-no-1-hall-walk.mp3"
+        }
+      },
+      "placement": {
+        "anchorStyle": "front_of_user",
+        "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
+        "scale": null,
+        "rotationYDeg": null,
+        "verticalOffsetM": null,
+        "preferredViewingDistanceM": null,
+        "sitePlacementMode": "default",
+        "siteBearingDeg": null,
+        "headingToleranceDeg": null,
+        "siteOffsetXM": null,
+        "siteOffsetZM": null
+      },
+      "ui": {
+        "surfaceProfile": "hero_card",
+        "overlayBudget": "minimal",
+        "supportsPanelReposition": true,
+        "supportsVoiceCommands": true,
+        "supportsHandTracking": true,
+        "controllerFallback": true
+      },
+      "quest2": {
+        "passthroughRecommended": true,
+        "inputMode": "hand_tracking_first",
+        "controllerFallback": true
+      },
+      "orion": {
+        "targetMode": "small_fov_glasses",
+        "compactPanelsRequired": true,
+        "voiceFirst": true,
+        "dismissQuickly": true
+      }
+    }
+  ],
+  "runtimeProfile": "hero_only",
+  "defaults": {
+    "launchSceneId": "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church",
+    "launchTourId": "black-american-legacy-and-quaker-heritage",
+    "availableSceneIds": [
+      "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church",
+      "black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center",
+      "black-american-legacy-and-quaker-heritage-johnson-house",
+      "black-american-legacy-and-quaker-heritage-the-woodlands",
+      "rainbow-girls-philadelphia-masonic-temple",
+      "rainbow-girls-philadelphia-shofuso-japanese-house-and-garden",
+      "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut",
+      "divine-9-legacy-tour-iota-phi-theta-temple-greek-row",
+      "black-american-sports-the-palestra",
+      "black-american-sports-joe-frazier-s-gym-cloverlay",
+      "black-inventors-tour-lewis-latimer-light-bulb-exhibit",
+      "black-inventors-tour-garrett-morgan-traffic-signal",
+      "black-inventors-tour-dr-charles-drew-blood-bank",
+      "library-story-hop-tour-charles-l-blockson-collection",
+      "old-york-road-corridor-ogontz-theatre-site",
+      "old-york-road-corridor-cecil-b-moore-law-office",
+      "old-york-road-corridor-happy-hollow-rec-center",
+      "eastern-star-weekend-sweetbriar-mansion",
+      "job-s-daughters-original-bethel-no-1-hall"
+    ]
+  }
+}

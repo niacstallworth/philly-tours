@@ -1,0 +1,202 @@
+{
+  "motown-black-music-and-cultural-memory-motown-museum": {
+    "id": "motown-black-music-and-cultural-memory-motown-museum",
+    "title": "Motown Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "motown-black-music-and-cultural-memory-new-bethel": {
+    "id": "motown-black-music-and-cultural-memory-new-bethel",
+    "title": "New Bethel Baptist Church",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "motown-black-music-and-cultural-memory-blue-bird-inn": {
+    "id": "motown-black-music-and-cultural-memory-blue-bird-inn",
+    "title": "The Blue Bird Inn",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "motown-black-music-and-cultural-memory-wright-museum": {
+    "id": "motown-black-music-and-cultural-memory-wright-museum",
+    "title": "Charles H. Wright Museum of African American History",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "motown-black-music-and-cultural-memory-aretha-amphitheatre": {
+    "id": "motown-black-music-and-cultural-memory-aretha-amphitheatre",
+    "title": "Aretha Franklin Amphitheatre",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-bottom-paradise-valley-and-urban-removal-black-bottom-site": {
+    "id": "black-bottom-paradise-valley-and-urban-removal-black-bottom-site",
+    "title": "Black Bottom at Lafayette Park",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-bottom-paradise-valley-and-urban-removal-paradise-valley-site": {
+    "id": "black-bottom-paradise-valley-and-urban-removal-paradise-valley-site",
+    "title": "Paradise Valley at Gratiot & Randolph",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-bottom-paradise-valley-and-urban-removal-brewster-wheeler": {
+    "id": "black-bottom-paradise-valley-and-urban-removal-brewster-wheeler",
+    "title": "Brewster-Wheeler Recreation Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-bottom-paradise-valley-and-urban-removal-historical-museum": {
+    "id": "black-bottom-paradise-valley-and-urban-removal-historical-museum",
+    "title": "Detroit Historical Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-bottom-paradise-valley-and-urban-removal-i375-corridor": {
+    "id": "black-bottom-paradise-valley-and-urban-removal-i375-corridor",
+    "title": "Black Bottom Street Grid at I-375",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "labor-industry-and-black-detroit-piquette": {
+    "id": "labor-industry-and-black-detroit-piquette",
+    "title": "Ford Piquette Avenue Plant Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "labor-industry-and-black-detroit-dia-murals": {
+    "id": "labor-industry-and-black-detroit-dia-murals",
+    "title": "Detroit Industry Murals at the DIA",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "labor-industry-and-black-detroit-solidarity-house": {
+    "id": "labor-industry-and-black-detroit-solidarity-house",
+    "title": "UAW Solidarity House",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "labor-industry-and-black-detroit-rouge": {
+    "id": "labor-industry-and-black-detroit-rouge",
+    "title": "Ford Rouge Factory Tour",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "labor-industry-and-black-detroit-joe-louis": {
+    "id": "labor-industry-and-black-detroit-joe-louis",
+    "title": "Monument to Joe Louis",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-detroit-michigan-chronicle": {
+    "id": "black-political-power-in-detroit-michigan-chronicle",
+    "title": "Michigan Chronicle Building",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-detroit-second-baptist": {
+    "id": "black-political-power-in-detroit-second-baptist",
+    "title": "Second Baptist Church",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-detroit-shrine": {
+    "id": "black-political-power-in-detroit-shrine",
+    "title": "Shrine of the Black Madonna",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-detroit-rosa-parks": {
+    "id": "black-political-power-in-detroit-rosa-parks",
+    "title": "Rosa Parks Transit Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-detroit-coleman-young": {
+    "id": "black-political-power-in-detroit-coleman-young",
+    "title": "Coleman A. Young Municipal Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "neighborhood-memory-from-midtown-to-the-west-side-historical-museum": {
+    "id": "neighborhood-memory-from-midtown-to-the-west-side-historical-museum",
+    "title": "Detroit Historical Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "neighborhood-memory-from-midtown-to-the-west-side-durfee": {
+    "id": "neighborhood-memory-from-midtown-to-the-west-side-durfee",
+    "title": "Durfee Innovation Society",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "neighborhood-memory-from-midtown-to-the-west-side-lincoln-art-park": {
+    "id": "neighborhood-memory-from-midtown-to-the-west-side-lincoln-art-park",
+    "title": "Lincoln Street Art Park",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "neighborhood-memory-from-midtown-to-the-west-side-marygrove": {
+    "id": "neighborhood-memory-from-midtown-to-the-west-side-marygrove",
+    "title": "Marygrove Conservancy",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "neighborhood-memory-from-midtown-to-the-west-side-joe-louis-greenway": {
+    "id": "neighborhood-memory-from-midtown-to-the-west-side-joe-louis-greenway",
+    "title": "Joe Louis Greenway West Warren Gateway",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  }
+}

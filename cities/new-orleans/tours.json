@@ -96,5 +96,152 @@
         "lng": -90.0698804
       }
     ]
+  },
+  {
+    "id": "claiborne-neighborhood-memory-and-urban-change",
+    "title": "Claiborne, Neighborhood Memory & Urban Change",
+    "theme": "neighborhood",
+    "durationMin": 100,
+    "distanceMiles": 1.8,
+    "summary": "Read Claiborne through neighborhood institutions, corridor repair, Bayou Road commerce, and the Black civic spaces that held Tremé together through disruption and change.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/claiborne-neighborhood-memory-and-urban-change-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "claiborne-neighborhood-memory-and-urban-change-dooky-chase",
+        "title": "Dooky Chase's Restaurant",
+        "description": "Open with a neighborhood institution where food, civil-rights strategy, and Black New Orleans public life met across generations.",
+        "lat": 29.9682068,
+        "lng": -90.0784867
+      },
+      {
+        "id": "claiborne-neighborhood-memory-and-urban-change-treme-center",
+        "title": "Tremé Recreation Community Center",
+        "description": "Move into the everyday civic life of Tremé at a community anchor that keeps the route grounded in neighborhood use, not only memory.",
+        "lat": 29.9645012,
+        "lng": -90.0697749
+      },
+      {
+        "id": "claiborne-neighborhood-memory-and-urban-change-claiborne-cid",
+        "title": "Claiborne Corridor Cultural Innovation District",
+        "description": "Read the underpass and corridor itself as a site of loss, repair, and Black-led cultural reactivation along North Claiborne.",
+        "lat": 29.962246,
+        "lng": -90.074574
+      },
+      {
+        "id": "claiborne-neighborhood-memory-and-urban-change-community-book-center",
+        "title": "Community Book Center",
+        "description": "Add literary memory and Black-owned continuity at a bookstore that helps Bayou Road remain a living cultural corridor.",
+        "lat": 29.9764974,
+        "lng": -90.0763379
+      },
+      {
+        "id": "claiborne-neighborhood-memory-and-urban-change-bayou-road",
+        "title": "Bayou Road Black Commercial Corridor",
+        "description": "Close along Bayou Road, where neighborhood commerce, cultural resilience, and Black local life push the route beyond preservation into ongoing survival.",
+        "lat": 29.9759053,
+        "lng": -90.0762835
+      }
+    ]
+  },
+  {
+    "id": "black-new-orleans-arts-performance-and-cultural-institutions",
+    "title": "Black New Orleans Arts, Performance & Cultural Institutions",
+    "theme": "arts",
+    "durationMin": 120,
+    "distanceMiles": 4.6,
+    "summary": "Move through Black-led cultural institutions, jazz stewardship, arts training, and public creative life to see how New Orleans keeps performance and cultural memory in circulation.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/black-new-orleans-arts-performance-and-cultural-institutions-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "black-new-orleans-arts-performance-and-cultural-institutions-ashe",
+        "title": "Ashé Cultural Arts Center",
+        "description": "Open in Central City at a Black-led cultural institution that ties art directly to community power, diaspora memory, and neighborhood development.",
+        "lat": 29.9406623,
+        "lng": -90.0820824
+      },
+      {
+        "id": "black-new-orleans-arts-performance-and-cultural-institutions-le-musee-fpc",
+        "title": "Le Musée de f.p.c.",
+        "description": "Add a house museum dedicated to free people of color, where material culture and Black New Orleans history meet the city’s creative inheritance.",
+        "lat": 29.9724294,
+        "lng": -90.0753478
+      },
+      {
+        "id": "black-new-orleans-arts-performance-and-cultural-institutions-noaam",
+        "title": "New Orleans African American Museum",
+        "description": "Center Black art, history, and contemporary exhibition practice at an institution that actively preserves and elevates cultural life in Tremé.",
+        "lat": 29.9665108,
+        "lng": -90.0679482
+      },
+      {
+        "id": "black-new-orleans-arts-performance-and-cultural-institutions-jazz-museum",
+        "title": "New Orleans Jazz Museum",
+        "description": "Move into public music stewardship at a museum that treats jazz as a living art form through exhibits, research, and performance.",
+        "lat": 29.9586603,
+        "lng": -90.0572837
+      },
+      {
+        "id": "black-new-orleans-arts-performance-and-cultural-institutions-nocca",
+        "title": "New Orleans Center for Creative Arts",
+        "description": "Close with arts training and future-facing creative practice at a school that helps shape the next generation of New Orleans artists and performers.",
+        "lat": 29.9544166,
+        "lng": -90.0478491
+      }
+    ]
+  },
+  {
+    "id": "civil-rights-resistance-and-public-power-in-new-orleans",
+    "title": "Civil Rights, Resistance & Public Power in New Orleans",
+    "theme": "civic",
+    "durationMin": 130,
+    "distanceMiles": 6.5,
+    "summary": "Trace Black public power through movement institutions, school desegregation, legal challenge, civil-rights memory, and the civic spaces where New Orleans policy is actually made.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/civil-rights-resistance-and-public-power-in-new-orleans-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "civil-rights-resistance-and-public-power-in-new-orleans-dryades-ymca",
+        "title": "Dryades YMCA",
+        "description": "Open on Oretha Castle Haley at a Black community institution that anchors the route in organizing, gathering, and neighborhood public life.",
+        "lat": 29.9364483,
+        "lng": -90.0833968
+      },
+      {
+        "id": "civil-rights-resistance-and-public-power-in-new-orleans-civil-rights-museum",
+        "title": "Louisiana Civil Rights Museum",
+        "description": "Move into statewide memory at a museum that frames New Orleans inside the larger struggle for civil rights across Louisiana.",
+        "lat": 29.942602,
+        "lng": -90.064328
+      },
+      {
+        "id": "civil-rights-resistance-and-public-power-in-new-orleans-william-frantz",
+        "title": "William Frantz School Site",
+        "description": "Read school desegregation and child-centered courage at the site most associated with Ruby Bridges and the national visibility of New Orleans resistance.",
+        "lat": 29.9766647,
+        "lng": -90.0336182
+      },
+      {
+        "id": "civil-rights-resistance-and-public-power-in-new-orleans-homer-plessy-way",
+        "title": "Homer Plessy Way",
+        "description": "Add legal challenge and segregation history at the corridor that remembers Homer Plessy and the case that shaped public life far beyond New Orleans.",
+        "lat": 29.9657257,
+        "lng": -90.047927
+      },
+      {
+        "id": "civil-rights-resistance-and-public-power-in-new-orleans-city-hall",
+        "title": "New Orleans City Hall",
+        "description": "Close at the city’s governing core, where movement pressure, Black public power, and policy decisions meet in the machinery of local government.",
+        "lat": 29.9521316,
+        "lng": -90.0772919
+      }
+    ]
   }
 ]

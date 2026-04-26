@@ -1,0 +1,29 @@
+{
+  "homeTitle": "Memphis Tours | Self-Guided Black History, Music & Walking Routes",
+  "homeDescription": "Explore Black Memphis through self-guided routes built around Beale Street, civil-rights landmarks, Stax, Orange Mound, and riverfront labor memory.",
+  "catalogTitle": "Memphis Walking Tours | Black History, Music & Neighborhood Routes",
+  "catalogDescription": "Browse self-guided Memphis routes shaped by Beale Street, MLK memory, South Memphis sound, Orange Mound, and Black working-city history.",
+  "homePanelEyebrow": "Memphis route collection",
+  "homePanelTitle": "See Memphis through music, movement, and neighborhood memory.",
+  "homePanelBody": "Start with Beale and the Lorraine, then move through Stax, Orange Mound, and the riverfront with self-guided routes shaped for narration, map guidance, and AR-ready story stops.",
+  "searchImage": "/assets/search/memphis-tours-search-thumbnail.jpg",
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "knowsAbout": [
+    "Memphis walking tours",
+    "Memphis audio tours",
+    "Memphis history tours",
+    "Beale Street history",
+    "Memphis civil rights tour",
+    "Stax Museum history",
+    "Orange Mound history",
+    "Black Memphis history"
+  ],
+  "homePanelHighlights": [
+    "Beale and Black music memory",
+    "Civil-rights and MLK landmarks",
+    "Orange Mound and neighborhood history"
+  ]
+}

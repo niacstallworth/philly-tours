@@ -1,0 +1,29 @@
+{
+  "homeTitle": "Detroit Tours | Self-Guided Black History, Music & Walking Routes",
+  "homeDescription": "Explore Black Detroit through self-guided routes built around Motown, Black Bottom, labor history, political power, and neighborhood memory.",
+  "catalogTitle": "Detroit Walking Tours | Black History, Music & Neighborhood Routes",
+  "catalogDescription": "Browse self-guided Detroit routes built for Motown memory, Black Detroit history, labor landmarks, and neighborhood depth.",
+  "homePanelEyebrow": "Detroit route collection",
+  "homePanelTitle": "See Detroit through music, labor, and neighborhood memory.",
+  "homePanelBody": "Start with Motown and Black Bottom, then move through labor landmarks, Black political power, and west-side neighborhood routes shaped for story, map guidance, narration, and AR-ready context.",
+  "searchImage": "/assets/search/detroit-tours-search-thumbnail.jpg",
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "knowsAbout": [
+    "Detroit walking tours",
+    "Detroit audio tours",
+    "Detroit history tours",
+    "Motown history tours",
+    "Black Detroit history",
+    "Black Bottom history",
+    "Detroit labor history",
+    "Detroit neighborhood tours"
+  ],
+  "homePanelHighlights": [
+    "Motown and Black Bottom routes",
+    "Labor and city-power landmarks",
+    "Neighborhood memory on the west side"
+  ]
+}

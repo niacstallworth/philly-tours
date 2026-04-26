@@ -1,0 +1,247 @@
+[
+  {
+    "id": "motown-black-music-and-cultural-memory",
+    "title": "Motown, Black Music & Cultural Memory",
+    "theme": "arts",
+    "durationMin": 120,
+    "distanceMiles": 9.4,
+    "summary": "Trace Black Detroit through Motown, gospel, jazz, riverfront performance, and the institutions that keep the city's musical memory alive.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/motown-black-music-and-cultural-memory-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "motown-black-music-and-cultural-memory-motown-museum",
+        "title": "Motown Museum",
+        "description": "Open at Hitsville U.S.A., where Black Detroit turned studio craft, neighborhood ambition, and national crossover into one of the city's defining cultural exports.",
+        "lat": 42.3641217,
+        "lng": -83.0884919
+      },
+      {
+        "id": "motown-black-music-and-cultural-memory-new-bethel",
+        "title": "New Bethel Baptist Church",
+        "description": "Move into gospel power and public voice at the church tied to C. L. Franklin, Aretha Franklin, and the spiritual backbone of Black Detroit musical life.",
+        "lat": 42.3679545,
+        "lng": -83.1047061
+      },
+      {
+        "id": "motown-black-music-and-cultural-memory-blue-bird-inn",
+        "title": "The Blue Bird Inn",
+        "description": "Read Detroit jazz and neighborhood nightlife at a club remembered for Black performance history far beyond the Motown label alone.",
+        "lat": 42.3527584,
+        "lng": -83.1196944
+      },
+      {
+        "id": "motown-black-music-and-cultural-memory-wright-museum",
+        "title": "Charles H. Wright Museum of African American History",
+        "description": "Add public history and Black cultural stewardship at one of Detroit's strongest institutions for reading music, movement, and memory together.",
+        "lat": 42.3591272,
+        "lng": -83.060828
+      },
+      {
+        "id": "motown-black-music-and-cultural-memory-aretha-amphitheatre",
+        "title": "Aretha Franklin Amphitheatre",
+        "description": "Close on the riverfront at a civic performance space that keeps Black Detroit sound, celebration, and public memory in circulation.",
+        "lat": 42.3339198,
+        "lng": -83.0215725
+      }
+    ]
+  },
+  {
+    "id": "black-bottom-paradise-valley-and-urban-removal",
+    "title": "Black Bottom, Paradise Valley & Urban Removal",
+    "theme": "freedom",
+    "durationMin": 115,
+    "distanceMiles": 4.7,
+    "summary": "Follow Black Detroit through Black Bottom and Paradise Valley memory, neighborhood removal, public-housing legacy, and the landscapes that replaced a once-dense Black district.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/black-bottom-paradise-valley-and-urban-removal-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "black-bottom-paradise-valley-and-urban-removal-black-bottom-site",
+        "title": "Black Bottom at Lafayette Park",
+        "description": "Open where Black Bottom once stood, reading urban renewal and neighborhood loss through the modern landscape that replaced a dense Black district.",
+        "lat": 42.3419,
+        "lng": -83.0389
+      },
+      {
+        "id": "black-bottom-paradise-valley-and-urban-removal-paradise-valley-site",
+        "title": "Paradise Valley at Gratiot & Randolph",
+        "description": "Turn toward Paradise Valley, where nightlife, commerce, and Black public life flourished before freeway building and redevelopment reshaped the district.",
+        "lat": 42.3360365,
+        "lng": -83.0460643
+      },
+      {
+        "id": "black-bottom-paradise-valley-and-urban-removal-brewster-wheeler",
+        "title": "Brewster-Wheeler Recreation Center",
+        "description": "Add public-housing legacy and neighborhood continuity at a landmark tied to the Brewster-Douglass homes and the lived geography of Black Detroit.",
+        "lat": 42.3469487,
+        "lng": -83.0469067
+      },
+      {
+        "id": "black-bottom-paradise-valley-and-urban-removal-historical-museum",
+        "title": "Detroit Historical Museum",
+        "description": "Step into public interpretation at a museum that helps connect Black Bottom, migration, labor, and Detroit's larger urban story.",
+        "lat": 42.3597738,
+        "lng": -83.0672491
+      },
+      {
+        "id": "black-bottom-paradise-valley-and-urban-removal-i375-corridor",
+        "title": "Black Bottom Street Grid at I-375",
+        "description": "Close along the I-375 corridor, where freeway construction made Black Bottom's removal impossible to mistake and the erased street grid still shapes Detroit memory.",
+        "lat": 42.3404,
+        "lng": -83.0408
+      }
+    ]
+  },
+  {
+    "id": "labor-industry-and-black-detroit",
+    "title": "Labor, Industry & Black Detroit",
+    "theme": "civic",
+    "durationMin": 130,
+    "distanceMiles": 15.2,
+    "summary": "Read Black Detroit through factory geography, labor organizing, industrial art, and the working-city institutions that tied production to public power.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/labor-industry-and-black-detroit-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "labor-industry-and-black-detroit-piquette",
+        "title": "Ford Piquette Avenue Plant Museum",
+        "description": "Open where the early auto industry scaled up, using factory space to frame Detroit as a working city long before its Black labor story reached national visibility.",
+        "lat": 42.3681398,
+        "lng": -83.0724581
+      },
+      {
+        "id": "labor-industry-and-black-detroit-dia-murals",
+        "title": "Detroit Industry Murals at the DIA",
+        "description": "Turn to industrial art and working-class imagery at Rivera's murals, where production, labor, and the human body become part of Detroit's civic self-portrait.",
+        "lat": 42.3595055,
+        "lng": -83.0645225
+      },
+      {
+        "id": "labor-industry-and-black-detroit-solidarity-house",
+        "title": "UAW Solidarity House",
+        "description": "Move into organized labor at the headquarters of the UAW, where the route can read Black Detroit through bargaining power, worker identity, and industrial politics.",
+        "lat": 42.3502156,
+        "lng": -82.993873
+      },
+      {
+        "id": "labor-industry-and-black-detroit-rouge",
+        "title": "Ford Rouge Factory Tour",
+        "description": "Extend into the Rouge landscape to connect Detroit's Black labor story to the scale, discipline, and danger of the region's defining industrial geography.",
+        "lat": 42.314737,
+        "lng": -83.1609613
+      },
+      {
+        "id": "labor-industry-and-black-detroit-joe-louis",
+        "title": "Monument to Joe Louis",
+        "description": "Close downtown with a Black Detroit icon whose public image still carries the city's language of strength, endurance, and working-class self-definition.",
+        "lat": 42.3286631,
+        "lng": -83.0445493
+      }
+    ]
+  },
+  {
+    "id": "black-political-power-in-detroit",
+    "title": "Black Political Power in Detroit",
+    "theme": "civic",
+    "durationMin": 120,
+    "distanceMiles": 9.6,
+    "summary": "Trace Black Detroit through the Black press, church leadership, nationalist institution-building, public memory, and the city structures where municipal power is exercised.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/black-political-power-in-detroit-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "black-political-power-in-detroit-michigan-chronicle",
+        "title": "Michigan Chronicle Building",
+        "description": "Open with Black Detroit's public voice at the paper that helped shape civic debate, political aspiration, and the city's Black public sphere.",
+        "lat": 42.3396454,
+        "lng": -83.0590634
+      },
+      {
+        "id": "black-political-power-in-detroit-second-baptist",
+        "title": "Second Baptist Church",
+        "description": "Move into church leadership, abolition memory, and the long Black institutional tradition that fed Detroit's later civic and political power.",
+        "lat": 42.3349263,
+        "lng": -83.0430782
+      },
+      {
+        "id": "black-political-power-in-detroit-shrine",
+        "title": "Shrine of the Black Madonna",
+        "description": "Read Black political theology and self-determination at a Detroit institution that tied faith, nationalism, and community power together.",
+        "lat": 42.3630055,
+        "lng": -83.1021449
+      },
+      {
+        "id": "black-political-power-in-detroit-rosa-parks",
+        "title": "Rosa Parks Transit Center",
+        "description": "Add resistance and public memory in the heart of downtown at a transit hub named for a figure whose Detroit years also mattered to movement history.",
+        "lat": 42.332377,
+        "lng": -83.0528094
+      },
+      {
+        "id": "black-political-power-in-detroit-coleman-young",
+        "title": "Coleman A. Young Municipal Center",
+        "description": "Close at the municipal center that makes Black city power unmistakable, tying neighborhood leadership to the machinery of Detroit government.",
+        "lat": 42.329767,
+        "lng": -83.0434201
+      }
+    ]
+  },
+  {
+    "id": "neighborhood-memory-from-midtown-to-the-west-side",
+    "title": "Neighborhood Memory from Midtown to the West Side",
+    "theme": "neighborhood",
+    "durationMin": 120,
+    "distanceMiles": 10.1,
+    "summary": "Move from Midtown toward the west side through neighborhood art, Black press memory, public trails, and local institutions that keep Detroit's block-level story in view.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/neighborhood-memory-from-midtown-to-the-west-side-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "neighborhood-memory-from-midtown-to-the-west-side-historical-museum",
+        "title": "Detroit Historical Museum",
+        "description": "Open in Midtown where the city narrates itself, then push outward toward neighborhood memory that often sits beyond downtown focus.",
+        "lat": 42.3597738,
+        "lng": -83.0672491
+      },
+      {
+        "id": "neighborhood-memory-from-midtown-to-the-west-side-durfee",
+        "title": "Durfee Innovation Society",
+        "description": "Move into an old school building reworked for neighborhood-scale creativity, education, and mutual support on Detroit's west side.",
+        "lat": 42.3800142,
+        "lng": -83.1147715
+      },
+      {
+        "id": "neighborhood-memory-from-midtown-to-the-west-side-lincoln-art-park",
+        "title": "Lincoln Street Art Park",
+        "description": "Turn to west-side public art, reuse, and neighborhood-scale experimentation at a site where block life becomes a medium for Detroit memory.",
+        "lat": 42.3624692,
+        "lng": -83.0830901
+      },
+      {
+        "id": "neighborhood-memory-from-midtown-to-the-west-side-marygrove",
+        "title": "Marygrove Conservancy",
+        "description": "Keep heading west through a campus reimagined for neighborhood learning, cultural life, and long-horizon reinvestment in Detroit place.",
+        "lat": 42.4171307,
+        "lng": -83.1539881
+      },
+      {
+        "id": "neighborhood-memory-from-midtown-to-the-west-side-joe-louis-greenway",
+        "title": "Joe Louis Greenway West Warren Gateway",
+        "description": "Close on a public path meant to reconnect neighborhoods, reading Detroit's future through mobility, equity, and the block-level stakes of reinvestment.",
+        "lat": 42.3372,
+        "lng": -83.1594
+      }
+    ]
+  }
+]

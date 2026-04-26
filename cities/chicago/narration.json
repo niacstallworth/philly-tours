@@ -1,0 +1,206 @@
+{
+  "catalogByStopId": {
+    "bronzeville-and-black-metropolis-victory-monument": {
+      "drive": "/audio/bronzeville-and-black-metropolis-victory-monument-drive.mp3",
+      "walk": "/audio/bronzeville-and-black-metropolis-victory-monument-walk.mp3"
+    },
+    "bronzeville-and-black-metropolis-forum": {
+      "drive": "/audio/bronzeville-and-black-metropolis-forum-drive.mp3",
+      "walk": "/audio/bronzeville-and-black-metropolis-forum-walk.mp3"
+    },
+    "bronzeville-and-black-metropolis-chicago-bee": {
+      "drive": "/audio/bronzeville-and-black-metropolis-chicago-bee-drive.mp3",
+      "walk": "/audio/bronzeville-and-black-metropolis-chicago-bee-walk.mp3"
+    },
+    "bronzeville-and-black-metropolis-sscac": {
+      "drive": "/audio/bronzeville-and-black-metropolis-sscac-drive.mp3",
+      "walk": "/audio/bronzeville-and-black-metropolis-sscac-walk.mp3"
+    },
+    "bronzeville-and-black-metropolis-dusable": {
+      "drive": "/audio/bronzeville-and-black-metropolis-dusable-drive.mp3",
+      "walk": "/audio/bronzeville-and-black-metropolis-dusable-walk.mp3"
+    },
+    "great-migration-labor-and-housing-struggle-migration-monument": {
+      "drive": "/audio/great-migration-labor-and-housing-struggle-migration-monument-drive.mp3",
+      "walk": "/audio/great-migration-labor-and-housing-struggle-migration-monument-walk.mp3"
+    },
+    "great-migration-labor-and-housing-struggle-defender": {
+      "drive": "/audio/great-migration-labor-and-housing-struggle-defender-drive.mp3",
+      "walk": "/audio/great-migration-labor-and-housing-struggle-defender-walk.mp3"
+    },
+    "great-migration-labor-and-housing-struggle-ida-b-wells-house": {
+      "drive": "/audio/great-migration-labor-and-housing-struggle-ida-b-wells-house-drive.mp3",
+      "walk": "/audio/great-migration-labor-and-housing-struggle-ida-b-wells-house-walk.mp3"
+    },
+    "great-migration-labor-and-housing-struggle-public-housing-museum": {
+      "drive": "/audio/great-migration-labor-and-housing-struggle-public-housing-museum-drive.mp3",
+      "walk": "/audio/great-migration-labor-and-housing-struggle-public-housing-museum-walk.mp3"
+    },
+    "great-migration-labor-and-housing-struggle-packingtown": {
+      "drive": "/audio/great-migration-labor-and-housing-struggle-packingtown-drive.mp3",
+      "walk": "/audio/great-migration-labor-and-housing-struggle-packingtown-walk.mp3"
+    },
+    "south-side-arts-music-and-cultural-memory-harold-washington-cultural-center": {
+      "drive": "/audio/south-side-arts-music-and-cultural-memory-harold-washington-cultural-center-drive.mp3",
+      "walk": "/audio/south-side-arts-music-and-cultural-memory-harold-washington-cultural-center-walk.mp3"
+    },
+    "south-side-arts-music-and-cultural-memory-hyde-park-art-center": {
+      "drive": "/audio/south-side-arts-music-and-cultural-memory-hyde-park-art-center-drive.mp3",
+      "walk": "/audio/south-side-arts-music-and-cultural-memory-hyde-park-art-center-walk.mp3"
+    },
+    "south-side-arts-music-and-cultural-memory-logan-center": {
+      "drive": "/audio/south-side-arts-music-and-cultural-memory-logan-center-drive.mp3",
+      "walk": "/audio/south-side-arts-music-and-cultural-memory-logan-center-walk.mp3"
+    },
+    "south-side-arts-music-and-cultural-memory-stony-island-arts-bank": {
+      "drive": "/audio/south-side-arts-music-and-cultural-memory-stony-island-arts-bank-drive.mp3",
+      "walk": "/audio/south-side-arts-music-and-cultural-memory-stony-island-arts-bank-walk.mp3"
+    },
+    "south-side-arts-music-and-cultural-memory-south-shore-cultural-center": {
+      "drive": "/audio/south-side-arts-music-and-cultural-memory-south-shore-cultural-center-drive.mp3",
+      "walk": "/audio/south-side-arts-music-and-cultural-memory-south-shore-cultural-center-walk.mp3"
+    },
+    "black-political-power-in-chicago-bronzeville-visitor-center": {
+      "drive": "/audio/black-political-power-in-chicago-bronzeville-visitor-center-drive.mp3",
+      "walk": "/audio/black-political-power-in-chicago-bronzeville-visitor-center-walk.mp3"
+    },
+    "black-political-power-in-chicago-operation-push": {
+      "drive": "/audio/black-political-power-in-chicago-operation-push-drive.mp3",
+      "walk": "/audio/black-political-power-in-chicago-operation-push-walk.mp3"
+    },
+    "black-political-power-in-chicago-harold-washington-cultural-center": {
+      "drive": "/audio/black-political-power-in-chicago-harold-washington-cultural-center-drive.mp3",
+      "walk": "/audio/black-political-power-in-chicago-harold-washington-cultural-center-walk.mp3"
+    },
+    "black-political-power-in-chicago-harold-washington-library": {
+      "drive": "/audio/black-political-power-in-chicago-harold-washington-library-drive.mp3",
+      "walk": "/audio/black-political-power-in-chicago-harold-washington-library-walk.mp3"
+    },
+    "black-political-power-in-chicago-city-hall": {
+      "drive": "/audio/black-political-power-in-chicago-city-hall-drive.mp3",
+      "walk": "/audio/black-political-power-in-chicago-city-hall-walk.mp3"
+    },
+    "woodlawn-washington-park-and-neighborhood-change-arts-incubator": {
+      "drive": "/audio/woodlawn-washington-park-and-neighborhood-change-arts-incubator-drive.mp3",
+      "walk": "/audio/woodlawn-washington-park-and-neighborhood-change-arts-incubator-walk.mp3"
+    },
+    "woodlawn-washington-park-and-neighborhood-change-green-line-performing-arts-center": {
+      "drive": "/audio/woodlawn-washington-park-and-neighborhood-change-green-line-performing-arts-center-drive.mp3",
+      "walk": "/audio/woodlawn-washington-park-and-neighborhood-change-green-line-performing-arts-center-walk.mp3"
+    },
+    "woodlawn-washington-park-and-neighborhood-change-washington-park": {
+      "drive": "/audio/woodlawn-washington-park-and-neighborhood-change-washington-park-drive.mp3",
+      "walk": "/audio/woodlawn-washington-park-and-neighborhood-change-washington-park-walk.mp3"
+    },
+    "woodlawn-washington-park-and-neighborhood-change-jackson-park": {
+      "drive": "/audio/woodlawn-washington-park-and-neighborhood-change-jackson-park-drive.mp3",
+      "walk": "/audio/woodlawn-washington-park-and-neighborhood-change-jackson-park-walk.mp3"
+    },
+    "woodlawn-washington-park-and-neighborhood-change-obama-presidential-center": {
+      "drive": "/audio/woodlawn-washington-park-and-neighborhood-change-obama-presidential-center-drive.mp3",
+      "walk": "/audio/woodlawn-washington-park-and-neighborhood-change-obama-presidential-center-walk.mp3"
+    }
+  },
+  "scriptMapByStopId": {
+    "bronzeville-and-black-metropolis-victory-monument": {
+      "drive": "Ahead is Victory Monument, where Bronzeville opens as a neighborhood of Black public memory, achievement, and civic self-definition.",
+      "walk": "You are at Victory Monument, a strong opening point for reading Bronzeville through public memory, Black achievement, and the making of Black Metropolis."
+    },
+    "bronzeville-and-black-metropolis-forum": {
+      "drive": "Next is The Forum, where performance, public gathering, and neighborhood institution-building come into sharper view.",
+      "walk": "You are at The Forum, a fitting stop for thinking about Bronzeville as a place where public life, performance, and neighborhood ambition met in the same rooms."
+    },
+    "bronzeville-and-black-metropolis-chicago-bee": {
+      "drive": "Approaching the Chicago Bee Building, the route turns toward Black publishing, enterprise, and the architecture of self-representation.",
+      "walk": "You are at the Chicago Bee Building, where Black publishing, enterprise, and architecture come together in one of Bronzeville's defining landmarks."
+    },
+    "bronzeville-and-black-metropolis-sscac": {
+      "drive": "Next is the South Side Community Art Center, where Black artistic life and institutional continuity hold steady across generations.",
+      "walk": "You are at the South Side Community Art Center, a powerful stop for reading Black Chicago through sustained creative practice, community art, and cultural stewardship."
+    },
+    "bronzeville-and-black-metropolis-dusable": {
+      "drive": "The route closes at the DuSable Black History Museum and Education Center, where Black Chicago enters a broader landscape of interpretation, memory, and public history.",
+      "walk": "You are at the DuSable Black History Museum and Education Center, a strong capstone for reading Bronzeville and Black Metropolis through public interpretation and cultural stewardship."
+    },
+    "great-migration-labor-and-housing-struggle-migration-monument": {
+      "drive": "Ahead is the Monument to the Great Northern Migration, where the route opens with movement, aspiration, and the remaking of Black life in Chicago.",
+      "walk": "You are at the Monument to the Great Northern Migration, a fitting opening point for reading Chicago through movement, arrival, and the making of Black urban life."
+    },
+    "great-migration-labor-and-housing-struggle-defender": {
+      "drive": "Next is the former Chicago Defender Building, where the Black press helped imagine Chicago for Southern readers and gave migration one of its strongest public voices.",
+      "walk": "You are at the former Chicago Defender Building, a powerful stop for thinking about how the Black press shaped migration, neighborhood aspiration, and the public idea of Chicago."
+    },
+    "great-migration-labor-and-housing-struggle-ida-b-wells-house": {
+      "drive": "Approaching the Ida B. Wells-Barnett House, the route turns toward investigative power, anti-segregation struggle, and Black civic resistance.",
+      "walk": "You are at the Ida B. Wells-Barnett House, where migration story meets anti-segregation struggle, investigative courage, and one of Black Chicago's defining public voices."
+    },
+    "great-migration-labor-and-housing-struggle-public-housing-museum": {
+      "drive": "Next is the National Public Housing Museum, where housing policy, displacement, and urban survival come into sharper view.",
+      "walk": "You are at the National Public Housing Museum, a strong place to think about how housing policy, public memory, and Black neighborhood struggle shaped Chicago life."
+    },
+    "great-migration-labor-and-housing-struggle-packingtown": {
+      "drive": "The route closes at Packingtown Museum, where stockyards labor geography and the working city help explain the structural pressures around migration and neighborhood life.",
+      "walk": "You are at Packingtown Museum, a fitting capstone for reading migration, labor, and neighborhood struggle through the industrial geography that shaped Chicago's working city."
+    },
+    "south-side-arts-music-and-cultural-memory-harold-washington-cultural-center": {
+      "drive": "Ahead is the Harold Washington Cultural Center, where South Side performance and Black public culture meet neighborhood civic memory.",
+      "walk": "You are at the Harold Washington Cultural Center, a strong opening point for reading South Side arts through performance, public culture, and Black civic memory."
+    },
+    "south-side-arts-music-and-cultural-memory-hyde-park-art-center": {
+      "drive": "Next is Hyde Park Art Center, where contemporary art and neighborhood creative life expand the route beyond heritage alone.",
+      "walk": "You are at Hyde Park Art Center, a fitting stop for thinking about how South Side art stays public, contemporary, and rooted in neighborhood life."
+    },
+    "south-side-arts-music-and-cultural-memory-logan-center": {
+      "drive": "Approaching Logan Center for the Arts, the route moves into performance, experimentation, and public arts programming on the South Side.",
+      "walk": "You are at Logan Center for the Arts, where South Side cultural life meets performance, experimentation, and a wider public arts audience."
+    },
+    "south-side-arts-music-and-cultural-memory-stony-island-arts-bank": {
+      "drive": "Next is Stony Island Arts Bank, where archival imagination, Black contemporary practice, and cultural preservation sit in direct conversation.",
+      "walk": "You are at Stony Island Arts Bank, a powerful stop for reading Black Chicago through archives, contemporary art, and the preservation of cultural memory."
+    },
+    "south-side-arts-music-and-cultural-memory-south-shore-cultural-center": {
+      "drive": "The route closes at South Shore Cultural Center, where public gathering, performance, and neighborhood history extend the South Side's creative landscape to the lakefront.",
+      "walk": "You are at South Shore Cultural Center, a strong capstone for reading South Side arts through public gathering, performance, and the broader civic landscape of Black Chicago."
+    },
+    "black-political-power-in-chicago-bronzeville-visitor-center": {
+      "drive": "Ahead is Bronzeville Visitor Information Center, where the route opens on neighborhood public memory, local pride, and the civic self-definition of Black Chicago.",
+      "walk": "You are at Bronzeville Visitor Information Center, a helpful opening point for reading Black political power through neighborhood memory, public identity, and Bronzeville civic life."
+    },
+    "black-political-power-in-chicago-operation-push": {
+      "drive": "Next is Operation PUSH Community House, where advocacy, organizing, and Black public leadership come into sharper view.",
+      "walk": "You are at Operation PUSH Community House, a strong stop for thinking about Black political power in Chicago through organizing, advocacy, and public leadership."
+    },
+    "black-political-power-in-chicago-harold-washington-cultural-center": {
+      "drive": "Approaching Harold Washington Cultural Center, the route turns toward political legacy, public memory, and Black municipal presence on the South Side.",
+      "walk": "You are at Harold Washington Cultural Center, where Black political legacy and South Side public memory stay visible in everyday civic life."
+    },
+    "black-political-power-in-chicago-harold-washington-library": {
+      "drive": "Next is Harold Washington Library Center, where Black political leadership enters a citywide civic scale through public knowledge and municipal memory.",
+      "walk": "You are at Harold Washington Library Center, a fitting stop for reading Black political power through civic infrastructure, public knowledge, and the legacy of municipal leadership."
+    },
+    "black-political-power-in-chicago-city-hall": {
+      "drive": "The route closes at Chicago City Hall, where coalition-building, Black political power, and the machinery of municipal decision-making meet.",
+      "walk": "You are at Chicago City Hall, a strong capstone for thinking about how Black political power in Chicago moves from neighborhood base to city governance."
+    },
+    "woodlawn-washington-park-and-neighborhood-change-arts-incubator": {
+      "drive": "Ahead is Washington Park Arts Incubator, where the route opens on neighborhood change through arts infrastructure, local investment, and community-centered cultural work.",
+      "walk": "You are at Washington Park Arts Incubator, a strong opening point for reading neighborhood change through community arts infrastructure rather than abstract planning language."
+    },
+    "woodlawn-washington-park-and-neighborhood-change-green-line-performing-arts-center": {
+      "drive": "Next is Green Line Performing Arts Center, where performance space and local cultural investment become part of neighborhood public life.",
+      "walk": "You are at Green Line Performing Arts Center, a fitting stop for thinking about how neighborhood change gets shaped through performance space, local investment, and everyday cultural use."
+    },
+    "woodlawn-washington-park-and-neighborhood-change-washington-park": {
+      "drive": "Approaching Washington Park, the route widens into public landscape, shared memory, and the long tension between disinvestment and cultural ambition on the South Side.",
+      "walk": "You are in Washington Park, where neighborhood memory, disinvestment, and cultural ambition meet in one of the South Side's defining public spaces."
+    },
+    "woodlawn-washington-park-and-neighborhood-change-jackson-park": {
+      "drive": "Next is Jackson Park, where preservation, redevelopment, and neighborhood identity remain in active conversation.",
+      "walk": "You are in Jackson Park, a strong stop for reading neighborhood change through public landscape, preservation pressure, and the shifting expectations around the South Side."
+    },
+    "woodlawn-washington-park-and-neighborhood-change-obama-presidential-center": {
+      "drive": "The route closes at the Obama Presidential Center site, where neighborhood change becomes concrete through investment, expectation, and long-running local debate.",
+      "walk": "You are at the Obama Presidential Center site, a fitting capstone for thinking about how Woodlawn change is shaped by investment, expectation, and the neighborhood's ongoing struggle to define its own future."
+    }
+  }
+}

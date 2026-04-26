@@ -1,0 +1,27 @@
+{
+  "homeTitle": "Chicago Tours | Self-Guided Black History, Culture & Walking Routes",
+  "homeDescription": "Explore Black Chicago through self-guided walking tours with maps, narration, and routes across Bronzeville, migration history, South Side arts, political power, and neighborhood change.",
+  "catalogTitle": "Chicago Walking Tours | Black History & Culture Routes",
+  "catalogDescription": "Browse self-guided Chicago routes built around Bronzeville, Great Migration history, South Side culture, Black political power, and neighborhood memory.",
+  "homePanelEyebrow": "Black Chicago routes",
+  "homePanelTitle": "See Chicago through movement, memory, and South Side power.",
+  "homePanelBody": "Start with a self-guided route through Black Metropolis landmarks, migration and housing struggle, South Side arts institutions, civic power, and the neighborhoods where Chicago keeps changing.",
+  "searchImage": "/assets/search/chicago-tours-search-thumbnail.jpg",
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "knowsAbout": [
+    "Chicago walking tours",
+    "Black Chicago history",
+    "Bronzeville history",
+    "Great Migration Chicago",
+    "South Side arts and culture",
+    "Black political power in Chicago"
+  ],
+  "homePanelHighlights": [
+    "Bronzeville and migration routes",
+    "South Side arts and civic landmarks",
+    "Neighborhood change and public memory"
+  ]
+}

@@ -14,24 +14,24 @@ window.PHILLY_TOURS_CONFIG = {
   "iosAppStoreUrl": "",
   "androidPlayStoreUrl": "",
   "city": {
-    "id": "atlanta",
-    "name": "Atlanta Tours",
-    "shortName": "Atlanta",
-    "cityName": "Atlanta",
-    "stateCode": "GA",
+    "id": "memphis",
+    "name": "Memphis Tours",
+    "shortName": "Memphis",
+    "cityName": "Memphis",
+    "stateCode": "TN",
     "countryCode": "US",
-    "timezone": "America/New_York",
-    "slug": "atlanta-tours",
-    "websiteOrigin": "https://atlanta-tours.com",
+    "timezone": "America/Chicago",
+    "slug": "memphis-tours",
+    "websiteOrigin": "https://memphis-tours.com",
     "serviceArea": [
-      "Atlanta, GA"
+      "Memphis, TN"
     ],
     "defaultMapCenter": {
-      "lat": 33.749,
-      "lng": -84.388,
+      "lat": 35.1495,
+      "lng": -90.049,
       "zoom": 12
     },
-    "defaultTourId": "sweet-auburn-black-enterprise-and-civil-rights",
+    "defaultTourId": "beale-street-black-music-and-cultural-memory",
     "launchStatus": "draft"
   },
   "branding": {
@@ -41,48 +41,47 @@ window.PHILLY_TOURS_CONFIG = {
     "cityBlue": "#002d72",
     "ink": "#15100a",
     "paper": "#fff9df",
-    "heroEyebrow": "Atlanta is ready",
-    "heroTitle": "Black Atlanta moves through enterprise, culture, and change.",
-    "heroBody": "Follow Atlanta through Sweet Auburn, the Atlanta University Center, civil-rights power, contemporary music culture, and West End neighborhood memory."
+    "heroEyebrow": "Memphis is ready",
+    "heroTitle": "Sound, struggle, and neighborhood memory across Black Memphis.",
+    "heroBody": "Move through Beale, the Lorraine, South Memphis, Orange Mound, and the river with self-guided routes built for story, place, and public memory."
   },
   "seo": {
-    "homeTitle": "Atlanta Tours | Self-Guided Black History, Culture & Walking Routes",
-    "homeDescription": "Explore Atlanta with self-guided routes through Sweet Auburn, the Atlanta University Center, civil-rights landmarks, Black arts, music culture, and West End neighborhood memory.",
-    "catalogTitle": "Atlanta Walking Tours | Black History, Culture & Neighborhood Routes",
-    "catalogDescription": "Browse self-guided Atlanta routes built around Black enterprise, campus legacy, civil-rights memory, contemporary culture, and neighborhood change.",
-    "homePanelEyebrow": "Atlanta routes",
-    "homePanelTitle": "See Atlanta through Black enterprise, scholarship, culture, and neighborhood change.",
-    "homePanelBody": "Start with Sweet Auburn, the Atlanta University Center, arts and music, or West End, then follow self-guided routes built for institutions, public memory, and real city texture.",
-    "searchImage": "/assets/search/atlanta-tours-search-thumbnail.jpg",
+    "homeTitle": "Memphis Tours | Self-Guided Black History, Music & Walking Routes",
+    "homeDescription": "Explore Black Memphis through self-guided routes built around Beale Street, civil-rights landmarks, Stax, Orange Mound, and riverfront labor memory.",
+    "catalogTitle": "Memphis Walking Tours | Black History, Music & Neighborhood Routes",
+    "catalogDescription": "Browse self-guided Memphis routes shaped by Beale Street, MLK memory, South Memphis sound, Orange Mound, and Black working-city history.",
+    "homePanelEyebrow": "Memphis route collection",
+    "homePanelTitle": "See Memphis through music, movement, and neighborhood memory.",
+    "homePanelBody": "Start with Beale and the Lorraine, then move through Stax, Orange Mound, and the riverfront with self-guided routes shaped for narration, map guidance, and AR-ready story stops.",
+    "searchImage": "/assets/search/memphis-tours-search-thumbnail.jpg",
     "organizationType": [
       "Organization",
       "TravelAgency"
     ],
     "knowsAbout": [
-      "Atlanta walking tours",
-      "Atlanta Black history tours",
-      "Sweet Auburn history",
-      "Atlanta University Center history",
-      "Atlanta civil rights history",
-      "Atlanta Black arts and music",
-      "West End Atlanta history",
-      "Atlanta BeltLine Black history"
+      "Memphis walking tours",
+      "Memphis audio tours",
+      "Memphis history tours",
+      "Beale Street history",
+      "Memphis civil rights tour",
+      "Stax Museum history",
+      "Orange Mound history",
+      "Black Memphis history"
     ],
     "homePanelHighlights": [
-      "Sweet Auburn civil-rights corridor",
-      "Atlanta University Center legacy",
-      "Black arts and music culture",
-      "West End and BeltLine memory"
+      "Beale and Black music memory",
+      "Civil-rights and MLK landmarks",
+      "Orange Mound and neighborhood history"
     ]
   },
   "social": {
     "sameAs": []
   },
   "businessProfile": {
-    "businessName": "Atlanta Tours",
-    "website": "https://atlanta-tours.com",
+    "businessName": "Memphis Tours",
+    "website": "https://memphis-tours.com",
     "primaryCategory": "Tour operator",
-    "shortDescription": "Self-guided Atlanta tours with Black history, music culture, neighborhood story, maps, and narration.",
-    "fullDescription": "Atlanta Tours offers self-guided routes through Sweet Auburn, the Atlanta University Center, civil-rights landmarks, Black arts and music culture, and West End neighborhood memory across the city."
+    "shortDescription": "Self-guided Memphis tours with maps, narration, and routes through Black music, civil-rights, and neighborhood history.",
+    "fullDescription": "Memphis Tours offers self-guided walking and driving routes through Beale Street, the Lorraine, Stax, Orange Mound, and the riverfront. Use map guidance, narration, and AR-ready stops to explore Black Memphis history, music, labor, and neighborhood memory at your own pace."
   }
 };

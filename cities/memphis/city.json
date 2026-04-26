@@ -1,0 +1,21 @@
+{
+  "id": "memphis",
+  "name": "Memphis Tours",
+  "shortName": "Memphis",
+  "cityName": "Memphis",
+  "stateCode": "TN",
+  "countryCode": "US",
+  "timezone": "America/Chicago",
+  "slug": "memphis-tours",
+  "websiteOrigin": "https://memphis-tours.com",
+  "serviceArea": [
+    "Memphis, TN"
+  ],
+  "defaultMapCenter": {
+    "lat": 35.1495,
+    "lng": -90.049,
+    "zoom": 12
+  },
+  "defaultTourId": "beale-street-black-music-and-cultural-memory",
+  "launchStatus": "draft"
+}

@@ -150,3 +150,4 @@ docs/                 Product, deployment, and platform documentation
 - [Multi-City Platform Plan](docs/multi-city-platform-plan.md)
 - [Multi-City Refactor Checklist](docs/multi-city-refactor-checklist.md)
 - [Webapp Deployment](docs/webapp-deployment.md)
+- [Meta Quest 2 and Orion Spatial Plan](docs/meta-quest-orion-spatial-plan.md)

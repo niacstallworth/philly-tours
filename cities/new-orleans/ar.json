@@ -78,5 +78,125 @@
     "estimatedEffort": "medium",
     "webModelAvailable": false,
     "iosModelAvailable": false
+  },
+  "claiborne-neighborhood-memory-and-urban-change-dooky-chase": {
+    "id": "claiborne-neighborhood-memory-and-urban-change-dooky-chase",
+    "title": "Dooky Chase's Restaurant",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "claiborne-neighborhood-memory-and-urban-change-treme-center": {
+    "id": "claiborne-neighborhood-memory-and-urban-change-treme-center",
+    "title": "Tremé Recreation Community Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "claiborne-neighborhood-memory-and-urban-change-claiborne-cid": {
+    "id": "claiborne-neighborhood-memory-and-urban-change-claiborne-cid",
+    "title": "Claiborne Corridor Cultural Innovation District",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "claiborne-neighborhood-memory-and-urban-change-community-book-center": {
+    "id": "claiborne-neighborhood-memory-and-urban-change-community-book-center",
+    "title": "Community Book Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "claiborne-neighborhood-memory-and-urban-change-bayou-road": {
+    "id": "claiborne-neighborhood-memory-and-urban-change-bayou-road",
+    "title": "Bayou Road Black Commercial Corridor",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-new-orleans-arts-performance-and-cultural-institutions-ashe": {
+    "id": "black-new-orleans-arts-performance-and-cultural-institutions-ashe",
+    "title": "Ashé Cultural Arts Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-new-orleans-arts-performance-and-cultural-institutions-le-musee-fpc": {
+    "id": "black-new-orleans-arts-performance-and-cultural-institutions-le-musee-fpc",
+    "title": "Le Musée de f.p.c.",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-new-orleans-arts-performance-and-cultural-institutions-noaam": {
+    "id": "black-new-orleans-arts-performance-and-cultural-institutions-noaam",
+    "title": "New Orleans African American Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-new-orleans-arts-performance-and-cultural-institutions-jazz-museum": {
+    "id": "black-new-orleans-arts-performance-and-cultural-institutions-jazz-museum",
+    "title": "New Orleans Jazz Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-new-orleans-arts-performance-and-cultural-institutions-nocca": {
+    "id": "black-new-orleans-arts-performance-and-cultural-institutions-nocca",
+    "title": "New Orleans Center for Creative Arts",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-resistance-and-public-power-in-new-orleans-dryades-ymca": {
+    "id": "civil-rights-resistance-and-public-power-in-new-orleans-dryades-ymca",
+    "title": "Dryades YMCA",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-resistance-and-public-power-in-new-orleans-civil-rights-museum": {
+    "id": "civil-rights-resistance-and-public-power-in-new-orleans-civil-rights-museum",
+    "title": "Louisiana Civil Rights Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-resistance-and-public-power-in-new-orleans-william-frantz": {
+    "id": "civil-rights-resistance-and-public-power-in-new-orleans-william-frantz",
+    "title": "William Frantz School Site",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-resistance-and-public-power-in-new-orleans-homer-plessy-way": {
+    "id": "civil-rights-resistance-and-public-power-in-new-orleans-homer-plessy-way",
+    "title": "Homer Plessy Way",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "civil-rights-resistance-and-public-power-in-new-orleans-city-hall": {
+    "id": "civil-rights-resistance-and-public-power-in-new-orleans-city-hall",
+    "title": "New Orleans City Hall",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
   }
 }

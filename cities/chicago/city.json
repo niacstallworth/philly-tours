@@ -1,0 +1,21 @@
+{
+  "id": "chicago",
+  "name": "Chicago Tours",
+  "shortName": "Chicago",
+  "cityName": "Chicago",
+  "stateCode": "IL",
+  "countryCode": "US",
+  "timezone": "America/Chicago",
+  "slug": "chicago-tours",
+  "websiteOrigin": "https://chicago-tours.com",
+  "serviceArea": [
+    "Chicago, IL"
+  ],
+  "defaultMapCenter": {
+    "lat": 41.8781,
+    "lng": -87.6298,
+    "zoom": 12
+  },
+  "defaultTourId": "bronzeville-and-black-metropolis",
+  "launchStatus": "draft"
+}

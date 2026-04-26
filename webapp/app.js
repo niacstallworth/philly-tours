@@ -241,12 +241,6 @@ const fallbackTours = [
   }
 ];
 
-const tours = normalizeTours(window.PHILLY_TOURS_DATA || fallbackTours);
-const narrationData = window.PHILLY_TOURS_NARRATION || {
-  catalogByStopId: {},
-  scriptMapByStopId: {}
-};
-const arData = window.PHILLY_TOURS_AR || {};
 const siteConfig = {
   ...(window.PHILLY_TOURS_CONFIG || {}),
   ...(window.PHILLY_TOURS_LOCAL_CONFIG || {})
@@ -256,6 +250,17 @@ const brandingConfig = siteConfig.branding || {};
 const seoConfig = siteConfig.seo || {};
 const SITE_NAME = cityConfig.name || "Philly Tours";
 const CITY_NAME = cityConfig.cityName || "Philadelphia";
+const DEFAULT_MAP_CENTER = {
+  lat: Number(cityConfig.defaultMapCenter?.lat) || 39.9526,
+  lng: Number(cityConfig.defaultMapCenter?.lng) || -75.1652,
+  zoom: Number(cityConfig.defaultMapCenter?.zoom) || 12
+};
+const tours = normalizeTours(window.PHILLY_TOURS_DATA || fallbackTours);
+const narrationData = window.PHILLY_TOURS_NARRATION || {
+  catalogByStopId: {},
+  scriptMapByStopId: {}
+};
+const arData = window.PHILLY_TOURS_AR || {};
 const HOME_HERO_EYEBROW = brandingConfig.heroEyebrow || "Philly is ready";
 const HOME_HERO_TITLE = brandingConfig.heroTitle || "Big city stories. Your route, your pace.";
 const HOME_HERO_BODY =
@@ -681,7 +686,7 @@ function deriveNeighborhood(firstStop, lastStop) {
   if (start && end && start !== end) {
     return `${start} to ${end}`;
   }
-  return start || end || "Philadelphia";
+  return start || end || CITY_NAME;
 }
 
 function extractLocation(description) {
@@ -721,7 +726,7 @@ function parseStopMetadata(description) {
 
 function cleanStopDescription(description) {
   if (!description) {
-    return "Philadelphia story stop";
+    return `${CITY_NAME} story stop`;
   }
 
   const primary = description
@@ -734,7 +739,7 @@ function cleanStopDescription(description) {
 
 function deriveSummary(tour, stops) {
   const leadStops = stops.slice(0, 2).map((stop) => stop.title);
-  const opener = leadStops.length ? `${leadStops.join(" and ")} anchor this route.` : "A story-led Philadelphia route.";
+  const opener = leadStops.length ? `${leadStops.join(" and ")} anchor this route.` : `A story-led ${CITY_NAME} route.`;
   return `${opener} ${tour.stops.length} stops across ${tour.distanceMiles} miles with layered narration and AR-ready context.`;
 }
 
@@ -4112,8 +4117,8 @@ function renderAuthScreen() {
       <div class="auth-backdrop"></div>
       <article class="panel auth-panel auth-panel--cinematic">
         <div class="auth-panel-hero">
-          <p class="eyebrow">Founders Threads access</p>
-          <h2>Sign in to enter Philly Tours.</h2>
+          <p class="eyebrow">${SITE_NAME} access</p>
+          <h2>Sign in to enter ${SITE_NAME}.</h2>
         </div>
         <div class="auth-form auth-form--cinematic">
           <div class="auth-form-top">
@@ -4714,9 +4719,9 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "map":
       return {
-        eyebrow: "Kelly Green Compass",
-        title: "Pick the route. Philly pulls you forward.",
-        body: "The Compass turns a Philadelphia walk into a clear next move: route, bearing, distance, story, then the next place that matters.",
+        eyebrow: "Route Compass",
+        title: `Pick the route. ${CITY_NAME} pulls you forward.`,
+        body: `The Compass turns a ${CITY_NAME} walk into a clear next move: route, bearing, distance, story, then the next place that matters.`,
         actions: [
           { label: "Start Compass", action: "set-tab", tab: "map", variant: "primary" },
           { label: "Open Board", action: "set-tab", tab: "progress", variant: "ghost" }
@@ -4739,7 +4744,7 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "ar":
       return {
-        eyebrow: "Pennsylvania Blue AR",
+        eyebrow: "On-site AR",
         title: "When the street is ready, the story opens.",
         body: "Use AR near a stop to orient yourself, hear the moment, and move into the camera guide without losing the route.",
         actions: [
@@ -4760,7 +4765,7 @@ function getSceneConfig(selectedTour, globalStats) {
     case "progress":
       return {
         eyebrow: "Tour Board",
-        title: "Every stop joins your Philly story.",
+        title: `Every stop joins your ${CITY_NAME} story.`,
         body: "Keep the visit playful and legible: completed stops, active collections, earned moments, and the next route worth chasing.",
         actions: [
           { label: "Browse routes", action: "set-tab", tab: "map", variant: "primary" },
@@ -4779,7 +4784,7 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "profile":
       return {
-        eyebrow: "Philly Tours profile",
+        eyebrow: `${SITE_NAME} profile`,
         title: "Keep your route access close.",
         body: "Sign in, unlock audio, follow launch updates, and move between the web companion and the mobile touring app.",
         actions: [
@@ -6454,9 +6459,9 @@ function renderProgressTab(globalStats) {
           <div class="board-middle">
             <div class="board-side-rail">${boardLeft.map((space) => renderBoardSpace(space, "side")).join("")}</div>
             <div class="board-center">
-              <p class="eyebrow">Philadelphia</p>
-              <h3>Founders Board</h3>
-              <p>Claim stops, complete sets, and move from North Broad outward.</p>
+              <p class="eyebrow">${CITY_NAME}</p>
+              <h3>Collection Board</h3>
+              <p>Claim stops, complete sets, and follow the route as the city opens around you.</p>
               <div class="board-center-stats">
                 <div><strong>${completedStops}</strong><span>claimed</span></div>
                 <div><strong>${openedStops}</strong><span>visited</span></div>
@@ -6469,10 +6474,10 @@ function renderProgressTab(globalStats) {
         <div class="share-board-panel">
           <div>
             <p class="eyebrow">Social card</p>
-            <strong>Share your Founders Board</strong>
+            <strong>Share your collection board</strong>
             <span>Post your rank, streak, claimed stops, and next compass point.</span>
           </div>
-          <button type="button" class="primary-button" data-action="copy-view">Share Founders Board</button>
+          <button type="button" class="primary-button" data-action="copy-view">Share collection board</button>
         </div>
         <div class="board-metric-grid">
           <div><strong>${completedStops}</strong><span>stops done</span></div>
@@ -6601,7 +6606,7 @@ function renderProgressTab(globalStats) {
           <section class="board-slide">
             <div>
               <p class="eyebrow">Compass path</p>
-              <h3>From North Broad outward</h3>
+              <h3>From the current route outward</h3>
             </div>
             <div class="timeline">
               ${activeTour.stops.slice(0, 8).map((stop, index) => {
@@ -6996,7 +7001,7 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
   const bounds = new maps.LatLngBounds();
   const fallbackCenter = activeRenderableStop
     ? { lat: activeRenderableStop.lat, lng: activeRenderableStop.lng }
-    : { lat: 39.9526, lng: -75.1652 };
+    : { lat: DEFAULT_MAP_CENTER.lat, lng: DEFAULT_MAP_CENTER.lng };
 
   renderableStops.forEach((stop) => {
     const isSelected = stop.id === selectedStop.id;
@@ -7180,15 +7185,15 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
         ? { mapTypeId: "roadmap", mapId: homeMapId }
         : { styles: buildGoogleShellMapStyles(), mapTypeId: "roadmap" }),
     backgroundColor: "#141b2d",
-    center: { lat: 39.9526, lng: -75.1652 },
-    zoom: 12
+    center: { lat: DEFAULT_MAP_CENTER.lat, lng: DEFAULT_MAP_CENTER.lng },
+    zoom: DEFAULT_MAP_CENTER.zoom
   });
 
   routeMapLayers = [];
   const focusedTour = state.home.focusTourId ? getTourById(state.home.focusTourId) : null;
   const focusedRenderableStops = focusedTour ? getRenderableStops(focusedTour.stops) : [];
   const bounds = new maps.LatLngBounds();
-  const collectionCenter = { lat: 39.9526, lng: -75.1652 };
+  const collectionCenter = { lat: DEFAULT_MAP_CENTER.lat, lng: DEFAULT_MAP_CENTER.lng };
 
   if (focusedTour) {
     const accent = getTourAccent(tours.findIndex((tour) => tour.id === focusedTour.id));
@@ -7253,7 +7258,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     routeMap.fitBounds(bounds, focusedTour ? 52 : 84);
   } else {
     routeMap.setCenter(collectionCenter);
-    routeMap.setZoom(12);
+    routeMap.setZoom(DEFAULT_MAP_CENTER.zoom);
   }
 
   installMapViewportStabilizer({
@@ -7267,7 +7272,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
       }
 
       routeMap.setCenter(collectionCenter);
-      routeMap.setZoom(12);
+      routeMap.setZoom(DEFAULT_MAP_CENTER.zoom);
     }
   });
 
@@ -7282,7 +7287,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
         ? { lat: focusedRenderableStops[0].lat, lng: focusedRenderableStops[0].lng }
         : collectionCenter,
     title: focusedTour ? focusedTour.title : SITE_NAME,
-    zoom: focusedTour ? 14 : 12,
+    zoom: focusedTour ? 14 : DEFAULT_MAP_CENTER.zoom,
     maps,
     map: routeMap
   });

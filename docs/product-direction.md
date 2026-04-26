@@ -145,6 +145,12 @@ Trying to make every stop a full AR moment creates:
 
 Meta-style monocular display changes the design target.
 
+For practical implementation:
+
+- use Quest 2 passthrough as the current mixed reality build and test bed
+- treat Orion as the future interaction and density target
+- design to Orion comfort and field-of-view constraints even when Quest hardware allows more UI
+
 ### Do
 - present one primary object at a time
 - use short labels only
@@ -159,6 +165,11 @@ Meta-style monocular display changes the design target.
 - stack multiple panels simultaneously
 - rely on complex menus in AR
 - assume the user can comfortably read dense text in space
+
+### Practical build rule
+
+Quest passthrough is useful for validating anchors, panels, hand interaction, and overlay comfort.
+It should not become an excuse to build a headset-heavy interface that would fail on true AR glasses later.
 
 ## Vision Pro / Spatial Computing Rules
 

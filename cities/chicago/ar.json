@@ -1,0 +1,202 @@
+{
+  "bronzeville-and-black-metropolis-victory-monument": {
+    "id": "bronzeville-and-black-metropolis-victory-monument",
+    "title": "Victory Monument",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "bronzeville-and-black-metropolis-forum": {
+    "id": "bronzeville-and-black-metropolis-forum",
+    "title": "The Forum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "bronzeville-and-black-metropolis-chicago-bee": {
+    "id": "bronzeville-and-black-metropolis-chicago-bee",
+    "title": "Chicago Bee Building",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "bronzeville-and-black-metropolis-sscac": {
+    "id": "bronzeville-and-black-metropolis-sscac",
+    "title": "South Side Community Art Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "bronzeville-and-black-metropolis-dusable": {
+    "id": "bronzeville-and-black-metropolis-dusable",
+    "title": "DuSable Black History Museum and Education Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "great-migration-labor-and-housing-struggle-migration-monument": {
+    "id": "great-migration-labor-and-housing-struggle-migration-monument",
+    "title": "Monument to the Great Northern Migration",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "great-migration-labor-and-housing-struggle-defender": {
+    "id": "great-migration-labor-and-housing-struggle-defender",
+    "title": "Former Chicago Defender Building",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "great-migration-labor-and-housing-struggle-ida-b-wells-house": {
+    "id": "great-migration-labor-and-housing-struggle-ida-b-wells-house",
+    "title": "Ida B. Wells-Barnett House",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "great-migration-labor-and-housing-struggle-public-housing-museum": {
+    "id": "great-migration-labor-and-housing-struggle-public-housing-museum",
+    "title": "National Public Housing Museum",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "great-migration-labor-and-housing-struggle-packingtown": {
+    "id": "great-migration-labor-and-housing-struggle-packingtown",
+    "title": "Packingtown Museum at The Plant",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "south-side-arts-music-and-cultural-memory-harold-washington-cultural-center": {
+    "id": "south-side-arts-music-and-cultural-memory-harold-washington-cultural-center",
+    "title": "Harold Washington Cultural Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "south-side-arts-music-and-cultural-memory-hyde-park-art-center": {
+    "id": "south-side-arts-music-and-cultural-memory-hyde-park-art-center",
+    "title": "Hyde Park Art Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "south-side-arts-music-and-cultural-memory-logan-center": {
+    "id": "south-side-arts-music-and-cultural-memory-logan-center",
+    "title": "Logan Center for the Arts",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "south-side-arts-music-and-cultural-memory-stony-island-arts-bank": {
+    "id": "south-side-arts-music-and-cultural-memory-stony-island-arts-bank",
+    "title": "Stony Island Arts Bank",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "south-side-arts-music-and-cultural-memory-south-shore-cultural-center": {
+    "id": "south-side-arts-music-and-cultural-memory-south-shore-cultural-center",
+    "title": "South Shore Cultural Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-chicago-bronzeville-visitor-center": {
+    "id": "black-political-power-in-chicago-bronzeville-visitor-center",
+    "title": "Bronzeville Visitor Information Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-chicago-operation-push": {
+    "id": "black-political-power-in-chicago-operation-push",
+    "title": "Operation PUSH Community House",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-chicago-harold-washington-cultural-center": {
+    "id": "black-political-power-in-chicago-harold-washington-cultural-center",
+    "title": "Harold Washington Cultural Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-chicago-harold-washington-library": {
+    "id": "black-political-power-in-chicago-harold-washington-library",
+    "title": "Harold Washington Library Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "black-political-power-in-chicago-city-hall": {
+    "id": "black-political-power-in-chicago-city-hall",
+    "title": "Chicago City Hall",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "woodlawn-washington-park-and-neighborhood-change-arts-incubator": {
+    "id": "woodlawn-washington-park-and-neighborhood-change-arts-incubator",
+    "title": "Washington Park Arts Incubator",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "woodlawn-washington-park-and-neighborhood-change-green-line-performing-arts-center": {
+    "id": "woodlawn-washington-park-and-neighborhood-change-green-line-performing-arts-center",
+    "title": "Green Line Performing Arts Center",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "woodlawn-washington-park-and-neighborhood-change-washington-park": {
+    "id": "woodlawn-washington-park-and-neighborhood-change-washington-park",
+    "title": "Washington Park",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "woodlawn-washington-park-and-neighborhood-change-jackson-park": {
+    "id": "woodlawn-washington-park-and-neighborhood-change-jackson-park",
+    "title": "Jackson Park",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  },
+  "woodlawn-washington-park-and-neighborhood-change-obama-presidential-center": {
+    "id": "woodlawn-washington-park-and-neighborhood-change-obama-presidential-center",
+    "title": "Obama Presidential Center Site",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  }
+}

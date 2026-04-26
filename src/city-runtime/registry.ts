@@ -17,6 +17,14 @@ import baltimoreBusinessProfileJson from "../../cities/baltimore/business-profil
 import baltimoreToursJson from "../../cities/baltimore/tours.json";
 import baltimoreNarrationJson from "../../cities/baltimore/narration.json";
 import baltimoreArJson from "../../cities/baltimore/ar.json";
+import chicagoCityJson from "../../cities/chicago/city.json";
+import chicagoBrandingJson from "../../cities/chicago/branding.json";
+import chicagoSeoJson from "../../cities/chicago/seo.json";
+import chicagoSocialJson from "../../cities/chicago/social.json";
+import chicagoBusinessProfileJson from "../../cities/chicago/business-profile.json";
+import chicagoToursJson from "../../cities/chicago/tours.json";
+import chicagoNarrationJson from "../../cities/chicago/narration.json";
+import chicagoArJson from "../../cities/chicago/ar.json";
 import dcCityJson from "../../cities/dc/city.json";
 import dcBrandingJson from "../../cities/dc/branding.json";
 import dcSeoJson from "../../cities/dc/seo.json";
@@ -25,6 +33,22 @@ import dcBusinessProfileJson from "../../cities/dc/business-profile.json";
 import dcToursJson from "../../cities/dc/tours.json";
 import dcNarrationJson from "../../cities/dc/narration.json";
 import dcArJson from "../../cities/dc/ar.json";
+import detroitCityJson from "../../cities/detroit/city.json";
+import detroitBrandingJson from "../../cities/detroit/branding.json";
+import detroitSeoJson from "../../cities/detroit/seo.json";
+import detroitSocialJson from "../../cities/detroit/social.json";
+import detroitBusinessProfileJson from "../../cities/detroit/business-profile.json";
+import detroitToursJson from "../../cities/detroit/tours.json";
+import detroitNarrationJson from "../../cities/detroit/narration.json";
+import detroitArJson from "../../cities/detroit/ar.json";
+import memphisCityJson from "../../cities/memphis/city.json";
+import memphisBrandingJson from "../../cities/memphis/branding.json";
+import memphisSeoJson from "../../cities/memphis/seo.json";
+import memphisSocialJson from "../../cities/memphis/social.json";
+import memphisBusinessProfileJson from "../../cities/memphis/business-profile.json";
+import memphisToursJson from "../../cities/memphis/tours.json";
+import memphisNarrationJson from "../../cities/memphis/narration.json";
+import memphisArJson from "../../cities/memphis/ar.json";
 import newOrleansCityJson from "../../cities/new-orleans/city.json";
 import newOrleansBrandingJson from "../../cities/new-orleans/branding.json";
 import newOrleansSeoJson from "../../cities/new-orleans/seo.json";
@@ -43,9 +67,9 @@ import phillyNarrationJson from "../../cities/philly/narration.json";
 import phillyArJson from "../../cities/philly/ar.json";
 import type { Tour } from "../types";
 
-export type SupportedCityId = "atlanta" | "baltimore" | "dc" | "new-orleans" | "philly";
+export type SupportedCityId = "atlanta" | "baltimore" | "chicago" | "dc" | "detroit" | "memphis" | "new-orleans" | "philly";
 
-export const SUPPORTED_CITY_IDS = ["atlanta", "baltimore", "dc", "new-orleans", "philly"] as const;
+export const SUPPORTED_CITY_IDS = ["atlanta", "baltimore", "chicago", "dc", "detroit", "memphis", "new-orleans", "philly"] as const;
 export const DEFAULT_CITY_ID: SupportedCityId = "philly";
 
 export type CityNarrationVariant = "drive" | "walk";
@@ -158,6 +182,16 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     narration: baltimoreNarrationJson as CityNarrationPack,
     ar: baltimoreArJson as Record<string, CityArEntry>
   },
+  chicago: {
+    city: chicagoCityJson,
+    branding: chicagoBrandingJson,
+    seo: chicagoSeoJson,
+    social: chicagoSocialJson,
+    businessProfile: chicagoBusinessProfileJson,
+    tours: chicagoToursJson as Tour[],
+    narration: chicagoNarrationJson as CityNarrationPack,
+    ar: chicagoArJson as Record<string, CityArEntry>
+  },
   dc: {
     city: dcCityJson,
     branding: dcBrandingJson,
@@ -167,6 +201,26 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     tours: dcToursJson as Tour[],
     narration: dcNarrationJson as CityNarrationPack,
     ar: dcArJson as Record<string, CityArEntry>
+  },
+  detroit: {
+    city: detroitCityJson,
+    branding: detroitBrandingJson,
+    seo: detroitSeoJson,
+    social: detroitSocialJson,
+    businessProfile: detroitBusinessProfileJson,
+    tours: detroitToursJson as Tour[],
+    narration: detroitNarrationJson as CityNarrationPack,
+    ar: detroitArJson as Record<string, CityArEntry>
+  },
+  memphis: {
+    city: memphisCityJson,
+    branding: memphisBrandingJson,
+    seo: memphisSeoJson,
+    social: memphisSocialJson,
+    businessProfile: memphisBusinessProfileJson,
+    tours: memphisToursJson as Tour[],
+    narration: memphisNarrationJson as CityNarrationPack,
+    ar: memphisArJson as Record<string, CityArEntry>
   },
   new-orleans: {
     city: newOrleansCityJson,
