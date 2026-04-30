@@ -329,7 +329,7 @@ export function HomeScreen({
                 <View style={styles.heroChips}>
                   <Chip label={`${tour.durationMin} min`} tone="default" />
                   <Chip label={`${tour.distanceMiles} mi`} tone="default" />
-                  <Chip label={`${tour.rating} rating`} tone="warn" />
+                  {typeof tour.rating === "number" ? <Chip label={`${tour.rating} rating`} tone="warn" /> : null}
                   <Chip label={`${tour.stops.length} stops`} tone={isActive ? "success" : "default"} />
                 </View>
                 <PrimaryButton label="Open Tour Page" onPress={() => {
@@ -351,7 +351,7 @@ export function HomeScreen({
           <View style={styles.heroChips}>
             <Chip label={`${selectedTour.durationMin} min`} tone="default" />
             <Chip label={`${selectedTour.distanceMiles} mi`} tone="default" />
-            <Chip label={`${selectedTour.rating} rating`} tone="warn" />
+            {typeof selectedTour.rating === "number" ? <Chip label={`${selectedTour.rating} rating`} tone="warn" /> : null}
             <Chip label={`${fullAudioCount} full audio stops`} tone="success" />
             <Chip label={`${previewCount} free stops`} tone="warn" />
             {lockedCount > 0 && !hasPaidAudioAccess ? <Chip label={`${lockedCount} stops unlock after purchase`} tone="default" /> : null}

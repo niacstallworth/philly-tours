@@ -1,0 +1,24 @@
+{
+  "homeTitle": "Houston Tours | Self-Guided Audio & AR Walking Tours",
+  "homeDescription": "Explore Houston with self-guided walking tours, map guidance, narration, and AR-ready stops.",
+  "catalogTitle": "Houston Walking Tours | Houston Tours",
+  "catalogDescription": "Browse self-guided Houston routes built for story, place, and neighborhood depth.",
+  "homePanelEyebrow": "TX city pack",
+  "homePanelTitle": "Plan the Houston launch routes.",
+  "homePanelBody": "Start with a signature route, validate the stops, and layer in narration, AR, and search assets.",
+  "searchImage": "/assets/search/houston-tours-search-thumbnail.jpg",
+  "organizationType": [
+    "Organization",
+    "TravelAgency"
+  ],
+  "knowsAbout": [
+    "Houston walking tours",
+    "Houston audio tours",
+    "Houston history tours"
+  ],
+  "homePanelHighlights": [
+    "City launch in progress",
+    "Signature route draft",
+    "Narration-ready stops"
+  ]
+}

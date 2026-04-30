@@ -202,7 +202,7 @@ export function TourDetailScreen({
             <Chip label={`${tour.durationMin} min`} tone="default" />
             <Chip label={`${tour.distanceMiles} mi`} tone="default" />
             <Chip label={`${tour.stops.length} story stops`} tone="success" />
-            <Chip label={`${tour.rating} rating`} tone="warn" />
+            {typeof tour.rating === "number" ? <Chip label={`${tour.rating} rating`} tone="warn" /> : null}
           </View>
         </View>
       </View>

@@ -14,25 +14,24 @@ window.PHILLY_TOURS_CONFIG = {
   "iosAppStoreUrl": "",
   "androidPlayStoreUrl": "",
   "city": {
-    "id": "memphis",
-    "name": "Memphis Tours",
-    "shortName": "Memphis",
-    "cityName": "Memphis",
-    "stateCode": "TN",
+    "id": "philly",
+    "name": "Philly Tours",
+    "shortName": "Philly",
+    "cityName": "Philadelphia",
+    "stateCode": "PA",
     "countryCode": "US",
-    "timezone": "America/Chicago",
-    "slug": "memphis-tours",
-    "websiteOrigin": "https://memphis-tours.com",
+    "timezone": "America/New_York",
+    "slug": "philly-tours",
+    "websiteOrigin": "https://philly-tours.com",
     "serviceArea": [
-      "Memphis, TN"
+      "Philadelphia, PA"
     ],
     "defaultMapCenter": {
-      "lat": 35.1495,
-      "lng": -90.049,
+      "lat": 39.9526,
+      "lng": -75.1652,
       "zoom": 12
     },
-    "defaultTourId": "beale-street-black-music-and-cultural-memory",
-    "launchStatus": "draft"
+    "defaultTourId": "black-american-legacy-and-quaker-heritage"
   },
   "branding": {
     "primary": "#f7c02a",
@@ -41,47 +40,58 @@ window.PHILLY_TOURS_CONFIG = {
     "cityBlue": "#002d72",
     "ink": "#15100a",
     "paper": "#fff9df",
-    "heroEyebrow": "Memphis is ready",
-    "heroTitle": "Sound, struggle, and neighborhood memory across Black Memphis.",
-    "heroBody": "Move through Beale, the Lorraine, South Memphis, Orange Mound, and the river with self-guided routes built for story, place, and public memory."
+    "heroEyebrow": "Philly is ready",
+    "heroTitle": "Big city stories. Your route, your pace.",
+    "heroBody": "Choose a Philadelphia route, follow the Compass, hear the story, and open AR moments when the street is ready for you.",
+    "homeSeoPanelEyebrow": "Philadelphia walking tours",
+    "homeSeoPanelTitle": "Walk Philly with the story behind the block."
   },
   "seo": {
-    "homeTitle": "Memphis Tours | Self-Guided Black History, Music & Walking Routes",
-    "homeDescription": "Explore Black Memphis through self-guided routes built around Beale Street, civil-rights landmarks, Stax, Orange Mound, and riverfront labor memory.",
-    "catalogTitle": "Memphis Walking Tours | Black History, Music & Neighborhood Routes",
-    "catalogDescription": "Browse self-guided Memphis routes shaped by Beale Street, MLK memory, South Memphis sound, Orange Mound, and Black working-city history.",
-    "homePanelEyebrow": "Memphis route collection",
-    "homePanelTitle": "See Memphis through music, movement, and neighborhood memory.",
-    "homePanelBody": "Start with Beale and the Lorraine, then move through Stax, Orange Mound, and the riverfront with self-guided routes shaped for narration, map guidance, and AR-ready story stops.",
-    "searchImage": "/assets/search/memphis-tours-search-thumbnail.jpg",
+    "homeTitle": "Philly Tours | Self-Guided Philadelphia Audio & AR Walking Tours",
+    "homeDescription": "Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes.",
+    "catalogTitle": "Philadelphia Walking Tours | Philly Tours",
+    "catalogDescription": "Browse self-guided Philadelphia walking tours with audio narration, maps, Compass guidance, and AR-ready story stops.",
+    "homePanelEyebrow": "Philadelphia walking tours",
+    "homePanelTitle": "Walk Philly with the story behind the block.",
+    "homePanelBody": "Philly Tours is a self-guided Philadelphia tour companion for visitors, families, locals, students, and culture lovers who want more than a generic sightseeing loop. Choose a route, follow the map, hear narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes.",
+    "homePanelHighlights": [
+      "Self-guided audio tours",
+      "Black history routes",
+      "Compass walking guidance",
+      "AR-ready stops",
+      "Philadelphia neighborhoods"
+    ],
     "organizationType": [
       "Organization",
       "TravelAgency"
     ],
+    "searchImage": "/assets/search/philly-tours-search-thumbnail.jpg",
     "knowsAbout": [
-      "Memphis walking tours",
-      "Memphis audio tours",
-      "Memphis history tours",
-      "Beale Street history",
-      "Memphis civil rights tour",
-      "Stax Museum history",
-      "Orange Mound history",
-      "Black Memphis history"
-    ],
-    "homePanelHighlights": [
-      "Beale and Black music memory",
-      "Civil-rights and MLK landmarks",
-      "Orange Mound and neighborhood history"
+      "Philadelphia walking tours",
+      "Philadelphia audio tours",
+      "Black history tours in Philadelphia",
+      "Philadelphia architecture tours",
+      "self-guided city tours",
+      "AR-guided walking tours"
     ]
   },
   "social": {
-    "sameAs": []
+    "sameAs": [
+      "https://philly-tours.com/"
+    ],
+    "channels": []
   },
   "businessProfile": {
-    "businessName": "Memphis Tours",
-    "website": "https://memphis-tours.com",
-    "primaryCategory": "Tour operator",
-    "shortDescription": "Self-guided Memphis tours with maps, narration, and routes through Black music, civil-rights, and neighborhood history.",
-    "fullDescription": "Memphis Tours offers self-guided walking and driving routes through Beale Street, the Lorraine, Stax, Orange Mound, and the riverfront. Use map guidance, narration, and AR-ready stops to explore Black Memphis history, music, labor, and neighborhood memory at your own pace."
+    "businessName": "Philly Tours",
+    "website": "https://philly-tours.com",
+    "serviceArea": "Philadelphia, PA",
+    "primaryCategory": "Tour agency",
+    "secondaryCategories": [
+      "Sightseeing tour agency",
+      "Tour operator",
+      "Tourist attraction"
+    ],
+    "shortDescription": "Self-guided Philadelphia walking tours with audio, maps, Compass guidance, AR-ready stops, and hidden city stories.",
+    "fullDescription": "Philly Tours helps visitors, locals, families, students, and culture lovers walk Philadelphia with more context. Choose a self-guided route, follow the map, hear audio narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes."
   }
 };

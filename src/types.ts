@@ -52,7 +52,7 @@ export type Tour = {
   title: string;
   durationMin: number;
   distanceMiles: number;
-  rating: number;
+  rating?: number;
   cardMedia?: TourCardMedia;
   stops: Stop[];
 };

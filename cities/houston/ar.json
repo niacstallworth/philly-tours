@@ -1,0 +1,10 @@
+{
+  "houston-starter-route-starter-stop": {
+    "id": "houston-starter-route-starter-stop",
+    "title": "Houston Starter Stop",
+    "arType": "story-card",
+    "estimatedEffort": "medium",
+    "webModelAvailable": false,
+    "iosModelAvailable": false
+  }
+}

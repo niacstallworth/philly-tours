@@ -1,0 +1,21 @@
+{
+  "id": "houston",
+  "name": "Houston Tours",
+  "shortName": "Houston",
+  "cityName": "Houston",
+  "stateCode": "TX",
+  "countryCode": "US",
+  "timezone": "America/Chicago",
+  "slug": "houston-tours",
+  "websiteOrigin": "https://houston-tours.com",
+  "serviceArea": [
+    "Houston, TX"
+  ],
+  "defaultMapCenter": {
+    "lat": 29.7604,
+    "lng": -95.3698,
+    "zoom": 12
+  },
+  "defaultTourId": "houston-starter-route",
+  "launchStatus": "scaffold"
+}

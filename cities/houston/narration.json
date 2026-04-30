@@ -1,0 +1,14 @@
+{
+  "catalogByStopId": {
+    "houston-starter-route-starter-stop": {
+      "drive": "/audio/houston-starter-route-starter-stop-drive.mp3",
+      "walk": "/audio/houston-starter-route-starter-stop-walk.mp3"
+    }
+  },
+  "scriptMapByStopId": {
+    "houston-starter-route-starter-stop": {
+      "drive": "Approaching the starter stop for Houston. Replace this line with route-specific narration.",
+      "walk": "You have arrived at the starter stop for Houston. Replace this line with grounded local history."
+    }
+  }
+}

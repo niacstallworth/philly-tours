@@ -22,6 +22,10 @@ function toCamelCase(value) {
     .join("");
 }
 
+function toObjectKey(value) {
+  return /^[$A-Z_][0-9A-Z_$]*$/i.test(value) ? value : JSON.stringify(value);
+}
+
 const cityIds = fs
   .readdirSync(citiesRoot, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
@@ -48,13 +52,13 @@ for (const cityId of cityIds) {
 
   registryEntries.push(
     [
-      `  ${cityId}: {`,
+      `  ${toObjectKey(cityId)}: {`,
       `    city: ${prefix}CityJson,`,
       `    branding: ${prefix}BrandingJson,`,
       `    seo: ${prefix}SeoJson,`,
       `    social: ${prefix}SocialJson,`,
       `    businessProfile: ${prefix}BusinessProfileJson,`,
-      `    tours: ${prefix}ToursJson as Tour[],`,
+      `    tours: ${prefix}ToursJson as unknown as Tour[],`,
       `    narration: ${prefix}NarrationJson as CityNarrationPack,`,
       `    ar: ${prefix}ArJson as Record<string, CityArEntry>`,
       `  }`

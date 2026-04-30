@@ -4,7 +4,7 @@
     "slug": "philly-ar-tours",
     "icon": "./assets/icons/philly-app-icon-flat.png",
     "scheme": "phillyartours",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "assetBundlePatterns": [

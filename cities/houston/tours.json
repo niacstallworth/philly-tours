@@ -1,0 +1,23 @@
+[
+  {
+    "id": "houston-starter-route",
+    "title": "Houston Starter Route",
+    "theme": "starter",
+    "durationMin": 45,
+    "distanceMiles": 1.5,
+    "summary": "Starter route for the Houston city pack.",
+    "cardMedia": {
+      "type": "image",
+      "src": "/assets/generated/tour-heroes/houston-starter-route-hero.avif"
+    },
+    "stops": [
+      {
+        "id": "houston-starter-route-starter-stop",
+        "title": "Houston Starter Stop",
+        "description": "Replace this stop with a real landmark as the city pack takes shape.",
+        "lat": 29.7604,
+        "lng": -95.3698
+      }
+    ]
+  }
+]

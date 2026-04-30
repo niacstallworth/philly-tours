@@ -97,8 +97,8 @@ android {
         applicationId 'com.founders.phillyartours'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "0.1.0"
+        versionCode 2026042801
+        versionName "0.1.1"
         multiDexEnabled true
         buildConfigField "boolean", "META_WEARABLES_DAT_ENABLED", ((findProperty("metaWearablesDatEnabled") ?: "false").toString())
         buildConfigField "String", "META_WEARABLES_DAT_VERSION", "\"${(findProperty("metaWearablesDatVersion") ?: "0.5.0")}\""

@@ -41,6 +41,14 @@ import detroitBusinessProfileJson from "../../cities/detroit/business-profile.js
 import detroitToursJson from "../../cities/detroit/tours.json";
 import detroitNarrationJson from "../../cities/detroit/narration.json";
 import detroitArJson from "../../cities/detroit/ar.json";
+import houstonCityJson from "../../cities/houston/city.json";
+import houstonBrandingJson from "../../cities/houston/branding.json";
+import houstonSeoJson from "../../cities/houston/seo.json";
+import houstonSocialJson from "../../cities/houston/social.json";
+import houstonBusinessProfileJson from "../../cities/houston/business-profile.json";
+import houstonToursJson from "../../cities/houston/tours.json";
+import houstonNarrationJson from "../../cities/houston/narration.json";
+import houstonArJson from "../../cities/houston/ar.json";
 import memphisCityJson from "../../cities/memphis/city.json";
 import memphisBrandingJson from "../../cities/memphis/branding.json";
 import memphisSeoJson from "../../cities/memphis/seo.json";
@@ -67,9 +75,9 @@ import phillyNarrationJson from "../../cities/philly/narration.json";
 import phillyArJson from "../../cities/philly/ar.json";
 import type { Tour } from "../types";
 
-export type SupportedCityId = "atlanta" | "baltimore" | "chicago" | "dc" | "detroit" | "memphis" | "new-orleans" | "philly";
+export type SupportedCityId = "atlanta" | "baltimore" | "chicago" | "dc" | "detroit" | "houston" | "memphis" | "new-orleans" | "philly";
 
-export const SUPPORTED_CITY_IDS = ["atlanta", "baltimore", "chicago", "dc", "detroit", "memphis", "new-orleans", "philly"] as const;
+export const SUPPORTED_CITY_IDS = ["atlanta", "baltimore", "chicago", "dc", "detroit", "houston", "memphis", "new-orleans", "philly"] as const;
 export const DEFAULT_CITY_ID: SupportedCityId = "philly";
 
 export type CityNarrationVariant = "drive" | "walk";
@@ -168,7 +176,7 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     seo: atlantaSeoJson,
     social: atlantaSocialJson,
     businessProfile: atlantaBusinessProfileJson,
-    tours: atlantaToursJson as Tour[],
+    tours: atlantaToursJson as unknown as Tour[],
     narration: atlantaNarrationJson as CityNarrationPack,
     ar: atlantaArJson as Record<string, CityArEntry>
   },
@@ -178,7 +186,7 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     seo: baltimoreSeoJson,
     social: baltimoreSocialJson,
     businessProfile: baltimoreBusinessProfileJson,
-    tours: baltimoreToursJson as Tour[],
+    tours: baltimoreToursJson as unknown as Tour[],
     narration: baltimoreNarrationJson as CityNarrationPack,
     ar: baltimoreArJson as Record<string, CityArEntry>
   },
@@ -188,7 +196,7 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     seo: chicagoSeoJson,
     social: chicagoSocialJson,
     businessProfile: chicagoBusinessProfileJson,
-    tours: chicagoToursJson as Tour[],
+    tours: chicagoToursJson as unknown as Tour[],
     narration: chicagoNarrationJson as CityNarrationPack,
     ar: chicagoArJson as Record<string, CityArEntry>
   },
@@ -198,7 +206,7 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     seo: dcSeoJson,
     social: dcSocialJson,
     businessProfile: dcBusinessProfileJson,
-    tours: dcToursJson as Tour[],
+    tours: dcToursJson as unknown as Tour[],
     narration: dcNarrationJson as CityNarrationPack,
     ar: dcArJson as Record<string, CityArEntry>
   },
@@ -208,9 +216,19 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     seo: detroitSeoJson,
     social: detroitSocialJson,
     businessProfile: detroitBusinessProfileJson,
-    tours: detroitToursJson as Tour[],
+    tours: detroitToursJson as unknown as Tour[],
     narration: detroitNarrationJson as CityNarrationPack,
     ar: detroitArJson as Record<string, CityArEntry>
+  },
+  houston: {
+    city: houstonCityJson,
+    branding: houstonBrandingJson,
+    seo: houstonSeoJson,
+    social: houstonSocialJson,
+    businessProfile: houstonBusinessProfileJson,
+    tours: houstonToursJson as unknown as Tour[],
+    narration: houstonNarrationJson as CityNarrationPack,
+    ar: houstonArJson as Record<string, CityArEntry>
   },
   memphis: {
     city: memphisCityJson,
@@ -218,17 +236,17 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     seo: memphisSeoJson,
     social: memphisSocialJson,
     businessProfile: memphisBusinessProfileJson,
-    tours: memphisToursJson as Tour[],
+    tours: memphisToursJson as unknown as Tour[],
     narration: memphisNarrationJson as CityNarrationPack,
     ar: memphisArJson as Record<string, CityArEntry>
   },
-  new-orleans: {
+  "new-orleans": {
     city: newOrleansCityJson,
     branding: newOrleansBrandingJson,
     seo: newOrleansSeoJson,
     social: newOrleansSocialJson,
     businessProfile: newOrleansBusinessProfileJson,
-    tours: newOrleansToursJson as Tour[],
+    tours: newOrleansToursJson as unknown as Tour[],
     narration: newOrleansNarrationJson as CityNarrationPack,
     ar: newOrleansArJson as Record<string, CityArEntry>
   },
@@ -238,7 +256,7 @@ const CITY_REGISTRY: Record<SupportedCityId, CityPackRuntime> = {
     seo: phillySeoJson,
     social: phillySocialJson,
     businessProfile: phillyBusinessProfileJson,
-    tours: phillyToursJson as Tour[],
+    tours: phillyToursJson as unknown as Tour[],
     narration: phillyNarrationJson as CityNarrationPack,
     ar: phillyArJson as Record<string, CityArEntry>
   }
