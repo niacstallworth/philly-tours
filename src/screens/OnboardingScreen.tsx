@@ -3,7 +3,7 @@ import React, { useMemo, useState } from "react";
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { CloudflareTurnstileChallenge } from "../components/auth/CloudflareTurnstileChallenge";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
+import { AppPalette, headingFontFamily, useThemeColors, useTypeScale } from "../theme/appTheme";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -60,6 +60,8 @@ export function OnboardingScreen({ onComplete }: Props) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.heroPanel}>
+        <View style={styles.heroGlowPrimary} />
+        <View style={styles.heroGlowSecondary} />
         <Text style={styles.kicker}>Welcome</Text>
         <Text style={styles.title}>Set up your Philly Tours profile.</Text>
         <Text style={styles.subtitle}>Choose a name, add your email, and continue into the app.</Text>
@@ -144,17 +146,42 @@ function createStyles(
       gap: 18
     },
     heroPanel: {
-      backgroundColor: colors.backgroundElevated,
+      position: "relative",
+      overflow: "hidden",
+      backgroundColor: colors.headerBackground,
       borderRadius: 30,
-      padding: 22,
+      padding: 24,
       gap: 10,
       borderWidth: 1,
-      borderColor: colors.border
+      borderColor: colors.border,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.12,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 12 },
+      elevation: 4
+    },
+    heroGlowPrimary: {
+      position: "absolute",
+      width: 220,
+      height: 220,
+      borderRadius: 999,
+      backgroundColor: "rgba(92,61,244,0.16)",
+      top: -94,
+      right: -66
+    },
+    heroGlowSecondary: {
+      position: "absolute",
+      width: 180,
+      height: 180,
+      borderRadius: 999,
+      backgroundColor: "rgba(239,201,108,0.16)",
+      bottom: -84,
+      left: -54
     },
     kicker: {
-      color: colors.info,
+      color: colors.olive,
       fontSize: type.font(12),
-      fontWeight: "700",
+      fontWeight: "800",
       textTransform: "uppercase",
       letterSpacing: 1.2
     },
@@ -162,7 +189,8 @@ function createStyles(
       color: colors.text,
       fontSize: type.font(32),
       lineHeight: type.line(38),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     subtitle: {
       color: colors.textSoft,
@@ -186,10 +214,10 @@ function createStyles(
       backgroundColor: colors.inputBackground,
       borderColor: colors.inputBorder,
       borderWidth: 1,
-      borderRadius: 16,
+      borderRadius: 18,
       color: colors.text,
-      paddingHorizontal: 12,
-      paddingVertical: 13
+      paddingHorizontal: 14,
+      paddingVertical: 15
     },
     noteCard: {
       gap: 6
@@ -197,7 +225,8 @@ function createStyles(
     noteTitle: {
       color: colors.text,
       fontSize: type.font(16),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     noteCopy: {
       color: colors.textSoft,

@@ -808,12 +808,12 @@ export const tours: Tour[] = [
         "lng": -75.154845554289,
         "coordQuality": "verified",
         "triggerRadiusM": 40,
-        "modelUrl": "/models/dr-charles-drew-blood-bank.glb",
+        "modelUrl": "/cards/dr-charles-drew-blood-bank.storycard",
         "audioUrl": "/audio/dr-charles-drew-blood-bank.mp3",
-        "arType": "animated_diagram",
+        "arType": "floating_story_card",
         "arPriority": 16,
-        "assetNeeded": "blood plasma storage explainer; medical card set",
-        "estimatedEffort": "medium"
+        "assetNeeded": "blood plasma timeline; archival hospital context; anti-segregation story card",
+        "estimatedEffort": "low"
       },
       {
         "id": "black-inventors-tour-sarah-e-goode-house",

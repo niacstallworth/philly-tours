@@ -1,12 +1,13 @@
 import React from "react";
-import { Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import type { Stop, Tour } from "../types";
 import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
+import { getArExperienceForStop, launchNativeArForStop } from "../services/arExperience";
 import { setCurrentTourSelection } from "../services/tourControl";
 import { getCommunityRoomPosts, submitCommunityRoomPost, type CommunityRoomPost, type CommunityRoomTheme } from "../services/communityRooms";
-import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
+import { AppPalette, headingFontFamily, useThemeColors, useTypeScale } from "../theme/appTheme";
 import { RoutePreviewMap } from "../components/maps/RoutePreviewMap";
 
 type Props = {
@@ -77,6 +78,7 @@ export function TourDetailScreen({
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const narration = useNarration();
   const [selectedStopId, setSelectedStopId] = React.useState(tour.stops[0]?.id || "");
+  const [viewMode, setViewMode] = React.useState<"tour" | "stop">("tour");
   const [roomPosts, setRoomPosts] = React.useState<CommunityRoomPost[]>([]);
   const [reflectionBody, setReflectionBody] = React.useState("");
   const [reflectionTheme, setReflectionTheme] = React.useState<CommunityRoomTheme>("reflection");
@@ -90,9 +92,15 @@ export function TourDetailScreen({
   const selectedStopLocked = selectedStopIndex >= previewLimit && !hasPaidAudioAccess;
   const mediaUrl = buildTourCardMediaUrl(tour.cardMedia?.src);
   const narrationMeta = selectedStop ? getNarrationUiMeta(selectedStop.id) : null;
+  const selectedStopArExperience = React.useMemo(
+    () => (selectedStop ? getArExperienceForStop(selectedStop) : null),
+    [selectedStop]
+  );
+  const lockedStopsCount = Math.max(tour.stops.length - previewLimit, 0);
 
   React.useEffect(() => {
     setSelectedStopId(tour.stops[0]?.id || "");
+    setViewMode("tour");
   }, [tour.id, tour.stops]);
 
   React.useEffect(() => {
@@ -128,7 +136,7 @@ export function TourDetailScreen({
       return;
     }
     if (selectedStopLocked) {
-      onOpenPurchase?.();
+      showPurchaseMessage();
       return;
     }
     try {
@@ -140,6 +148,29 @@ export function TourDetailScreen({
         triggerRadiusM: selectedStop.triggerRadiusM,
         audioUrl: selectedStop.audioUrl,
         summary: getStopSummary(selectedStop.description)
+      });
+    } catch (error) {
+      Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
+    }
+  }
+
+  async function playStop(stop: Stop, stopIndex?: number) {
+    const nextIndex = typeof stopIndex === "number" ? stopIndex : tour.stops.findIndex((candidate) => candidate.id === stop.id);
+    const locked = nextIndex >= previewLimit && !hasPaidAudioAccess;
+    setSelectedStopId(stop.id);
+    if (locked) {
+      showPurchaseMessage();
+      return;
+    }
+    try {
+      await startNarration({
+        id: stop.id,
+        title: stop.title,
+        lat: stop.lat,
+        lng: stop.lng,
+        triggerRadiusM: stop.triggerRadiusM,
+        audioUrl: stop.audioUrl,
+        summary: getStopSummary(stop.description)
       });
     } catch (error) {
       Alert.alert("Narration unavailable", (error as Error).message || "Could not start narration.");
@@ -158,8 +189,47 @@ export function TourDetailScreen({
     }
   }
 
+  async function openSelectedStopInAr() {
+    if (!selectedStop) {
+      return;
+    }
+
+    if (Platform.OS === "web") {
+      Alert.alert("Open AR on iPad or iPhone", "The camera-based AR viewer is available in the mobile app build.");
+      return;
+    }
+
+    if (!selectedStopArExperience) {
+      Alert.alert("AR not ready here", "This stop does not have an AR scene configured in the current build.");
+      return;
+    }
+
+    try {
+      await launchNativeArForStop(selectedStop);
+    } catch (error) {
+      Alert.alert("Could not open AR", (error as Error).message || "AR launch failed.");
+    }
+  }
+
   function selectStop(stop: Stop) {
     setSelectedStopId(stop.id);
+  }
+
+  function openStopPage(stop: Stop) {
+    setSelectedStopId(stop.id);
+    setViewMode("stop");
+  }
+
+  function returnFromStopPage() {
+    setViewMode("tour");
+  }
+
+  function showPurchaseMessage() {
+    Alert.alert(
+      "Unlock The Full Tour",
+      "The first two stops are included in preview mode. Purchase the full app to hear the rest of this tour.",
+      [{ text: "OK" }, ...(onOpenPurchase ? [{ text: "Purchase Full App", onPress: onOpenPurchase }] : [])]
+    );
   }
 
   async function submitReflection() {
@@ -185,118 +255,76 @@ export function TourDetailScreen({
     }
   }
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Pressable style={styles.backButton} onPress={onBack}>
-        <Text style={styles.backButtonText}>Back to tour cards</Text>
-      </Pressable>
+  function renderStopActions() {
+    if (!selectedStop) {
+      return null;
+    }
 
-      <View style={styles.heroPanel}>
-        {mediaUrl ? <Image source={{ uri: mediaUrl }} style={styles.heroImage} resizeMode="cover" /> : null}
-        <View style={styles.heroScrim} />
-        <View style={styles.heroCopyWrap}>
-          <Text style={styles.heroEyebrow}>Tour pack page</Text>
-          <Text style={styles.heroTitle}>{tour.title}</Text>
-          <Text style={styles.heroCopy}>{buildTourNarrative(tour)}</Text>
-          <View style={styles.chips}>
-            <Chip label={`${tour.durationMin} min`} tone="default" />
-            <Chip label={`${tour.distanceMiles} mi`} tone="default" />
-            <Chip label={`${tour.stops.length} story stops`} tone="success" />
-            <Chip label={`${tour.rating} rating`} tone="warn" />
-          </View>
-        </View>
+    return (
+      <View style={styles.actions}>
+        <PrimaryButton
+          label={
+            selectedStopLocked
+              ? "Purchase Full App Content"
+              : narration.stopId === selectedStop.id && narration.status === "playing"
+                ? narrationMeta?.activeLabel || "Replay Narration"
+                : narrationMeta?.idleLabel || "Hear Narration"
+          }
+          onPress={() => void playSelectedStop()}
+        />
+        {narration.stopId === selectedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
+          <PrimaryButton label={narrationMeta?.stopLabel || "Stop Narration"} onPress={() => void stopNarration()} />
+        ) : null}
+        {selectedStopArExperience ? (
+          <PrimaryButton
+            label={selectedStopArExperience.usesStoryCard ? "Open Story Card In AR" : "Open In AR"}
+            onPress={() => void openSelectedStopInAr()}
+          />
+        ) : null}
+        <PrimaryButton label="Open Stop In Maps" onPress={() => void openSelectedStopInMaps()} />
       </View>
+    );
+  }
 
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{tour.durationMin}</Text>
-          <Text style={styles.statLabel}>estimated minutes</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{tour.distanceMiles}</Text>
-          <Text style={styles.statLabel}>route miles</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{tour.stops.length}</Text>
-          <Text style={styles.statLabel}>story stops</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>{fullAudioCount}</Text>
-          <Text style={styles.statLabel}>full audio stops</Text>
-        </View>
+  function renderTourPlaybackActions() {
+    if (!selectedStop) {
+      return null;
+    }
+
+    return (
+      <View style={styles.actions}>
+        <PrimaryButton
+          label={
+            selectedStopLocked
+              ? "Purchase Full App Content"
+              : narration.stopId === selectedStop.id && narration.status === "playing"
+                ? narrationMeta?.activeLabel || "Replay Narration"
+                : narrationMeta?.idleLabel || "Hear Narration"
+          }
+          onPress={() => void playSelectedStop()}
+        />
+        {narration.stopId === selectedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
+          <PrimaryButton label={narrationMeta?.stopLabel || "Stop Narration"} onPress={() => void stopNarration()} />
+        ) : null}
+        {selectedStopArExperience ? (
+          <PrimaryButton
+            label={selectedStopArExperience.usesStoryCard ? "Open Story Card In AR" : "Open In AR"}
+            onPress={() => void openSelectedStopInAr()}
+          />
+        ) : null}
+        <PrimaryButton label="Open Stop In Maps" onPress={() => void openSelectedStopInMaps()} />
+        <PrimaryButton label="View Stop Details & Map" onPress={() => openStopPage(selectedStop)} />
       </View>
+    );
+  }
 
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Founders Compass</Text>
-        <Text style={styles.sectionTitle}>North Broad is the north star</Text>
-        <Text style={styles.copy}>
-          Each tour begins from the city&apos;s compass point and opens outward, so the stop list feels like Philadelphia unfolding instead of a spreadsheet.
-        </Text>
-        <View style={styles.summaryGrid}>
-          <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>City arc</Text>
-            <Text style={styles.summaryValue}>{getNeighborhoodSpan(tour)}</Text>
-          </View>
-          <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>Compass start</Text>
-            <Text style={styles.summaryValue}>{tour.stops[0]?.title || "First listed stop"}</Text>
-          </View>
-          <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>Story flow</Text>
-            <Text style={styles.summaryValue}>{buildTourNarrative(tour)}</Text>
-          </View>
-          <View style={styles.summaryCell}>
-            <Text style={styles.summaryLabel}>Outward path</Text>
-            <Text style={styles.summaryValue}>{tour.stops.length > 1 ? `${tour.stops.length} compass points` : "One compass point"}</Text>
-          </View>
-        </View>
-      </Card>
+  function renderCommunityRoom() {
+    if (!selectedStop) {
+      return null;
+    }
 
-      <RoutePreviewMap
-        tour={tour}
-        selectedStopId={selectedStop?.id}
-        travelMode="WALK"
-        onSelectStop={setSelectedStopId}
-      />
-
-      {selectedStop ? (
-        <Card style={styles.selectedStopCard}>
-          <Text style={styles.sectionEyebrow}>Selected stop audio</Text>
-          <Text style={styles.selectedStopStep}>Stop {selectedStopIndex + 1} of {tour.stops.length}</Text>
-          <Text style={styles.selectedStopTitle}>{selectedStop.title}</Text>
-          <Text style={styles.selectedStopAddress}>{getStopAddress(selectedStop.description)}</Text>
-          <Text style={styles.copy}>{getStopSummary(selectedStop.description)}</Text>
-          <View style={styles.chips}>
-            <Chip label={selectedStopLocked ? "Purchase required" : "Open now"} tone={selectedStopLocked ? "warn" : "success"} />
-            <Chip {...getCoverageMeta(getNarrationCoverage(selectedStop.id))} />
-            {narration.stopId === selectedStop.id ? (
-              <Chip label={narration.status === "playing" ? "Narration live" : narration.status} tone="default" />
-            ) : null}
-          </View>
-          {selectedStopLocked ? (
-            <Text style={styles.lockCopy}>The first two stops are free. Purchase full app content to hear the rest of this tour.</Text>
-          ) : null}
-          <View style={styles.actions}>
-            <PrimaryButton
-              label={
-                selectedStopLocked
-                  ? "Purchase Full App Content"
-                  : narration.stopId === selectedStop.id && narration.status === "playing"
-                    ? narrationMeta?.activeLabel || "Replay Narration"
-                    : narrationMeta?.idleLabel || "Hear Narration"
-              }
-              onPress={() => void playSelectedStop()}
-            />
-            {narration.stopId === selectedStop.id && (narration.status === "playing" || narration.status === "loading") ? (
-              <PrimaryButton label={narrationMeta?.stopLabel || "Stop Narration"} onPress={() => void stopNarration()} />
-            ) : null}
-            <PrimaryButton label="Open Stop In Maps" onPress={() => void openSelectedStopInMaps()} />
-          </View>
-        </Card>
-      ) : null}
-
-      {selectedStop ? (
-        <Card style={styles.communityCard}>
+    return (
+      <Card style={styles.communityCard}>
           <Text style={styles.sectionEyebrow}>AR Community Room</Text>
           <Text style={styles.sectionTitle}>Voices From This Place</Text>
           <Text style={styles.copy}>
@@ -348,35 +376,263 @@ export function TourDetailScreen({
             disabled={submittingReflection}
           />
         </Card>
-      ) : null}
+    );
+  }
 
-      <Card style={styles.card}>
-        <Text style={styles.sectionEyebrow}>Compass points</Text>
-        <Text style={styles.sectionTitle}>Follow the city outward</Text>
-        <Text style={styles.copy}>
-          The stops are arranged from the Founders Compass near North Broad toward the farthest edge of the story.
-        </Text>
-        {tour.stops.map((stop, index) => {
-          const isSelected = stop.id === selectedStop?.id;
-          const locked = index >= previewLimit && !hasPaidAudioAccess;
-          return (
-            <Pressable key={stop.id} style={[styles.stopRow, isSelected && styles.stopRowActive]} onPress={() => selectStop(stop)}>
-              <View style={styles.stopIndex}>
-                <Text style={styles.stopIndexText}>{index + 1}</Text>
-              </View>
-              <View style={styles.stopContent}>
-                <Text style={styles.stopTitle}>{stop.title}</Text>
-                <Text style={styles.stopAddress}>{getStopAddress(stop.description)}</Text>
-                <Text style={styles.stopSummary} numberOfLines={2}>{getStopSummary(stop.description)}</Text>
-                <View style={styles.chips}>
-                  <Chip label={isSelected ? "Viewing" : locked ? "Purchase required" : "Open"} tone={isSelected || !locked ? "success" : "warn"} />
-                  <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
+  function renderStopPage() {
+    if (!selectedStop) {
+      return null;
+    }
+
+    const previousStop = selectedStopIndex > 0 ? tour.stops[selectedStopIndex - 1] : null;
+    const followingStop = selectedStopIndex < tour.stops.length - 1 ? tour.stops[selectedStopIndex + 1] : null;
+
+    return (
+      <>
+        <Pressable style={styles.backButton} onPress={returnFromStopPage}>
+          <Text style={styles.backButtonText}>Back to {tour.title}</Text>
+        </Pressable>
+
+        <Card style={styles.stopHeroCard}>
+          <Text style={styles.sectionEyebrow}>Stop page</Text>
+          <Text style={styles.selectedStopStep}>Stop {selectedStopIndex + 1} of {tour.stops.length}</Text>
+          <Text style={styles.selectedStopTitle}>{selectedStop.title}</Text>
+          <Text style={styles.selectedStopAddress}>{getStopAddress(selectedStop.description)}</Text>
+          <Text style={styles.copy}>{getStopSummary(selectedStop.description)}</Text>
+          <View style={styles.chips}>
+            <Chip label={selectedStopLocked ? "Purchase required" : "Open now"} tone={selectedStopLocked ? "warn" : "success"} />
+            <Chip {...getCoverageMeta(getNarrationCoverage(selectedStop.id))} />
+            {selectedStopArExperience ? (
+              <Chip label={selectedStopArExperience.usesStoryCard ? "AR story card" : "AR ready"} tone="success" />
+            ) : null}
+          </View>
+          {selectedStopLocked ? (
+            <Text style={styles.lockCopy}>The first two stops are free. Purchase full app content to hear the rest of this tour.</Text>
+          ) : null}
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Stop map</Text>
+          <Text style={styles.sectionTitle}>Where this stop lives</Text>
+          <Text style={styles.copy}>
+            The map stays focused on this stop inside the full tour route so you can see exactly where it sits in the city story.
+          </Text>
+        </Card>
+
+        <RoutePreviewMap
+          tour={tour}
+          selectedStopId={selectedStop.id}
+          travelMode="WALK"
+          onSelectStop={(stopId) => {
+            const nextStop = tour.stops.find((stop) => stop.id === stopId);
+            if (nextStop) {
+              openStopPage(nextStop);
+            }
+          }}
+        />
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Story details</Text>
+          <Text style={styles.sectionTitle}>What this stop covers</Text>
+          <View style={styles.summaryGrid}>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Address</Text>
+              <Text style={styles.summaryValue}>{getStopAddress(selectedStop.description)}</Text>
+            </View>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Trigger radius</Text>
+              <Text style={styles.summaryValue}>{selectedStop.triggerRadiusM} m</Text>
+            </View>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Story summary</Text>
+              <Text style={styles.summaryValue}>{getStopSummary(selectedStop.description)}</Text>
+            </View>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>AR moment</Text>
+              <Text style={styles.summaryValue}>
+                {selectedStopArExperience
+                  ? selectedStopArExperience.manifest.headline
+                  : "No AR scene configured in this build"}
+              </Text>
+            </View>
+          </View>
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Stop actions</Text>
+          <Text style={styles.sectionTitle}>Listen, map, or open AR</Text>
+          <Text style={styles.copy}>
+            This page is where you work with the stop directly, the same way a webapp stop page would let you act on one location at a time.
+          </Text>
+          {renderStopActions()}
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Next in route</Text>
+          <Text style={styles.sectionTitle}>Continue through the tour</Text>
+          <View style={styles.summaryGrid}>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Previous stop</Text>
+              <Text style={styles.summaryValue}>{previousStop?.title || "This is the first stop"}</Text>
+            </View>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Next stop</Text>
+              <Text style={styles.summaryValue}>{followingStop?.title || "This is the last stop"}</Text>
+            </View>
+          </View>
+          <View style={styles.actions}>
+            {previousStop ? <PrimaryButton label="Open Previous Stop" onPress={() => openStopPage(previousStop)} /> : null}
+            {followingStop ? <PrimaryButton label="Open Next Stop" onPress={() => openStopPage(followingStop)} /> : null}
+          </View>
+        </Card>
+
+        {renderCommunityRoom()}
+      </>
+    );
+  }
+
+  function renderTourPage() {
+    return (
+      <>
+        <Pressable style={styles.backButton} onPress={onBack}>
+          <Text style={styles.backButtonText}>Back to tour cards</Text>
+        </Pressable>
+
+        <View style={styles.heroPanel}>
+          {mediaUrl ? <Image source={{ uri: mediaUrl }} style={styles.heroImage} resizeMode="cover" /> : null}
+          <View style={styles.heroScrim} />
+          <View style={styles.heroCopyWrap}>
+            <Text style={styles.heroEyebrow}>Tour pack page</Text>
+            <Text style={styles.heroTitle}>{tour.title}</Text>
+            <Text style={styles.heroCopy}>{buildTourNarrative(tour)}</Text>
+            <View style={styles.chips}>
+              <Chip label={`${tour.durationMin} min`} tone="default" />
+              <Chip label={`${tour.distanceMiles} mi`} tone="default" />
+              <Chip label={`${tour.stops.length} story stops`} tone="success" />
+              <Chip label={`${tour.rating} rating`} tone="warn" />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{tour.durationMin}</Text>
+            <Text style={styles.statLabel}>estimated minutes</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{tour.distanceMiles}</Text>
+            <Text style={styles.statLabel}>route miles</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{tour.stops.length}</Text>
+            <Text style={styles.statLabel}>story stops</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>{fullAudioCount}</Text>
+            <Text style={styles.statLabel}>full audio stops</Text>
+          </View>
+        </View>
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Founders Compass</Text>
+          <Text style={styles.sectionTitle}>North Broad is the north star</Text>
+          <Text style={styles.copy}>
+            Each tour begins from the city&apos;s compass point and opens outward, so the stop list feels like Philadelphia unfolding instead of a spreadsheet.
+          </Text>
+          <View style={styles.summaryGrid}>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>City arc</Text>
+              <Text style={styles.summaryValue}>{getNeighborhoodSpan(tour)}</Text>
+            </View>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Compass start</Text>
+              <Text style={styles.summaryValue}>{tour.stops[0]?.title || "First listed stop"}</Text>
+            </View>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Story flow</Text>
+              <Text style={styles.summaryValue}>{buildTourNarrative(tour)}</Text>
+            </View>
+            <View style={styles.summaryCell}>
+              <Text style={styles.summaryLabel}>Outward path</Text>
+              <Text style={styles.summaryValue}>{tour.stops.length > 1 ? `${tour.stops.length} compass points` : "One compass point"}</Text>
+            </View>
+          </View>
+        </Card>
+
+        <RoutePreviewMap
+          tour={tour}
+          selectedStopId={selectedStop?.id}
+          travelMode="WALK"
+          onSelectStop={setSelectedStopId}
+        />
+
+        {selectedStop ? (
+          <Card style={styles.selectedStopCard}>
+            <Text style={styles.sectionEyebrow}>Selected stop preview</Text>
+            <Text style={styles.selectedStopStep}>Stop {selectedStopIndex + 1} of {tour.stops.length}</Text>
+            <Text style={styles.selectedStopTitle}>{selectedStop.title}</Text>
+            <Text style={styles.selectedStopAddress}>{getStopAddress(selectedStop.description)}</Text>
+            <Text style={styles.copy}>{getStopSummary(selectedStop.description)}</Text>
+            <View style={styles.chips}>
+              <Chip label={selectedStopLocked ? "Purchase required" : "Ready to play"} tone={selectedStopLocked ? "warn" : "success"} />
+              <Chip {...getCoverageMeta(getNarrationCoverage(selectedStop.id))} />
+              {selectedStopArExperience ? (
+                <Chip label={selectedStopArExperience.usesStoryCard ? "AR story card" : "AR ready"} tone="success" />
+              ) : null}
+            </View>
+            {renderTourPlaybackActions()}
+          </Card>
+        ) : null}
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionEyebrow}>Compass points</Text>
+          <Text style={styles.sectionTitle}>Play stops from this page</Text>
+          <Text style={styles.copy}>
+            Pick any stop below and play it directly from the tour page. The detail page is still there when you want deeper map and community context.
+          </Text>
+          {!hasPaidAudioAccess ? (
+            <View style={styles.purchaseNotice}>
+              <Text style={styles.purchaseNoticeTitle}>Preview mode is active</Text>
+              <Text style={styles.purchaseNoticeCopy}>
+                The first {previewLimit} stops will play here. The remaining {lockedStopsCount} stop{lockedStopsCount === 1 ? "" : "s"} will ask the listener to purchase the full app.
+              </Text>
+            </View>
+          ) : null}
+          {tour.stops.map((stop, index) => {
+            const isSelected = stop.id === selectedStop?.id;
+            const locked = index >= previewLimit && !hasPaidAudioAccess;
+            return (
+              <Pressable key={stop.id} style={[styles.stopRow, isSelected && styles.stopRowActive]} onPress={() => selectStop(stop)}>
+                <View style={styles.stopIndex}>
+                  <Text style={styles.stopIndexText}>{index + 1}</Text>
                 </View>
-              </View>
-            </Pressable>
-          );
-        })}
-      </Card>
+                <View style={styles.stopContent}>
+                  <Text style={styles.stopTitle}>{stop.title}</Text>
+                  <Text style={styles.stopAddress}>{getStopAddress(stop.description)}</Text>
+                  <Text style={styles.stopSummary} numberOfLines={2}>{getStopSummary(stop.description)}</Text>
+                  <View style={styles.chips}>
+                    <Chip label={isSelected ? "Selected" : locked ? "Purchase required" : "Playable now"} tone={isSelected || !locked ? "success" : "warn"} />
+                    <Chip {...getCoverageMeta(getNarrationCoverage(stop.id))} />
+                    {getArExperienceForStop(stop) ? <Chip label="AR" tone="default" /> : null}
+                  </View>
+                  <View style={styles.rowActionWrap}>
+                    <PrimaryButton
+                      label={locked ? "Purchase Full App Content" : "Play This Stop"}
+                      onPress={() => void playStop(stop, index)}
+                    />
+                  </View>
+                </View>
+              </Pressable>
+            );
+          })}
+        </Card>
+      </>
+    );
+  }
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      {viewMode === "stop" ? renderStopPage() : renderTourPage()}
     </ScrollView>
   );
 }
@@ -402,7 +658,7 @@ function createStyles(
       borderRadius: 999,
       paddingHorizontal: 14,
       paddingVertical: 10,
-      backgroundColor: colors.surface
+      backgroundColor: colors.surfaceRaised
     },
     backButtonText: {
       color: colors.text,
@@ -417,7 +673,12 @@ function createStyles(
       backgroundColor: colors.headerBackground,
       borderWidth: 1,
       borderColor: colors.border,
-      justifyContent: "flex-end"
+      justifyContent: "flex-end",
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.16,
+      shadowRadius: 24,
+      shadowOffset: { width: 0, height: 14 },
+      elevation: 5
     },
     heroImage: {
       position: "absolute",
@@ -434,7 +695,7 @@ function createStyles(
       right: 0,
       bottom: 0,
       left: 0,
-      backgroundColor: "rgba(5, 6, 12, 0.38)"
+      backgroundColor: "rgba(16, 21, 34, 0.42)"
     },
     heroCopyWrap: {
       position: "relative",
@@ -453,7 +714,8 @@ function createStyles(
       color: "#ffffff",
       fontSize: type.font(34),
       lineHeight: type.line(39),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     heroCopy: {
       color: "rgba(255,255,255,0.86)",
@@ -475,7 +737,7 @@ function createStyles(
       flexGrow: 1,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 18,
+      borderRadius: 22,
       paddingHorizontal: 14,
       paddingVertical: 14,
       backgroundColor: colors.surface
@@ -507,7 +769,8 @@ function createStyles(
     sectionTitle: {
       color: colors.text,
       fontSize: type.font(22),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     copy: {
       color: colors.textSoft,
@@ -543,6 +806,11 @@ function createStyles(
       backgroundColor: colors.surfaceRaised,
       borderColor: colors.infoSoft
     },
+    stopHeroCard: {
+      gap: 12,
+      backgroundColor: colors.surfaceRaised,
+      borderColor: colors.warnSoft
+    },
     selectedStopStep: {
       color: colors.textMuted,
       fontSize: type.font(12),
@@ -554,7 +822,8 @@ function createStyles(
       color: colors.text,
       fontSize: type.font(26),
       lineHeight: type.line(31),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     selectedStopAddress: {
       color: colors.warn,
@@ -600,7 +869,8 @@ function createStyles(
       flex: 1,
       color: colors.text,
       fontSize: type.font(14),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     roomPostBody: {
       color: colors.textSoft,
@@ -652,6 +922,25 @@ function createStyles(
       lineHeight: type.line(18),
       fontWeight: "700"
     },
+    purchaseNotice: {
+      gap: 6,
+      borderWidth: 1,
+      borderColor: colors.warnSoft,
+      borderRadius: 18,
+      backgroundColor: colors.surface,
+      padding: 14
+    },
+    purchaseNoticeTitle: {
+      color: colors.text,
+      fontSize: type.font(16),
+      fontWeight: "800",
+      fontFamily: headingFontFamily
+    },
+    purchaseNoticeCopy: {
+      color: colors.textSoft,
+      fontSize: type.font(13),
+      lineHeight: type.line(19)
+    },
     stopRow: {
       flexDirection: "row",
       alignItems: "flex-start",
@@ -671,10 +960,10 @@ function createStyles(
       borderRadius: 999,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: colors.surfaceSoft
+      backgroundColor: colors.accentSoft
     },
     stopIndexText: {
-      color: colors.text,
+      color: colors.accentDeep,
       fontSize: type.font(13),
       fontWeight: "800"
     },
@@ -682,10 +971,14 @@ function createStyles(
       flex: 1,
       gap: 6
     },
+    rowActionWrap: {
+      marginTop: 4
+    },
     stopTitle: {
       color: colors.text,
       fontSize: type.font(16),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     stopAddress: {
       color: colors.warn,

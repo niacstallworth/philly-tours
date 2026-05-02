@@ -9,12 +9,13 @@ import {
   handleWearableCommand,
   refreshCompanionStatus
 } from "../services/companion";
-import { getCurrentTourContext } from "../services/tourControl";
+import { getArExperienceForStop, getArStopsForTour, launchNativeArForStop } from "../services/arExperience";
+import { getCurrentTourContext, setCurrentTourSelection, subscribeToTourSelection } from "../services/tourControl";
 import type { WearableStatus } from "../services/wearables";
-import { getNativeArStatus, type NativeArStatus } from "../services/nativeAr";
+import { getNativeArStatus, stopNativeArSession, type NativeArStatus } from "../services/nativeAr";
 import { getNarrationCoverage } from "../services/narration";
 import { useCompanionSession } from "../hooks/useCompanionSession";
-import { type AppPalette, useTypeScale, useThemeColors } from "../theme/appTheme";
+import { type AppPalette, headingFontFamily, useTypeScale, useThemeColors } from "../theme/appTheme";
 
 type Props = {
   audioHistoryOnlyUnlocked?: boolean;
@@ -26,11 +27,12 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const { status, lastCommandResult } = useCompanionSession();
-  const [busy, setBusy] = React.useState<"pair" | "pair-mock" | "disconnect" | "refresh" | "command" | null>(null);
+  const [busy, setBusy] = React.useState<"pair" | "pair-mock" | "disconnect" | "refresh" | "command" | "launch-ar" | "stop-ar" | null>(null);
   const [message, setMessage] = React.useState<string | null>(status.lastError);
   const [nativeArStatus, setNativeArStatus] = React.useState<NativeArStatus | null>(null);
-  const context = getCurrentTourContext();
-  const [selectedTourId, setSelectedTourId] = React.useState<string>(context?.tour.id || tours[0]?.id || "");
+  const [tourContext, setTourContext] = React.useState(() => getCurrentTourContext());
+  const [selectedTourId, setSelectedTourId] = React.useState<string>(tourContext?.tour.id || tours[0]?.id || "");
+  const [selectedArStopId, setSelectedArStopId] = React.useState<string>(tourContext?.stop.id || "");
   const mockPairingAvailable = status.integrationMode === "native" && status.platformLabel === "iOS";
   const isConnected = status.connectionState === "connected";
   const isMockConnected = isConnected && !!status.pairedDevice?.isMock;
@@ -42,57 +44,91 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
     status.connectionState !== "pairing";
   const connectLabel = getConnectLabel(status, canReconnect);
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0] || null, [selectedTourId]);
+  const arStops = React.useMemo(() => (selectedTour ? getArStopsForTour(selectedTour) : []), [selectedTour]);
+  const selectedArStop = React.useMemo(
+    () => arStops.find((stop) => stop.id === selectedArStopId) || arStops[0] || null,
+    [arStops, selectedArStopId]
+  );
+  const selectedArExperience = React.useMemo(
+    () => (selectedArStop ? getArExperienceForStop(selectedArStop) : null),
+    [selectedArStop]
+  );
   const selectedTourAudioCount = React.useMemo(
     () => (selectedTour ? selectedTour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length : 0),
     [selectedTour]
   );
   const hasPremiumAudio = audioHistoryOnlyUnlocked || fullAppUnlocked;
-  const currentStop = context?.tour && selectedTour && context.tour.id === selectedTour.id ? context.stop : null;
-  const nextStop = context?.tour && selectedTour && context.tour.id === selectedTour.id ? context.nextStop : null;
+  const currentStop = tourContext?.tour && selectedTour && tourContext.tour.id === selectedTour.id ? tourContext.stop : null;
+  const nextStop = tourContext?.tour && selectedTour && tourContext.tour.id === selectedTour.id ? tourContext.nextStop : null;
+  const currentStopExperience = React.useMemo(
+    () => (currentStop ? getArExperienceForStop(currentStop) : null),
+    [currentStop]
+  );
   const routeProgressLabel =
-    context?.tour && selectedTour && context.tour.id === selectedTour.id
-      ? `Stop ${context.stopIndex + 1} of ${context.tour.stops.length}`
+    tourContext?.tour && selectedTour && tourContext.tour.id === selectedTour.id
+      ? `Stop ${tourContext.stopIndex + 1} of ${tourContext.tour.stops.length}`
       : selectedTour
         ? `Ready to start at ${selectedTour.stops[0]?.title || "first stop"}`
         : "No route selected";
+
+  const refreshNativeStatus = React.useCallback(async () => {
+    if (Platform.OS !== "ios") {
+      return;
+    }
+
+    try {
+      const nextStatus = await getNativeArStatus();
+      setNativeArStatus(nextStatus);
+    } catch {
+      setNativeArStatus({
+        available: false,
+        reason: "Native AR status could not be loaded on this device.",
+        sessionRunning: false,
+        placedModelCount: 0
+      });
+    }
+  }, []);
 
   React.useEffect(() => {
     void refreshCompanionStatus();
   }, []);
 
   React.useEffect(() => {
-    if (Platform.OS !== "ios") {
-      return;
-    }
-
-    let cancelled = false;
-    void getNativeArStatus()
-      .then((nextStatus) => {
-        if (!cancelled) {
-          setNativeArStatus(nextStatus);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setNativeArStatus({
-            available: false,
-            reason: "Native AR status could not be loaded on this device.",
-            sessionRunning: false,
-            placedModelCount: 0
-          });
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    const unsubscribe = subscribeToTourSelection((_, context) => {
+      setTourContext(context);
+    });
+    return unsubscribe;
   }, []);
 
   React.useEffect(() => {
-    if (context?.tour?.id) {
-      setSelectedTourId(context.tour.id);
+    void refreshNativeStatus();
+  }, [refreshNativeStatus]);
+
+  React.useEffect(() => {
+    if (tourContext?.tour?.id) {
+      setSelectedTourId(tourContext.tour.id);
     }
-  }, [context?.tour?.id]);
+  }, [tourContext?.tour?.id]);
+
+  React.useEffect(() => {
+    if (!selectedTour) {
+      return;
+    }
+
+    const currentArStopId =
+      tourContext?.tour?.id === selectedTour.id && tourContext.stop && arStops.some((stop) => stop.id === tourContext.stop.id)
+        ? tourContext.stop.id
+        : null;
+
+    if (currentArStopId && currentArStopId !== selectedArStopId) {
+      setSelectedArStopId(currentArStopId);
+      return;
+    }
+
+    if (!arStops.some((stop) => stop.id === selectedArStopId)) {
+      setSelectedArStopId(arStops[0]?.id || "");
+    }
+  }, [arStops, selectedArStopId, selectedTour, tourContext]);
 
   React.useEffect(() => {
     setMessage(status.lastError ?? status.statusMessage ?? null);
@@ -169,8 +205,86 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
     }
   }
 
+  function onChooseTour(tourId: string) {
+    setSelectedTourId(tourId);
+    const nextTour = tours.find((tour) => tour.id === tourId) || null;
+    const nextArStop = nextTour ? getArStopsForTour(nextTour)[0] || nextTour.stops[0] || null : null;
+    if (nextArStop) {
+      setSelectedArStopId(nextArStop.id);
+      setCurrentTourSelection(tourId, nextArStop.id);
+    }
+  }
+
+  function onChooseArStop(stopId: string) {
+    setSelectedArStopId(stopId);
+    if (selectedTour) {
+      setCurrentTourSelection(selectedTour.id, stopId);
+    }
+  }
+
+  async function launchArForStop(stopId?: string) {
+    if (Platform.OS !== "ios") {
+      setMessage("Native AR is only available in the iPhone and iPad app.");
+      return;
+    }
+    if (!nativeArStatus?.available) {
+      setMessage(nativeArStatus?.reason || "Native AR is not available on this device.");
+      return;
+    }
+
+    const targetStop =
+      (stopId ? arStops.find((stop) => stop.id === stopId) : null) ||
+      (currentStop && getArExperienceForStop(currentStop) ? currentStop : null) ||
+      selectedArStop;
+
+    if (!targetStop) {
+      setMessage("Pick an AR-ready stop first.");
+      return;
+    }
+
+    setBusy("launch-ar");
+    try {
+      if (selectedTour) {
+        setCurrentTourSelection(selectedTour.id, targetStop.id);
+      }
+      const experience = await launchNativeArForStop(targetStop);
+      setMessage(
+        experience.usesStoryCard
+          ? `Opened ${targetStop.title} as an AR story card. Hold the iPad steady for auto-placement.`
+          : `Opened ${targetStop.title} in native AR. Hold the iPad steady for auto-placement.`
+      );
+      await refreshNativeStatus();
+    } catch (error) {
+      setMessage((error as Error).message || "Could not launch native AR for this stop.");
+      await refreshNativeStatus();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function stopArSession() {
+    if (Platform.OS !== "ios") {
+      return;
+    }
+    setBusy("stop-ar");
+    try {
+      await stopNativeArSession();
+      setMessage("Closed the current AR scene.");
+      await refreshNativeStatus();
+    } catch (error) {
+      setMessage((error as Error).message || "Could not close the AR session.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function runArHandoff() {
-    if (!context?.tour || !context?.stop) {
+    if (!tourContext?.tour || !tourContext?.stop) {
+      return;
+    }
+
+    if (Platform.OS === "ios" && getArExperienceForStop(tourContext.stop)) {
+      await launchArForStop(tourContext.stop.id);
       return;
     }
 
@@ -178,8 +292,8 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
     try {
       const result = await handleWearableCommand({
         type: "open_ar_on_phone",
-        tourId: context.tour.id,
-        stopId: context.stop.id
+        tourId: tourContext.tour.id,
+        stopId: tourContext.stop.id
       });
       setMessage(result.message);
     } catch (error) {
@@ -210,6 +324,77 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           ) : null}
         </View>
       </View>
+
+      <Card style={styles.card}>
+        <Text style={styles.sectionTitle}>Launch AR</Text>
+        <Text style={styles.copy}>
+          Pick an AR-ready stop, then launch it directly on the iPad. If a 3D model is missing, this build will fall back to a spatial story card instead of doing nothing.
+        </Text>
+        <View style={styles.chips}>
+          <Chip label={selectedTour?.title || "No route"} tone="default" />
+          <Chip
+            label={
+              selectedArExperience?.usesStoryCard
+                ? "Story card AR"
+                : selectedArExperience
+                  ? "3D scene AR"
+                  : "No AR stop selected"
+            }
+            tone={selectedArExperience ? "success" : "warn"}
+          />
+          {Platform.OS === "ios" && nativeArStatus ? (
+            <Chip
+              label={nativeArStatus.sessionRunning ? `Session live · ${nativeArStatus.placedModelCount} placed` : "Ready to launch"}
+              tone={nativeArStatus.sessionRunning ? "success" : nativeArStatus.available ? "default" : "warn"}
+            />
+          ) : null}
+        </View>
+        <View style={styles.featureCallout}>
+          <Text style={styles.label}>Selected AR stop</Text>
+          <Text style={styles.liveTitle}>{selectedArStop?.title || "No AR-ready stop in this route"}</Text>
+          <Text style={styles.copy}>
+            {selectedArExperience?.manifest.summary || "Choose a route with AR-enabled stops to launch a spatial scene here."}
+          </Text>
+          <Text style={styles.meta}>
+            {selectedArExperience
+              ? `${selectedArExperience.manifest.headline} · ${selectedArExperience.manifest.placementNote}`
+              : "The Inventors, Medical Legacy, and Sports tours have the best AR coverage in this build."}
+          </Text>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.routePackRow}>
+          {arStops.map((stop) => {
+            const experience = getArExperienceForStop(stop);
+            const isSelected = stop.id === selectedArStopId;
+            return (
+              <Pressable key={stop.id} onPress={() => onChooseArStop(stop.id)} style={[styles.arStopChip, isSelected && styles.routePackChipActive]}>
+                <Text style={styles.routePackChipEyebrow}>
+                  {experience?.usesStoryCard ? "Story card" : "3D scene"}
+                </Text>
+                <Text style={styles.routePackChipTitle}>{stop.title}</Text>
+                <Text style={styles.routePackChipMeta} numberOfLines={2}>
+                  {experience?.manifest.headline || "AR stop"}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+        <View style={styles.secondaryActionRow}>
+          <View style={styles.launchButtonFlex}>
+            <PrimaryButton
+              label={busy === "launch-ar" ? "Opening AR..." : selectedArExperience?.usesStoryCard ? "Open AR Story Card" : "Launch Native AR"}
+              onPress={() => void launchArForStop()}
+              disabled={busy !== null || !selectedArStop || !nativeArStatus?.available}
+            />
+          </View>
+          <Pressable
+            style={[styles.secondaryActionButton, !nativeArStatus?.sessionRunning ? styles.commandButtonDisabled : null]}
+            onPress={() => void stopArSession()}
+            disabled={busy !== null || !nativeArStatus?.sessionRunning}
+          >
+            <Text style={styles.secondaryActionLabel}>{busy === "stop-ar" ? "Closing..." : "Close AR"}</Text>
+          </Pressable>
+        </View>
+      </Card>
 
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Live now</Text>
@@ -257,7 +442,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
             const isSelected = tour.id === selectedTourId;
             const audioCount = tour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length;
             return (
-              <Pressable key={tour.id} onPress={() => setSelectedTourId(tour.id)} style={[styles.routePackChip, isSelected && styles.routePackChipActive]}>
+              <Pressable key={tour.id} onPress={() => onChooseTour(tour.id)} style={[styles.routePackChip, isSelected && styles.routePackChipActive]}>
                 <Text style={styles.routePackChipEyebrow}>{tour.stops.length} stops</Text>
                 <Text style={styles.routePackChipTitle}>{tour.title}</Text>
                 <Text style={styles.routePackChipMeta}>{audioCount} narrated stops</Text>
@@ -269,8 +454,8 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           <Text style={styles.label}>Companion route state</Text>
           <Text style={styles.value}>{routeProgressLabel}</Text>
           <Text style={styles.meta}>
-            {context?.tour && selectedTour && context.tour.id === selectedTour.id
-              ? `${context.stop?.title || "No active stop"} is active now.`
+            {tourContext?.tour && selectedTour && tourContext.tour.id === selectedTour.id
+              ? `${tourContext.stop?.title || "No active stop"} is active now.`
               : `Opening this pack will start at ${selectedTour?.stops[0]?.title || "the first stop"}.`}
           </Text>
           {!hasPremiumAudio ? (
@@ -289,15 +474,16 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
       <Card style={styles.card}>
         <Text style={styles.sectionTitle}>Playback controls</Text>
         <Text style={styles.copy}>
-          Use these controls to move through the active route pack, replay stop audio, and hand the phone over to AR when the current stop is ready.
+          Use these controls to move through the active route pack, replay stop audio, and open the current stop directly in AR when it is ready.
         </Text>
         <View style={styles.chips}>
-          <Chip label={context?.tour?.title || "No active tour"} tone="default" />
-          <Chip label={context?.stop?.title || "No active stop"} tone="warn" />
-          <Chip label={context?.nextStop?.title || "No next stop"} tone="success" />
+          <Chip label={tourContext?.tour?.title || "No active tour"} tone="default" />
+          <Chip label={tourContext?.stop?.title || "No active stop"} tone="warn" />
+          <Chip label={tourContext?.nextStop?.title || "No next stop"} tone="success" />
+          {currentStopExperience ? <Chip label="AR available here" tone="success" /> : null}
         </View>
         <View style={styles.primaryControlRow}>
-          <Pressable style={[styles.heroActionButton, !context?.tour || context.stopIndex <= 0 ? styles.commandButtonDisabled : null]} onPress={() => void runCommand("previous_stop")} disabled={busy !== null || !context?.tour || context.stopIndex <= 0}>
+          <Pressable style={[styles.heroActionButton, !tourContext?.tour || tourContext.stopIndex <= 0 ? styles.commandButtonDisabled : null]} onPress={() => void runCommand("previous_stop")} disabled={busy !== null || !tourContext?.tour || tourContext.stopIndex <= 0}>
             <Text style={styles.heroActionLabel}>Previous stop</Text>
           </Pressable>
           <Pressable style={[styles.heroActionButton, !selectedTour ? styles.commandButtonDisabled : null]} onPress={() => void onStartSelectedTour()} disabled={busy !== null || !selectedTour}>
@@ -318,11 +504,11 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
             <Text style={styles.commandLabel}>Show stop context</Text>
           </Pressable>
           <Pressable
-            style={[styles.commandButton, !context?.tour || !context?.stop ? styles.commandButtonDisabled : null]}
+            style={[styles.commandButton, !tourContext?.tour || !tourContext?.stop ? styles.commandButtonDisabled : null]}
             onPress={() => void runArHandoff()}
-            disabled={busy !== null || !context?.tour || !context?.stop}
+            disabled={busy !== null || !tourContext?.tour || !tourContext?.stop}
           >
-            <Text style={styles.commandLabel}>Open AR on phone</Text>
+            <Text style={styles.commandLabel}>Launch current stop AR</Text>
           </Pressable>
         </View>
         {lastCommandResult ? (
@@ -495,7 +681,7 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
       width: 220,
       height: 220,
       borderRadius: 999,
-      backgroundColor: "rgba(91, 56, 245, 0.26)",
+      backgroundColor: "rgba(92, 61, 244, 0.2)",
       top: -96,
       right: -70
     },
@@ -504,14 +690,14 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
       width: 180,
       height: 180,
       borderRadius: 999,
-      backgroundColor: "rgba(125, 201, 255, 0.14)",
+      backgroundColor: "rgba(239, 201, 108, 0.14)",
       bottom: -100,
       left: -64
     },
     heroEyebrow: {
-      color: colors.warn,
+      color: colors.olive,
       fontSize: type.font(12),
-      fontWeight: "700",
+      fontWeight: "800",
       textTransform: "uppercase",
       letterSpacing: 1.2
     },
@@ -522,7 +708,8 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
     title: {
       color: colors.text,
       fontSize: type.font(24),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     copy: {
       color: colors.textSoft,
@@ -562,7 +749,8 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
       color: colors.text,
       fontSize: type.font(20),
       fontWeight: "800",
-      lineHeight: type.line(26)
+      lineHeight: type.line(26),
+      fontFamily: headingFontFamily
     },
     liveStatCard: {
       gap: 6,
@@ -618,8 +806,18 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
       gap: 6
     },
     routePackChipActive: {
-      borderColor: colors.info,
-      backgroundColor: colors.surface
+      borderColor: colors.accent,
+      backgroundColor: colors.accentSoft
+    },
+    arStopChip: {
+      width: 244,
+      paddingHorizontal: 14,
+      paddingVertical: 14,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceSoft,
+      gap: 6
     },
     routePackChipEyebrow: {
       color: colors.textMuted,
@@ -630,7 +828,8 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
     routePackChipTitle: {
       color: colors.text,
       fontSize: type.font(15),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     routePackChipMeta: {
       color: colors.textSoft,
@@ -664,6 +863,9 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
       flexDirection: "row",
       gap: 10
     },
+    launchButtonFlex: {
+      flex: 1
+    },
     secondaryActionButton: {
       flex: 1,
       paddingHorizontal: 14,
@@ -683,7 +885,8 @@ function createStyles(colors: AppPalette, type: ReturnType<typeof useTypeScale>)
     sectionTitle: {
       color: colors.text,
       fontSize: type.font(20),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     meta: {
       color: colors.textMuted,

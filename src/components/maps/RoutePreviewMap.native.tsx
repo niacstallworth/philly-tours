@@ -2,7 +2,7 @@ import React from "react";
 import { ImageBackground, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, type LatLng, type Region } from "react-native-maps";
 import type { Tour } from "../../types";
-import { AppPalette, useThemeColors, useTypeScale } from "../../theme/appTheme";
+import { AppPalette, headingFontFamily, useThemeColors, useTypeScale } from "../../theme/appTheme";
 import { getStaticMapUrl } from "../../services/maps";
 
 type Props = {
@@ -309,10 +309,15 @@ function createStyles(
   return StyleSheet.create({
     shell: {
       overflow: "hidden",
-      borderRadius: 22,
+      borderRadius: 26,
       borderWidth: 1,
       borderColor: colors.border,
-      backgroundColor: colors.surfaceRaised
+      backgroundColor: colors.surfaceRaised,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.12,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 12 },
+      elevation: 4
     },
     header: {
       padding: 16,
@@ -332,16 +337,17 @@ function createStyles(
       marginTop: 4,
       color: colors.text,
       fontSize: type.font(20),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     statusPill: {
       borderRadius: 999,
       paddingHorizontal: 12,
       paddingVertical: 8,
-      backgroundColor: colors.surfaceSoft
+      backgroundColor: colors.accentSoft
     },
     statusPillText: {
-      color: colors.text,
+      color: colors.accentDeep,
       fontSize: type.font(11),
       fontWeight: "800"
     },
@@ -378,8 +384,8 @@ function createStyles(
       height: 34,
       borderRadius: 999,
       borderWidth: 1,
-      borderColor: "#fffaf5",
-      backgroundColor: "rgba(23, 32, 38, 0.88)",
+      borderColor: "rgba(255,255,255,0.18)",
+      backgroundColor: "rgba(36, 48, 58, 0.9)",
       alignItems: "center",
       justifyContent: "center"
     },
@@ -399,7 +405,7 @@ function createStyles(
       borderRadius: 999,
       borderWidth: 2,
       borderColor: "#fffaf5",
-      backgroundColor: "#172026",
+      backgroundColor: colors.accentDeep,
       alignItems: "center",
       justifyContent: "center"
     },
@@ -407,8 +413,8 @@ function createStyles(
       width: 38,
       height: 38,
       borderWidth: 3,
-      borderColor: "#b45b3d",
-      backgroundColor: "#f1d1b2"
+      borderColor: colors.gold,
+      backgroundColor: "#fff3d2"
     },
     markerText: {
       color: "#fffaf5",
@@ -416,7 +422,7 @@ function createStyles(
       fontWeight: "800"
     },
     markerTextSelected: {
-      color: "#6b3b2f",
+      color: "#6b4d1e",
       fontSize: type.font(14)
     },
     footer: {

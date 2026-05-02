@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Platform, StyleSheet, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
+import { getSyncServerUrl } from "../../services/syncServerUrl";
 import { AppPalette, useThemeColors, useTypeScale } from "../../theme/appTheme";
 
 type Props = {
@@ -9,8 +10,7 @@ type Props = {
 };
 
 function getChallengeBaseUrl() {
-  const appBase = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return appBase.replace(/\/+$/, "");
+  return getSyncServerUrl();
 }
 
 function buildChallengeUrl(siteKey: string) {

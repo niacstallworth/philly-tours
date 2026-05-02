@@ -7,6 +7,27 @@ export type NativeArStatus = {
   placedModelCount: number;
 };
 
+export type NativeArPlacement = {
+  id: string;
+  modelUrl: string;
+  scale?: number;
+  rotationYDeg?: number;
+  verticalOffsetM?: number;
+  anchorStyle?: string;
+  fallbackType?: string;
+  sitePlacementMode?: string;
+  preferredViewingDistanceM?: number;
+  siteOffsetXM?: number;
+  siteOffsetZM?: number;
+  title?: string;
+  subtitle?: string;
+  headline?: string;
+  summary?: string;
+  placementNote?: string;
+  contentLayers?: string[];
+  productionChecklist?: string[];
+};
+
 type NativeArModule = {
   getStatus(): Promise<NativeArStatus>;
   startSession?(): Promise<void>;
@@ -48,13 +69,7 @@ export async function startNativeArSession(): Promise<void> {
   return nativeArModule.startSession();
 }
 
-export async function placeNativeArModel(placement: {
-  id: string;
-  modelUrl: string;
-  scale?: number;
-  rotationYDeg?: number;
-  verticalOffsetM?: number;
-}): Promise<void> {
+export async function placeNativeArModel(placement: NativeArPlacement): Promise<void> {
   if (!nativeArModule?.placeModel) {
     throw new Error("Native AR model placement is unavailable in this build.");
   }

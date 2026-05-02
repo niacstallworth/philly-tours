@@ -435,6 +435,15 @@ final class PhillyARViewController: UIViewController {
     siteOffsetZM: Float,
     activateCoachingOnFailure: Bool = true
   ) throws -> simd_float4x4 {
+    if anchorStyle == "front_of_user" {
+      return frontOfUserPlacementTransform(
+        cameraTransform: frame.camera.transform,
+        preferredViewingDistanceM: preferredViewingDistanceM,
+        siteOffsetXM: siteOffsetXM,
+        siteOffsetZM: siteOffsetZM
+      )
+    }
+
     let alignment: ARRaycastQuery.TargetAlignment
     switch anchorStyle {
     case "ground":
@@ -591,7 +600,52 @@ final class PhillyARViewController: UIViewController {
     return uprightWorldTransform(from: adjusted, cameraTransform: cameraTransform)
   }
 
+  private func frontOfUserPlacementTransform(
+    cameraTransform: simd_float4x4,
+    preferredViewingDistanceM: Float?,
+    siteOffsetXM: Float,
+    siteOffsetZM: Float
+  ) -> simd_float4x4 {
+    let cameraPosition = SIMD3<Float>(
+      cameraTransform.columns.3.x,
+      cameraTransform.columns.3.y,
+      cameraTransform.columns.3.z
+    )
+
+    var forward = SIMD3<Float>(
+      -cameraTransform.columns.2.x,
+      0,
+      -cameraTransform.columns.2.z
+    )
+
+    if simd_length_squared(forward) < 0.0001 {
+      forward = SIMD3<Float>(0, 0, -1)
+    }
+
+    forward = simd_normalize(forward)
+    let right = simd_normalize(SIMD3<Float>(forward.z, 0, -forward.x))
+    let distance = max(0.65, preferredViewingDistanceM ?? 0.9)
+
+    var targetPosition = cameraPosition + (forward * distance)
+    targetPosition += (right * siteOffsetXM)
+    targetPosition += (forward * siteOffsetZM)
+    targetPosition.y = max(0.12, cameraPosition.y - 0.22)
+
+    var adjusted = matrix_identity_float4x4
+    adjusted.columns.3 = SIMD4<Float>(targetPosition.x, targetPosition.y, targetPosition.z, 1)
+    return uprightWorldTransform(from: adjusted, cameraTransform: cameraTransform)
+  }
+
   private func fallbackPlacementTransform(cameraTransform: simd_float4x4, anchorStyle: String) -> simd_float4x4 {
+    if anchorStyle == "front_of_user" {
+      return frontOfUserPlacementTransform(
+        cameraTransform: cameraTransform,
+        preferredViewingDistanceM: nil,
+        siteOffsetXM: 0,
+        siteOffsetZM: 0
+      )
+    }
+
     var offset = matrix_identity_float4x4
     offset.columns.3.z = anchorStyle == "ground" ? -1.2 : -1.0
     let source = simd_mul(cameraTransform, offset)

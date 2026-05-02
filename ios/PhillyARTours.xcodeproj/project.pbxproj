@@ -16,7 +16,7 @@
 		2AB64DD80F8F4A2DA73F2410 /* PhillyNativeAR.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4D37B92A5D39417EB8ECFD3F /* PhillyNativeAR.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */; };
-		4F62A77D09B640B7A3DB1001 /* PhillyARTours/ARAssets in Resources */ = {isa = PBXBuildFile; fileRef = 4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */; };
+		4F62A77D09B640B7A3DB1001 /* ARAssets in Resources */ = {isa = PBXBuildFile; fileRef = 4F62A77C09B640B7A3DB1001 /* ARAssets */; };
 		500A59858DC61308115345EC /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD0F864B1788E6C51A6EDDE /* ExpoModulesProvider.swift */; };
 		B1AAC3206819EBE0582E08BE /* libPods-PhillyARTours.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BDDF101B2AE11840D415836 /* libPods-PhillyARTours.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -33,7 +33,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PhillyARTours/Info.plist; sourceTree = "<group>"; };
 		1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PhillyNativeAR.m; path = PhillyARTours/PhillyNativeAR.m; sourceTree = "<group>"; };
 		465585F82E1E3BAF2554DE0B /* Pods-PhillyARTours.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.release.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.release.xcconfig"; sourceTree = "<group>"; };
-		4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PhillyARTours/ARAssets; sourceTree = "<group>"; };
+		4F62A77C09B640B7A3DB1001 /* ARAssets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PhillyARTours/ARAssets; sourceTree = "<group>"; };
 		5B9641E3C10325E7974FA90C /* Pods-PhillyARTours.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PhillyARTours.debug.xcconfig"; path = "Target Support Files/Pods-PhillyARTours/Pods-PhillyARTours.debug.xcconfig"; sourceTree = "<group>"; };
 		5D99C5012F8011110021C790 /* PhillyARTours.debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PhillyARTours.debug.xcconfig; path = PhillyARTours.debug.xcconfig; sourceTree = "<group>"; };
 		5D99C5022F8011120021C790 /* PhillyARTours.release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PhillyARTours.release.xcconfig; path = PhillyARTours.release.xcconfig; sourceTree = "<group>"; };
@@ -72,7 +72,7 @@
 				8B29CE59ACCC4B5A931B4813 /* PhillyNativeAR.swift */,
 				1A3BC7E5D4744D95A8D59E47 /* PhillyNativeAR.m */,
 				0F3D1C8B2F778D7A003A7D91 /* PhillyNativeWearables.m */,
-				4F62A77C09B640B7A3DB1001 /* PhillyARTours/ARAssets */,
+				4F62A77C09B640B7A3DB1001 /* ARAssets */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
@@ -226,7 +226,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				C683B35FEC2C478303881DFF /* PrivacyInfo.xcprivacy in Resources */,
-				4F62A77D09B640B7A3DB1001 /* PhillyARTours/ARAssets in Resources */,
+				4F62A77D09B640B7A3DB1001 /* ARAssets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -505,7 +505,10 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -560,7 +563,10 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

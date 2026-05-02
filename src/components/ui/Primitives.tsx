@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { radius } from "../../theme/tokens";
-import { ThemeSurface, useButtonTheme, useThemeColors, useTypeScale } from "../../theme/appTheme";
+import { ThemeSurface, headingFontFamily, useButtonTheme, useThemeColors, useTypeScale } from "../../theme/appTheme";
 
 type CardProps = {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export function Card({ children, style }: CardProps) {
       style={[
         styles.card,
         {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.surfaceRaised,
           borderColor: colors.border,
           shadowColor: colors.shadow
         },
@@ -42,7 +42,7 @@ export function Chip({ label, tone = "default" }: ChipProps) {
         ? { backgroundColor: colors.warnSoft, color: colors.warn }
         : tone === "danger"
           ? { backgroundColor: colors.dangerSoft, color: colors.danger }
-          : { backgroundColor: colors.surfaceSoft, color: colors.textSoft };
+          : { backgroundColor: colors.accentSoft, color: colors.accentDeep };
 
   return <Text style={[styles.chip, toneStyle, { fontSize: type.font(11) }]}>{label}</Text>;
 }
@@ -63,7 +63,8 @@ export function PrimaryButton({ label, onPress, disabled, surface }: PrimaryButt
         styles.button,
         {
           backgroundColor: buttonTheme.background,
-          shadowColor: buttonTheme.shadow
+          shadowColor: buttonTheme.shadow,
+          borderColor: "rgba(255,255,255,0.14)"
         },
         disabled && styles.buttonDisabled
       ]}
@@ -91,9 +92,9 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 20,
     gap: 12,
-    shadowOpacity: 0.16,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 12 },
     elevation: 4
   },
   chip: {
@@ -106,6 +107,7 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 18,
+    borderWidth: 1,
     minHeight: 54,
     paddingVertical: 14,
     paddingHorizontal: 18,
@@ -125,5 +127,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: "800",
+    fontFamily: headingFontFamily
   }
 });

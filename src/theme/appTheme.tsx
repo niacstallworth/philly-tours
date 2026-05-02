@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
-import { useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 
 export type ThemeSurface = "default" | "login" | "home" | "map" | "hunt" | "profile" | "builder";
 export type ThemePresetId = "rose" | "gold" | "ocean" | "jade";
@@ -27,6 +27,11 @@ export type AppPalette = {
   surface: string;
   surfaceSoft: string;
   surfaceRaised: string;
+  accent: string;
+  accentDeep: string;
+  accentSoft: string;
+  olive: string;
+  gold: string;
   border: string;
   borderStrong: string;
   text: string;
@@ -76,34 +81,39 @@ type AppThemeContextValue = {
 const APP_THEME_STORAGE_KEY = "app.theme.settings";
 const DEFAULT_APPEARANCE_MODE: AppAppearanceMode = "light";
 const DEFAULT_SURFACE: ThemeSurface = "default";
+export const headingFontFamily = Platform.select({
+  ios: "Georgia",
+  android: "serif",
+  default: undefined
+});
 const LOGIN_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#5b38f5",
-  foreground: "#fff8f3",
-  shadow: "#5b38f5"
+  background: "#1f4e8c",
+  foreground: "#fffaf5",
+  shadow: "#143766"
 };
 
 const HOME_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#5b38f5",
-  foreground: "#fff8f3",
-  shadow: "#5b38f5"
+  background: "#1f4e8c",
+  foreground: "#fffaf5",
+  shadow: "#143766"
 };
 
 const MAP_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#6a49ff",
-  foreground: "#fff8f3",
-  shadow: "#6a49ff"
+  background: "#0b6e4f",
+  foreground: "#fffaf5",
+  shadow: "#24303a"
 };
 
 const HUNT_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#23134a",
-  foreground: "#fff8f3",
-  shadow: "#23134a"
+  background: "#24303a",
+  foreground: "#fffaf5",
+  shadow: "#24303a"
 };
 
 const PROFILE_BUTTON_THEME: ButtonSurfaceTheme = {
-  background: "#5b38f5",
-  foreground: "#fff8f3",
-  shadow: "#5b38f5"
+  background: "#efc96c",
+  foreground: "#2e2410",
+  shadow: "#b59039"
 };
 
 const THEME_SURFACES: ThemeSurface[] = ["default", "login", "home", "map", "hunt", "profile", "builder"];
@@ -116,104 +126,114 @@ const TEXT_SCALE_MULTIPLIERS: Record<AppTextScale, number> = {
 };
 
 const lightPalette: AppPalette = {
-  background: "#f4f7fb",
-  backgroundElevated: "#ffffff",
-  surface: "#ffffff",
-  surfaceSoft: "#eef4fb",
-  surfaceRaised: "#f8fbff",
-  border: "rgba(15, 23, 42, 0.08)",
-  borderStrong: "rgba(15, 23, 42, 0.14)",
-  text: "#0f172a",
-  textSoft: "#334155",
-  textMuted: "#64748b",
-  inputBackground: "#f8fbff",
-  inputBorder: "rgba(15, 23, 42, 0.12)",
-  headerBackground: "#f8fbff",
-  headerBorder: "rgba(15, 23, 42, 0.08)",
-  navBackground: "rgba(255,255,255,0.96)",
-  navBorder: "rgba(15, 23, 42, 0.1)",
-  navText: "#64748b",
-  navTextActive: "#0f172a",
-  shadow: "#0f172a",
-  success: "#15803d",
-  successSoft: "rgba(21,128,61,0.1)",
-  warn: "#b45309",
-  warnSoft: "rgba(180,83,9,0.1)",
-  danger: "#dc2626",
-  dangerSoft: "rgba(220,38,38,0.1)",
-  info: "#0284c7",
-  infoSoft: "rgba(2,132,199,0.1)"
+  background: "#f5f7fb",
+  backgroundElevated: "rgba(255,255,255,0.96)",
+  surface: "rgba(255,255,255,0.9)",
+  surfaceSoft: "#eef2f7",
+  surfaceRaised: "rgba(255,255,255,0.96)",
+  accent: "#1f4e8c",
+  accentDeep: "#143766",
+  accentSoft: "#dbe7fb",
+  olive: "#0b6e4f",
+  gold: "#efc96c",
+  border: "rgba(36, 48, 58, 0.1)",
+  borderStrong: "rgba(36, 48, 58, 0.16)",
+  text: "#24303a",
+  textSoft: "#43515f",
+  textMuted: "#697583",
+  inputBackground: "rgba(255,255,255,0.96)",
+  inputBorder: "rgba(36, 48, 58, 0.12)",
+  headerBackground: "rgba(255,255,255,0.88)",
+  headerBorder: "rgba(36, 48, 58, 0.08)",
+  navBackground: "rgba(255,255,255,0.94)",
+  navBorder: "rgba(36, 48, 58, 0.08)",
+  navText: "#697583",
+  navTextActive: "#24303a",
+  shadow: "#374351",
+  success: "#0b6e4f",
+  successSoft: "rgba(11,110,79,0.12)",
+  warn: "#b59039",
+  warnSoft: "rgba(239,201,108,0.22)",
+  danger: "#c45a64",
+  dangerSoft: "rgba(196,90,100,0.12)",
+  info: "#1f4e8c",
+  infoSoft: "rgba(31,78,140,0.14)"
 };
 
 const darkPalette: AppPalette = {
-  background: "#060312",
-  backgroundElevated: "#130a25",
-  surface: "#120a22",
-  surfaceSoft: "#1b102d",
-  surfaceRaised: "#24112c",
+  background: "#101522",
+  backgroundElevated: "rgba(24,35,58,0.92)",
+  surface: "rgba(24,35,58,0.92)",
+  surfaceSoft: "#18233a",
+  surfaceRaised: "#22304c",
+  accent: "#4f7fc1",
+  accentDeep: "#1f4e8c",
+  accentSoft: "rgba(31,78,140,0.24)",
+  olive: "#4ca37d",
+  gold: "#efc96c",
   border: "rgba(255,255,255,0.08)",
-  borderStrong: "rgba(255,255,255,0.14)",
-  text: "#fff3ea",
-  textSoft: "#e6d8e8",
-  textMuted: "#b69fbe",
-  inputBackground: "#1b102d",
-  inputBorder: "rgba(255,255,255,0.08)",
-  headerBackground: "#020617",
-  headerBorder: "#1f2937",
-  navBackground: "rgba(18, 12, 33, 0.94)",
-  navBorder: "rgba(226, 184, 135, 0.16)",
-  navText: "#bdaecf",
-  navTextActive: "#fff6ee",
+  borderStrong: "rgba(255,255,255,0.16)",
+  text: "#f8f6f0",
+  textSoft: "#d9deea",
+  textMuted: "#a8b2c5",
+  inputBackground: "#18233a",
+  inputBorder: "rgba(255,255,255,0.1)",
+  headerBackground: "rgba(16,21,34,0.96)",
+  headerBorder: "rgba(255,255,255,0.08)",
+  navBackground: "rgba(16,21,34,0.96)",
+  navBorder: "rgba(255,255,255,0.08)",
+  navText: "#a8b2c5",
+  navTextActive: "#f8f6f0",
   shadow: "#000000",
-  success: "#8fd7c3",
-  successSoft: "rgba(143,215,195,0.18)",
-  warn: "#ffbc8a",
-  warnSoft: "rgba(255,188,138,0.18)",
-  danger: "#ff8ca8",
-  dangerSoft: "rgba(255,140,168,0.18)",
-  info: "#7dc9ff",
-  infoSoft: "rgba(125,201,255,0.18)"
+  success: "#6fc2a0",
+  successSoft: "rgba(11,110,79,0.24)",
+  warn: "#efc96c",
+  warnSoft: "rgba(239,201,108,0.16)",
+  danger: "#f08a8a",
+  dangerSoft: "rgba(240,138,138,0.16)",
+  info: "#4f7fc1",
+  infoSoft: "rgba(79,127,193,0.22)"
 };
 
 export const themePresets: ThemePreset[] = [
   {
     id: "rose",
-    label: "Rose Studio",
-    description: "Soft gallery pink for the current presentation look.",
+    label: "Pennsylvania Blue",
+    description: "Civic blue primary for the Philly Tours native app.",
     accent: {
-      background: "#ff8ca8",
-      foreground: "#2b1021",
-      shadow: "#ff8ca8"
+      background: "#1f4e8c",
+      foreground: "#fffaf5",
+      shadow: "#143766"
     }
   },
   {
     id: "gold",
-    label: "Old Gold",
-    description: "Warmer civic gold for a classic museum tone.",
+    label: "Charter Gold",
+    description: "Gold CTA variant for civic highlights and map-side actions.",
     accent: {
-      background: "#ffbc8a",
-      foreground: "#2b1506",
-      shadow: "#ffbc8a"
+      background: "#efc96c",
+      foreground: "#2e2410",
+      shadow: "#b59039"
     }
   },
   {
     id: "ocean",
-    label: "River Blue",
-    description: "Cool blue for a cleaner, more technical feel.",
+    label: "Statehouse Blue",
+    description: "Deeper Pennsylvania blue for route surfaces and navigation-heavy moments.",
     accent: {
-      background: "#7dc9ff",
-      foreground: "#071c2b",
-      shadow: "#7dc9ff"
+      background: "#243552",
+      foreground: "#fffaf5",
+      shadow: "#18233a"
     }
   },
   {
     id: "jade",
-    label: "Emerald Glow",
-    description: "Fresh green with a quieter builder-lab mood.",
+    label: "Kelly Green",
+    description: "Philadelphia Kelly Green accent for AR, route, and heritage cues.",
     accent: {
-      background: "#8fd7c3",
-      foreground: "#0d211b",
-      shadow: "#8fd7c3"
+      background: "#0b6e4f",
+      foreground: "#fffaf5",
+      shadow: "#24303a"
     }
   }
 ];

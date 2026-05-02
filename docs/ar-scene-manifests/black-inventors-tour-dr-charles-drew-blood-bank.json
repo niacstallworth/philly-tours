@@ -4,31 +4,31 @@
   "tourId": "black-inventors-tour",
   "tourTitle": "Black Inventors Tour",
   "arPriority": 3,
-  "arType": "animated_diagram",
-  "assetStatus": "in_production",
-  "headline": "Animated explainer scene",
-  "summary": "blood plasma storage explainer; medical card set; tubing sequence",
+  "arType": "floating_story_card",
+  "assetStatus": "ready",
+  "headline": "Editorial AR story card",
+  "summary": "blood plasma timeline; archival hospital context; anti-segregation story card",
   "historicalEra": "20th century medical innovation",
-  "stylePreset": "documentary",
+  "stylePreset": "museum_card",
   "visualPriority": "readability",
   "placementNote": "Place the scene directly in front of the visitor at a safe standing distance within the 40m trigger zone.",
   "runtimeAssets": {
-    "ios": "/models/dr-charles-drew-blood-bank.usdz",
-    "android": "/models/dr-charles-drew-blood-bank.glb",
-    "web": "/models/dr-charles-drew-blood-bank.glb"
+    "ios": "/cards/dr-charles-drew-blood-bank.storycard",
+    "android": "/cards/dr-charles-drew-blood-bank.storycard",
+    "web": "/cards/dr-charles-drew-blood-bank.storycard"
   },
   "contentLayers": [
-    "blood plasma storage explainer",
-    "medical card set",
-    "tubing sequence",
-    "primary mechanism",
-    "step labels",
-    "motion sequence overlays"
+    "blood plasma timeline",
+    "archival hospital context",
+    "anti-segregation story card",
+    "story card stack",
+    "headline frame",
+    "lightweight foreground treatment"
   ],
   "productionChecklist": [
-    "Approve mechanism breakdown",
-    "Check animation step order",
-    "Verify label legibility"
+    "Check card readability",
+    "Trim background clutter",
+    "Validate mobile-safe margins"
   ],
-  "negativePrompt": "messy composition, extra parts, abstract background noise, unreadable labels"
+  "negativePrompt": "messy composition, abstract medical props, unreadable labels, speculative equipment detail"
 }

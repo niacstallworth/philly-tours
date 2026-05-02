@@ -9,7 +9,7 @@ import { ProfileScreen } from "../screens/ProfileScreen";
 import { HandoffTarget } from "../services/deepLinks";
 import { ensureMediaButtonsStarted, stopMediaButtons } from "../services/mediaButtons";
 import { dismissScavengerReveal, ensureScavengerHuntCollectorStarted, getScavengerHuntSnapshot, getScavengerTokenById, subscribeToScavengerHunt } from "../services/scavengerHunt";
-import { ThemeSurfaceProvider, useThemeColors, useTypeScale } from "../theme/appTheme";
+import { ThemeSurfaceProvider, headingFontFamily, useThemeColors, useTypeScale } from "../theme/appTheme";
 
 type SessionInfo = {
   displayName: string;
@@ -47,7 +47,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
   }, []);
 
   React.useEffect(() => {
-    if (!handoffTarget) {
+    if (!handoffTarget || handoffTarget.mode !== "arrive") {
       return;
     }
     setTab("Compass");
@@ -145,7 +145,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
         </Pressable>
       ) : null}
       <View style={[styles.tabShell, { backgroundColor: "transparent" }]}>
-        <View style={[styles.tabBar, { backgroundColor: "rgba(255,255,255,0.96)", borderColor: "rgba(15, 23, 42, 0.08)", shadowColor: colors.shadow }]}>
+        <View style={[styles.tabBar, { backgroundColor: colors.navBackground, borderColor: colors.navBorder, shadowColor: colors.shadow }]}>
           {tabs.map((item) => (
             <Pressable
               key={item.key}
@@ -153,13 +153,13 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
               style={[
                 styles.tabItem,
                 tab === item.key && styles.tabItemActive,
-                { backgroundColor: tab === item.key ? "#4f2df5" : "transparent" }
+                { backgroundColor: tab === item.key ? colors.accent : "transparent" }
               ]}
             >
               <Text
                 style={[
                   styles.tabGlyph,
-                  { color: tab === item.key ? "#fff8f3" : "#64748b", fontSize: type.font(18) }
+                  { color: tab === item.key ? "#fffaf5" : colors.navText, fontSize: type.font(18) }
                 ]}
               >
                 {item.glyph}
@@ -167,7 +167,7 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
               <Text
                 style={[
                   styles.tabText,
-                  { color: tab === item.key ? "#fff8f3" : "#64748b", fontSize: type.font(11) }
+                  { color: tab === item.key ? "#fffaf5" : colors.navText, fontSize: type.font(11) }
                 ]}
               >
                 {item.label}
@@ -220,7 +220,8 @@ function createStyles(
     revealTitle: {
       marginTop: 6,
       fontSize: type.font(17),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     revealCopy: {
       marginTop: 6,
@@ -250,7 +251,7 @@ function createStyles(
       paddingHorizontal: 8
     },
     tabItemActive: {
-      shadowColor: "#5b38f5",
+      shadowColor: colors.accentDeep,
       shadowOpacity: 0.24,
       shadowRadius: 18,
       shadowOffset: { width: 0, height: 10 },
@@ -261,7 +262,8 @@ function createStyles(
     },
     tabText: {
       fontWeight: "800",
-      letterSpacing: 0.2
+      letterSpacing: 0.2,
+      fontFamily: headingFontFamily
     }
   });
 }

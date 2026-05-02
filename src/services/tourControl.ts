@@ -8,14 +8,26 @@ type TourSelection = {
   stopId: string | null;
 };
 
+type TourSelectionListener = (
+  selection: TourSelection,
+  context: ReturnType<typeof getCurrentTourContext>
+) => void;
+
 let currentSelection: TourSelection = {
   tourId: tours[0]?.id || null,
   stopId: tours[0]?.stops[0]?.id || null
 };
+const selectionListeners = new Set<TourSelectionListener>();
+
+function emitSelection() {
+  const context = getCurrentTourContext();
+  selectionListeners.forEach((listener) => listener(currentSelection, context));
+}
 
 export function setCurrentTourSelection(tourId: string | null, stopId: string | null) {
   currentSelection = { tourId, stopId };
   recordStopOpened(stopId);
+  emitSelection();
 }
 
 export function getCurrentTourSelection() {
@@ -60,4 +72,12 @@ export function openTourStopOnPhone(tourId: string, stopId: string, mode: Handof
     stopId,
     mode
   });
+}
+
+export function subscribeToTourSelection(listener: TourSelectionListener) {
+  selectionListeners.add(listener);
+  listener(currentSelection, getCurrentTourContext());
+  return () => {
+    selectionListeners.delete(listener);
+  };
 }

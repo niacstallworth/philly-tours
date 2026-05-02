@@ -1,4 +1,5 @@
 ﻿import { io, Socket } from "socket.io-client";
+import { getSyncServerUrl } from "./syncServerUrl";
 
 export type SyncEvent =
   | { type: "spawn"; sessionId: string; objectId: string; modelUrl: string }
@@ -107,5 +108,5 @@ export class RealtimeSync {
 }
 
 export function createRealtimeSyncFromEnv() {
-  return new RealtimeSync(process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000");
+  return new RealtimeSync(getSyncServerUrl());
 }

@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { AppMode } from "../screens/OnboardingScreen";
+import { getSyncServerUrl } from "./syncServerUrl";
 
 export type AuthenticatedSession = {
   displayName: string;
@@ -16,8 +17,7 @@ let authToken: string | null = null;
 export type OAuthProvider = "google" | "apple";
 
 function getServerUrl() {
-  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return base.replace(/\/+$/, "");
+  return getSyncServerUrl();
 }
 
 function toApiError(error: unknown, fallbackMessage: string) {

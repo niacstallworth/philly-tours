@@ -6,7 +6,7 @@ import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { setCurrentTourSelection } from "../services/tourControl";
 import { getPhiladelphiaCurrentWeather, type CurrentWeather } from "../services/weather";
-import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
+import { AppPalette, headingFontFamily, useThemeColors, useTypeScale } from "../theme/appTheme";
 import { TourDetailScreen } from "./TourDetailScreen";
 
 type Props = {
@@ -299,10 +299,10 @@ export function HomeScreen({
           const firstStop = tour.stops[0];
           const mediaUrl = buildTourCardMediaUrl(tour.cardMedia?.src);
           const accentPairs = [
-            ["#5d42ff", "#a68eff"],
-            ["#ff8b5c", "#ffd38b"],
-            ["#1e2a68", "#6aa5ff"],
-            ["#6c1f52", "#ff7db6"]
+            [colors.accentDeep, colors.accent],
+            [colors.olive, colors.gold],
+            ["#243552", "#6f88b0"],
+            ["#54422a", colors.gold]
           ] as const;
           const [accent, glow] = accentPairs[index % accentPairs.length];
           return (
@@ -471,14 +471,19 @@ function createStyles(
       gap: 12,
       backgroundColor: colors.headerBackground,
       borderWidth: 1,
-      borderColor: colors.border
+      borderColor: colors.border,
+      shadowColor: colors.shadow,
+      shadowOpacity: 0.12,
+      shadowRadius: 22,
+      shadowOffset: { width: 0, height: 14 },
+      elevation: 4
     },
     heroGlowPrimary: {
       position: "absolute",
       width: 240,
       height: 240,
       borderRadius: 999,
-      backgroundColor: "rgba(91, 56, 245, 0.28)",
+      backgroundColor: "rgba(92, 61, 244, 0.22)",
       top: -96,
       right: -72
     },
@@ -487,14 +492,14 @@ function createStyles(
       width: 220,
       height: 220,
       borderRadius: 999,
-      backgroundColor: "rgba(255, 188, 138, 0.16)",
+      backgroundColor: "rgba(239, 201, 108, 0.16)",
       bottom: -120,
       left: -84
     },
     heroEyebrow: {
-      color: colors.warn,
+      color: colors.olive,
       fontSize: type.font(12),
-      fontWeight: "700",
+      fontWeight: "800",
       textTransform: "uppercase",
       letterSpacing: 1.2
     },
@@ -502,7 +507,8 @@ function createStyles(
       color: colors.text,
       fontSize: type.font(34),
       lineHeight: type.line(40),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     heroCopy: {
       color: colors.textSoft,
@@ -528,7 +534,8 @@ function createStyles(
     welcomeTitle: {
       color: colors.text,
       fontSize: type.font(22),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     weatherWidget: {
       flexDirection: "row",
@@ -591,7 +598,8 @@ function createStyles(
       color: colors.text,
       fontSize: type.font(26),
       lineHeight: type.line(31),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     handoffAddress: {
       color: colors.warn,
@@ -621,7 +629,8 @@ function createStyles(
     sectionTitle: {
       color: colors.text,
       fontSize: type.font(22),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     sectionMeta: {
       color: colors.textMuted,
@@ -635,10 +644,10 @@ function createStyles(
     },
     packRouteCard: {
       overflow: "hidden",
-      borderRadius: 22,
+      borderRadius: 26,
       borderWidth: 1,
-      borderColor: "rgba(129, 140, 248, 0.14)",
-      backgroundColor: "#ffffff",
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceRaised,
       shadowColor: colors.shadow,
       shadowOpacity: 0.08,
       shadowRadius: 20,
@@ -646,7 +655,7 @@ function createStyles(
       elevation: 4
     },
     packRouteCardActive: {
-      borderColor: "rgba(92, 69, 255, 0.24)",
+      borderColor: "rgba(92, 61, 244, 0.26)",
       shadowOpacity: 0.18
     },
     packRouteMedia: {
@@ -698,7 +707,7 @@ function createStyles(
       backgroundColor: "rgba(255,255,255,0.92)"
     },
     packRoutePillText: {
-      color: "#0f172a",
+      color: colors.text,
       fontSize: type.font(11),
       fontWeight: "800"
     },
@@ -718,7 +727,8 @@ function createStyles(
       color: "#ffffff",
       fontSize: type.font(24),
       lineHeight: type.line(28),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     packRouteInlineMeta: {
       marginTop: 8,
@@ -749,13 +759,14 @@ function createStyles(
       borderColor: colors.border
     },
     packCardActive: {
-      borderColor: "#007eff",
-      backgroundColor: colors.surfaceSoft
+      borderColor: colors.accent,
+      backgroundColor: colors.accentSoft
     },
     packTitle: {
       color: colors.text,
       fontSize: type.font(19),
-      fontWeight: "800"
+      fontWeight: "800",
+      fontFamily: headingFontFamily
     },
     packTitleActive: {
       color: colors.text
@@ -790,12 +801,12 @@ function createStyles(
       width: 30,
       height: 30,
       borderRadius: 999,
-      backgroundColor: colors.surfaceSoft,
+      backgroundColor: colors.accentSoft,
       alignItems: "center",
       justifyContent: "center"
     },
     routeIndexText: {
-      color: colors.text,
+      color: colors.accentDeep,
       fontWeight: "800",
       fontSize: type.font(13)
     },
@@ -806,7 +817,8 @@ function createStyles(
     routeTitle: {
       color: colors.text,
       fontSize: type.font(16),
-      fontWeight: "700"
+      fontWeight: "700",
+      fontFamily: headingFontFamily
     },
     routeAddress: {
       color: colors.warn,

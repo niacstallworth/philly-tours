@@ -1,4 +1,5 @@
 import { getAuthHeaders } from "./auth";
+import { getSyncServerUrl } from "./syncServerUrl";
 
 export type CurrentWeather = {
   provider: "google_weather" | "open_meteo";
@@ -33,8 +34,7 @@ const PHILADELPHIA_CENTER = {
 };
 
 function getServerUrl() {
-  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return base.replace(/\/+$/, "");
+  return getSyncServerUrl();
 }
 
 function toApiError(error: unknown, fallbackMessage: string) {

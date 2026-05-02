@@ -1,4 +1,5 @@
 ﻿import { getAuthHeaders } from "./auth";
+import { getSyncServerUrl as getResolvedSyncServerUrl } from "./syncServerUrl";
 
 export type PaymentIntentRequest = {
   amount: number;
@@ -76,8 +77,7 @@ export function setApiUserId(userId: string) {
 }
 
 function getServerUrl() {
-  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return base.replace(/\/+$/, "");
+  return getResolvedSyncServerUrl();
 }
 
 export function getSyncServerUrl() {
