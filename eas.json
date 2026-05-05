@@ -8,14 +8,16 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_SYNC_SERVER_URL": "http://10.0.0.139:4000",
+        "EXPO_PUBLIC_SYNC_SERVER_URL": "https://api.philly-tours.com",
+        "EXPO_PUBLIC_WEB_SYNC_SERVER_URL": "https://api.philly-tours.com",
         "EXPO_PUBLIC_APP_SCHEME": "phillyartours"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_SYNC_SERVER_URL": "http://10.0.0.139:4000",
+        "EXPO_PUBLIC_SYNC_SERVER_URL": "https://api.philly-tours.com",
+        "EXPO_PUBLIC_WEB_SYNC_SERVER_URL": "https://api.philly-tours.com",
         "EXPO_PUBLIC_APP_SCHEME": "phillyartours"
       }
     },
