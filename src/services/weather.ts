@@ -1,3 +1,4 @@
+import { getSyncServerUrl } from "../config/runtime";
 import { getAuthHeaders } from "./auth";
 
 export type CurrentWeather = {
@@ -32,16 +33,11 @@ const PHILADELPHIA_CENTER = {
   lng: -75.1652
 };
 
-function getServerUrl() {
-  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return base.replace(/\/+$/, "");
-}
-
 function toApiError(error: unknown, fallbackMessage: string) {
   const asError = error as Error | undefined;
   const message = (asError?.message || "").toLowerCase();
   if (message.includes("network request failed") || message.includes("failed to fetch")) {
-    return new Error(`${fallbackMessage} (sync server unreachable at ${getServerUrl()})`);
+    return new Error(`${fallbackMessage} (sync server unreachable at ${getSyncServerUrl()})`);
   }
   return new Error(asError?.message || fallbackMessage);
 }
@@ -56,7 +52,7 @@ export async function getPhiladelphiaCurrentWeather() {
 
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/weather/current?${query.toString()}`, {
+    response = await fetch(`${getSyncServerUrl()}/api/weather/current?${query.toString()}`, {
       method: "GET",
       headers: getAuthHeaders()
     });

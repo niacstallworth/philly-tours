@@ -236,6 +236,8 @@ npm run stripe:listen
 
 Development builds can read `EXPO_PUBLIC_SYNC_SERVER_URL` from local `.env`.
 
+If `EXPO_PUBLIC_SYNC_SERVER_URL` is missing, the app now falls back to `http://localhost:4000` only in local dev runtimes and otherwise defaults to `https://api.philly-tours.com` to keep preview/release-style builds off stale LAN addresses.
+
 For local backend work, keep server-only secrets in `server.local.env` or `.env.server`.
 The sync server and webapp data builder load those before `.env`, so client-safe `EXPO_PUBLIC_*` values can stay in `.env` without mixing in private server credentials.
 

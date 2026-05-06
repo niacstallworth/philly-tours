@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { AppMode } from "../screens/OnboardingScreen";
+import { getSyncServerUrl } from "../config/runtime";
 
 export type AuthenticatedSession = {
   displayName: string;
@@ -15,16 +16,11 @@ let authToken: string | null = null;
 
 export type OAuthProvider = "google" | "apple";
 
-function getServerUrl() {
-  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return base.replace(/\/+$/, "");
-}
-
 function toApiError(error: unknown, fallbackMessage: string) {
   const asError = error as Error | undefined;
   const message = (asError?.message || "").toLowerCase();
   if (message.includes("network request failed") || message.includes("failed to fetch")) {
-    return new Error(`${fallbackMessage} (sync server unreachable at ${getServerUrl()})`);
+    return new Error(`${fallbackMessage} (sync server unreachable at ${getSyncServerUrl()})`);
   }
   return new Error(asError?.message || fallbackMessage);
 }
@@ -59,7 +55,7 @@ export async function createAuthenticatedSession(payload: {
 }): Promise<AuthenticatedSession> {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/auth/session`, {
+    response = await fetch(`${getSyncServerUrl()}/api/auth/session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -101,7 +97,7 @@ export async function createOAuthAuthenticatedSession(payload: {
 }): Promise<AuthenticatedSession> {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/auth/oauth-session`, {
+    response = await fetch(`${getSyncServerUrl()}/api/auth/oauth-session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -140,7 +136,7 @@ export async function createOAuthAuthenticatedSession(payload: {
 export async function validateAuthenticatedSession(token: string): Promise<AuthenticatedSession> {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/auth/session`, {
+    response = await fetch(`${getSyncServerUrl()}/api/auth/session`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`

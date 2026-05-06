@@ -1,4 +1,5 @@
-﻿import { getAuthHeaders } from "./auth";
+﻿import { getSyncServerUrl as resolveSyncServerUrl } from "../config/runtime";
+import { getAuthHeaders } from "./auth";
 
 export type PaymentIntentRequest = {
   amount: number;
@@ -75,20 +76,15 @@ export function setApiUserId(userId: string) {
   apiUserId = userId.trim() || "demo-user";
 }
 
-function getServerUrl() {
-  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return base.replace(/\/+$/, "");
-}
-
 export function getSyncServerUrl() {
-  return getServerUrl();
+  return resolveSyncServerUrl();
 }
 
 function toApiError(error: unknown, fallbackMessage: string) {
   const asError = error as Error | undefined;
   const message = (asError?.message || "").toLowerCase();
   if (message.includes("network request failed") || message.includes("failed to fetch")) {
-    return new Error(`${fallbackMessage} (sync server unreachable at ${getServerUrl()})`);
+    return new Error(`${fallbackMessage} (sync server unreachable at ${getSyncServerUrl()})`);
   }
   return new Error(asError?.message || fallbackMessage);
 }
@@ -96,7 +92,7 @@ function toApiError(error: unknown, fallbackMessage: string) {
 async function postJson<T>(path: string, body: Record<string, unknown>): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}${path}`, {
+    response = await fetch(`${getSyncServerUrl()}${path}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -141,7 +137,7 @@ export async function verifyIapPurchase(request: VerifyIapPurchaseRequest) {
 export async function getEntitlements() {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/entitlements`, {
+    response = await fetch(`${getSyncServerUrl()}/api/entitlements`, {
       method: "GET",
       headers: {
         "x-user-id": apiUserId,
@@ -162,7 +158,7 @@ export async function getEntitlements() {
 export async function getOrders(limit = 10) {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/orders?limit=${Math.max(1, Math.min(limit, 100))}`, {
+    response = await fetch(`${getSyncServerUrl()}/api/orders?limit=${Math.max(1, Math.min(limit, 100))}`, {
       method: "GET",
       headers: {
         "x-user-id": apiUserId,
@@ -183,7 +179,7 @@ export async function getOrders(limit = 10) {
 export async function getProviderEvents(limit = 10) {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/provider-events?limit=${Math.max(1, Math.min(limit, 100))}`, {
+    response = await fetch(`${getSyncServerUrl()}/api/provider-events?limit=${Math.max(1, Math.min(limit, 100))}`, {
       method: "GET",
       headers: {
         ...getAuthHeaders()
@@ -203,7 +199,7 @@ export async function getProviderEvents(limit = 10) {
 export async function getBackendConfigStatus() {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}/api/config/status`, { method: "GET" });
+    response = await fetch(`${getSyncServerUrl()}/api/config/status`, { method: "GET" });
   } catch (error) {
     throw toApiError(error, "Unable to load backend status.");
   }
@@ -231,7 +227,7 @@ export async function subscribeToNewsletter(payload: { email?: string; displayNa
 async function adminJson<T>(path: string, init: RequestInit) {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}${path}`, {
+    response = await fetch(`${getSyncServerUrl()}${path}`, {
       ...init,
       headers: {
         ...(init.headers || {}),

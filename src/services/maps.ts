@@ -1,3 +1,4 @@
+import { getSyncServerUrl } from "../config/runtime";
 import { getAuthHeaders } from "./auth";
 
 export type LatLngLiteral = {
@@ -91,16 +92,11 @@ export type GeocodeRequest =
       region?: string;
     };
 
-function getServerUrl() {
-  const base = (process.env.EXPO_PUBLIC_SYNC_SERVER_URL || "http://localhost:4000").trim();
-  return base.replace(/\/+$/, "");
-}
-
 function toApiError(error: unknown, fallbackMessage: string) {
   const asError = error as Error | undefined;
   const message = (asError?.message || "").toLowerCase();
   if (message.includes("network request failed") || message.includes("failed to fetch")) {
-    return new Error(`${fallbackMessage} (sync server unreachable at ${getServerUrl()})`);
+    return new Error(`${fallbackMessage} (sync server unreachable at ${getSyncServerUrl()})`);
   }
   return new Error(asError?.message || fallbackMessage);
 }
@@ -108,7 +104,7 @@ function toApiError(error: unknown, fallbackMessage: string) {
 async function postJson<T>(path: string, body: Record<string, unknown>, fallbackMessage: string): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${getServerUrl()}${path}`, {
+    response = await fetch(`${getSyncServerUrl()}${path}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -150,7 +146,7 @@ export function getStaticMapUrl(coordinates: LatLngLiteral[], viewport?: StaticM
     });
   }
 
-  return `${getServerUrl()}/api/maps/static-map?${query.toString()}`;
+  return `${getSyncServerUrl()}/api/maps/static-map?${query.toString()}`;
 }
 
 export async function searchPlaces(request: PlaceSearchRequest) {
