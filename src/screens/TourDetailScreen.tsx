@@ -14,7 +14,7 @@ type Props = {
   audioHistoryOnlyUnlocked?: boolean;
   fullAppUnlocked?: boolean;
   onBack: () => void;
-  onOpenPurchase?: () => void;
+  onOpenPurchase?: (context?: { tourId?: string; tourTitle?: string; stopId?: string; source?: "home" | "tour_detail" }) => void;
 };
 
 function buildTourCardMediaUrl(src?: string) {
@@ -63,6 +63,26 @@ function getCoverageMeta(coverage: NarrationCoverage) {
     default:
       return { label: "Basic voice", tone: "default" as const };
   }
+}
+
+function getTourAccessLabel(tour: Tour) {
+  if (tour.isAccessible) {
+    return { label: "Unlocked", tone: "success" as const };
+  }
+  if (tour.previewOnly || tour.requiredPlanId) {
+    return { label: "Preview", tone: "warn" as const };
+  }
+  return { label: "Open", tone: "default" as const };
+}
+
+function getTourAccessCopy(tour: Tour) {
+  if (tour.isAccessible) {
+    return "This tour is fully unlocked, including full stop audio across the route.";
+  }
+  if (tour.previewOnly || tour.requiredPlanId) {
+    return "You can browse the full route and hear the first two stops free. Purchase unlocks the full stop sequence and audio.";
+  }
+  return "This tour is open to hear and explore now.";
 }
 
 export function TourDetailScreen({
@@ -128,7 +148,7 @@ export function TourDetailScreen({
       return;
     }
     if (selectedStopLocked) {
-      onOpenPurchase?.();
+      onOpenPurchase?.({ tourId: tour.id, tourTitle: tour.title, stopId: selectedStop.id, source: "tour_detail" });
       return;
     }
     try {
@@ -199,11 +219,13 @@ export function TourDetailScreen({
           <Text style={styles.heroTitle}>{tour.title}</Text>
           <Text style={styles.heroCopy}>{buildTourNarrative(tour)}</Text>
           <View style={styles.chips}>
+            <Chip {...getTourAccessLabel(tour)} />
             <Chip label={`${tour.durationMin} min`} tone="default" />
             <Chip label={`${tour.distanceMiles} mi`} tone="default" />
             <Chip label={`${tour.stops.length} story stops`} tone="success" />
             <Chip label={`${tour.rating} rating`} tone="warn" />
           </View>
+          <Text style={styles.accessCopy}>{getTourAccessCopy(tour)}</Text>
         </View>
       </View>
 
@@ -229,9 +251,10 @@ export function TourDetailScreen({
       <Card style={styles.card}>
         <Text style={styles.sectionEyebrow}>Founders Compass</Text>
         <Text style={styles.sectionTitle}>North Broad is the north star</Text>
-        <Text style={styles.copy}>
-          Each tour begins from the city&apos;s compass point and opens outward, so the stop list feels like Philadelphia unfolding instead of a spreadsheet.
-        </Text>
+          <Text style={styles.copy}>
+            Each tour begins from the city&apos;s compass point and opens outward, so the stop list feels like Philadelphia unfolding instead of a spreadsheet.
+          </Text>
+          <Text style={styles.copy}>{getTourAccessCopy(tour)}</Text>
         <View style={styles.summaryGrid}>
           <View style={styles.summaryCell}>
             <Text style={styles.summaryLabel}>City arc</Text>
@@ -267,6 +290,7 @@ export function TourDetailScreen({
           <Text style={styles.selectedStopAddress}>{getStopAddress(selectedStop.description)}</Text>
           <Text style={styles.copy}>{getStopSummary(selectedStop.description)}</Text>
           <View style={styles.chips}>
+            <Chip {...getTourAccessLabel(tour)} />
             <Chip label={selectedStopLocked ? "Purchase required" : "Open now"} tone={selectedStopLocked ? "warn" : "success"} />
             <Chip {...getCoverageMeta(getNarrationCoverage(selectedStop.id))} />
             {narration.stopId === selectedStop.id ? (
@@ -459,6 +483,11 @@ function createStyles(
       color: "rgba(255,255,255,0.86)",
       fontSize: type.font(15),
       lineHeight: type.line(22)
+    },
+    accessCopy: {
+      color: "rgba(255,255,255,0.82)",
+      fontSize: type.font(13),
+      lineHeight: type.line(19)
     },
     chips: {
       flexDirection: "row",

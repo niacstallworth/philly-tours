@@ -1,12 +1,13 @@
 import React from "react";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
 import { useNarration } from "../hooks/useNarration";
+import { useTourCatalog } from "../hooks/useTourCatalog";
 import { getNarrationCoverage, getNarrationUiMeta, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { setCurrentTourSelection } from "../services/tourControl";
 import { getPhiladelphiaCurrentWeather, type CurrentWeather } from "../services/weather";
 import { AppPalette, useThemeColors, useTypeScale } from "../theme/appTheme";
+import type { Stop, Tour } from "../types";
 import { TourDetailScreen } from "./TourDetailScreen";
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
   highlightedStopId?: string;
   audioHistoryOnlyUnlocked?: boolean;
   fullAppUnlocked?: boolean;
-  onOpenPurchase?: () => void;
+  onOpenPurchase?: (context?: { tourId?: string; tourTitle?: string; stopId?: string; source?: "home" | "tour_detail" }) => void;
 };
 
 const METERS_PER_MILE = 1609.344;
@@ -69,10 +70,30 @@ function deriveTourThemeLabel(title: string) {
   return "History";
 }
 
-function deriveTourSummary(tour: (typeof tours)[number]) {
+function deriveTourSummary(tour: Tour) {
   const leadStops = tour.stops.slice(0, 2).map((stop) => stop.title);
   const opener = leadStops.length ? `${leadStops.join(" and ")} sit near the first turn of the Founders Compass.` : "A story-led Philadelphia route.";
   return `${opener} ${tour.stops.length} stops unfold across ${tour.distanceMiles} miles with layered narration and AR-ready context.`;
+}
+
+function getTourAccessLabel(tour: Tour) {
+  if (tour.isAccessible) {
+    return { label: "Unlocked", tone: "success" as const };
+  }
+  if (tour.previewOnly || tour.requiredPlanId) {
+    return { label: "Preview", tone: "warn" as const };
+  }
+  return { label: "Open", tone: "default" as const };
+}
+
+function getTourAccessCopy(tour: Tour) {
+  if (tour.isAccessible) {
+    return "Full route access is active for this tour pack.";
+  }
+  if (tour.previewOnly || tour.requiredPlanId) {
+    return "Browse the full route and hear the first two stops free. Purchase unlocks the full audio path.";
+  }
+  return "This tour pack is open to browse and hear now.";
 }
 
 export function HomeScreen({
@@ -86,6 +107,7 @@ export function HomeScreen({
   const colors = useThemeColors();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
+  const { tours } = useTourCatalog();
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialSelectedTourId || tours[0]?.id || "");
   const [detailTourId, setDetailTourId] = React.useState<string | null>(null);
   const [activeStopId, setActiveStopId] = React.useState<string | null>(highlightedStopId || null);
@@ -98,7 +120,7 @@ export function HomeScreen({
     if (initialSelectedTourId && tours.some((tour) => tour.id === initialSelectedTourId)) {
       setSelectedTourId(initialSelectedTourId);
     }
-  }, [initialSelectedTourId]);
+  }, [initialSelectedTourId, tours]);
 
   React.useEffect(() => {
     if (highlightedStopId) {
@@ -125,8 +147,8 @@ export function HomeScreen({
     };
   }, []);
 
-  const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId]);
-  const detailTour = React.useMemo(() => tours.find((tour) => tour.id === detailTourId) || null, [detailTourId]);
+  const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0], [selectedTourId, tours]);
+  const detailTour = React.useMemo(() => tours.find((tour) => tour.id === detailTourId) || null, [detailTourId, tours]);
   const visibleStops = React.useMemo(
     () => (fullAudioOnly ? (selectedTour?.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio") || []) : selectedTour?.stops || []),
     [fullAudioOnly, selectedTour]
@@ -173,7 +195,7 @@ export function HomeScreen({
     narration.message === "Narration finished.";
   const canPlayNextStop = Boolean(nextStop && highlightedHasFullAudio && currentStopFinished);
 
-  async function playStopNarration(stop: (typeof tours)[number]["stops"][number]) {
+  async function playStopNarration(stop: Stop) {
     try {
       await startNarration({
         id: stop.id,
@@ -194,7 +216,7 @@ export function HomeScreen({
       return;
     }
     if (highlightedStopLocked) {
-      onOpenPurchase?.();
+      onOpenPurchase?.({ tourId: selectedTour?.id, tourTitle: selectedTour?.title, stopId: highlightedStop.id, source: "home" });
       return;
     }
     await playStopNarration(highlightedStop);
@@ -204,7 +226,7 @@ export function HomeScreen({
     await stopNarration();
   }
 
-  async function onPlayStopNarration(stop: (typeof tours)[number]["stops"][number]) {
+  async function onPlayStopNarration(stop: Stop) {
     await playStopNarration(stop);
   }
 
@@ -213,7 +235,7 @@ export function HomeScreen({
       return;
     }
     if (nextStopLocked) {
-      onOpenPurchase?.();
+      onOpenPurchase?.({ tourId: selectedTour?.id, tourTitle: selectedTour?.title, stopId: nextStop.id, source: "home" });
       return;
     }
     setActiveStopId(nextStop.id);
@@ -316,6 +338,9 @@ export function HomeScreen({
                 <View style={styles.packRoutePill}>
                   <Text style={styles.packRoutePillText}>{deriveTourThemeLabel(tour.title)}</Text>
                 </View>
+                <View style={styles.packRouteAccessPill}>
+                  <Text style={styles.packRouteAccessPillText}>{getTourAccessLabel(tour).label}</Text>
+                </View>
                 <View style={styles.packRouteCopy}>
                   <Text style={styles.packRouteNeighborhood}>{firstStop ? getStopAddress(firstStop.description) : "Philadelphia, PA"}</Text>
                   <Text style={styles.packRouteTitle}>{tour.title}</Text>
@@ -325,12 +350,14 @@ export function HomeScreen({
               <View style={styles.packRouteBody}>
                 <Text style={styles.packRouteBodyCopy} numberOfLines={3}>{selectedTourId === tour.id ? selectedTourBlurb : deriveTourSummary(tour)}</Text>
                 <View style={styles.heroChips}>
+                  <Chip {...getTourAccessLabel(tour)} />
                   <Chip label={`${tour.durationMin} min`} tone="default" />
                   <Chip label={`${tour.distanceMiles} mi`} tone="default" />
                   <Chip label={`${tour.rating} rating`} tone="warn" />
                   <Chip label={`${tour.stops.length} stops`} tone={isActive ? "success" : "default"} />
                 </View>
-                <PrimaryButton label="Open Tour Page" onPress={() => {
+                <Text style={styles.packRouteAccessCopy}>{getTourAccessCopy(tour)}</Text>
+                <PrimaryButton label={tour.isAccessible ? "Open Tour Page" : "Open Tour Preview"} onPress={() => {
                   setSelectedTourId(tour.id);
                   setDetailTourId(tour.id);
                 }} />
@@ -347,6 +374,7 @@ export function HomeScreen({
           <Text style={styles.sectionTitle}>{selectedTour.title}</Text>
           <Text style={styles.routeMeta}>{selectedTourBlurb}</Text>
           <View style={styles.heroChips}>
+            <Chip {...getTourAccessLabel(selectedTour)} />
             <Chip label={`${selectedTour.durationMin} min`} tone="default" />
             <Chip label={`${selectedTour.distanceMiles} mi`} tone="default" />
             <Chip label={`${selectedTour.rating} rating`} tone="warn" />
@@ -354,6 +382,7 @@ export function HomeScreen({
             <Chip label={`${previewCount} free stops`} tone="warn" />
             {lockedCount > 0 && !hasPaidAudioAccess ? <Chip label={`${lockedCount} stops unlock after purchase`} tone="default" /> : null}
           </View>
+          <Text style={styles.routeAccessCopy}>{getTourAccessCopy(selectedTour)}</Text>
         </Card>
       ) : null}
 
@@ -690,7 +719,7 @@ function createStyles(
     packRoutePill: {
       position: "absolute",
       top: 12,
-      right: 12,
+      left: 12,
       zIndex: 2,
       paddingHorizontal: 12,
       paddingVertical: 7,
@@ -699,6 +728,23 @@ function createStyles(
     },
     packRoutePillText: {
       color: "#0f172a",
+      fontSize: type.font(11),
+      fontWeight: "800"
+    },
+    packRouteAccessPill: {
+      position: "absolute",
+      top: 12,
+      right: 12,
+      zIndex: 2,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: "rgba(8, 10, 18, 0.72)",
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.18)"
+    },
+    packRouteAccessPillText: {
+      color: "#ffffff",
       fontSize: type.font(11),
       fontWeight: "800"
     },
@@ -734,6 +780,11 @@ function createStyles(
       color: colors.textSoft,
       fontSize: type.font(14),
       lineHeight: type.line(20)
+    },
+    packRouteAccessCopy: {
+      color: colors.textMuted,
+      fontSize: type.font(12),
+      lineHeight: type.line(18)
     },
     packDetailCard: {
       backgroundColor: colors.surfaceRaised,
@@ -822,6 +873,11 @@ function createStyles(
       color: colors.textSoft,
       fontSize: type.font(13),
       lineHeight: type.line(20)
+    },
+    routeAccessCopy: {
+      color: colors.textMuted,
+      fontSize: type.font(13),
+      lineHeight: type.line(19)
     }
   });
 }

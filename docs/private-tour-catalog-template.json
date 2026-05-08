@@ -1,0 +1,79 @@
+{
+  "tours": [
+    {
+      "id": "founders-premium-sample",
+      "slug": "founders-premium-sample",
+      "cityId": "philly",
+      "title": "Founders Premium Sample",
+      "summary": "Template-only example showing the private import shape for a paid route.",
+      "durationMin": 90,
+      "distanceMiles": 2.4,
+      "rating": 4.9,
+      "requiredPlanId": "premium_founders_pass",
+      "isPublished": true,
+      "sortOrder": 10,
+      "coverImage": {
+        "bucket": "tour-images-private",
+        "objectPath": "tours/founders-premium-sample/cover.jpg"
+      },
+      "stops": [
+        {
+          "id": "founders-premium-sample-stop-1",
+          "title": "Premium Stop One",
+          "description": "Template-only stop description.",
+          "lat": 39.9526,
+          "lng": -75.1652,
+          "coordQuality": "verified",
+          "triggerRadiusM": 35,
+          "verticalOffsetM": 0,
+          "stopOrder": 0,
+          "arType": "hero",
+          "arPriority": 1,
+          "assetNeeded": "hero reconstruction",
+          "estimatedEffort": "medium",
+          "streetView": {
+            "heading": 120,
+            "pitch": 0,
+            "zoom": 1
+          },
+          "scripts": {
+            "walk": "Paid walk narration goes here.",
+            "drive": "Paid drive narration goes here."
+          },
+          "mediaAssets": [
+            {
+              "kind": "audio",
+              "variant": "walk",
+              "platform": "mobile",
+              "bucket": "tour-audio-private",
+              "objectPath": "tours/founders-premium-sample/stops/premium-stop-one/walk.mp3",
+              "mimeType": "audio/mpeg",
+              "isPrivate": true,
+              "status": "ready"
+            },
+            {
+              "kind": "audio",
+              "variant": "drive",
+              "platform": "mobile",
+              "bucket": "tour-audio-private",
+              "objectPath": "tours/founders-premium-sample/stops/premium-stop-one/drive.mp3",
+              "mimeType": "audio/mpeg",
+              "isPrivate": true,
+              "status": "ready"
+            },
+            {
+              "kind": "model",
+              "variant": "hero",
+              "platform": "ios",
+              "bucket": "tour-models-private",
+              "objectPath": "tours/founders-premium-sample/stops/premium-stop-one/hero.usdz",
+              "mimeType": "model/vnd.usdz+zip",
+              "isPrivate": true,
+              "status": "ready"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

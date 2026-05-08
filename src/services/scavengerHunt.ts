@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { tours } from "../data/tours";
 import { haversineDistanceM } from "./geofence";
 import { getCurrentPosition, requestForegroundLocationPermission, startLocationWatch, type PositionWatcher, type UserPosition } from "./location";
+import { getTours } from "./tourCatalog";
 
 const SCAVENGER_STORAGE_KEY = "philly_tours_scavenger_hunt_v1";
 const SCAVENGER_STARTED_STORAGE_KEY = "philly_tours_scavenger_hunt_started_v1";
@@ -38,24 +38,26 @@ export type ScavengerHuntSnapshot = {
 
 const listeners = new Set<(snapshot: ScavengerHuntSnapshot) => void>();
 
-const tokens: ScavengerToken[] = tours
-  .filter((tour) => SCAVENGER_TOUR_IDS.has(tour.id))
-  .flatMap((tour) =>
-    tour.stops.map((stop) => ({
-      id: stop.id,
-      stopId: stop.id,
-      tourId: tour.id,
-      tourTitle: tour.title,
-      stopTitle: stop.title,
-      summary: stop.description.split("|")[0]?.trim() || stop.description,
-      lat: stop.lat,
-      lng: stop.lng,
-      triggerRadiusM: stop.triggerRadiusM,
-      tone: getToneForTour(tour.id),
-      glyph: getGlyphForTour(tour.id),
-      gpsReady: isGpsReady(stop.lat, stop.lng)
-    }))
-  );
+function getTokens(): ScavengerToken[] {
+  return getTours()
+    .filter((tour) => SCAVENGER_TOUR_IDS.has(tour.id))
+    .flatMap((tour) =>
+      tour.stops.map((stop) => ({
+        id: stop.id,
+        stopId: stop.id,
+        tourId: tour.id,
+        tourTitle: tour.title,
+        stopTitle: stop.title,
+        summary: stop.description.split("|")[0]?.trim() || stop.description,
+        lat: stop.lat,
+        lng: stop.lng,
+        triggerRadiusM: stop.triggerRadiusM,
+        tone: getToneForTour(tour.id),
+        glyph: getGlyphForTour(tour.id),
+        gpsReady: isGpsReady(stop.lat, stop.lng)
+      }))
+    );
+}
 
 let collectedIds = new Set<string>();
 let startedTourIds = new Set<string>();
@@ -156,7 +158,7 @@ async function collectToken(tokenId: string) {
 async function collectNearbyTokens(position: UserPosition) {
   lastPosition = position;
   let changed = false;
-  for (const token of tokens) {
+  for (const token of getTokens()) {
     if (!token.gpsReady || collectedIds.has(token.id) || !startedTourIds.has(token.tourId)) {
       continue;
     }
@@ -172,16 +174,16 @@ async function collectNearbyTokens(position: UserPosition) {
 }
 
 export function getScavengerTokens() {
-  return tokens;
+  return getTokens();
 }
 
 export function getScavengerTokenById(tokenId: string) {
-  return tokens.find((token) => token.id === tokenId) || null;
+  return getTokens().find((token) => token.id === tokenId) || null;
 }
 
 export function getScavengerHuntSnapshot(): ScavengerHuntSnapshot {
   return {
-    tokens,
+    tokens: getTokens(),
     collectedIds: Array.from(collectedIds),
     startedTourIds: Array.from(startedTourIds),
     latestRevealId,

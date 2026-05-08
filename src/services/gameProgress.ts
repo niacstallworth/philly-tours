@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { tours } from "../data/tours";
+import { getTours } from "./tourCatalog";
 
 export type GameProgressSnapshot = {
   openedStopIds: string[];
@@ -81,17 +81,18 @@ function getPreviousDayKey(dateKey: string) {
   return `${previousYear}-${previousMonth}-${previousDay}`;
 }
 
-const stopIndex = new Map(
-  tours.flatMap((tour) =>
-    tour.stops.map((stop) => [
-      stop.id,
-      {
+function getStopMeta(stopId: string) {
+  for (const tour of getTours()) {
+    const stop = tour.stops.find((entry) => entry.id === stopId);
+    if (stop) {
+      return {
         tourId: tour.id,
         arReady: Boolean(stop.arType && stop.arType !== "none")
-      }
-    ] as const)
-  )
-);
+      };
+    }
+  }
+  return null;
+}
 
 function snapshotFromState(): GameProgressSnapshot {
   return {
@@ -253,7 +254,11 @@ function updateProgress(mutator: () => boolean) {
 }
 
 export function recordStopOpened(stopId: string | null | undefined) {
-  if (!stopId || !stopIndex.has(stopId)) {
+  if (!stopId) {
+    return;
+  }
+  const stopMeta = getStopMeta(stopId);
+  if (!stopMeta) {
     return;
   }
   updateProgress(() => {
@@ -264,7 +269,7 @@ export function recordStopOpened(stopId: string | null | undefined) {
     if (beforeOpened !== progressState.openedStopIds.size) {
       awardXp(`open:${stopId}`, XP_OPEN_STOP, "Opened a stop");
     }
-    if (stopIndex.get(stopId)?.arReady) {
+    if (stopMeta.arReady) {
       progressState.discoveredArStopIds.add(stopId);
       if (beforeAr !== progressState.discoveredArStopIds.size) {
         awardXp(`ar:${stopId}`, XP_DISCOVER_AR, "Discovered an AR stop");
@@ -275,7 +280,11 @@ export function recordStopOpened(stopId: string | null | undefined) {
 }
 
 export function recordNarrationStarted(stopId: string | null | undefined) {
-  if (!stopId || !stopIndex.has(stopId)) {
+  if (!stopId) {
+    return;
+  }
+  const stopMeta = getStopMeta(stopId);
+  if (!stopMeta) {
     return;
   }
   updateProgress(() => {
@@ -292,7 +301,7 @@ export function recordNarrationStarted(stopId: string | null | undefined) {
     if (beforeNarrated !== progressState.narratedStopIds.size) {
       awardXp(`narration:${stopId}`, XP_HEAR_NARRATION, "Heard a story");
     }
-    if (stopIndex.get(stopId)?.arReady) {
+    if (stopMeta.arReady) {
       progressState.discoveredArStopIds.add(stopId);
       if (beforeAr !== progressState.discoveredArStopIds.size) {
         awardXp(`ar:${stopId}`, XP_DISCOVER_AR, "Discovered an AR stop");
@@ -310,7 +319,11 @@ export function recordNarrationStarted(stopId: string | null | undefined) {
 }
 
 export function recordStopCompleted(stopId: string | null | undefined) {
-  if (!stopId || !stopIndex.has(stopId)) {
+  if (!stopId) {
+    return;
+  }
+  const stopMeta = getStopMeta(stopId);
+  if (!stopMeta) {
     return;
   }
   updateProgress(() => {
@@ -323,7 +336,7 @@ export function recordStopCompleted(stopId: string | null | undefined) {
     if (beforeCompleted !== progressState.completedStopIds.size) {
       awardXp(`complete:${stopId}`, XP_COMPLETE_STOP, "Completed a stop");
     }
-    if (stopIndex.get(stopId)?.arReady) {
+    if (stopMeta.arReady) {
       progressState.discoveredArStopIds.add(stopId);
       if (beforeAr !== progressState.discoveredArStopIds.size) {
         awardXp(`ar:${stopId}`, XP_DISCOVER_AR, "Discovered an AR stop");

@@ -54,5 +54,8 @@ export type Tour = {
   distanceMiles: number;
   rating: number;
   cardMedia?: TourCardMedia;
+  requiredPlanId?: string | null;
+  isAccessible?: boolean;
+  previewOnly?: boolean;
   stops: Stop[];
 };

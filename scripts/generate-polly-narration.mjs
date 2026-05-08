@@ -5,8 +5,8 @@ import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import { readCatalogCsv } from "./lib/arAssetCatalogCsv.mjs";
 
 const rootDir = process.cwd();
-const csvPath = path.join(rootDir, "docs", "narration-script-catalog.csv");
-const outputDir = path.join(rootDir, "assets", "audio");
+const defaultCsvPath = path.join(rootDir, "docs", "narration-script-catalog.csv");
+const defaultOutputDir = path.join(rootDir, "assets", "audio");
 const allowedEngines = new Set(["standard", "neural", "long-form", "generative"]);
 const allowedTextTypes = new Set(["text", "ssml"]);
 
@@ -33,7 +33,15 @@ function loadDotEnv(filePath) {
 }
 
 function parseArgs(argv) {
-  const args = { limit: null, stopId: null, variant: null, force: false };
+  const args = {
+    limit: null,
+    stopId: null,
+    variant: null,
+    force: false,
+    dryRun: false,
+    csv: defaultCsvPath,
+    outputDir: defaultOutputDir
+  };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--limit") {
@@ -53,6 +61,20 @@ function parseArgs(argv) {
     }
     if (arg === "--force") {
       args.force = true;
+      continue;
+    }
+    if (arg === "--dry-run") {
+      args.dryRun = true;
+      continue;
+    }
+    if (arg === "--csv") {
+      args.csv = path.resolve(rootDir, argv[i + 1] || "");
+      i += 1;
+      continue;
+    }
+    if (arg === "--output-dir") {
+      args.outputDir = path.resolve(rootDir, argv[i + 1] || "");
+      i += 1;
     }
   }
   return args;
@@ -110,7 +132,33 @@ async function audioStreamToBuffer(stream) {
   return Buffer.concat(chunks);
 }
 
+loadDotEnv(path.join(rootDir, "server.local.env"));
+loadDotEnv(path.join(rootDir, ".env.server.local"));
+loadDotEnv(path.join(rootDir, ".env.server"));
 loadDotEnv(path.join(rootDir, ".env"));
+
+const args = parseArgs(process.argv.slice(2));
+const csvPath = args.csv;
+const outputDir = args.outputDir;
+const { records } = readCatalogCsv(csvPath);
+const rows = records.map(toRow).filter((row) => {
+  if (args.stopId && row.stopId !== args.stopId) {
+    return false;
+  }
+  if (args.variant && row.variant !== args.variant) {
+    return false;
+  }
+  return true;
+});
+const limitedRows = args.limit ? rows.slice(0, args.limit) : rows;
+
+if (args.dryRun) {
+  for (const row of limitedRows) {
+    console.log(`READY ${row.outputFile} (${row.stopId}/${row.variant}) -> ${path.join(outputDir, row.outputFile)}`);
+  }
+  console.log(`Polly dry run complete. ${limitedRows.length} file(s) queued.`);
+  process.exit(0);
+}
 
 const region = process.env.AWS_REGION || process.env.POLLY_AWS_REGION || "us-east-1";
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID || "";
@@ -147,19 +195,6 @@ function rethrowAwsError(error) {
 }
 
 const client = new PollyClient({ region });
-const args = parseArgs(process.argv.slice(2));
-const { records } = readCatalogCsv(csvPath);
-const rows = records.map(toRow).filter((row) => {
-  if (args.stopId && row.stopId !== args.stopId) {
-    return false;
-  }
-  if (args.variant && row.variant !== args.variant) {
-    return false;
-  }
-  return true;
-});
-
-const limitedRows = args.limit ? rows.slice(0, args.limit) : rows;
 fs.mkdirSync(outputDir, { recursive: true });
 
 let generatedCount = 0;

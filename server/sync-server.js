@@ -68,6 +68,8 @@ const SUPABASE_DB_URL = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL 
 const SUPABASE_DB_PASSWORD = process.env.SUPABASE_DB_PASSWORD || "";
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
+const PRIVATE_ASSET_SIGNED_URL_TTL_SECONDS = Math.max(60, Number(process.env.PRIVATE_ASSET_SIGNED_URL_TTL_SECONDS || 3600));
 const APPLE_IAP_ENABLED =
   !!APPLE_IAP_BUNDLE_ID && !!APPLE_IAP_ISSUER_ID && !!APPLE_IAP_KEY_ID && !!APPLE_IAP_PRIVATE_KEY;
 const GOOGLE_IAP_ENABLED =
@@ -250,13 +252,82 @@ function createPool() {
 }
 
 const db = createPool();
+let supabaseAdminClientPromise = null;
 
 async function dbQuery(text, params = []) {
   return db.query(text, params);
 }
 
+async function getSupabaseAdminClient() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return null;
+  }
+  if (!supabaseAdminClientPromise) {
+    supabaseAdminClientPromise = import("@supabase/supabase-js")
+      .then(({ createClient }) =>
+        createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false
+          }
+        })
+      )
+      .catch((error) => {
+        supabaseAdminClientPromise = null;
+        throw error;
+      });
+  }
+  return supabaseAdminClientPromise;
+}
+
+function normalizeStoragePath(value) {
+  return String(value || "")
+    .trim()
+    .replace(/^\/+/, "");
+}
+
+function buildPublicStorageUrl(bucket, objectPath) {
+  const normalizedBucket = String(bucket || "").trim();
+  const normalizedPath = normalizeStoragePath(objectPath);
+  if (!SUPABASE_URL || !normalizedBucket || !normalizedPath) {
+    return null;
+  }
+  return `${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(normalizedBucket)}/${normalizedPath
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/")}`;
+}
+
+async function resolveStorageAssetUrl(asset) {
+  const bucket = String(asset?.bucket || "").trim();
+  const objectPath = normalizeStoragePath(asset?.object_path);
+  if (!bucket || !objectPath) {
+    return null;
+  }
+  if (asset?.is_private === false) {
+    return buildPublicStorageUrl(bucket, objectPath);
+  }
+  const supabaseAdmin = await getSupabaseAdminClient();
+  if (!supabaseAdmin) {
+    return null;
+  }
+  const { data, error } = await supabaseAdmin.storage
+    .from(bucket)
+    .createSignedUrl(objectPath, PRIVATE_ASSET_SIGNED_URL_TTL_SECONDS);
+  if (error || !data?.signedUrl) {
+    console.warn("Unable to sign storage asset URL", {
+      bucket,
+      objectPath,
+      message: error?.message || "missing signedUrl"
+    });
+    return null;
+  }
+  return data.signedUrl;
+}
+
 async function ensureSchema() {
   await dbQuery(`
+    create schema if not exists private_content;
     create table if not exists public.users (
       id text primary key,
       stripe_customer_id text,
@@ -341,6 +412,65 @@ async function ensureSchema() {
       updated_at bigint not null,
       metadata_json text
     );
+    create table if not exists private_content.tours (
+      id text primary key,
+      slug text unique,
+      city_id text not null default 'philly',
+      title text not null,
+      summary text,
+      duration_min integer not null default 0,
+      distance_miles numeric(8,2) not null default 0,
+      rating numeric(3,2),
+      required_plan_id text,
+      is_published boolean not null default false,
+      sort_order integer not null default 0,
+      cover_image_path text,
+      cover_image_bucket text,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    );
+    create table if not exists private_content.tour_stops (
+      id text primary key,
+      tour_id text not null references private_content.tours(id) on delete cascade,
+      title text not null,
+      description text,
+      lat double precision not null,
+      lng double precision not null,
+      coord_quality text not null default 'approximate',
+      trigger_radius_m integer not null default 35,
+      vertical_offset_m numeric(8,2),
+      stop_order integer not null default 0,
+      ar_type text,
+      ar_priority integer,
+      asset_needed text,
+      estimated_effort text,
+      street_view jsonb,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    );
+    create table if not exists private_content.tour_stop_scripts (
+      stop_id text not null references private_content.tour_stops(id) on delete cascade,
+      variant text not null,
+      script_text text not null,
+      is_published boolean not null default true,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now(),
+      primary key(stop_id, variant)
+    );
+    create table if not exists private_content.tour_media_assets (
+      id bigint generated by default as identity primary key,
+      stop_id text not null references private_content.tour_stops(id) on delete cascade,
+      kind text not null,
+      variant text,
+      platform text,
+      bucket text,
+      object_path text not null,
+      mime_type text,
+      is_private boolean not null default true,
+      status text not null default 'draft',
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    );
   `);
   await dbQuery(`
     alter table public.users add column if not exists email text;
@@ -351,6 +481,38 @@ async function ensureSchema() {
     create unique index if not exists users_email_idx
       on public.users (email)
       where email is not null;
+    create index if not exists private_content_tours_city_idx
+      on private_content.tours (city_id, is_published, sort_order, title);
+    create index if not exists private_content_tour_stops_tour_idx
+      on private_content.tour_stops (tour_id, stop_order);
+    create index if not exists private_content_tour_media_assets_stop_idx
+      on private_content.tour_media_assets (stop_id, kind, status);
+    create unique index if not exists private_content_tour_media_assets_variant_idx
+      on private_content.tour_media_assets (stop_id, kind, coalesce(variant, ''), coalesce(platform, ''));
+  `);
+  await dbQuery(`
+    alter table public.users enable row level security;
+    alter table public.payment_orders enable row level security;
+    alter table public.entitlements enable row level security;
+    alter table public.iap_receipts enable row level security;
+    alter table public.idempotency enable row level security;
+    alter table public.provider_events enable row level security;
+    alter table public.deletion_requests enable row level security;
+    alter table public.newsletter_subscribers enable row level security;
+
+    revoke all on table public.users from anon, authenticated;
+    revoke all on table public.payment_orders from anon, authenticated;
+    revoke all on table public.entitlements from anon, authenticated;
+    revoke all on table public.iap_receipts from anon, authenticated;
+    revoke all on table public.idempotency from anon, authenticated;
+    revoke all on table public.provider_events from anon, authenticated;
+    revoke all on table public.deletion_requests from anon, authenticated;
+    revoke all on table public.newsletter_subscribers from anon, authenticated;
+
+    drop policy if exists newsletter_subscribers_insert_anon on public.newsletter_subscribers;
+    drop policy if exists newsletter_subscribers_update_anon on public.newsletter_subscribers;
+    drop policy if exists newsletter_subscribers_insert_authenticated on public.newsletter_subscribers;
+    drop policy if exists newsletter_subscribers_update_authenticated on public.newsletter_subscribers;
   `);
 }
 
@@ -1147,6 +1309,160 @@ function requireRoles(req, res, roles) {
 
   res.status(401).json({ error: "Authorized session required." });
   return null;
+}
+
+async function getActiveEntitlementPlanIds(userId) {
+  const currentTime = Date.now();
+  const { rows } = await dbQuery(
+    `select plan_id
+     from public.entitlements
+     where user_id = $1
+       and status in ('active', 'paid', 'unlocked')
+       and (expires_at is null or expires_at > $2)`,
+    [userId, currentTime]
+  );
+  return rows.map((row) => String(row.plan_id || "").trim()).filter(Boolean);
+}
+
+async function listAccessiblePrivateTours(actor) {
+  const activePlanIds = actor?.userId ? await getActiveEntitlementPlanIds(actor.userId) : [];
+  const { rows } = await dbQuery(
+    `select
+       t.id,
+       t.slug,
+       t.city_id,
+       t.title,
+       t.summary,
+       t.duration_min,
+       t.distance_miles,
+       t.rating,
+       t.required_plan_id,
+       t.is_published,
+       t.sort_order,
+       t.cover_image_path,
+       t.cover_image_bucket,
+       (t.required_plan_id is null or t.required_plan_id = any($1::text[])) as is_accessible,
+       count(s.id)::int as stop_count
+     from private_content.tours t
+     left join private_content.tour_stops s on s.tour_id = t.id
+     where t.is_published = true
+     group by t.id
+     order by t.sort_order asc, t.title asc`,
+    [activePlanIds]
+  );
+  return rows;
+}
+
+async function getAccessiblePrivateTourDetail(tourId, actor) {
+  const previewStopLimit = 2;
+  const activePlanIds = actor?.userId ? await getActiveEntitlementPlanIds(actor.userId) : [];
+  const tourResult = await dbQuery(
+    `select
+       id,
+       slug,
+       city_id,
+       title,
+       summary,
+       duration_min,
+       distance_miles,
+       rating,
+       required_plan_id,
+       is_published,
+       sort_order,
+       cover_image_path,
+       cover_image_bucket
+     from private_content.tours
+     where id = $1
+       and is_published = true
+     limit 1`,
+    [tourId]
+  );
+  const tour = tourResult.rows[0];
+  if (!tour) {
+    return null;
+  }
+  const hasFullAccess = !tour.required_plan_id || activePlanIds.includes(String(tour.required_plan_id));
+  const coverImageUrl = await resolveStorageAssetUrl({
+    bucket: tour.cover_image_bucket,
+    object_path: tour.cover_image_path,
+    is_private: true
+  });
+
+  const { rows: stops } = await dbQuery(
+    `select
+       id,
+       tour_id,
+       title,
+       description,
+       lat,
+       lng,
+       coord_quality,
+       trigger_radius_m,
+       vertical_offset_m,
+       stop_order,
+       ar_type,
+       ar_priority,
+       asset_needed,
+       estimated_effort,
+       street_view
+     from private_content.tour_stops
+     where tour_id = $1
+     order by stop_order asc, title asc`,
+    [tourId]
+  );
+
+  const stopIds = stops.map((stop) => stop.id);
+  const scriptsByStopId = new Map();
+  const mediaByStopId = new Map();
+
+  if (stopIds.length) {
+    const stopIdsAllowedForPreview = hasFullAccess
+      ? stopIds
+      : stops.slice(0, previewStopLimit).map((stop) => stop.id);
+    const { rows: scriptRows } = await dbQuery(
+      `select stop_id, variant, script_text
+       from private_content.tour_stop_scripts
+       where stop_id = any($1::text[])
+         and is_published = true`,
+      [stopIdsAllowedForPreview]
+    );
+    for (const row of scriptRows) {
+      const entry = scriptsByStopId.get(row.stop_id) || {};
+      entry[row.variant] = row.script_text;
+      scriptsByStopId.set(row.stop_id, entry);
+    }
+
+    const { rows: mediaRows } = await dbQuery(
+      `select stop_id, kind, variant, platform, bucket, object_path, mime_type, is_private, status
+       from private_content.tour_media_assets
+       where stop_id = any($1::text[])
+         and status = 'ready'`,
+      [stopIdsAllowedForPreview]
+    );
+    const resolvedMediaRows = await Promise.all(
+      mediaRows.map(async (row) => ({
+        ...row,
+        url: await resolveStorageAssetUrl(row)
+      }))
+    );
+    for (const row of resolvedMediaRows) {
+      const collection = mediaByStopId.get(row.stop_id) || [];
+      collection.push(row);
+      mediaByStopId.set(row.stop_id, collection);
+    }
+  }
+
+  return {
+    ...tour,
+    is_accessible: hasFullAccess,
+    preview_only: !hasFullAccess,
+    cover_image_url: coverImageUrl,
+    stops: stops.map((stop) => ({
+      ...stop,
+      scripts: scriptsByStopId.get(stop.id) || {},
+      mediaAssets: mediaByStopId.get(stop.id) || []
+    }))
+  };
 }
 
 async function purgeUserData(userId) {
@@ -2491,6 +2807,44 @@ app.get("/api/entitlements", async (req, res) => {
     [userId]
   );
   res.json({ userId, entitlements: rows });
+});
+
+app.get("/api/content/catalog", async (req, res) => {
+  const actor = getAuthenticatedActor(req);
+  try {
+    const tours = await listAccessiblePrivateTours(actor);
+    res.json({
+      tours,
+      source: "private_content",
+      authenticated: !!actor
+    });
+  } catch (error) {
+    res.status(500).json({ error: error instanceof Error ? error.message : "Unable to load tour catalog." });
+  }
+});
+
+app.get("/api/content/tours/:tourId", async (req, res) => {
+  const actor = getAuthenticatedActor(req);
+  const tourId = String(req.params.tourId || "").trim();
+  if (!tourId) {
+    res.status(400).json({ error: "tourId is required." });
+    return;
+  }
+
+  try {
+    const tour = await getAccessiblePrivateTourDetail(tourId, actor);
+    if (!tour) {
+      res.status(404).json({ error: "Tour not found or not accessible." });
+      return;
+    }
+    res.json({
+      tour,
+      source: "private_content",
+      authenticated: !!actor
+    });
+  } catch (error) {
+    res.status(500).json({ error: error instanceof Error ? error.message : "Unable to load tour detail." });
+  }
 });
 
 app.get("/api/orders", async (req, res) => {

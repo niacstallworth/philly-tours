@@ -3,9 +3,9 @@ import { useNarration } from "../hooks/useNarration";
 import { getNarrationCoverage, startNarration, stopNarration, type NarrationCoverage } from "../services/narration";
 import { Alert, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
 import { useDriveSession } from "../hooks/useDriveSession";
 import { useCompanionSession } from "../hooks/useCompanionSession";
+import { useTourCatalog } from "../hooks/useTourCatalog";
 import { getHandoffModeMeta, parseHandoffUrl } from "../services/deepLinks";
 import { getGlassesDisplayStatus, hideCompassOverlay, showCompassOverlay, updateCompassOverlay, type GlassesDisplayStatus } from "../services/glassesDisplay";
 import { triggerHandoffTarget } from "../services/handoffBus";
@@ -29,14 +29,18 @@ import {
   getDriveTourSummaries,
   getNextDriveStop,
   markDriveArrived,
-  startDriveSession
+  startDriveSession,
+  type DriveTourSummary
 } from "../services/driveMode";
+import { getTourById } from "../services/tourCatalog";
 
 type Props = {
   initialTourId?: string;
+  audioHistoryOnlyUnlocked?: boolean;
+  fullAppUnlocked?: boolean;
+  onOpenPurchase?: (context?: { tourId?: string; tourTitle?: string; stopId?: string; source?: "home" | "tour_detail" | "drive" }) => void;
 };
 
-const driveTours = getDriveTourSummaries();
 const FOUNDERS_COMPASS_ANCHOR = {
   lat: 39.953405220467,
   lng: -75.163235969318
@@ -66,7 +70,7 @@ function getDriveTourThemeLabel(title: string) {
 }
 
 function getDriveTourSummary(tourId: string, durationMin: number, stopCount: number, distanceMiles: number) {
-  const sourceTour = tours.find((entry) => entry.id === tourId);
+  const sourceTour = getTourById(tourId);
   const leadStops = sourceTour?.stops.slice(0, 2).map((stop) => stop.title) || [];
   const opener = leadStops.length ? `${leadStops.join(" and ")} begin near the Founders Compass.` : "A story-led Philadelphia route.";
   return durationMin >= 90
@@ -143,9 +147,31 @@ function buildGoogleMapsAppUrl(stop: { lat: number; lng: number }) {
     : `comgooglemaps://?daddr=${stop.lat},${stop.lng}&directionsmode=walking`;
 }
 
-export function DriveScreen({ initialTourId }: Props) {
+function getDriveTourAccessLabel(tour: DriveTourSummary) {
+  if (tour.isAccessible) {
+    return { label: "Unlocked", tone: "success" as const };
+  }
+  if (tour.previewOnly || tour.requiredPlanId) {
+    return { label: "Preview", tone: "warn" as const };
+  }
+  return { label: "Open", tone: "default" as const };
+}
+
+function getDriveTourAccessCopy(tour: DriveTourSummary) {
+  if (tour.isAccessible) {
+    return "This compass path is fully unlocked and ready for full-route audio.";
+  }
+  if (tour.previewOnly || tour.requiredPlanId) {
+    return "Use the first two stops as a live preview, then unlock the full compass path and audio when you're ready.";
+  }
+  return "This compass path is open to drive now.";
+}
+
+export function DriveScreen({ initialTourId, audioHistoryOnlyUnlocked = false, fullAppUnlocked = false, onOpenPurchase }: Props) {
   const { colors, resolvedAppearanceMode } = useAppTheme();
   const styles = React.useMemo(() => createStyles(colors, resolvedAppearanceMode === "dark"), [colors, resolvedAppearanceMode]);
+  useTourCatalog();
+  const driveTours = getDriveTourSummaries();
   const [selectedTourId, setSelectedTourId] = React.useState<string>(initialTourId || driveTours[0]?.id || "");
   const [fullAudioOnly, setFullAudioOnly] = React.useState(false);
   const [heading, setHeading] = React.useState<UserHeading | null>(null);
@@ -157,6 +183,7 @@ export function DriveScreen({ initialTourId }: Props) {
   const { driveSession, setDriveSession, loading } = useDriveSession();
   const { status: companionStatus } = useCompanionSession();
   const narration = useNarration();
+  const hasPaidAudioAccess = audioHistoryOnlyUnlocked || fullAppUnlocked;
   const autoNarratedStopIdRef = React.useRef<string | null>(null);
   const autoAdvancedStopIdsRef = React.useRef<Set<string>>(new Set());
 
@@ -164,7 +191,7 @@ export function DriveScreen({ initialTourId }: Props) {
     if (initialTourId && driveTours.some((tour) => tour.id === initialTourId)) {
       setSelectedTourId(initialTourId);
     }
-  }, [initialTourId]);
+  }, [driveTours, initialTourId]);
 
   React.useEffect(() => {
     if (driveSession?.tourId) {
@@ -179,7 +206,7 @@ export function DriveScreen({ initialTourId }: Props) {
 
   const visibleDriveTours = React.useMemo(
     () => (fullAudioOnly ? driveTours.filter((tour) => getFullAudioStopCount(tour.id) === tour.stopCount) : driveTours),
-    [fullAudioOnly]
+    [driveTours, fullAudioOnly]
   );
   const selectedTour = React.useMemo(
     () => visibleDriveTours.find((tour) => tour.id === selectedTourId) || visibleDriveTours[0],
@@ -509,6 +536,11 @@ export function DriveScreen({ initialTourId }: Props) {
     if (!targetStop) {
       return;
     }
+    const targetIndex = driveStops.findIndex((stop) => stop.id === targetStop.id);
+    if (targetIndex >= 2 && !hasPaidAudioAccess) {
+      onOpenPurchase?.({ tourId: selectedTour?.id, tourTitle: selectedTour?.title, stopId: targetStop.id, source: "drive" });
+      return;
+    }
     try {
       await startNarration(targetStop, "drive");
     } catch (error) {
@@ -642,7 +674,7 @@ export function DriveScreen({ initialTourId }: Props) {
             const isActive = selectedTourId === tour.id;
             const hasSession = driveSession?.tourId === tour.id;
             const fullAudioCount = getFullAudioStopCount(tour.id);
-            const sourceTour = tours.find((entry) => entry.id === tour.id);
+            const sourceTour = getTourById(tour.id);
             const mediaUrl = buildTourCardMediaUrl(sourceTour?.cardMedia?.src);
             const accentPairs = [
               ["#5d42ff", "#a68eff"],
@@ -666,6 +698,9 @@ export function DriveScreen({ initialTourId }: Props) {
                   <View style={styles.routeCatalogPill}>
                     <Text style={styles.routeCatalogPillText}>{getDriveTourThemeLabel(tour.title)}</Text>
                   </View>
+                  <View style={styles.routeCatalogAccessPill}>
+                    <Text style={styles.routeCatalogAccessPillText}>{getDriveTourAccessLabel(tour).label}</Text>
+                  </View>
                   <View style={styles.routeCatalogCopy}>
                     <Text style={styles.routeCatalogEyebrow}>{tour.stopCount} stops{hasSession ? " • live" : ""}</Text>
                     <Text style={styles.routeCatalogTitle}>{tour.title}</Text>
@@ -675,9 +710,11 @@ export function DriveScreen({ initialTourId }: Props) {
                 <View style={styles.routeCatalogBody}>
                   <Text style={styles.routeCatalogBodyCopy}>{getDriveTourSummary(tour.id, tour.durationMin, tour.stopCount, tour.distanceMiles)}</Text>
                   <View style={styles.chips}>
+                    <Chip {...getDriveTourAccessLabel(tour)} />
                     <Chip label={tour.heroStopTitle ? `First compass point: ${tour.heroStopTitle}` : "Start compass path"} tone="warn" />
                     <Chip label={isActive ? "Selected route" : "Tap to select"} tone={isActive ? "success" : "default"} />
                   </View>
+                  <Text style={styles.routeCatalogAccessCopy}>{getDriveTourAccessCopy(tour)}</Text>
                 </View>
               </Pressable>
             );
@@ -694,12 +731,20 @@ export function DriveScreen({ initialTourId }: Props) {
             {getDriveTourSummary(selectedTour.id, selectedTour.durationMin, selectedTour.stopCount, selectedTour.distanceMiles)}
           </Text>
           <View style={styles.chips}>
+            <Chip {...getDriveTourAccessLabel(selectedTour)} />
             <Chip label={`${selectedTour.durationMin} min`} tone="default" />
             <Chip label={`${selectedTour.distanceMiles} mi`} tone="default" />
             <Chip label={`${selectedTour.stopCount} stops`} tone="warn" />
             <Chip label={activeSession ? `Session ${activeSession.mode}` : loading ? "Loading session" : "Ready to start"} tone="success" />
             <Chip label={`${selectedTourFullAudioCount}/${selectedTour.stopCount} full audio`} tone="default" />
           </View>
+          <Text style={styles.featureAccessCopy}>{getDriveTourAccessCopy(selectedTour)}</Text>
+          {!selectedTour.isAccessible && (selectedTour.previewOnly || selectedTour.requiredPlanId) ? (
+            <PrimaryButton
+              label={`Unlock ${selectedTour.title}`}
+              onPress={() => onOpenPurchase?.({ tourId: selectedTour.id, tourTitle: selectedTour.title, source: "drive" })}
+            />
+          ) : null}
         </Card>
       ) : null}
 
@@ -1047,7 +1092,7 @@ function createStyles(colors: AppPalette, isDark: boolean) {
   routeCatalogPill: {
     position: "absolute",
     top: 12,
-    right: 12,
+    left: 12,
     zIndex: 2,
     paddingHorizontal: 12,
     paddingVertical: 7,
@@ -1056,6 +1101,23 @@ function createStyles(colors: AppPalette, isDark: boolean) {
   },
   routeCatalogPillText: {
     color: "#0f172a",
+    fontSize: 11,
+    fontWeight: "800"
+  },
+  routeCatalogAccessPill: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: "rgba(8, 10, 18, 0.72)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)"
+  },
+  routeCatalogAccessPillText: {
+    color: "#ffffff",
     fontSize: 11,
     fontWeight: "800"
   },
@@ -1091,6 +1153,11 @@ function createStyles(colors: AppPalette, isDark: boolean) {
     color: colors.textSoft,
     lineHeight: 20
   },
+  routeCatalogAccessCopy: {
+    color: colors.textMuted,
+    fontSize: 12,
+    lineHeight: 18
+  },
   narrationCard: {
     marginTop: 8,
     backgroundColor: colors.surfaceSoft,
@@ -1118,6 +1185,11 @@ function createStyles(colors: AppPalette, isDark: boolean) {
   featureBody: {
     color: colors.textSoft,
     lineHeight: 22
+  },
+  featureAccessCopy: {
+    color: colors.textMuted,
+    fontSize: 13,
+    lineHeight: 19
   },
   label: {
     color: colors.text,

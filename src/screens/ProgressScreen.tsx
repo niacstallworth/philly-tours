@@ -1,7 +1,7 @@
 import React from "react";
 import { Alert, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
+import { useTourCatalog } from "../hooks/useTourCatalog";
 import { getCurrentTourSelection } from "../services/tourControl";
 import { getGameProgressSnapshot, subscribeToGameProgress } from "../services/gameProgress";
 import { getPendingCommunityRoomPostCount } from "../services/communityRooms";
@@ -62,6 +62,7 @@ function getBoardTitle(title: string) {
 export function ProgressScreen() {
   const colors = useThemeColors();
   const type = useTypeScale();
+  const { tours } = useTourCatalog();
   const { width: screenWidth } = useWindowDimensions();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const deckSlideStyle = React.useMemo(() => ({ width: Math.max(248, Math.min(320, screenWidth - 76)) }), [screenWidth]);

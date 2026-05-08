@@ -26,12 +26,21 @@ type Props = {
   onDeleteProfile: () => void;
 };
 
+type PurchaseIntent = {
+  tourId?: string;
+  tourTitle?: string;
+  stopId?: string;
+  source?: "home" | "tour_detail" | "drive";
+} | null;
+
 export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, fullAppUnlocked, onRefreshEntitlements, onDeleteProfile }: Props) {
   const colors = useThemeColors();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const [tab, setTab] = React.useState<"Home" | "AR" | "Board" | "Settings" | "Compass">("Home");
   const [huntSnapshot, setHuntSnapshot] = React.useState(() => getScavengerHuntSnapshot());
+  const [purchaseIntent, setPurchaseIntent] = React.useState<PurchaseIntent>(null);
+  const [checkoutReturnIntent, setCheckoutReturnIntent] = React.useState<PurchaseIntent>(null);
 
   React.useEffect(() => {
     const unsubscribe = subscribeToScavengerHunt(setHuntSnapshot);
@@ -59,11 +68,14 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
         <ThemeSurfaceProvider surface="home">
           <HomeScreen
             displayName={session.displayName}
-            initialSelectedTourId={handoffTarget?.tourId}
-            highlightedStopId={handoffTarget?.stopId}
+            initialSelectedTourId={checkoutReturnIntent?.tourId || handoffTarget?.tourId}
+            highlightedStopId={checkoutReturnIntent?.stopId || handoffTarget?.stopId}
             audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
             fullAppUnlocked={fullAppUnlocked}
-            onOpenPurchase={() => setTab("Settings")}
+            onOpenPurchase={(context) => {
+              setPurchaseIntent(context || null);
+              setTab("Settings");
+            }}
           />
         </ThemeSurfaceProvider>
       );
@@ -71,7 +83,15 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
     if (tab === "Compass") {
       return (
         <ThemeSurfaceProvider surface="map">
-          <DriveScreen initialTourId={handoffTarget?.tourId} />
+          <DriveScreen
+            initialTourId={checkoutReturnIntent?.tourId || handoffTarget?.tourId}
+            audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
+            fullAppUnlocked={fullAppUnlocked}
+            onOpenPurchase={(context) => {
+              setPurchaseIntent(context || null);
+              setTab("Settings");
+            }}
+          />
         </ThemeSurfaceProvider>
       );
     }
@@ -100,6 +120,11 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
             email={session.email}
             audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
             fullAppUnlocked={fullAppUnlocked}
+            purchaseIntent={purchaseIntent || undefined}
+            onCheckoutSuccess={() => {
+              setCheckoutReturnIntent(purchaseIntent || null);
+              setTab(purchaseIntent?.source === "drive" ? "Compass" : "Home");
+            }}
             onRefreshEntitlements={onRefreshEntitlements}
             onDeleteProfile={onDeleteProfile}
             onOpenCompanion={() => setTab("AR")}
@@ -114,6 +139,11 @@ export function MainTabs({ session, handoffTarget, audioHistoryOnlyUnlocked, ful
           email={session.email}
           audioHistoryOnlyUnlocked={audioHistoryOnlyUnlocked}
           fullAppUnlocked={fullAppUnlocked}
+          purchaseIntent={purchaseIntent || undefined}
+          onCheckoutSuccess={() => {
+            setCheckoutReturnIntent(purchaseIntent || null);
+            setTab(purchaseIntent?.source === "drive" ? "Compass" : "Home");
+          }}
           onRefreshEntitlements={onRefreshEntitlements}
           onDeleteProfile={onDeleteProfile}
           onOpenCompanion={() => setTab("AR")}

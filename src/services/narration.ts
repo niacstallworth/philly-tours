@@ -3,7 +3,9 @@ import * as Speech from "expo-speech";
 import { narrationAudioMap } from "../data/narrationAudioMap";
 import { narrationCatalogByStopId, type NarrationVariant } from "../data/narrationCatalog";
 import { narrationScriptMapByStopId } from "../data/narrationScriptMap";
+import { getPrivateNarrationScripts } from "./privateContent";
 import { recordNarrationStarted, recordStopCompleted } from "./gameProgress";
+import { getTours } from "./tourCatalog";
 import { getWearableStatus, subscribeToWearableStatus, type WearableStatus } from "./wearables";
 
 type NarrationSource = "audio" | "speech" | "none";
@@ -101,16 +103,28 @@ function syncNarrationTarget(status: WearableStatus) {
   emit({ target: nextTarget });
 }
 
+function findRuntimeStop(stopId: string) {
+  for (const tour of getTours()) {
+    const stop = tour.stops.find((entry) => entry.id === stopId);
+    if (stop) {
+      return stop;
+    }
+  }
+  return null;
+}
+
 subscribeToWearableStatus(syncNarrationTarget);
 
 export function getNarrationCoverage(stopId: string): NarrationCoverage {
   const audioEntry = narrationCatalogByStopId[stopId];
   const scriptEntry = narrationScriptMapByStopId[stopId];
+  const privateScriptEntry = getPrivateNarrationScripts(stopId);
+  const runtimeStop = findRuntimeStop(stopId);
 
-  if (audioEntry?.drive || audioEntry?.walk) {
+  if (audioEntry?.drive || audioEntry?.walk || runtimeStop?.audioUrl) {
     return "full_audio";
   }
-  if (scriptEntry?.drive || scriptEntry?.walk) {
+  if (scriptEntry?.drive || scriptEntry?.walk || privateScriptEntry?.drive || privateScriptEntry?.walk) {
     return "script_only";
   }
   return "basic";
@@ -151,11 +165,19 @@ export function getNarrationUiMeta(stopId: string): NarrationUiMeta {
 }
 
 function getSpeechScript(stop: NarrationStop, variant: NarrationVariant) {
+  const privateScript = getPrivateNarrationScripts(stop.id)?.[variant];
+  if (privateScript) {
+    return privateScript;
+  }
   const fromCatalog = narrationScriptMapByStopId[stop.id]?.[variant];
   if (fromCatalog) {
     return fromCatalog;
   }
   const fallbackVariant: NarrationVariant = variant === "walk" ? "drive" : "walk";
+  const privateFallbackScript = getPrivateNarrationScripts(stop.id)?.[fallbackVariant];
+  if (privateFallbackScript) {
+    return privateFallbackScript;
+  }
   const fallbackCatalog = narrationScriptMapByStopId[stop.id]?.[fallbackVariant];
   if (fallbackCatalog) {
     return fallbackCatalog;
@@ -187,7 +209,12 @@ function resolveNarrationPath(stop: NarrationStop, variant: NarrationVariant) {
     return fromCatalog;
   }
   const fallbackVariant: NarrationVariant = variant === "walk" ? "drive" : "walk";
-  return narrationCatalogByStopId[stop.id]?.[fallbackVariant] || stop.audioUrl || "";
+  const fallbackCatalog = narrationCatalogByStopId[stop.id]?.[fallbackVariant];
+  if (fallbackCatalog) {
+    return fallbackCatalog;
+  }
+  const runtimeStop = findRuntimeStop(stop.id);
+  return runtimeStop?.audioUrl || stop.audioUrl || "";
 }
 
 async function resolvePreferredSpeechVoiceId() {

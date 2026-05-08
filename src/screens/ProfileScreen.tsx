@@ -6,6 +6,7 @@ import { useCompanionSession } from "../hooks/useCompanionSession";
 import { openAuthSessionWithFallback } from "../services/browser";
 import { connectCompanion, refreshCompanionStatus } from "../services/companion";
 import type { WearableStatus } from "../services/wearables";
+import { getTourById } from "../services/tourCatalog";
 import {
   createCheckoutSession,
   getEntitlements,
@@ -20,6 +21,13 @@ type Props = {
   email?: string;
   audioHistoryOnlyUnlocked?: boolean;
   fullAppUnlocked?: boolean;
+  purchaseIntent?: {
+    tourId?: string;
+    tourTitle?: string;
+    stopId?: string;
+    source?: "home" | "tour_detail" | "drive";
+  };
+  onCheckoutSuccess?: () => void;
   onRefreshEntitlements?: () => Promise<void>;
   onDeleteProfile?: () => void;
   onOpenCompanion?: () => void;
@@ -44,6 +52,8 @@ export function ProfileScreen({
   email = "demo@local.app",
   audioHistoryOnlyUnlocked = false,
   fullAppUnlocked = false,
+  purchaseIntent,
+  onCheckoutSuccess,
   onRefreshEntitlements,
   onDeleteProfile,
   onOpenCompanion
@@ -60,6 +70,7 @@ export function ProfileScreen({
   const [deletionRequestedAt, setDeletionRequestedAt] = useState<number | null>(null);
   const [newsletterEmail, setNewsletterEmail] = useState(email);
   const [newsletterSubscribedAt, setNewsletterSubscribedAt] = useState<number | null>(null);
+  const checkoutSuccessHandledRef = React.useRef(false);
 
   React.useEffect(() => {
     refreshEntitlements(false).catch(() => undefined);
@@ -70,9 +81,13 @@ export function ProfileScreen({
       if (url.includes("checkout/")) {
         refreshEntitlements(false).catch(() => undefined);
       }
+      if (url.includes("checkout/success") && !checkoutSuccessHandledRef.current) {
+        checkoutSuccessHandledRef.current = true;
+        onCheckoutSuccess?.();
+      }
     });
     return () => sub.remove();
-  }, []);
+  }, [onCheckoutSuccess]);
 
   const canReconnectCompanion =
     companionStatus.supported &&
@@ -134,6 +149,7 @@ export function ProfileScreen({
   async function startHostedCheckout(amount = 999, title = "Philly Tours Day Pass", planId?: string) {
     setLoadingAction("hosted");
     setStatusMessage(null);
+    checkoutSuccessHandledRef.current = false;
     try {
       const session = await createCheckoutSession(amount, title, planId);
       if (!session.url) {
@@ -142,6 +158,12 @@ export function ProfileScreen({
       const result = await openAuthSessionWithFallback(session.url, "phillyartours://checkout/success");
       if (result.type === "success" || result.type === "dismiss" || result.type === "cancel") {
         refreshEntitlements(false).catch(() => undefined);
+      }
+      if (result.type === "success" && "url" in result && String(result.url || "").includes("checkout/success")) {
+        if (!checkoutSuccessHandledRef.current) {
+          checkoutSuccessHandledRef.current = true;
+          onCheckoutSuccess?.();
+        }
       }
     } catch (error) {
       setStatusMessage((error as Error).message || "Please try again.");
@@ -219,6 +241,33 @@ export function ProfileScreen({
       Alert.alert("Could not open link", url);
     }
   }
+
+  const purchaseContextTitle = purchaseIntent?.tourTitle?.trim() || "";
+  const purchaseContextTour = purchaseIntent?.tourId ? getTourById(purchaseIntent.tourId) : null;
+  const purchaseContextStopCount = purchaseContextTour?.stops.length || 0;
+  const purchaseContextPreviewStops = purchaseContextStopCount > 0 ? Math.min(2, purchaseContextStopCount) : 2;
+  const purchaseContextLockedStops = purchaseContextStopCount > purchaseContextPreviewStops ? purchaseContextStopCount - purchaseContextPreviewStops : 0;
+  const membershipTitle = purchaseContextTitle ? `Unlock ${purchaseContextTitle}` : "Membership";
+  const membershipCopy = purchaseContextTitle
+    ? `${purchaseContextTitle} is currently in preview mode. Unlock the full route and audio history, plus the rest of the premium tour collection, with one membership.`
+    : "Unlock premium tours and full audio history with one membership.";
+  const membershipPromise = purchaseContextTitle
+    ? purchaseContextStopCount > 0
+      ? purchaseContextLockedStops > 0
+        ? `Unlock all ${purchaseContextStopCount} stops in ${purchaseContextTitle}, including the remaining ${purchaseContextLockedStops} locked stops beyond the free preview.`
+        : `Unlock the full ${purchaseContextTitle} route with all ${purchaseContextStopCount} stops ready to hear.`
+      : `Unlock the full ${purchaseContextTitle} route and audio history.`
+    : "Unlock the full premium route catalog and audio history.";
+  const membershipReassurance = purchaseContextTitle
+    ? `One membership unlocks ${purchaseContextTitle} plus the rest of the premium collection. After checkout, come right back to this route and continue where you left off.`
+    : "One membership unlocks the premium route collection and full audio history across the app.";
+  const checkoutLabel = fullAppUnlocked
+    ? "Full Membership Unlocked"
+    : loadingAction === "hosted"
+      ? "Preparing..."
+      : purchaseContextTitle
+        ? `Unlock ${purchaseContextTitle} ($9.99)`
+        : "Checkout ($9.99)";
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -320,10 +369,8 @@ export function ProfileScreen({
       </Card>
 
       <Card style={styles.card}>
-        <Text style={styles.sectionTitle}>Membership</Text>
-        <Text style={styles.copy}>
-          Unlock premium tours and full audio history with one membership.
-        </Text>
+        <Text style={styles.sectionTitle}>{membershipTitle}</Text>
+        <Text style={styles.copy}>{membershipCopy}</Text>
         <View style={styles.chips}>
           <Chip label={activatedPlan ? activatedPlan.toUpperCase() : "FREE"} tone={activatedPlan ? "success" : "warn"} />
           <Chip
@@ -337,13 +384,20 @@ export function ProfileScreen({
             tone={entitlementStatus === "offline" ? "danger" : entitlementStatus.startsWith("active:") ? "success" : "default"}
           />
         </View>
+        {purchaseContextTitle ? (
+          <Text style={styles.meta}>
+            You were just previewing {purchaseContextTitle}. Membership unlocks stop three and beyond, plus the rest of the premium collection.
+          </Text>
+        ) : null}
+        <Text style={styles.meta}>{membershipPromise}</Text>
+        <Text style={styles.meta}>{membershipReassurance}</Text>
         <Text style={styles.meta}>Full audio history is included with membership.</Text>
         <Text style={styles.meta}>Status: {entitlementStatus}</Text>
         {statusMessage ? <Text style={styles.warning}>{statusMessage}</Text> : null}
         <PrimaryButton
           disabled={loadingAction !== null || fullAppUnlocked}
           onPress={() => startHostedCheckout(999, "Philly Tours Day Pass", "full_app")}
-          label={fullAppUnlocked ? "Full Membership Unlocked" : loadingAction === "hosted" ? "Preparing..." : "Checkout ($9.99)"}
+          label={checkoutLabel}
         />
       </Card>
 

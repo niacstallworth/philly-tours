@@ -1,7 +1,7 @@
-import { tours } from "../data/tours";
 import type { HandoffMode } from "./deepLinks";
 import { triggerHandoffTarget } from "./handoffBus";
 import { recordStopOpened } from "./gameProgress";
+import { getTours } from "./tourCatalog";
 
 type TourSelection = {
   tourId: string | null;
@@ -9,8 +9,8 @@ type TourSelection = {
 };
 
 let currentSelection: TourSelection = {
-  tourId: tours[0]?.id || null,
-  stopId: tours[0]?.stops[0]?.id || null
+  tourId: getTours()[0]?.id || null,
+  stopId: getTours()[0]?.stops[0]?.id || null
 };
 
 export function setCurrentTourSelection(tourId: string | null, stopId: string | null) {
@@ -23,6 +23,7 @@ export function getCurrentTourSelection() {
 }
 
 export function getCurrentTourContext() {
+  const tours = getTours();
   const selectedTour =
     tours.find((tour) => tour.id === currentSelection.tourId) ||
     tours.find((tour) => tour.stops.some((stop) => stop.id === currentSelection.stopId)) ||

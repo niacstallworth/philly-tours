@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { tours } from "../data/tours";
+import { getTours } from "./tourCatalog";
 
 const DRIVE_SESSION_KEY = "philly_tours_drive_session_v1";
 const driveSessionListeners = new Set<(session: DriveSession | null) => void>();
@@ -11,6 +11,9 @@ export type DriveTourSummary = {
   distanceMiles: number;
   stopCount: number;
   heroStopTitle?: string;
+  requiredPlanId?: string | null;
+  isAccessible?: boolean;
+  previewOnly?: boolean;
 };
 
 export type DriveStop = {
@@ -45,18 +48,21 @@ export function buildTourHandoffLink(tourId: string, stopId: string, mode: "arri
 }
 
 export function getDriveTourSummaries(): DriveTourSummary[] {
-  return tours.map((tour) => ({
+  return getTours().map((tour) => ({
     id: tour.id,
     title: tour.title,
     durationMin: tour.durationMin,
     distanceMiles: tour.distanceMiles,
     stopCount: tour.stops.length,
-    heroStopTitle: tour.stops[0]?.title
+    heroStopTitle: tour.stops[0]?.title,
+    requiredPlanId: tour.requiredPlanId || null,
+    isAccessible: tour.isAccessible,
+    previewOnly: tour.previewOnly
   }));
 }
 
 export function getDriveStops(tourId: string): DriveStop[] {
-  const tour = tours.find((entry) => entry.id === tourId);
+  const tour = getTours().find((entry) => entry.id === tourId);
   if (!tour) {
     return [];
   }

@@ -1,7 +1,7 @@
-import { tours } from "../data/tours";
 import { buildHandoffUrl } from "./deepLinks";
 import { getNarrationState, startNarration, stopNarration } from "./narration";
 import { getCurrentTourContext, openTourStopOnPhone } from "./tourControl";
+import { getTours } from "./tourCatalog";
 import {
   disconnectWearable,
   getWearableStatus,
@@ -86,7 +86,7 @@ export function subscribeToCompanionCommands(listener: CompanionCommandListener)
 }
 
 function getTourById(tourId: string) {
-  return tours.find((tour) => tour.id === tourId) || null;
+  return getTours().find((tour) => tour.id === tourId) || null;
 }
 
 function getStopForTour(tourId: string, stopId: string) {
@@ -138,7 +138,7 @@ export async function handleWearableCommand(command: CompanionCommand): Promise<
 
   switch (command.type) {
     case "start_tour": {
-      const targetTour = tours.find((tour) => tour.id === command.tourId);
+      const targetTour = getTours().find((tour) => tour.id === command.tourId);
       const firstStop = targetTour?.stops[0];
       if (!targetTour || !firstStop) {
         result = { ok: false, message: `Tour ${command.tourId} could not be opened.` };

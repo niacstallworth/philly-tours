@@ -1,7 +1,7 @@
 import React from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
-import { tours } from "../data/tours";
+import { useTourCatalog } from "../hooks/useTourCatalog";
 import {
   connectCompanion,
   connectMockCompanion,
@@ -25,6 +25,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
   const colors = useThemeColors();
   const type = useTypeScale();
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
+  const { tours } = useTourCatalog();
   const { status, lastCommandResult } = useCompanionSession();
   const [busy, setBusy] = React.useState<"pair" | "pair-mock" | "disconnect" | "refresh" | "command" | null>(null);
   const [message, setMessage] = React.useState<string | null>(status.lastError);
@@ -41,7 +42,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
     status.connectionState !== "connected" &&
     status.connectionState !== "pairing";
   const connectLabel = getConnectLabel(status, canReconnect);
-  const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0] || null, [selectedTourId]);
+  const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0] || null, [selectedTourId, tours]);
   const selectedTourAudioCount = React.useMemo(
     () => (selectedTour ? selectedTour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length : 0),
     [selectedTour]
