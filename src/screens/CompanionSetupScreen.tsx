@@ -3,8 +3,8 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-n
 import { Card, Chip, PrimaryButton } from "../components/ui/Primitives";
 import { useTourCatalog } from "../hooks/useTourCatalog";
 import {
+  connectBluetoothAudioCompanion,
   connectCompanion,
-  connectMockCompanion,
   disconnectCompanion,
   handleWearableCommand,
   refreshCompanionStatus
@@ -27,21 +27,23 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
   const styles = React.useMemo(() => createStyles(colors, type), [colors, type]);
   const { tours } = useTourCatalog();
   const { status, lastCommandResult } = useCompanionSession();
-  const [busy, setBusy] = React.useState<"pair" | "pair-mock" | "disconnect" | "refresh" | "command" | null>(null);
+  const [busy, setBusy] = React.useState<"pair" | "pair-audio" | "disconnect" | "refresh" | "command" | null>(null);
   const [message, setMessage] = React.useState<string | null>(status.lastError);
   const [nativeArStatus, setNativeArStatus] = React.useState<NativeArStatus | null>(null);
   const context = getCurrentTourContext();
   const [selectedTourId, setSelectedTourId] = React.useState<string>(context?.tour.id || tours[0]?.id || "");
-  const mockPairingAvailable = status.integrationMode === "native" && status.platformLabel === "iOS";
   const isConnected = status.connectionState === "connected";
   const isMockConnected = isConnected && !!status.pairedDevice?.isMock;
   const isNativeRealFlow = status.integrationMode === "native" && !isMockConnected;
-  const canReconnect =
+  const bluetoothAudioReady = status.audioRoute.connected && status.audioRoute.isBluetooth;
+  const canReconnectNative =
     status.supported &&
+    status.integrationMode !== "manual" &&
     status.pairedDevice != null &&
     status.connectionState !== "connected" &&
     status.connectionState !== "pairing";
-  const connectLabel = getConnectLabel(status, canReconnect);
+  const connectLabel = getConnectLabel(status, canReconnectNative);
+  const bluetoothConnectLabel = getBluetoothConnectLabel(status);
   const selectedTour = React.useMemo(() => tours.find((tour) => tour.id === selectedTourId) || tours[0] || null, [selectedTourId, tours]);
   const selectedTourAudioCount = React.useMemo(
     () => (selectedTour ? selectedTour.stops.filter((stop) => getNarrationCoverage(stop.id) === "full_audio").length : 0),
@@ -111,13 +113,13 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
     }
   }
 
-  async function onPairMock() {
-    setBusy("pair-mock");
+  async function onPairBluetoothAudio() {
+    setBusy("pair-audio");
     try {
-      await connectMockCompanion();
-      setMessage("Mock Ray-Ban Meta connected.");
+      const nextStatus = await connectBluetoothAudioCompanion();
+      setMessage(nextStatus.statusMessage ?? "Universal audio mode is active.");
     } catch (error) {
-      setMessage((error as Error).message || "Unable to pair mock Meta glasses.");
+      setMessage((error as Error).message || "Unable to activate Bluetooth audio routing.");
     } finally {
       setBusy(null);
     }
@@ -353,32 +355,38 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
           <Text style={styles.meta}>
             {status.grantedPermissions.length ? `Permissions: ${status.grantedPermissions.join(", ")}` : "No companion permissions granted yet."}
           </Text>
-          {status.pairedDevice?.isMock ? <Text style={styles.meta}>Mock device mode is active for companion testing on iOS.</Text> : null}
-          {isMockConnected ? <Text style={styles.meta}>Disconnect the mock device before starting real Ray-Ban Meta registration.</Text> : null}
-          {canReconnect ? <Text style={styles.meta}>{getReconnectCopy(status)}</Text> : null}
+          {canReconnectNative ? <Text style={styles.meta}>{getReconnectCopy(status)}</Text> : null}
           {isNativeRealFlow ? <Text style={styles.meta}>{getNativePairingHint(status)}</Text> : null}
         </View>
-        {!isConnected ? (
+        <View style={styles.featureCallout}>
+          <Text style={styles.label}>Bluetooth audio route</Text>
+          <Text style={styles.value}>{status.audioRoute.displayName || "iPhone speaker"}</Text>
+          <Text style={styles.meta}>{status.audioRoute.statusMessage}</Text>
+          {!bluetoothAudioReady ? (
+            <Text style={styles.meta}>
+              Pair universal audio glasses in system Bluetooth settings first, then return here and refresh status before enabling universal audio mode.
+            </Text>
+          ) : null}
+        </View>
+        {status.nativeCompanionAvailable && !isConnected ? (
           <PrimaryButton
             label={busy === "pair" ? "Connecting..." : connectLabel}
             onPress={() => void onPair()}
             disabled={busy !== null}
           />
         ) : null}
-        {mockPairingAvailable && !isConnected ? (
-          <PrimaryButton
-            label={busy === "pair-mock" ? "Connecting Mock..." : "Pair Mock Ray-Ban Meta"}
-            onPress={() => void onPairMock()}
-            disabled={busy !== null}
-          />
-        ) : null}
+        <PrimaryButton
+          label={busy === "pair-audio" ? "Checking Audio Route..." : bluetoothConnectLabel}
+          onPress={() => void onPairBluetoothAudio()}
+          disabled={busy !== null}
+        />
         <View style={styles.secondaryActionRow}>
           <Pressable style={styles.secondaryActionButton} onPress={() => void onRefresh()} disabled={busy !== null}>
             <Text style={styles.secondaryActionLabel}>{busy === "refresh" ? "Refreshing..." : "Refresh status"}</Text>
           </Pressable>
           <Pressable style={styles.secondaryActionButton} onPress={() => void onDisconnect()} disabled={busy !== null}>
             <Text style={styles.secondaryActionLabel}>
-              {busy === "disconnect" ? "Disconnecting..." : isMockConnected ? "Disconnect mock" : "Disconnect"}
+              {busy === "disconnect" ? "Disconnecting..." : "Disconnect"}
             </Text>
           </Pressable>
         </View>
@@ -394,11 +402,7 @@ export function CompanionSetupScreen({ audioHistoryOnlyUnlocked = false, fullApp
 }
 
 function getConnectLabel(status: WearableStatus, canReconnect: boolean) {
-  if (status.integrationMode === "manual") {
-    return canReconnect ? "Restore Universal Audio Mode" : "Enable Universal Audio Mode";
-  }
-
-  if (status.integrationMode === "native") {
+  if (status.nativeCompanionAvailable) {
     if (status.connectionState === "pairing") {
       return "Continue Ray-Ban Meta Pairing";
     }
@@ -407,19 +411,27 @@ function getConnectLabel(status: WearableStatus, canReconnect: boolean) {
       return "Reconnect Ray-Ban Meta";
     }
 
-    return status.pairedDevice ? "Activate Ray-Ban Meta Session" : "Start Ray-Ban Meta Registration";
+    return status.integrationMode === "native" && status.pairedDevice ? "Activate Ray-Ban Meta Session" : "Start Ray-Ban Meta Registration";
   }
 
-  return canReconnect ? "Reconnect Companion Device" : "Connect Companion Device";
+  return "Meta Pairing Unavailable";
+}
+
+function getBluetoothConnectLabel(status: WearableStatus) {
+  if (status.audioRoute.connected && status.audioRoute.isBluetooth) {
+    return status.integrationMode === "manual" ? "Universal Audio Mode Active" : "Use Current Bluetooth Audio";
+  }
+
+  return Platform.OS === "android" ? "Open Bluetooth Settings" : "Set Up Bluetooth Audio";
 }
 
 function getIntegrationChipLabel(status: WearableStatus) {
-  if (status.integrationMode === "native") {
-    return "Native DAT";
-  }
-
   if (status.integrationMode === "manual") {
     return "Universal audio mode";
+  }
+
+  if (status.integrationMode === "native") {
+    return "Native DAT";
   }
 
   return "Integration unavailable";
@@ -439,14 +451,14 @@ function getCompanionIntroCopy(status: WearableStatus) {
 
 function getCompanionDetailCopy(status: WearableStatus) {
   if (status.integrationMode === "manual") {
-    return "Pair any Bluetooth glasses, headset, or speaker in Android settings first, then enable this mode to keep narration on that output.";
+    return "Pair any Bluetooth glasses, headset, or speaker in system settings first, then enable universal audio mode to keep narration on that output.";
   }
 
-  if (status.integrationMode === "native") {
-    return "Use your iPhone with any Bluetooth audio device for universal narration. Registration, device state, and camera permission are available here when you want the Meta-specific experience.";
+  if (status.nativeCompanionAvailable) {
+    return "Use your phone with any Bluetooth audio device for universal narration, or start Meta registration here when you want device state, camera permission, and deeper companion controls.";
   }
 
-  return "Use the phone app for route planning, narration, and handoff.";
+  return "Use the phone with any Bluetooth audio device for narration even when Meta pairing is not available in this build.";
 }
 
 function getReconnectCopy(status: WearableStatus) {

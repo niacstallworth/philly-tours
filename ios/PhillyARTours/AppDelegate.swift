@@ -1,4 +1,5 @@
 import Expo
+import AVFoundation
 import MWDATCore
 import MWDATMockDevice
 import React
@@ -247,13 +248,16 @@ final class MetaWearablesManager {
     let permissions = await grantedPermissions()
     let connectionState = currentConnectionState()
     let statusMessage = currentStatusMessage(for: connectionState)
+    let nativeCompanionAvailable = configurationIssues.isEmpty && wearables.registrationState != .unavailable
 
     return [
       "supported": true,
       "connectionState": connectionState.rawValue,
       "pairedDevice": devicePayload() ?? NSNull(),
+      "audioRoute": audioRoutePayload(),
       "grantedPermissions": permissions,
       "lastError": lastErrorMessage ?? NSNull(),
+      "nativeCompanionAvailable": nativeCompanionAvailable,
       "statusMessage": statusMessage ?? NSNull()
     ]
   }
@@ -278,6 +282,18 @@ final class MetaWearablesManager {
     observers.append(
       notificationCenter.addObserver(
         forName: NSNotification.wearablesDevicesChanged,
+        object: nil,
+        queue: .main
+      ) { [weak self] _ in
+        Task { @MainActor in
+          await self?.syncFromToolkit()
+        }
+      }
+    )
+
+    observers.append(
+      notificationCenter.addObserver(
+        forName: AVAudioSession.routeChangeNotification,
         object: nil,
         queue: .main
       ) { [weak self] _ in
@@ -428,6 +444,68 @@ final class MetaWearablesManager {
     }
 
     return "Meta DAT is missing project configuration: \(configurationIssues.joined(separator: ", ")). Replace the placeholder build settings in the iOS target before pairing. Narration can still use the current iPhone audio output."
+  }
+
+  private func audioRoutePayload() -> [String: Any] {
+    let session = AVAudioSession.sharedInstance()
+    let outputs = session.currentRoute.outputs
+
+    guard let primaryOutput = outputs.first else {
+      return [
+        "available": true,
+        "connected": false,
+        "isBluetooth": false,
+        "kind": "unknown",
+        "displayName": NSNull(),
+        "statusMessage": "No Bluetooth audio route is active yet."
+      ]
+    }
+
+    let kind: String
+    let isBluetooth: Bool
+    let connected: Bool
+
+    switch primaryOutput.portType {
+    case .bluetoothA2DP, .bluetoothHFP, .bluetoothLE:
+      kind = "bluetooth"
+      isBluetooth = true
+      connected = true
+    case .headphones, .usbAudio, .carAudio:
+      kind = "wired"
+      isBluetooth = false
+      connected = true
+    case .airPlay:
+      kind = "airplay"
+      isBluetooth = false
+      connected = true
+    case .builtInSpeaker, .builtInReceiver:
+      kind = "speaker"
+      isBluetooth = false
+      connected = false
+    default:
+      kind = "unknown"
+      isBluetooth = false
+      connected = false
+    }
+
+    let routeName = primaryOutput.portName.trimmingCharacters(in: .whitespacesAndNewlines)
+    let message: String
+    if isBluetooth {
+      message = "Bluetooth audio is currently routed to \(routeName)."
+    } else if connected {
+      message = "Audio is currently routed to \(routeName)."
+    } else {
+      message = "Audio is currently playing on iPhone."
+    }
+
+    return [
+      "available": true,
+      "connected": connected,
+      "isBluetooth": isBluetooth,
+      "kind": kind,
+      "displayName": routeName.isEmpty ? NSNull() : routeName,
+      "statusMessage": message
+    ]
   }
 
   private func metaConfigurationIssues() -> [String] {

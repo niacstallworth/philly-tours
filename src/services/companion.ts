@@ -5,7 +5,7 @@ import { getTours } from "./tourCatalog";
 import {
   disconnectWearable,
   getWearableStatus,
-  pairMockWearable,
+  pairBluetoothAudioWearable,
   pairWearable,
   refreshWearableStatus,
   subscribeToWearableStatus,
@@ -61,8 +61,8 @@ export async function connectCompanion() {
   return pairWearable();
 }
 
-export async function connectMockCompanion() {
-  return pairMockWearable();
+export async function connectBluetoothAudioCompanion() {
+  return pairBluetoothAudioWearable();
 }
 
 export async function disconnectCompanion() {
