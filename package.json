@@ -49,6 +49,7 @@
     "content:test:private": "node scripts/test-private-content-connection.mjs",
     "content:generate:private": "node scripts/generate-private-tour-catalog.mjs",
     "content:sync:private-workspaces": "node scripts/sync-private-tour-workspaces.mjs",
+    "content:smoke:private": "node scripts/smoke-test-private-catalog.mjs",
     "content:scaffold:private-assets": "node scripts/scaffold-private-asset-tree.mjs",
     "content:upload:private-assets": "node scripts/upload-private-tour-assets.mjs",
     "content:prepare:private-audio": "node scripts/prepare-private-tour-audio.mjs",
