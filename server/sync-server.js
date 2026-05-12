@@ -77,6 +77,7 @@ const GOOGLE_IAP_ENABLED =
 const CLOUDFLARE_TURNSTILE_SECRET_KEY = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY || "";
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const NEWSLETTER_FROM_EMAIL = process.env.NEWSLETTER_FROM_EMAIL || "Philly Tours <newsletter@philly-tours.com>";
+const TOUR_GUIDE_NOTIFICATION_EMAIL = process.env.TOUR_GUIDE_NOTIFICATION_EMAIL || "info@foundersthreads.org";
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
 const GOOGLE_MAPS_DEFAULT_REGION = (process.env.GOOGLE_MAPS_DEFAULT_REGION || "us").trim();
 const GOOGLE_MAPS_DEFAULT_LANGUAGE = (process.env.GOOGLE_MAPS_DEFAULT_LANGUAGE || "en").trim();
@@ -1111,6 +1112,66 @@ async function sendNewsletterConfirmationEmail({ email, displayName }) {
   return payload;
 }
 
+async function sendTourGuidePurchaseNotificationEmail(session) {
+  if (!RESEND_API_KEY.trim()) {
+    throw new Error("Tour guide purchase email delivery is not configured. Set RESEND_API_KEY on the sync server.");
+  }
+
+  const customerName = String(session?.customer_details?.name || "").trim() || "Guest";
+  const customerEmail = normalizeEmail(session?.customer_details?.email || session?.customer_email || "");
+  const amountTotal = Number(session?.amount_total || 0);
+  const amountLabel = amountTotal > 0 ? `$${(amountTotal / 100).toFixed(2)}` : "Unknown";
+  const description = String(session?.metadata?.productTitle || session?.metadata?.planId || "In-person tour guide").trim();
+  const sessionId = String(session?.id || "").trim() || "unknown";
+
+  const html = [
+    `<div style="font-family: Arial, sans-serif; color: #0b2035; line-height: 1.5;">`,
+    `<h2 style="margin-bottom: 12px;">New in-person tour guide purchase</h2>`,
+    `<p>A webapp customer completed checkout for the in-person tour guide product.</p>`,
+    `<ul>`,
+    `<li><strong>Product:</strong> ${description}</li>`,
+    `<li><strong>Amount:</strong> ${amountLabel}</li>`,
+    `<li><strong>Name:</strong> ${customerName}</li>`,
+    `<li><strong>Email:</strong> ${customerEmail || "Not provided"}</li>`,
+    `<li><strong>Stripe checkout session:</strong> ${sessionId}</li>`,
+    `</ul>`,
+    `</div>`
+  ].join("");
+
+  const text = [
+    `New in-person tour guide purchase`,
+    ``,
+    `A webapp customer completed checkout for the in-person tour guide product.`,
+    ``,
+    `Product: ${description}`,
+    `Amount: ${amountLabel}`,
+    `Name: ${customerName}`,
+    `Email: ${customerEmail || "Not provided"}`,
+    `Stripe checkout session: ${sessionId}`
+  ].join("\n");
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: NEWSLETTER_FROM_EMAIL,
+      to: [TOUR_GUIDE_NOTIFICATION_EMAIL],
+      subject: "In-person tour guide purchased",
+      html,
+      text
+    })
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload?.message || payload?.error || "Tour guide purchase email delivery failed.");
+  }
+  return payload;
+}
+
 function hasRole(actor, role) {
   return Array.isArray(actor?.roles) && actor.roles.includes(role);
 }
@@ -2019,6 +2080,13 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), (req,
         ["succeeded", updatedAt, JSON.stringify(object), object.id || ""]
       );
       await upsertStripeCheckoutEntitlementFromSession(object);
+      if (String(object?.metadata?.planId || "").trim() === "in-person-tour-guide") {
+        try {
+          await sendTourGuidePurchaseNotificationEmail(object);
+        } catch (error) {
+          console.error("Tour guide purchase notification failed", error);
+        }
+      }
     } else if (event.type === "checkout.session.expired") {
       await dbQuery(
         `update public.payment_orders
@@ -2623,7 +2691,8 @@ app.post("/api/payments/checkout-session", async (req, res) => {
         metadata: {
           source: "hosted_checkout",
           ...(userId ? { userId } : {}),
-          ...(body.planId ? { planId: body.planId } : {})
+          ...(body.planId ? { planId: body.planId } : {}),
+          productTitle: body.title
         },
         line_items: [
           {
