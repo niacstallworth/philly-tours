@@ -23,3 +23,6 @@
 
 /ar-data.js
   Cache-Control: public, max-age=300
+
+/OneSignalSDKWorker.js
+  Cache-Control: no-cache

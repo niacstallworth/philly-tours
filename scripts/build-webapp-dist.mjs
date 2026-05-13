@@ -73,6 +73,7 @@ const siteConfig = {
   inPersonTourGuideRateCentsPerMinute: process.env.EXPO_PUBLIC_IN_PERSON_TOUR_GUIDE_RATE_CENTS_PER_MINUTE || "125",
   inPersonTourGuidePriceCents: process.env.EXPO_PUBLIC_IN_PERSON_TOUR_GUIDE_PRICE_CENTS || "",
   inPersonTourGuideLabel: process.env.EXPO_PUBLIC_IN_PERSON_TOUR_GUIDE_LABEL || "In-person guided tour",
+  oneSignalAppId: process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID || "",
   iosAppStoreUrl: process.env.EXPO_PUBLIC_IOS_APP_STORE_URL || "",
   androidPlayStoreUrl: process.env.EXPO_PUBLIC_ANDROID_PLAY_STORE_URL || "",
   city: {

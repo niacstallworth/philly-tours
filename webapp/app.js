@@ -290,6 +290,7 @@ const DEFAULT_IN_PERSON_GUIDE_RATE_CENTS_PER_MINUTE = 125;
 const STOP_FLEX_UNLOCK_COUNT = 3;
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 const CONTACT_EMAIL = "info@foundersthreads.org";
+const ONESIGNAL_SDK_SRC = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
 const SOCIAL_CHANNELS = [
   {
     label: "Instagram",
@@ -385,6 +386,8 @@ let webTurnstileWidgetId = null;
 let authRefreshTimer = null;
 let tabBarAutoHideTimer = null;
 let supabaseClientPromise = null;
+let oneSignalSdkPromise = null;
+let oneSignalInitPromise = null;
 
 const state = {
   auth: {
@@ -450,6 +453,11 @@ const state = {
     email: "",
     status: "idle",
     message: ""
+  },
+  webPush: {
+    status: "idle",
+    message: "",
+    permission: getBrowserNotificationPermission()
   },
   checkout: {
     status: "idle",
@@ -543,6 +551,7 @@ updateTopbarScrollState();
 render();
 initializeWebXRSupport().catch(() => undefined);
 initializeWebAuth();
+initializeWebPush().catch(() => undefined);
 refreshSupabaseTourCatalog({ render: true }).catch(() => undefined);
 
 function scrollViewportToTop() {
@@ -3811,6 +3820,11 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "enable-web-push") {
+    enableWebPushNotifications();
+    return;
+  }
+
   if (action === "start-upgrade-checkout") {
     startUpgradeCheckout();
     return;
@@ -4964,6 +4978,203 @@ function getNewsletterApiConfig() {
   const supabaseAnonKey = String(siteConfig.supabaseAnonKey || "").trim();
   const newsletterTable = String(siteConfig.newsletterTable || "newsletter_subscribers").trim();
   return { supabaseUrl, supabaseAnonKey, newsletterTable };
+}
+
+function getOneSignalAppId() {
+  return String(siteConfig.oneSignalAppId || siteConfig.onesignalAppId || "").trim();
+}
+
+function getBrowserNotificationPermission() {
+  if (!("Notification" in window)) {
+    return "unsupported";
+  }
+  return Notification.permission || "default";
+}
+
+function getWebPushSupportIssue() {
+  if (!getOneSignalAppId()) {
+    return "Route alerts are coming soon.";
+  }
+  if (!("Notification" in window)) {
+    return "This browser does not support web notifications.";
+  }
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    return "This browser cannot receive web push alerts.";
+  }
+  if (!window.isSecureContext) {
+    return "Push alerts require HTTPS.";
+  }
+  return "";
+}
+
+function getWebPushStatusMarkup() {
+  const message = state.webPush.message || getWebPushSupportIssue();
+  if (!message) {
+    return "";
+  }
+
+  const statusClass =
+    state.webPush.status === "success"
+      ? "subscription-status success"
+      : state.webPush.status === "error"
+        ? "subscription-status error"
+        : "subscription-status";
+
+  return `<p class="${statusClass}" role="status">${escapeHtml(message)}</p>`;
+}
+
+function getWebPushButtonLabel() {
+  if (state.webPush.status === "submitting") {
+    return "Enabling...";
+  }
+  if (state.webPush.permission === "granted") {
+    return "Alerts enabled";
+  }
+  if (state.webPush.permission === "denied") {
+    return "Blocked in browser";
+  }
+  return "Enable route alerts";
+}
+
+function renderWebPushSignup() {
+  const supportIssue = getWebPushSupportIssue();
+  const disabled =
+    !!supportIssue ||
+    state.webPush.status === "submitting" ||
+    state.webPush.permission === "granted" ||
+    state.webPush.permission === "denied";
+
+  return `
+    <div class="web-push-panel">
+      <div class="drawer-copy">
+        <strong>Route alerts</strong>
+        <p>Let Philly Tours send browser notifications for new route drops, pilot walks, and app launch updates.</p>
+      </div>
+      <div class="button-row compact">
+        <button type="button" class="ghost-button ${state.webPush.permission === "granted" ? "active" : ""}" data-action="enable-web-push" ${disabled ? "disabled" : ""}>
+          ${getWebPushButtonLabel()}
+        </button>
+      </div>
+      ${getWebPushStatusMarkup()}
+    </div>
+  `;
+}
+
+function loadOneSignalSdk() {
+  if (window.OneSignal || document.querySelector(`script[src="${ONESIGNAL_SDK_SRC}"]`)) {
+    return Promise.resolve();
+  }
+
+  if (oneSignalSdkPromise) {
+    return oneSignalSdkPromise;
+  }
+
+  oneSignalSdkPromise = new Promise((resolve, reject) => {
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    const script = document.createElement("script");
+    script.src = ONESIGNAL_SDK_SRC;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Unable to load OneSignal."));
+    document.head.appendChild(script);
+  });
+
+  return oneSignalSdkPromise;
+}
+
+async function getInitializedOneSignal() {
+  const appId = getOneSignalAppId();
+  if (!appId) {
+    throw new Error("Missing OneSignal app id.");
+  }
+
+  if (!oneSignalInitPromise) {
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    oneSignalInitPromise = new Promise((resolve, reject) => {
+      window.OneSignalDeferred.push(async (OneSignal) => {
+        try {
+          await OneSignal.init({
+            appId,
+            serviceWorkerPath: "/OneSignalSDKWorker.js",
+            serviceWorkerParam: { scope: "/" },
+            notifyButton: { enable: false },
+            allowLocalhostAsSecureOrigin: true
+          });
+          resolve(OneSignal);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  await loadOneSignalSdk();
+  return oneSignalInitPromise;
+}
+
+async function initializeWebPush() {
+  const supportIssue = getWebPushSupportIssue();
+  state.webPush.permission = getBrowserNotificationPermission();
+  if (supportIssue || state.webPush.permission === "denied") {
+    return;
+  }
+
+  try {
+    await getInitializedOneSignal();
+    state.webPush.permission = getBrowserNotificationPermission();
+    if (state.webPush.permission === "granted") {
+      state.webPush.status = "success";
+      state.webPush.message = "Route alerts are enabled on this browser.";
+      render(false);
+    }
+  } catch {
+    state.webPush.status = "error";
+    state.webPush.message = "Push alerts could not start right now.";
+    render(false);
+  }
+}
+
+async function enableWebPushNotifications() {
+  const supportIssue = getWebPushSupportIssue();
+  if (supportIssue) {
+    state.webPush.status = "error";
+    state.webPush.message = supportIssue;
+    render(false);
+    return;
+  }
+
+  state.webPush.status = "submitting";
+  state.webPush.message = "Opening the browser notification prompt...";
+  render(false);
+
+  try {
+    const OneSignal = await getInitializedOneSignal();
+    if (OneSignal.Notifications?.requestPermission) {
+      await OneSignal.Notifications.requestPermission();
+    } else {
+      await Notification.requestPermission();
+    }
+    if (OneSignal.User?.PushSubscription?.optIn) {
+      await OneSignal.User.PushSubscription.optIn();
+    }
+
+    state.webPush.permission = getBrowserNotificationPermission();
+    if (state.webPush.permission === "granted") {
+      state.webPush.status = "success";
+      state.webPush.message = "Route alerts are enabled on this browser.";
+    } else if (state.webPush.permission === "denied") {
+      state.webPush.status = "error";
+      state.webPush.message = "Notifications are blocked in this browser. Update site settings to enable them.";
+    } else {
+      state.webPush.status = "idle";
+      state.webPush.message = "No problem. You can enable route alerts later.";
+    }
+  } catch {
+    state.webPush.status = "error";
+    state.webPush.message = "Push alerts could not be enabled right now.";
+  }
+
+  render(false);
 }
 
 function getSubscriptionStatusMarkup() {
@@ -7429,6 +7640,7 @@ function renderProfileTab() {
             hideCopy: true
           })}
         </div>
+        ${renderWebPushSignup()}
         <form class="subscription-form" data-form="newsletter-subscription">
           <div class="drawer-copy">
             <strong>Join the email list</strong>

@@ -13,6 +13,7 @@ window.PHILLY_TOURS_CONFIG = {
   "inPersonTourGuideRateCentsPerMinute": "125",
   "inPersonTourGuidePriceCents": "",
   "inPersonTourGuideLabel": "In-person guided tour",
+  "oneSignalAppId": "",
   "iosAppStoreUrl": "",
   "androidPlayStoreUrl": "",
   "city": {
