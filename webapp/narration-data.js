@@ -2,167 +2,1511 @@
 // Sources: src/data/narrationCatalog.ts, src/data/narrationScriptMap.ts
 window.PHILLY_TOURS_NARRATION = {
   "catalogByStopId": {
-    "mother-bethel": {
+    "black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center": {
       "drive": "",
       "walk": ""
     },
-    "presidents-house": {
+    "black-american-legacy-and-quaker-heritage-pennsylvania-abolition-society": {
       "drive": "",
       "walk": ""
     },
-    "johnson-house": {
+    "black-american-legacy-and-quaker-heritage-free-quaker-meeting-house": {
       "drive": "",
       "walk": ""
     },
-    "the-woodlands": {
+    "black-american-legacy-and-quaker-heritage-arch-street-friends-meeting-house": {
       "drive": "",
       "walk": ""
     },
-    "masonic-temple": {
+    "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church": {
       "drive": "",
       "walk": ""
     },
-    "reading-terminal-market": {
+    "black-american-legacy-and-quaker-heritage-lombard-street-free-african-society-ho": {
       "drive": "",
       "walk": ""
     },
-    "please-touch-museum": {
+    "black-american-legacy-and-quaker-heritage-christian-street-ymca": {
       "drive": "",
       "walk": ""
     },
-    "shofuso": {
+    "black-american-legacy-and-quaker-heritage-the-woodlands": {
       "drive": "",
       "walk": ""
     },
-    "alpha-phi-alpha": {
+    "black-american-legacy-and-quaker-heritage-w-e-b-du-bois-college-house": {
       "drive": "",
       "walk": ""
     },
-    "delta-sigma-theta": {
+    "black-american-legacy-and-quaker-heritage-3911-delancey-street": {
       "drive": "",
       "walk": ""
     },
-    "phi-beta-sigma": {
+    "black-american-legacy-and-quaker-heritage-4600-spruce-street": {
       "drive": "",
       "walk": ""
     },
-    "iota-phi-theta": {
+    "black-american-legacy-and-quaker-heritage-4700-4800-blocks-of-walnut-street": {
       "drive": "",
       "walk": ""
     },
-    "the-palestra": {
+    "black-american-legacy-and-quaker-heritage-lemon-hill-mansion": {
       "drive": "",
       "walk": ""
     },
-    "hampton-park": {
+    "black-american-legacy-and-quaker-heritage-freedom-theatre": {
       "drive": "",
       "walk": ""
     },
-    "joe-frazier": {
+    "black-american-legacy-and-quaker-heritage-cecil-b-moore-avenue": {
       "drive": "",
       "walk": ""
     },
-    "overbrook": {
+    "black-american-legacy-and-quaker-heritage-john-coltrane-house": {
       "drive": "",
       "walk": ""
     },
-    "library-company": {
+    "black-american-legacy-and-quaker-heritage-belmont-mansion": {
       "drive": "",
       "walk": ""
     },
-    "athenaeum": {
+    "black-american-legacy-and-quaker-heritage-mount-pleasant": {
       "drive": "",
       "walk": ""
     },
-    "free-library": {
+    "black-american-legacy-and-quaker-heritage-ormiston": {
       "drive": "",
       "walk": ""
     },
-    "blockson": {
+    "black-american-legacy-and-quaker-heritage-cedar-grove-and-laurel-hill-mansions": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-strawberry-mansion": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-3200-3400-blocks-diamond-and-susquehan": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-stenton": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-belfield-mansion": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-grumblethorpe": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-deshler-morris-house": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-wyck": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-germantown-mennonite-meetinghouse": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-johnson-house": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-cliveden": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-legacy-and-quaker-heritage-upsala": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-masonic-temple": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-reading-terminal-market": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-hard-rock-cafe": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-arch-street-presbyterian-church": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-green-eggs-caf": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-sweetbriar-mansion-lawn": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-smith-memorial-playground": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-please-touch-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-shofuso-japanese-house-and-garden": {
+      "drive": "",
+      "walk": ""
+    },
+    "rainbow-girls-philadelphia-covenant-house-pa": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-alpha-kappa-alpha-ivy-legacy": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-zeta-phi-beta-17th-and-jefferson": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-iota-phi-theta-temple-greek-row": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-delta-sigma-theta-40th-and-market": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-phi-beta-sigma-44th-and-market": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-kappa-alpha-psi-44th-and-chestnut": {
+      "drive": "",
+      "walk": ""
+    },
+    "divine-9-legacy-tour-sigma-gamma-rho-48th-and-spruce": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-south-kitchen-and-jazz-club": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-marian-anderson-rec-center": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-the-palestra": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-joe-frazier-s-gym-cloverlay": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-dell-music-center": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-allen-iverson-s-hampton-park-courts": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-overbrook-high-school": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-sonny-hill-league-tustin": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-american-sports-maxie-s-pizza": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-garrett-morgan-traffic-signal": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-african-american-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-lewis-latimer-light-bulb-exhibit": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-dr-charles-drew-blood-bank": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-sarah-e-goode-house": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-granville-t-woods-railway-site": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-norbert-rillieux-way": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-inventors-tour-frederick-mckinley-jones-route": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-story-hop-tour-library-company-of-philadelphia": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-story-hop-tour-historical-society-of-pennsylvania": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-story-hop-tour-free-library-central-parkway": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-story-hop-tour-parkway-central-children-s-dept": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-story-hop-tour-rosenbach-museum-and-library": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-story-hop-tour-athenaeum-of-philadelphia": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-story-hop-tour-charles-l-blockson-collection": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-happy-hollow-rec-center": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-germantown-high-school": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-the-nile-restaurant-and-lounge": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-johnson-house-historic-site": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-cliveden-historic-site": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-ogontz-theatre-site": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-old-york-road-and-north-broad": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-cecil-b-moore-law-office": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-relish-restaurant": {
+      "drive": "",
+      "walk": ""
+    },
+    "old-york-road-corridor-woodmere-art-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-frederick-douglass-hospital": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-pennsylvania-hospital": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-mercy-hospital-site": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-free-african-society": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-mother-bethel-ame-church": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-black-doctors-row": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-yellow-fever-sites": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-city-almshouse": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-philadelphia-general-hospital": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-dr-virginia-alexander-clinic": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-barbara-bates-center": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-mercy-douglass-hospital": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-mercy-douglass-nurse-training": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-move-bombing-sites": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-medical-legacy-holmesburg-prison": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-masonic-temple": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-the-breakfast-den": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-south-kitchen-and-jazz-club": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-mother-bethel-ame-church": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-sweetbriar-mansion": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-prince-hall-grand-lodge": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-widow-s-son-hall": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-robert-h-johnson-chapter-no-5": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-most-worshipful-prince-hall-oes": {
+      "drive": "",
+      "walk": ""
+    },
+    "eastern-star-weekend-relish": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-masonic-temple": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-arch-street-united-methodist": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-crystal-tea-room": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-original-bethel-no-1-hall": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-reading-terminal-market": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-free-quaker-meeting-house": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-christ-church": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-green-eggs-caf": {
+      "drive": "",
+      "walk": ""
+    },
+    "job-s-daughters-sweetbriar-mansion": {
+      "drive": "",
+      "walk": ""
+    },
+    "masonic-scavenger-hunt-masonic-temple": {
+      "drive": "",
+      "walk": ""
+    },
+    "masonic-scavenger-hunt-city-hall": {
+      "drive": "",
+      "walk": ""
+    },
+    "masonic-scavenger-hunt-pennsylvania-hospital": {
+      "drive": "",
+      "walk": ""
+    },
+    "masonic-scavenger-hunt-prince-hall-grand-lodge": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-union-league": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-philadanco-building": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-free-library-central": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-african-american-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-philadelphia-museum-of-art": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-penn-campus-fisher-library": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-irvine-auditorium": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-progress-plaza": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-berean-savings-and-loan": {
+      "drive": "",
+      "walk": ""
+    },
+    "black-architects-tour-zion-baptist-church": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-julian-abele-sites": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-william-still-marker": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-divine-lorraine-hotel": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-first-african-baptist-church": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-cecil-b-moore-mural": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-berks-street-arts-district": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-north-philly-black-metropolis": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-lehigh-black-labor-sites": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-erie-avenue-cultural-corridor": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-hunting-park-centers": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-wyoming-ave-business-district": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-aces-museum-black-wwii-veterans": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-olney-black-history-markers": {
+      "drive": "",
+      "walk": ""
+    },
+    "septa-broad-street-line-rockland-black-churches": {
+      "drive": "",
+      "walk": ""
+    },
+    "philadelphia-foundations-harriet-tubman-mural": {
+      "drive": "",
+      "walk": ""
+    },
+    "philadelphia-foundations-fair-hill-burial-ground": {
+      "drive": "",
+      "walk": ""
+    },
+    "philadelphia-foundations-belmont-mansion": {
+      "drive": "",
+      "walk": ""
+    },
+    "philadelphia-foundations-ebenezer-maxwell-mansion": {
+      "drive": "",
+      "walk": ""
+    },
+    "philadelphia-foundations-johnson-house": {
+      "drive": "",
+      "walk": ""
+    },
+    "philadelphia-foundations-cliveden": {
+      "drive": "",
+      "walk": ""
+    },
+    "move-bombing-memorial-municipal-services-building": {
+      "drive": "",
+      "walk": ""
+    },
+    "move-bombing-memorial-african-american-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "move-bombing-memorial-powelton-village": {
+      "drive": "",
+      "walk": ""
+    },
+    "move-bombing-memorial-chef-curt-s-bbq": {
+      "drive": "",
+      "walk": ""
+    },
+    "move-bombing-memorial-osage-avenue": {
+      "drive": "",
+      "walk": ""
+    },
+    "move-bombing-memorial-cobbs-creek-park": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-pa-academy-fine-arts": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-public-sculptures": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-brandywine-workshop": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-african-american-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-barnes-foundation": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-mural-arts-tour": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-philadelphia-museum-of-art": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-october-gallery": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-woodmere-art-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "philly-black-art-odyssey-moody-jones-gallery": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-pa-academy-of-fine-arts": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-university-of-the-arts": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-curtis-institute-of-music": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-community-college-of-philly": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-drexel-university": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-university-of-pennsylvania": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-temple-university": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-saint-joseph-s-university": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-thomas-jefferson-university": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-la-salle-university": {
+      "drive": "",
+      "walk": ""
+    },
+    "college-hop-tour-chestnut-hill-college": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-haunt": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-midnight-and-the-wicked": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-charlie-was-a-sinner": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-andra-hem": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-hop-sing-laundromat": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-franklin-mortgage-and-investment": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-mask-and-wig-club": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-the-ranstead-room": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-1-tippling-place": {
+      "drive": "",
+      "walk": ""
+    },
+    "speakeasy-tour-the-library-bar": {
       "drive": "",
       "walk": ""
     }
   },
   "scriptMapByStopId": {
-    "mother-bethel": {
-      "drive": "Mother Bethel AME Church is coming up on the Black American Legacy & Quaker Heritage. Founded in 1794 by Richard Allen, with layered storytelling and reconstruction potential.",
-      "walk": "You are at Mother Bethel AME Church on the Black American Legacy & Quaker Heritage. Founded in 1794 by Richard Allen, with layered storytelling and reconstruction potential."
+    "black-american-legacy-and-quaker-heritage-president-s-house-liberty-bell-center": {
+      "drive": "President's House / Liberty Bell Center is coming up on the Black American Legacy & Quaker Heritage. George Washington's enslaved household exhibits | Day: Day 1 | Time: Afternoon | Location: 526 Market St, Philadelphia, PA 19106.",
+      "walk": "You are at President's House / Liberty Bell Center on the Black American Legacy & Quaker Heritage. George Washington's enslaved household exhibits | Day: Day 1 | Time: Afternoon | Location: 526 Market St, Philadelphia, PA 19106."
     },
-    "presidents-house": {
-      "drive": "President's House / Liberty Bell Center is coming up on the Black American Legacy & Quaker Heritage. A crucial stop for interpreting freedom, contradiction, and public memory in Independence Mall.",
-      "walk": "You are at President's House / Liberty Bell Center on the Black American Legacy & Quaker Heritage. A crucial stop for interpreting freedom, contradiction, and public memory in Independence Mall."
+    "black-american-legacy-and-quaker-heritage-pennsylvania-abolition-society": {
+      "drive": "Pennsylvania Abolition Society is coming up on the Black American Legacy & Quaker Heritage. First abolitionist organization in the world (1775) | Day: Day 1 | Time: Morning | Location: 525 Chestnut St, Philadelphia, PA.",
+      "walk": "You are at Pennsylvania Abolition Society on the Black American Legacy & Quaker Heritage. First abolitionist organization in the world (1775) | Day: Day 1 | Time: Morning | Location: 525 Chestnut St, Philadelphia, PA."
     },
-    "johnson-house": {
-      "drive": "Johnson House is coming up on the Black American Legacy & Quaker Heritage. Underground Railroad history with room for figure-presence AR and route overlays.",
-      "walk": "You are at Johnson House on the Black American Legacy & Quaker Heritage. Underground Railroad history with room for figure-presence AR and route overlays."
+    "black-american-legacy-and-quaker-heritage-free-quaker-meeting-house": {
+      "drive": "Free Quaker Meeting House is coming up on the Black American Legacy & Quaker Heritage. Quakers who supported the Revolution (1783) | Day: Day 1 | Time: Morning | Location: 500 Arch St, Philadelphia, PA 19106.",
+      "walk": "You are at Free Quaker Meeting House on the Black American Legacy & Quaker Heritage. Quakers who supported the Revolution (1783) | Day: Day 1 | Time: Morning | Location: 500 Arch St, Philadelphia, PA 19106."
     },
-    "the-woodlands": {
-      "drive": "The Woodlands is coming up on the Black American Legacy & Quaker Heritage. A cemetery and mansion site where context cards and before/after scenes can do real narrative work.",
-      "walk": "You are at The Woodlands on the Black American Legacy & Quaker Heritage. A cemetery and mansion site where context cards and before/after scenes can do real narrative work."
+    "black-american-legacy-and-quaker-heritage-arch-street-friends-meeting-house": {
+      "drive": "Arch Street Friends Meeting House is coming up on the Black American Legacy & Quaker Heritage. Oldest continuously used Quaker meeting house (1669-present) | Day: Day 1 | Time: Morning | Location: 320 Arch St, Philadelphia, PA 19106.",
+      "walk": "You are at Arch Street Friends Meeting House on the Black American Legacy & Quaker Heritage. Oldest continuously used Quaker meeting house (1669-present) | Day: Day 1 | Time: Morning | Location: 320 Arch St, Philadelphia, PA 19106."
     },
-    "masonic-temple": {
-      "drive": "Masonic Temple is coming up on the Rainbow Girls Philadelphia. A dramatic anchor stop with ornament, ritual history, and strong visual framing.",
-      "walk": "You are at Masonic Temple on the Rainbow Girls Philadelphia. A dramatic anchor stop with ornament, ritual history, and strong visual framing."
+    "black-american-legacy-and-quaker-heritage-mother-bethel-ame-church": {
+      "drive": "Mother Bethel AME Church is coming up on the Black American Legacy & Quaker Heritage. Founded 1794 by Richard Allen, oldest parcel owned by African Americans | Day: Day 1 | Time: Morning | Location: 419 S 6th St, Philadelphia, PA 19147.",
+      "walk": "You are at Mother Bethel AME Church on the Black American Legacy & Quaker Heritage. Founded 1794 by Richard Allen, oldest parcel owned by African Americans | Day: Day 1 | Time: Morning | Location: 419 S 6th St, Philadelphia, PA 19147."
     },
-    "reading-terminal-market": {
-      "drive": "Reading Terminal Market is coming up on the Rainbow Girls Philadelphia. High-energy storytelling around gathering, commerce, and everyday Philadelphia life.",
-      "walk": "You are at Reading Terminal Market on the Rainbow Girls Philadelphia. High-energy storytelling around gathering, commerce, and everyday Philadelphia life."
+    "black-american-legacy-and-quaker-heritage-lombard-street-free-african-society-ho": {
+      "drive": "Lombard Street Free African Society homes is coming up on the Black American Legacy & Quaker Heritage. Richard Allen, Absalom Jones, Cyrus Bustill homes | Day: Day 1 | Time: Afternoon | Location: 600-700 block Lombard St, Philadelphia, PA.",
+      "walk": "You are at Lombard Street Free African Society homes on the Black American Legacy & Quaker Heritage. Richard Allen, Absalom Jones, Cyrus Bustill homes | Day: Day 1 | Time: Afternoon | Location: 600-700 block Lombard St, Philadelphia, PA."
     },
-    "please-touch-museum": {
-      "drive": "Please Touch Museum is coming up on the Rainbow Girls Philadelphia. A destination stop that leans into play, imagination, and museum-centered discovery.",
-      "walk": "You are at Please Touch Museum on the Rainbow Girls Philadelphia. A destination stop that leans into play, imagination, and museum-centered discovery."
+    "black-american-legacy-and-quaker-heritage-christian-street-ymca": {
+      "drive": "Christian Street YMCA is coming up on the Black American Legacy & Quaker Heritage. Pivotal site for Black intellectual life | Day: Day 3 | Time: Afternoon | Location: 1724 Christian St, Philadelphia, PA 19146.",
+      "walk": "You are at Christian Street YMCA on the Black American Legacy & Quaker Heritage. Pivotal site for Black intellectual life | Day: Day 3 | Time: Afternoon | Location: 1724 Christian St, Philadelphia, PA 19146."
     },
-    "shofuso": {
-      "drive": "Shofuso Japanese House & Garden is coming up on the Rainbow Girls Philadelphia. A quiet visual reset with garden atmosphere and place-based interpretation.",
-      "walk": "You are at Shofuso Japanese House & Garden on the Rainbow Girls Philadelphia. A quiet visual reset with garden atmosphere and place-based interpretation."
+    "black-american-legacy-and-quaker-heritage-the-woodlands": {
+      "drive": "The Woodlands is coming up on the Black American Legacy & Quaker Heritage. 1770s neoclassical mansion and cemetery | Day: Day 3 | Time: Morning | Location: 4000 Woodland Ave, Philadelphia, PA 19104.",
+      "walk": "You are at The Woodlands on the Black American Legacy & Quaker Heritage. 1770s neoclassical mansion and cemetery | Day: Day 3 | Time: Morning | Location: 4000 Woodland Ave, Philadelphia, PA 19104."
     },
-    "alpha-phi-alpha": {
-      "drive": "Alpha Phi Alpha - 42nd & Chestnut is coming up on the Divine 9 Legacy Tour. An origin-point style stop with strong chapter storytelling possibilities.",
-      "walk": "You are at Alpha Phi Alpha - 42nd & Chestnut on the Divine 9 Legacy Tour. An origin-point style stop with strong chapter storytelling possibilities."
+    "black-american-legacy-and-quaker-heritage-w-e-b-du-bois-college-house": {
+      "drive": "W.E.B. Du Bois College House is coming up on the Black American Legacy & Quaker Heritage. Exhibit on The Philadelphia Negro study | Day: Day 3 | Time: Evening | Location: 3900 Walnut St, Philadelphia, PA 19104.",
+      "walk": "You are at W.E.B. Du Bois College House on the Black American Legacy & Quaker Heritage. Exhibit on The Philadelphia Negro study | Day: Day 3 | Time: Evening | Location: 3900 Walnut St, Philadelphia, PA 19104."
     },
-    "delta-sigma-theta": {
-      "drive": "Delta Sigma Theta - 40th & Market is coming up on the Divine 9 Legacy Tour. A compact stop that can foreground service, organizing, and neighborhood presence.",
-      "walk": "You are at Delta Sigma Theta - 40th & Market on the Divine 9 Legacy Tour. A compact stop that can foreground service, organizing, and neighborhood presence."
+    "black-american-legacy-and-quaker-heritage-3911-delancey-street": {
+      "drive": "3911 Delancey Street is coming up on the Black American Legacy & Quaker Heritage. Childhood home of Marian Anderson | Day: Day 3 | Time: Afternoon | Location: 3911 Delancey St, Philadelphia, PA.",
+      "walk": "You are at 3911 Delancey Street on the Black American Legacy & Quaker Heritage. Childhood home of Marian Anderson | Day: Day 3 | Time: Afternoon | Location: 3911 Delancey St, Philadelphia, PA."
     },
-    "phi-beta-sigma": {
-      "drive": "Phi Beta Sigma - 44th & Market is coming up on the Divine 9 Legacy Tour. Good candidate for archival image stacks and chapter timelines.",
-      "walk": "You are at Phi Beta Sigma - 44th & Market on the Divine 9 Legacy Tour. Good candidate for archival image stacks and chapter timelines."
+    "black-american-legacy-and-quaker-heritage-4600-spruce-street": {
+      "drive": "4600 Spruce Street is coming up on the Black American Legacy & Quaker Heritage. Former home of Dr. Nathan F. Mossell | Day: Day 3 | Time: Afternoon | Location: 4600 Spruce St, Philadelphia, PA 19139.",
+      "walk": "You are at 4600 Spruce Street on the Black American Legacy & Quaker Heritage. Former home of Dr. Nathan F. Mossell | Day: Day 3 | Time: Afternoon | Location: 4600 Spruce St, Philadelphia, PA 19139."
     },
-    "iota-phi-theta": {
-      "drive": "Iota Phi Theta - Temple Greek Row is coming up on the Divine 9 Legacy Tour. A northward jump that broadens the legacy map beyond one campus cluster.",
-      "walk": "You are at Iota Phi Theta - Temple Greek Row on the Divine 9 Legacy Tour. A northward jump that broadens the legacy map beyond one campus cluster."
+    "black-american-legacy-and-quaker-heritage-4700-4800-blocks-of-walnut-street": {
+      "drive": "4700-4800 blocks of Walnut Street is coming up on the Black American Legacy & Quaker Heritage. Twin Victorian mansions | Day: Day 3 | Time: Afternoon | Location: 4750 Walnut St, Philadelphia, PA.",
+      "walk": "You are at 4700-4800 blocks of Walnut Street on the Black American Legacy & Quaker Heritage. Twin Victorian mansions | Day: Day 3 | Time: Afternoon | Location: 4750 Walnut St, Philadelphia, PA."
     },
-    "the-palestra": {
-      "drive": "The Palestra is coming up on the Black American Sports. A classic arena stop with room for stat overlays and player memory cards.",
-      "walk": "You are at The Palestra on the Black American Sports. A classic arena stop with room for stat overlays and player memory cards."
+    "black-american-legacy-and-quaker-heritage-lemon-hill-mansion": {
+      "drive": "Lemon Hill Mansion is coming up on the Black American Legacy & Quaker Heritage. 1799 Federal mansion, owned by Quaker Henry Pratt | Day: Day 3 | Time: Morning | Location: Lemon Hill Drive, Philadelphia, PA 19130.",
+      "walk": "You are at Lemon Hill Mansion on the Black American Legacy & Quaker Heritage. 1799 Federal mansion, owned by Quaker Henry Pratt | Day: Day 3 | Time: Morning | Location: Lemon Hill Drive, Philadelphia, PA 19130."
     },
-    "hampton-park": {
-      "drive": "Allen Iverson's Hampton Park Courts is coming up on the Black American Sports. Street-level basketball energy with compelling playground-to-legend framing.",
-      "walk": "You are at Allen Iverson's Hampton Park Courts on the Black American Sports. Street-level basketball energy with compelling playground-to-legend framing."
+    "black-american-legacy-and-quaker-heritage-freedom-theatre": {
+      "drive": "Freedom Theatre is coming up on the Black American Legacy & Quaker Heritage. Key cultural landmark | Day: Day 4 | Time: Afternoon | Location: 1346 N Broad St, Philadelphia, PA 19121.",
+      "walk": "You are at Freedom Theatre on the Black American Legacy & Quaker Heritage. Key cultural landmark | Day: Day 4 | Time: Afternoon | Location: 1346 N Broad St, Philadelphia, PA 19121."
     },
-    "joe-frazier": {
-      "drive": "Joe Frazier's Gym (Cloverlay) is coming up on the Black American Sports. A boxing landmark suited to layered archival storytelling and motion graphics.",
-      "walk": "You are at Joe Frazier's Gym (Cloverlay) on the Black American Sports. A boxing landmark suited to layered archival storytelling and motion graphics."
+    "black-american-legacy-and-quaker-heritage-cecil-b-moore-avenue": {
+      "drive": "Cecil B. Moore Avenue is coming up on the Black American Legacy & Quaker Heritage. Center of 1960s-70s Black Power era | Day: Day 4 | Time: Afternoon | Location: 1600 Cecil B. Moore Ave, Philadelphia, PA 19121.",
+      "walk": "You are at Cecil B. Moore Avenue on the Black American Legacy & Quaker Heritage. Center of 1960s-70s Black Power era | Day: Day 4 | Time: Afternoon | Location: 1600 Cecil B. Moore Ave, Philadelphia, PA 19121."
     },
-    "overbrook": {
-      "drive": "Overbrook High School is coming up on the Black American Sports. A school site that expands the tour from stars to pipelines and institutions.",
-      "walk": "You are at Overbrook High School on the Black American Sports. A school site that expands the tour from stars to pipelines and institutions."
+    "black-american-legacy-and-quaker-heritage-john-coltrane-house": {
+      "drive": "John Coltrane House is coming up on the Black American Legacy & Quaker Heritage. Home of legendary jazz musician | Day: Day 4 | Time: Afternoon | Location: 1511 N 33rd St, Philadelphia, PA 19121.",
+      "walk": "You are at John Coltrane House on the Black American Legacy & Quaker Heritage. Home of legendary jazz musician | Day: Day 4 | Time: Afternoon | Location: 1511 N 33rd St, Philadelphia, PA 19121."
     },
-    "library-company": {
-      "drive": "Library Company of Philadelphia is coming up on the Library Story Hop Tour. A compact but content-rich stop for collection-based storytelling.",
-      "walk": "You are at Library Company of Philadelphia on the Library Story Hop Tour. A compact but content-rich stop for collection-based storytelling."
+    "black-american-legacy-and-quaker-heritage-belmont-mansion": {
+      "drive": "Belmont Mansion is coming up on the Black American Legacy & Quaker Heritage. Underground Railroad stop | Day: Day 3 | Time: Morning | Location: 2032 Belmont Mansion Dr, Philadelphia, PA 19131.",
+      "walk": "You are at Belmont Mansion on the Black American Legacy & Quaker Heritage. Underground Railroad stop | Day: Day 3 | Time: Morning | Location: 2032 Belmont Mansion Dr, Philadelphia, PA 19131."
     },
-    "athenaeum": {
-      "drive": "Athenaeum of Philadelphia is coming up on the Library Story Hop Tour. An elegant design and architecture anchor with strong visual identity.",
-      "walk": "You are at Athenaeum of Philadelphia on the Library Story Hop Tour. An elegant design and architecture anchor with strong visual identity."
+    "black-american-legacy-and-quaker-heritage-mount-pleasant": {
+      "drive": "Mount Pleasant is coming up on the Black American Legacy & Quaker Heritage. Georgian masterpiece | Day: Day 4 | Time: Late Afternoon | Location: 3800 Mount Pleasant Dr, Philadelphia, PA 19121.",
+      "walk": "You are at Mount Pleasant on the Black American Legacy & Quaker Heritage. Georgian masterpiece | Day: Day 4 | Time: Late Afternoon | Location: 3800 Mount Pleasant Dr, Philadelphia, PA 19121."
     },
-    "free-library": {
-      "drive": "Free Library - Central Parkway is coming up on the Library Story Hop Tour. A civic-scale reading space that works for layered archive storytelling.",
-      "walk": "You are at Free Library - Central Parkway on the Library Story Hop Tour. A civic-scale reading space that works for layered archive storytelling."
+    "black-american-legacy-and-quaker-heritage-ormiston": {
+      "drive": "Ormiston is coming up on the Black American Legacy & Quaker Heritage. Smallest Quaker-built Park mansion | Day: Day 4 | Time: Late Afternoon | Location: Reservoir Dr, Philadelphia, PA 19121.",
+      "walk": "You are at Ormiston on the Black American Legacy & Quaker Heritage. Smallest Quaker-built Park mansion | Day: Day 4 | Time: Late Afternoon | Location: Reservoir Dr, Philadelphia, PA 19121."
     },
-    "blockson": {
-      "drive": "Charles L. Blockson Collection is coming up on the Library Story Hop Tour. A stop that can spotlight preservation, Black archives, and scholarly stewardship.",
-      "walk": "You are at Charles L. Blockson Collection on the Library Story Hop Tour. A stop that can spotlight preservation, Black archives, and scholarly stewardship."
+    "black-american-legacy-and-quaker-heritage-cedar-grove-and-laurel-hill-mansions": {
+      "drive": "Cedar Grove & Laurel Hill mansions is coming up on the Black American Legacy & Quaker Heritage. Quaker summer estates | Day: Day 3 | Time: Morning | Location: Laurel Hill Mansion, Edgley Dr, Philadelphia, PA 19129.",
+      "walk": "You are at Cedar Grove & Laurel Hill mansions on the Black American Legacy & Quaker Heritage. Quaker summer estates | Day: Day 3 | Time: Morning | Location: Laurel Hill Mansion, Edgley Dr, Philadelphia, PA 19129."
+    },
+    "black-american-legacy-and-quaker-heritage-strawberry-mansion": {
+      "drive": "Strawberry Mansion is coming up on the Black American Legacy & Quaker Heritage. Largest Federal-era mansion in Fairmount Park | Day: Day 4 | Time: Morning | Location: 2450 Strawberry Mansion Dr, Philadelphia, PA.",
+      "walk": "You are at Strawberry Mansion on the Black American Legacy & Quaker Heritage. Largest Federal-era mansion in Fairmount Park | Day: Day 4 | Time: Morning | Location: 2450 Strawberry Mansion Dr, Philadelphia, PA."
+    },
+    "black-american-legacy-and-quaker-heritage-3200-3400-blocks-diamond-and-susquehan": {
+      "drive": "3200-3400 blocks Diamond & Susquehanna is coming up on the Black American Legacy & Quaker Heritage. Historic Doctor's Row townhouses | Day: Day 4 | Time: Afternoon | Location: 3300 N Broad St, Philadelphia, PA 19140.",
+      "walk": "You are at 3200-3400 blocks Diamond & Susquehanna on the Black American Legacy & Quaker Heritage. Historic Doctor's Row townhouses | Day: Day 4 | Time: Afternoon | Location: 3300 N Broad St, Philadelphia, PA 19140."
+    },
+    "black-american-legacy-and-quaker-heritage-stenton": {
+      "drive": "Stenton is coming up on the Black American Legacy & Quaker Heritage. Georgian mansion with complex slavery history | Day: Day 2 | Time: Morning | Location: 4601 N 18th St, Philadelphia, PA.",
+      "walk": "You are at Stenton on the Black American Legacy & Quaker Heritage. Georgian mansion with complex slavery history | Day: Day 2 | Time: Morning | Location: 4601 N 18th St, Philadelphia, PA."
+    },
+    "black-american-legacy-and-quaker-heritage-belfield-mansion": {
+      "drive": "Belfield Mansion is coming up on the Black American Legacy & Quaker Heritage. 1711 Quaker summer estate, abolitionist ties | Day: Day 1 | Time: Afternoon | Location: 2100 W Clarkson Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Belfield Mansion on the Black American Legacy & Quaker Heritage. 1711 Quaker summer estate, abolitionist ties | Day: Day 1 | Time: Afternoon | Location: 2100 W Clarkson Ave, Philadelphia, PA 19144."
+    },
+    "black-american-legacy-and-quaker-heritage-grumblethorpe": {
+      "drive": "Grumblethorpe is coming up on the Black American Legacy & Quaker Heritage. 1744 summer home of Wister family | Day: Day 2 | Time: Morning | Location: 5267 Germantown Ave, Philadelphia, PA.",
+      "walk": "You are at Grumblethorpe on the Black American Legacy & Quaker Heritage. 1744 summer home of Wister family | Day: Day 2 | Time: Morning | Location: 5267 Germantown Ave, Philadelphia, PA."
+    },
+    "black-american-legacy-and-quaker-heritage-deshler-morris-house": {
+      "drive": "Deshler-Morris House is coming up on the Black American Legacy & Quaker Heritage. Washington's Germantown White House 1793-94 | Day: Day 2 | Time: Morning | Location: 5442 Germantown Ave, Philadelphia, PA.",
+      "walk": "You are at Deshler-Morris House on the Black American Legacy & Quaker Heritage. Washington's Germantown White House 1793-94 | Day: Day 2 | Time: Morning | Location: 5442 Germantown Ave, Philadelphia, PA."
+    },
+    "black-american-legacy-and-quaker-heritage-wyck": {
+      "drive": "Wyck is coming up on the Black American Legacy & Quaker Heritage. One of Germantown's oldest houses, abolitionist ties | Day: Day 2 | Time: Morning | Location: 6026 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Wyck on the Black American Legacy & Quaker Heritage. One of Germantown's oldest houses, abolitionist ties | Day: Day 2 | Time: Morning | Location: 6026 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "black-american-legacy-and-quaker-heritage-germantown-mennonite-meetinghouse": {
+      "drive": "Germantown Mennonite Meetinghouse is coming up on the Black American Legacy & Quaker Heritage. Site of 1688 Protest Against Slavery | Day: Day 2 | Time: Afternoon | Location: 6133 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Germantown Mennonite Meetinghouse on the Black American Legacy & Quaker Heritage. Site of 1688 Protest Against Slavery | Day: Day 2 | Time: Afternoon | Location: 6133 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "black-american-legacy-and-quaker-heritage-johnson-house": {
+      "drive": "Johnson House is coming up on the Black American Legacy & Quaker Heritage. Underground Railroad station | Day: Day 2 | Time: Afternoon | Location: 6306 Germantown Ave, Philadelphia, PA.",
+      "walk": "You are at Johnson House on the Black American Legacy & Quaker Heritage. Underground Railroad station | Day: Day 2 | Time: Afternoon | Location: 6306 Germantown Ave, Philadelphia, PA."
+    },
+    "black-american-legacy-and-quaker-heritage-cliveden": {
+      "drive": "Cliveden is coming up on the Black American Legacy & Quaker Heritage. 1767 mansion, Battle of Germantown site | Day: Day 2 | Time: Morning | Location: 6401 Germantown Ave, Philadelphia, PA 19119.",
+      "walk": "You are at Cliveden on the Black American Legacy & Quaker Heritage. 1767 mansion, Battle of Germantown site | Day: Day 2 | Time: Morning | Location: 6401 Germantown Ave, Philadelphia, PA 19119."
+    },
+    "black-american-legacy-and-quaker-heritage-upsala": {
+      "drive": "Upsala is coming up on the Black American Legacy & Quaker Heritage. 1798 Federal-style mansion | Day: Day 2 | Time: Morning | Location: 6430 Germantown Ave, Philadelphia, PA.",
+      "walk": "You are at Upsala on the Black American Legacy & Quaker Heritage. 1798 Federal-style mansion | Day: Day 2 | Time: Morning | Location: 6430 Germantown Ave, Philadelphia, PA."
+    },
+    "rainbow-girls-philadelphia-masonic-temple": {
+      "drive": "Masonic Temple is coming up on the Rainbow Girls Philadelphia. Rainbow Check-In & Tour - Seven lodge rooms, Rainbow jewels, 1922 charter | Day: Day 1 | Time: 9:00 AM | Location: 1 N Broad St, Philadelphia, PA 19107.",
+      "walk": "You are at Masonic Temple on the Rainbow Girls Philadelphia. Rainbow Check-In & Tour - Seven lodge rooms, Rainbow jewels, 1922 charter | Day: Day 1 | Time: 9:00 AM | Location: 1 N Broad St, Philadelphia, PA 19107."
+    },
+    "rainbow-girls-philadelphia-reading-terminal-market": {
+      "drive": "Reading Terminal Market is coming up on the Rainbow Girls Philadelphia. Rainbow-Colored Lunch - color-themed food stations | Day: Day 1 | Time: 12:30 PM | Location: 1136 Arch St, Philadelphia, PA 19107.",
+      "walk": "You are at Reading Terminal Market on the Rainbow Girls Philadelphia. Rainbow-Colored Lunch - color-themed food stations | Day: Day 1 | Time: 12:30 PM | Location: 1136 Arch St, Philadelphia, PA 19107."
+    },
+    "rainbow-girls-philadelphia-hard-rock-cafe": {
+      "drive": "Hard Rock Cafe is coming up on the Rainbow Girls Philadelphia. Rainbow Friendship Dinner with karaoke | Day: Day 1 | Time: 6:00 PM | Location: 1119 Market St, Philadelphia, PA 19107.",
+      "walk": "You are at Hard Rock Cafe on the Rainbow Girls Philadelphia. Rainbow Friendship Dinner with karaoke | Day: Day 1 | Time: 6:00 PM | Location: 1119 Market St, Philadelphia, PA 19107."
+    },
+    "rainbow-girls-philadelphia-arch-street-presbyterian-church": {
+      "drive": "Arch Street Presbyterian Church is coming up on the Rainbow Girls Philadelphia. Rainbow Worship Service | Day: Day 2 | Time: 8:45 AM | Location: 1724 Arch St, Philadelphia, PA 19103.",
+      "walk": "You are at Arch Street Presbyterian Church on the Rainbow Girls Philadelphia. Rainbow Worship Service | Day: Day 2 | Time: 8:45 AM | Location: 1724 Arch St, Philadelphia, PA 19103."
+    },
+    "rainbow-girls-philadelphia-green-eggs-caf": {
+      "drive": "Green Eggs Café is coming up on the Rainbow Girls Philadelphia. Colorful Brunch with rainbow bagels | Day: Day 2 | Time: 10:30 AM | Location: 33 S 18th St, Philadelphia, PA 19103.",
+      "walk": "You are at Green Eggs Café on the Rainbow Girls Philadelphia. Colorful Brunch with rainbow bagels | Day: Day 2 | Time: 10:30 AM | Location: 33 S 18th St, Philadelphia, PA 19103."
+    },
+    "rainbow-girls-philadelphia-sweetbriar-mansion-lawn": {
+      "drive": "Sweetbriar Mansion lawn is coming up on the Rainbow Girls Philadelphia. Closing Rainbow Ceremony with Pot of Gold | Day: Day 2 | Time: 3:30 PM | Location: 1 Sweetbriar Ln, Philadelphia, PA 19131.",
+      "walk": "You are at Sweetbriar Mansion lawn on the Rainbow Girls Philadelphia. Closing Rainbow Ceremony with Pot of Gold | Day: Day 2 | Time: 3:30 PM | Location: 1 Sweetbriar Ln, Philadelphia, PA 19131."
+    },
+    "rainbow-girls-philadelphia-smith-memorial-playground": {
+      "drive": "Smith Memorial Playground is coming up on the Rainbow Girls Philadelphia. Giant wooden slide tradition | Day: Day 2 | Location: 3500 Reservoir Dr, Philadelphia, PA 19121.",
+      "walk": "You are at Smith Memorial Playground on the Rainbow Girls Philadelphia. Giant wooden slide tradition | Day: Day 2 | Location: 3500 Reservoir Dr, Philadelphia, PA 19121."
+    },
+    "rainbow-girls-philadelphia-please-touch-museum": {
+      "drive": "Please Touch Museum is coming up on the Rainbow Girls Philadelphia. Rainbow Adventure - Imagination Playground | Day: Day 2 | Time: 12:00 PM | Location: 4231 Avenue of the Republic, Philadelphia, PA 19131.",
+      "walk": "You are at Please Touch Museum on the Rainbow Girls Philadelphia. Rainbow Adventure - Imagination Playground | Day: Day 2 | Time: 12:00 PM | Location: 4231 Avenue of the Republic, Philadelphia, PA 19131."
+    },
+    "rainbow-girls-philadelphia-shofuso-japanese-house-and-garden": {
+      "drive": "Shofuso Japanese House & Garden is coming up on the Rainbow Girls Philadelphia. Walk the rainbow bridge | Day: Day 2 | Location: Lansdowne Dr & Horticultural Dr, Philadelphia, PA 19131.",
+      "walk": "You are at Shofuso Japanese House & Garden on the Rainbow Girls Philadelphia. Walk the rainbow bridge | Day: Day 2 | Location: Lansdowne Dr & Horticultural Dr, Philadelphia, PA 19131."
+    },
+    "rainbow-girls-philadelphia-covenant-house-pa": {
+      "drive": "Covenant House PA is coming up on the Rainbow Girls Philadelphia. Service Project - Pack 150 hygiene kits | Day: Day 1 | Time: 2:00 PM | Location: 31 E Armat St, Philadelphia, PA 19144.",
+      "walk": "You are at Covenant House PA on the Rainbow Girls Philadelphia. Service Project - Pack 150 hygiene kits | Day: Day 1 | Time: 2:00 PM | Location: 31 E Armat St, Philadelphia, PA 19144."
+    },
+    "divine-9-legacy-tour-alpha-kappa-alpha-ivy-legacy": {
+      "drive": "Alpha Kappa Alpha - Ivy Legacy is coming up on the Divine 9 Legacy Tour. First alumnae chapter (1918) | Day: Day 2 | Time: 9:00 AM | Location: 1824 South St, Philadelphia, PA.",
+      "walk": "You are at Alpha Kappa Alpha - Ivy Legacy on the Divine 9 Legacy Tour. First alumnae chapter (1918) | Day: Day 2 | Time: 9:00 AM | Location: 1824 South St, Philadelphia, PA."
+    },
+    "divine-9-legacy-tour-zeta-phi-beta-17th-and-jefferson": {
+      "drive": "Zeta Phi Beta - 17th & Jefferson is coming up on the Divine 9 Legacy Tour. First graduate chapter (1925), now mural | Day: Day 2 | Time: 10:30 AM | Location: 17th & Jefferson St, Philadelphia, PA.",
+      "walk": "You are at Zeta Phi Beta - 17th & Jefferson on the Divine 9 Legacy Tour. First graduate chapter (1925), now mural | Day: Day 2 | Time: 10:30 AM | Location: 17th & Jefferson St, Philadelphia, PA."
+    },
+    "divine-9-legacy-tour-iota-phi-theta-temple-greek-row": {
+      "drive": "Iota Phi Theta - Temple Greek Row is coming up on the Divine 9 Legacy Tour. First chapter north of Baltimore (1972) | Day: Day 2 | Time: 2:30 PM | Location: 1900 N 13th St, Philadelphia, PA.",
+      "walk": "You are at Iota Phi Theta - Temple Greek Row on the Divine 9 Legacy Tour. First chapter north of Baltimore (1972) | Day: Day 2 | Time: 2:30 PM | Location: 1900 N 13th St, Philadelphia, PA."
+    },
+    "divine-9-legacy-tour-delta-sigma-theta-40th-and-market": {
+      "drive": "Delta Sigma Theta - 40th & Market is coming up on the Divine 9 Legacy Tour. First public act marker, chartered 1920 | Day: Day 1 | Time: 10:30 AM | Location: 40th & Market St, Philadelphia, PA.",
+      "walk": "You are at Delta Sigma Theta - 40th & Market on the Divine 9 Legacy Tour. First public act marker, chartered 1920 | Day: Day 1 | Time: 10:30 AM | Location: 40th & Market St, Philadelphia, PA."
+    },
+    "divine-9-legacy-tour-alpha-phi-alpha-42nd-and-chestnut": {
+      "drive": "Alpha Phi Alpha - 42nd & Chestnut is coming up on the Divine 9 Legacy Tour. First graduate chapter house in America (1922) | Day: Day 1 | Time: 9:00 AM | Location: 42nd & Chestnut St, Philadelphia, PA.",
+      "walk": "You are at Alpha Phi Alpha - 42nd & Chestnut on the Divine 9 Legacy Tour. First graduate chapter house in America (1922) | Day: Day 1 | Time: 9:00 AM | Location: 42nd & Chestnut St, Philadelphia, PA."
+    },
+    "divine-9-legacy-tour-phi-beta-sigma-44th-and-market": {
+      "drive": "Phi Beta Sigma - 44th & Market is coming up on the Divine 9 Legacy Tour. First graduate chapter (1921) | Day: Day 2 | Time: 11:30 AM | Location: 44th & Market St, Philadelphia, PA.",
+      "walk": "You are at Phi Beta Sigma - 44th & Market on the Divine 9 Legacy Tour. First graduate chapter (1921) | Day: Day 2 | Time: 11:30 AM | Location: 44th & Market St, Philadelphia, PA."
+    },
+    "divine-9-legacy-tour-kappa-alpha-psi-44th-and-chestnut": {
+      "drive": "Kappa Alpha Psi - 44th & Chestnut is coming up on the Divine 9 Legacy Tour. First graduate chapter in nation (1919) | Day: Day 1 | Time: 12:00 PM | Location: 44th & Chestnut St, Philadelphia, PA.",
+      "walk": "You are at Kappa Alpha Psi - 44th & Chestnut on the Divine 9 Legacy Tour. First graduate chapter in nation (1919) | Day: Day 1 | Time: 12:00 PM | Location: 44th & Chestnut St, Philadelphia, PA."
+    },
+    "divine-9-legacy-tour-sigma-gamma-rho-48th-and-spruce": {
+      "drive": "Sigma Gamma Rho - 48th & Spruce is coming up on the Divine 9 Legacy Tour. First graduate chapter Rho Sigma (1929) | Day: Day 1 | Time: 2:30 PM | Location: 48th & Spruce St, Philadelphia, PA.",
+      "walk": "You are at Sigma Gamma Rho - 48th & Spruce on the Divine 9 Legacy Tour. First graduate chapter Rho Sigma (1929) | Day: Day 1 | Time: 2:30 PM | Location: 48th & Spruce St, Philadelphia, PA."
+    },
+    "black-american-sports-south-kitchen-and-jazz-club": {
+      "drive": "South Kitchen & Jazz Club is coming up on the Black American Sports. Soul food dinner with live music | Day: 1 Day | Time: 6:00 PM | Location: 600 N Broad St, Philadelphia, PA 19130.",
+      "walk": "You are at South Kitchen & Jazz Club on the Black American Sports. Soul food dinner with live music | Day: 1 Day | Time: 6:00 PM | Location: 600 N Broad St, Philadelphia, PA 19130."
+    },
+    "black-american-sports-marian-anderson-rec-center": {
+      "drive": "Marian Anderson Rec Center is coming up on the Black American Sports. Dawn Staley's training grounds | Day: 1 Day | Time: 3:30 PM | Location: 740 S 17th St, Philadelphia, PA 19146.",
+      "walk": "You are at Marian Anderson Rec Center on the Black American Sports. Dawn Staley's training grounds | Day: 1 Day | Time: 3:30 PM | Location: 740 S 17th St, Philadelphia, PA 19146."
+    },
+    "black-american-sports-the-palestra": {
+      "drive": "The Palestra is coming up on the Black American Sports. Cathedral of College Basketball, Wilt Chamberlain history | Day: 1 Day | Time: 9:00 AM | Location: 235 S 33rd St, Philadelphia, PA 19104.",
+      "walk": "You are at The Palestra on the Black American Sports. Cathedral of College Basketball, Wilt Chamberlain history | Day: 1 Day | Time: 9:00 AM | Location: 235 S 33rd St, Philadelphia, PA 19104."
+    },
+    "black-american-sports-joe-frazier-s-gym-cloverlay": {
+      "drive": "Joe Frazier's Gym (Cloverlay) is coming up on the Black American Sports. Smokin' Joe's legendary training grounds | Day: 1 Day | Time: 11:00 AM | Location: 2917 N Broad St, Philadelphia, PA 19132.",
+      "walk": "You are at Joe Frazier's Gym (Cloverlay) on the Black American Sports. Smokin' Joe's legendary training grounds | Day: 1 Day | Time: 11:00 AM | Location: 2917 N Broad St, Philadelphia, PA 19132."
+    },
+    "black-american-sports-dell-music-center": {
+      "drive": "Dell Music Center is coming up on the Black American Sports. Joe Louis Boxing Ring, 1940s-50s matches | Day: 1 Day | Time: 1:00 PM | Location: 2400 Strawberry Mansion Dr, Philadelphia, PA 19132.",
+      "walk": "You are at Dell Music Center on the Black American Sports. Joe Louis Boxing Ring, 1940s-50s matches | Day: 1 Day | Time: 1:00 PM | Location: 2400 Strawberry Mansion Dr, Philadelphia, PA 19132."
+    },
+    "black-american-sports-allen-iverson-s-hampton-park-courts": {
+      "drive": "Allen Iverson's Hampton Park Courts is coming up on the Black American Sports. Where AI perfected his crossover, 2019 mural | Day: 1 Day | Time: 10:00 AM | Location: 3601 S Broad St, Philadelphia, PA 19148.",
+      "walk": "You are at Allen Iverson's Hampton Park Courts on the Black American Sports. Where AI perfected his crossover, 2019 mural | Day: 1 Day | Time: 10:00 AM | Location: 3601 S Broad St, Philadelphia, PA 19148."
+    },
+    "black-american-sports-overbrook-high-school": {
+      "drive": "Overbrook High School is coming up on the Black American Sports. Wilt Chamberlain & Kobe Bryant's high school | Day: 1 Day | Time: 2:00 PM | Location: 5898 Lancaster Ave, Philadelphia, PA 19131.",
+      "walk": "You are at Overbrook High School on the Black American Sports. Wilt Chamberlain & Kobe Bryant's high school | Day: 1 Day | Time: 2:00 PM | Location: 5898 Lancaster Ave, Philadelphia, PA 19131."
+    },
+    "black-american-sports-sonny-hill-league-tustin": {
+      "drive": "Sonny Hill League @ Tustin is coming up on the Black American Sports. Oldest summer basketball league (1968) | Day: 1 Day | Time: 4:30 PM | Location: 5900 W Columbia Ave, Philadelphia, PA 19151.",
+      "walk": "You are at Sonny Hill League @ Tustin on the Black American Sports. Oldest summer basketball league (1968) | Day: 1 Day | Time: 4:30 PM | Location: 5900 W Columbia Ave, Philadelphia, PA 19151."
+    },
+    "black-american-sports-maxie-s-pizza": {
+      "drive": "Maxie's Pizza is coming up on the Black American Sports. North Philly staple, Joe Frazier favorite | Day: 1 Day | Time: 12:00 PM | Location: 5500 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Maxie's Pizza on the Black American Sports. North Philly staple, Joe Frazier favorite | Day: 1 Day | Time: 12:00 PM | Location: 5500 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "black-inventors-tour-garrett-morgan-traffic-signal": {
+      "drive": "Garrett Morgan Traffic Signal is coming up on the Black Inventors Tour. Three-position traffic light inventor (1923) | Day: 1 Day | Time: 5:00 PM | Location: S 13th St & Market St, Philadelphia, PA 19107.",
+      "walk": "You are at Garrett Morgan Traffic Signal on the Black Inventors Tour. Three-position traffic light inventor (1923) | Day: 1 Day | Time: 5:00 PM | Location: S 13th St & Market St, Philadelphia, PA 19107."
+    },
+    "black-inventors-tour-african-american-museum": {
+      "drive": "African American Museum is coming up on the Black Inventors Tour. Black Inventors Hall of Fame exhibit | Day: 1 Day | Time: 8:00 PM | Location: 701 Arch St, Philadelphia, PA 19106.",
+      "walk": "You are at African American Museum on the Black Inventors Tour. Black Inventors Hall of Fame exhibit | Day: 1 Day | Time: 8:00 PM | Location: 701 Arch St, Philadelphia, PA 19106."
+    },
+    "black-inventors-tour-lewis-latimer-light-bulb-exhibit": {
+      "drive": "Lewis Latimer Light Bulb Exhibit is coming up on the Black Inventors Tour. Carbon filament patent (1881) | Day: 1 Day | Time: 1:00 PM | Location: 15 S 7th St, Philadelphia, PA 19106.",
+      "walk": "You are at Lewis Latimer Light Bulb Exhibit on the Black Inventors Tour. Carbon filament patent (1881) | Day: 1 Day | Time: 1:00 PM | Location: 15 S 7th St, Philadelphia, PA 19106."
+    },
+    "black-inventors-tour-dr-charles-drew-blood-bank": {
+      "drive": "Dr. Charles Drew Blood Bank is coming up on the Black Inventors Tour. Blood plasma storage pioneer (1940s) | Day: 1 Day | Time: 3:30 PM | Location: 800 Spruce St, Philadelphia, PA 19107.",
+      "walk": "You are at Dr. Charles Drew Blood Bank on the Black Inventors Tour. Blood plasma storage pioneer (1940s) | Day: 1 Day | Time: 3:30 PM | Location: 800 Spruce St, Philadelphia, PA 19107."
+    },
+    "black-inventors-tour-sarah-e-goode-house": {
+      "drive": "Sarah E. Goode House is coming up on the Black Inventors Tour. First Black woman patent holder (1885) | Day: 1 Day | Time: 11:00 AM | Location: 1724 South St, Philadelphia, PA 19146.",
+      "walk": "You are at Sarah E. Goode House on the Black Inventors Tour. First Black woman patent holder (1885) | Day: 1 Day | Time: 11:00 AM | Location: 1724 South St, Philadelphia, PA 19146."
+    },
+    "black-inventors-tour-granville-t-woods-railway-site": {
+      "drive": "Granville T. Woods Railway Site is coming up on the Black Inventors Tour. Black Edison, railway telegraph inventor (1887) | Day: 1 Day | Time: 10:00 AM | Location: N Broad St & W Girard Ave, Philadelphia, PA 19121.",
+      "walk": "You are at Granville T. Woods Railway Site on the Black Inventors Tour. Black Edison, railway telegraph inventor (1887) | Day: 1 Day | Time: 10:00 AM | Location: N Broad St & W Girard Ave, Philadelphia, PA 19121."
+    },
+    "black-inventors-tour-norbert-rillieux-way": {
+      "drive": "Norbert Rillieux Way is coming up on the Black Inventors Tour. Sugar refining inventor, first Black Penn student (1830-32) | Day: 1 Day | Time: 9:00 AM | Location: S 33rd St & Walnut St, Philadelphia, PA 19104.",
+      "walk": "You are at Norbert Rillieux Way on the Black Inventors Tour. Sugar refining inventor, first Black Penn student (1830-32) | Day: 1 Day | Time: 9:00 AM | Location: S 33rd St & Walnut St, Philadelphia, PA 19104."
+    },
+    "black-inventors-tour-frederick-mckinley-jones-route": {
+      "drive": "Frederick McKinley Jones Route is coming up on the Black Inventors Tour. Portable refrigeration inventor (1940) | Day: 1 Day | Time: 2:30 PM | Location: 1612 Vandike St, Philadelphia, PA 19124.",
+      "walk": "You are at Frederick McKinley Jones Route on the Black Inventors Tour. Portable refrigeration inventor (1940) | Day: 1 Day | Time: 2:30 PM | Location: 1612 Vandike St, Philadelphia, PA 19124."
+    },
+    "library-story-hop-tour-library-company-of-philadelphia": {
+      "drive": "Library Company of Philadelphia is coming up on the Library Story Hop Tour. 1739 story of enslaved boy Othello granted reading privilege | Day: 1 Day | Time: 9:00 AM | Location: 1314 Locust St, Philadelphia, PA 19107.",
+      "walk": "You are at Library Company of Philadelphia on the Library Story Hop Tour. 1739 story of enslaved boy Othello granted reading privilege | Day: 1 Day | Time: 9:00 AM | Location: 1314 Locust St, Philadelphia, PA 19107."
+    },
+    "library-story-hop-tour-historical-society-of-pennsylvania": {
+      "drive": "Historical Society of Pennsylvania is coming up on the Library Story Hop Tour. Original Constitution draft with Jefferson's edit | Day: 1 Day | Location: 1300 Locust St, Philadelphia, PA 19107.",
+      "walk": "You are at Historical Society of Pennsylvania on the Library Story Hop Tour. Original Constitution draft with Jefferson's edit | Day: 1 Day | Location: 1300 Locust St, Philadelphia, PA 19107."
+    },
+    "library-story-hop-tour-free-library-central-parkway": {
+      "drive": "Free Library - Central Parkway is coming up on the Library Story Hop Tour. Charles Dickens and Grip the raven inspiration | Day: 1 Day | Location: 1901 Vine St, Philadelphia, PA 19103.",
+      "walk": "You are at Free Library - Central Parkway on the Library Story Hop Tour. Charles Dickens and Grip the raven inspiration | Day: 1 Day | Location: 1901 Vine St, Philadelphia, PA 19103."
+    },
+    "library-story-hop-tour-parkway-central-children-s-dept": {
+      "drive": "Parkway Central Children's Dept is coming up on the Library Story Hop Tour. Original Winnie-the-Pooh toys (40 years) | Day: 1 Day | Location: 1901 Vine St, Philadelphia, PA 19103.",
+      "walk": "You are at Parkway Central Children's Dept on the Library Story Hop Tour. Original Winnie-the-Pooh toys (40 years) | Day: 1 Day | Location: 1901 Vine St, Philadelphia, PA 19103."
+    },
+    "library-story-hop-tour-rosenbach-museum-and-library": {
+      "drive": "Rosenbach Museum & Library is coming up on the Library Story Hop Tour. Maurice Sendak and Winnie-the-Pooh toys | Day: 1 Day | Location: 2008 Delancey Pl, Philadelphia, PA 19103.",
+      "walk": "You are at Rosenbach Museum & Library on the Library Story Hop Tour. Maurice Sendak and Winnie-the-Pooh toys | Day: 1 Day | Location: 2008 Delancey Pl, Philadelphia, PA 19103."
+    },
+    "library-story-hop-tour-athenaeum-of-philadelphia": {
+      "drive": "Athenaeum of Philadelphia is coming up on the Library Story Hop Tour. Edgar Allan Poe carved initials (1843) | Day: 1 Day | Location: 219 S 6th St, Philadelphia, PA 19106.",
+      "walk": "You are at Athenaeum of Philadelphia on the Library Story Hop Tour. Edgar Allan Poe carved initials (1843) | Day: 1 Day | Location: 219 S 6th St, Philadelphia, PA 19106."
+    },
+    "library-story-hop-tour-charles-l-blockson-collection": {
+      "drive": "Charles L. Blockson Collection is coming up on the Library Story Hop Tour. Harriet Tubman's personal hymnbook | Day: 1 Day | Location: Sullivan Hall, 1st Floor, 1330 Polett Walk, Philadelphia, PA 19122.",
+      "walk": "You are at Charles L. Blockson Collection on the Library Story Hop Tour. Harriet Tubman's personal hymnbook | Day: 1 Day | Location: Sullivan Hall, 1st Floor, 1330 Polett Walk, Philadelphia, PA 19122."
+    },
+    "old-york-road-corridor-happy-hollow-rec-center": {
+      "drive": "Happy Hollow Rec Center is coming up on the Old York Road Corridor. 1967 race riots site, now community hub | Day: Afternoon | Time: 1:00 PM | Location: 4740 Wayne Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Happy Hollow Rec Center on the Old York Road Corridor. 1967 race riots site, now community hub | Day: Afternoon | Time: 1:00 PM | Location: 4740 Wayne Ave, Philadelphia, PA 19144."
+    },
+    "old-york-road-corridor-germantown-high-school": {
+      "drive": "Germantown High School is coming up on the Old York Road Corridor. First integrated high school in Philly | Day: Late Afternoon | Time: 4:00 PM | Location: 2950 W School House Ln, Philadelphia, PA 19144.",
+      "walk": "You are at Germantown High School on the Old York Road Corridor. First integrated high school in Philly | Day: Late Afternoon | Time: 4:00 PM | Location: 2950 W School House Ln, Philadelphia, PA 19144."
+    },
+    "old-york-road-corridor-the-nile-restaurant-and-lounge": {
+      "drive": "The Nile Restaurant & Lounge is coming up on the Old York Road Corridor. Vegan soul food, founded by Black Panthers | Day: Evening | Time: 6:30 PM | Location: 6008 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at The Nile Restaurant & Lounge on the Old York Road Corridor. Vegan soul food, founded by Black Panthers | Day: Evening | Time: 6:30 PM | Location: 6008 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "old-york-road-corridor-johnson-house-historic-site": {
+      "drive": "Johnson House Historic Site is coming up on the Old York Road Corridor. Active Underground Railroad station | Day: Afternoon | Time: 2:00 PM | Location: 6306 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Johnson House Historic Site on the Old York Road Corridor. Active Underground Railroad station | Day: Afternoon | Time: 2:00 PM | Location: 6306 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "old-york-road-corridor-cliveden-historic-site": {
+      "drive": "Cliveden Historic Site is coming up on the Old York Road Corridor. 1777 Battle of Germantown, enslaved Africans' contributions | Day: Afternoon | Time: 3:00 PM | Location: 6401 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Cliveden Historic Site on the Old York Road Corridor. 1777 Battle of Germantown, enslaved Africans' contributions | Day: Afternoon | Time: 3:00 PM | Location: 6401 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "old-york-road-corridor-ogontz-theatre-site": {
+      "drive": "Ogontz Theatre Site is coming up on the Old York Road Corridor. Vaudeville palace for Black artists during segregation | Day: Morning | Time: 9:45 AM | Location: 6037 Ogontz Ave, Philadelphia, PA 19141.",
+      "walk": "You are at Ogontz Theatre Site on the Old York Road Corridor. Vaudeville palace for Black artists during segregation | Day: Morning | Time: 9:45 AM | Location: 6037 Ogontz Ave, Philadelphia, PA 19141."
+    },
+    "old-york-road-corridor-old-york-road-and-north-broad": {
+      "drive": "Old York Road & North Broad is coming up on the Old York Road Corridor. Colonial gateway, free Black laborers built milestones | Day: Morning | Time: 9:00 AM | Location: 6704 Old York Rd, Philadelphia, PA 19126.",
+      "walk": "You are at Old York Road & North Broad on the Old York Road Corridor. Colonial gateway, free Black laborers built milestones | Day: Morning | Time: 9:00 AM | Location: 6704 Old York Rd, Philadelphia, PA 19126."
+    },
+    "old-york-road-corridor-cecil-b-moore-law-office": {
+      "drive": "Cecil B. Moore Law Office is coming up on the Old York Road Corridor. Civil rights leader's law practice | Day: Morning | Time: 10:30 AM | Location: 7101 Ogontz Ave, Philadelphia, PA 19138.",
+      "walk": "You are at Cecil B. Moore Law Office on the Old York Road Corridor. Civil rights leader's law practice | Day: Morning | Time: 10:30 AM | Location: 7101 Ogontz Ave, Philadelphia, PA 19138."
+    },
+    "old-york-road-corridor-relish-restaurant": {
+      "drive": "Relish Restaurant is coming up on the Old York Road Corridor. Upscale soul food in historic mansion | Day: Lunch | Time: 12:00 PM | Location: 7152 Ogontz Ave, Philadelphia, PA 19138.",
+      "walk": "You are at Relish Restaurant on the Old York Road Corridor. Upscale soul food in historic mansion | Day: Lunch | Time: 12:00 PM | Location: 7152 Ogontz Ave, Philadelphia, PA 19138."
+    },
+    "old-york-road-corridor-woodmere-art-museum": {
+      "drive": "Woodmere Art Museum is coming up on the Old York Road Corridor. We Speak: Black Artists exhibit | Day: Evening | Time: 5:00 PM | Location: 9201 Germantown Ave, Philadelphia, PA 19118.",
+      "walk": "You are at Woodmere Art Museum on the Old York Road Corridor. We Speak: Black Artists exhibit | Day: Evening | Time: 5:00 PM | Location: 9201 Germantown Ave, Philadelphia, PA 19118."
+    },
+    "black-medical-legacy-frederick-douglass-hospital": {
+      "drive": "Frederick Douglass Hospital is coming up on the Black Medical Legacy. Founded 1895 by Dr. Nathan F. Mossell | Day: Day 1 | Time: 10:30 AM | Location: 1512 Lombard St, Philadelphia, PA 19146.",
+      "walk": "You are at Frederick Douglass Hospital on the Black Medical Legacy. Founded 1895 by Dr. Nathan F. Mossell | Day: Day 1 | Time: 10:30 AM | Location: 1512 Lombard St, Philadelphia, PA 19146."
+    },
+    "black-medical-legacy-pennsylvania-hospital": {
+      "drive": "Pennsylvania Hospital is coming up on the Black Medical Legacy. Used enslaved bodies for anatomy (1760s-1800s) | Day: Day 3 | Time: 11:30 AM | Location: 800 Spruce St, Philadelphia, PA 19107.",
+      "walk": "You are at Pennsylvania Hospital on the Black Medical Legacy. Used enslaved bodies for anatomy (1760s-1800s) | Day: Day 3 | Time: 11:30 AM | Location: 800 Spruce St, Philadelphia, PA 19107."
+    },
+    "black-medical-legacy-mercy-hospital-site": {
+      "drive": "Mercy Hospital Site is coming up on the Black Medical Legacy. Pre-merger Black hospital (1907) | Day: Day 1 | Time: 2:30 PM | Location: S 17th St & Fitzwater St, Philadelphia, PA 19146.",
+      "walk": "You are at Mercy Hospital Site on the Black Medical Legacy. Pre-merger Black hospital (1907) | Day: Day 1 | Time: 2:30 PM | Location: S 17th St & Fitzwater St, Philadelphia, PA 19146."
+    },
+    "black-medical-legacy-free-african-society": {
+      "drive": "Free African Society is coming up on the Black Medical Legacy. Black nurses saved Philly in 1793 yellow fever epidemic | Day: Day 2 | Time: 9:00 AM | Location: 650 Lombard St, Philadelphia, PA 19147.",
+      "walk": "You are at Free African Society on the Black Medical Legacy. Black nurses saved Philly in 1793 yellow fever epidemic | Day: Day 2 | Time: 9:00 AM | Location: 650 Lombard St, Philadelphia, PA 19147."
+    },
+    "black-medical-legacy-mother-bethel-ame-church": {
+      "drive": "Mother Bethel AME Church is coming up on the Black Medical Legacy. Hub for Black nurses during epidemics | Day: Day 2 | Time: 10:30 AM | Location: 419 S 6th St, Philadelphia, PA 19147.",
+      "walk": "You are at Mother Bethel AME Church on the Black Medical Legacy. Hub for Black nurses during epidemics | Day: Day 2 | Time: 10:30 AM | Location: 419 S 6th St, Philadelphia, PA 19147."
+    },
+    "black-medical-legacy-black-doctors-row": {
+      "drive": "Black Doctors Row is coming up on the Black Medical Legacy. Philly's first Black Historic District (2022) | Day: Day 1 | Time: 9:00 AM | Location: 1724 Christian St, Philadelphia, PA 19146.",
+      "walk": "You are at Black Doctors Row on the Black Medical Legacy. Philly's first Black Historic District (2022) | Day: Day 1 | Time: 9:00 AM | Location: 1724 Christian St, Philadelphia, PA 19146."
+    },
+    "black-medical-legacy-yellow-fever-sites": {
+      "drive": "Yellow Fever Sites is coming up on the Black Medical Legacy. 1793 epidemic exploitation | Day: Day 3 | Time: 3:00 PM | Location: 1 N Front St, Philadelphia, PA 19106.",
+      "walk": "You are at Yellow Fever Sites on the Black Medical Legacy. 1793 epidemic exploitation | Day: Day 3 | Time: 3:00 PM | Location: 1 N Front St, Philadelphia, PA 19106."
+    },
+    "black-medical-legacy-city-almshouse": {
+      "drive": "City Almshouse is coming up on the Black Medical Legacy. 1800s dissection without consent | Day: Day 3 | Time: 10:30 AM | Location: S 34th St & Spruce St, Philadelphia, PA 19104.",
+      "walk": "You are at City Almshouse on the Black Medical Legacy. 1800s dissection without consent | Day: Day 3 | Time: 10:30 AM | Location: S 34th St & Spruce St, Philadelphia, PA 19104."
+    },
+    "black-medical-legacy-philadelphia-general-hospital": {
+      "drive": "Philadelphia General Hospital is coming up on the Black Medical Legacy. Old Blockley, Black nurses training | Day: Day 2 | Time: 1:00 PM | Location: 3400 Civic Center Blvd, Philadelphia, PA 19104.",
+      "walk": "You are at Philadelphia General Hospital on the Black Medical Legacy. Old Blockley, Black nurses training | Day: Day 2 | Time: 1:00 PM | Location: 3400 Civic Center Blvd, Philadelphia, PA 19104."
+    },
+    "black-medical-legacy-dr-virginia-alexander-clinic": {
+      "drive": "Dr. Virginia Alexander Clinic is coming up on the Black Medical Legacy. 1930s Aspiranto Health Home, fought TB disparities | Day: Day 1 | Time: 1:30 PM | Location: 2104 W Jefferson St, Philadelphia, PA 19121.",
+      "walk": "You are at Dr. Virginia Alexander Clinic on the Black Medical Legacy. 1930s Aspiranto Health Home, fought TB disparities | Day: Day 1 | Time: 1:30 PM | Location: 2104 W Jefferson St, Philadelphia, PA 19121."
+    },
+    "black-medical-legacy-barbara-bates-center": {
+      "drive": "Barbara Bates Center is coming up on the Black Medical Legacy. Archives on Black nurses | Day: Day 2 | Time: 4:30 PM | Location: Claire M. Fagin Hall, 418 Curie Blvd, Philadelphia, PA 19104.",
+      "walk": "You are at Barbara Bates Center on the Black Medical Legacy. Archives on Black nurses | Day: Day 2 | Time: 4:30 PM | Location: Claire M. Fagin Hall, 418 Curie Blvd, Philadelphia, PA 19104."
+    },
+    "black-medical-legacy-mercy-douglass-hospital": {
+      "drive": "Mercy-Douglass Hospital is coming up on the Black Medical Legacy. Merged 1948, served Black patients | Day: Day 1 | Time: 11:30 AM | Location: 5000 Woodland Ave, Philadelphia, PA 19143.",
+      "walk": "You are at Mercy-Douglass Hospital on the Black Medical Legacy. Merged 1948, served Black patients | Day: Day 1 | Time: 11:30 AM | Location: 5000 Woodland Ave, Philadelphia, PA 19143."
+    },
+    "black-medical-legacy-mercy-douglass-nurse-training": {
+      "drive": "Mercy-Douglass Nurse Training is coming up on the Black Medical Legacy. Graduated 1,000+ Black nurses (1920s-1960s) | Day: Day 2 | Time: 2:30 PM | Location: 5000 Woodland Ave, Philadelphia, PA 19143.",
+      "walk": "You are at Mercy-Douglass Nurse Training on the Black Medical Legacy. Graduated 1,000+ Black nurses (1920s-1960s) | Day: Day 2 | Time: 2:30 PM | Location: 5000 Woodland Ave, Philadelphia, PA 19143."
+    },
+    "black-medical-legacy-move-bombing-sites": {
+      "drive": "MOVE Bombing Sites is coming up on the Black Medical Legacy. 1985 remains withheld and experimented on | Day: Day 3 | Time: 1:30 PM | Location: 6221 Osage Ave, Philadelphia, PA 19143.",
+      "walk": "You are at MOVE Bombing Sites on the Black Medical Legacy. 1985 remains withheld and experimented on | Day: Day 3 | Time: 1:30 PM | Location: 6221 Osage Ave, Philadelphia, PA 19143."
+    },
+    "black-medical-legacy-holmesburg-prison": {
+      "drive": "Holmesburg Prison is coming up on the Black Medical Legacy. Dr. Kligman unauthorized testing 1951-1974 | Day: Day 3 | Time: 9:00 AM | Location: 8215 Torresdale Ave, Philadelphia, PA 19136.",
+      "walk": "You are at Holmesburg Prison on the Black Medical Legacy. Dr. Kligman unauthorized testing 1951-1974 | Day: Day 3 | Time: 9:00 AM | Location: 8215 Torresdale Ave, Philadelphia, PA 19136."
+    },
+    "eastern-star-weekend-masonic-temple": {
+      "drive": "Masonic Temple is coming up on the Eastern Star Weekend. Private Eastern Star tour, jewels, robes | Day: Day 1 | Time: 10:00 AM | Location: 1 N Broad St, Philadelphia, PA 19107.",
+      "walk": "You are at Masonic Temple on the Eastern Star Weekend. Private Eastern Star tour, jewels, robes | Day: Day 1 | Time: 10:00 AM | Location: 1 N Broad St, Philadelphia, PA 19107."
+    },
+    "eastern-star-weekend-the-breakfast-den": {
+      "drive": "The Breakfast Den is coming up on the Eastern Star Weekend. Black-woman owned brunch spot | Day: Day 2 | Time: 11:30 AM | Location: 1500 South St, Philadelphia, PA 19146.",
+      "walk": "You are at The Breakfast Den on the Eastern Star Weekend. Black-woman owned brunch spot | Day: Day 2 | Time: 11:30 AM | Location: 1500 South St, Philadelphia, PA 19146."
+    },
+    "eastern-star-weekend-south-kitchen-and-jazz-club": {
+      "drive": "SOUTH Kitchen & Jazz Club is coming up on the Eastern Star Weekend. Award-winning jazz brunch | Day: Day 1 | Time: 1:00 PM | Location: 600 N Broad St, Philadelphia, PA 19130.",
+      "walk": "You are at SOUTH Kitchen & Jazz Club on the Eastern Star Weekend. Award-winning jazz brunch | Day: Day 1 | Time: 1:00 PM | Location: 600 N Broad St, Philadelphia, PA 19130."
+    },
+    "eastern-star-weekend-mother-bethel-ame-church": {
+      "drive": "Mother Bethel AME Church is coming up on the Eastern Star Weekend. Eastern Star Sunday worship | Day: Day 2 | Time: 9:00 AM | Location: 419 S 6th St, Philadelphia, PA 19147.",
+      "walk": "You are at Mother Bethel AME Church on the Eastern Star Weekend. Eastern Star Sunday worship | Day: Day 2 | Time: 9:00 AM | Location: 419 S 6th St, Philadelphia, PA 19147."
+    },
+    "eastern-star-weekend-sweetbriar-mansion": {
+      "drive": "Sweetbriar Mansion is coming up on the Eastern Star Weekend. Closing ceremony | Day: Day 2 | Location: 1 Sweetbriar Ln, Philadelphia, PA 19131.",
+      "walk": "You are at Sweetbriar Mansion on the Eastern Star Weekend. Closing ceremony | Day: Day 2 | Location: 1 Sweetbriar Ln, Philadelphia, PA 19131."
+    },
+    "eastern-star-weekend-prince-hall-grand-lodge": {
+      "drive": "Prince Hall Grand Lodge is coming up on the Eastern Star Weekend. 1929 Egyptian Revival building | Day: Day 1 | Time: 3:00 PM | Location: 4611 Lancaster Ave, Philadelphia, PA 19131.",
+      "walk": "You are at Prince Hall Grand Lodge on the Eastern Star Weekend. 1929 Egyptian Revival building | Day: Day 1 | Time: 3:00 PM | Location: 4611 Lancaster Ave, Philadelphia, PA 19131."
+    },
+    "eastern-star-weekend-widow-s-son-hall": {
+      "drive": "Widow's Son Hall is coming up on the Eastern Star Weekend. Early Black OES chapters home | Day: Day 1 | Location: 3427 Germantown Ave, Philadelphia, PA 19140.",
+      "walk": "You are at Widow's Son Hall on the Eastern Star Weekend. Early Black OES chapters home | Day: Day 1 | Location: 3427 Germantown Ave, Philadelphia, PA 19140."
+    },
+    "eastern-star-weekend-robert-h-johnson-chapter-no-5": {
+      "drive": "Robert H. Johnson Chapter No. 5 is coming up on the Eastern Star Weekend. OES Memorial Marker | Day: Day 2 | Time: 1:30 PM | Location: 3822 Ridge Ave, Philadelphia, PA 19132.",
+      "walk": "You are at Robert H. Johnson Chapter No. 5 on the Eastern Star Weekend. OES Memorial Marker | Day: Day 2 | Time: 1:30 PM | Location: 3822 Ridge Ave, Philadelphia, PA 19132."
+    },
+    "eastern-star-weekend-most-worshipful-prince-hall-oes": {
+      "drive": "Most Worshipful Prince Hall OES is coming up on the Eastern Star Weekend. Grand Chapter OES Temple | Day: Day 1 | Location: Prince Hall Grand Lodge complex, 4301 N Broad St, Philadelphia, PA 19140.",
+      "walk": "You are at Most Worshipful Prince Hall OES on the Eastern Star Weekend. Grand Chapter OES Temple | Day: Day 1 | Location: Prince Hall Grand Lodge complex, 4301 N Broad St, Philadelphia, PA 19140."
+    },
+    "eastern-star-weekend-relish": {
+      "drive": "Relish is coming up on the Eastern Star Weekend. Upscale soul food in mansion | Day: Day 1 | Time: 6:30 PM | Location: 7152 Ogontz Ave, Philadelphia, PA 19138.",
+      "walk": "You are at Relish on the Eastern Star Weekend. Upscale soul food in mansion | Day: Day 1 | Time: 6:30 PM | Location: 7152 Ogontz Ave, Philadelphia, PA 19138."
+    },
+    "job-s-daughters-masonic-temple": {
+      "drive": "Masonic Temple is coming up on the Job's Daughters. First Bethel tour - Egyptian Hall initiation site (1921) | Day: Day 1 | Time: 9:15 AM | Location: 1 N Broad St, Philadelphia, PA 19107.",
+      "walk": "You are at Masonic Temple on the Job's Daughters. First Bethel tour - Egyptian Hall initiation site (1921) | Day: Day 1 | Time: 9:15 AM | Location: 1 N Broad St, Philadelphia, PA 19107."
+    },
+    "job-s-daughters-arch-street-united-methodist": {
+      "drive": "Arch Street United Methodist is coming up on the Job's Daughters. Historical installation site | Day: Day 1 | Location: 55 N Broad St, Philadelphia, PA 19107.",
+      "walk": "You are at Arch Street United Methodist on the Job's Daughters. Historical installation site | Day: Day 1 | Location: 55 N Broad St, Philadelphia, PA 19107."
+    },
+    "job-s-daughters-crystal-tea-room": {
+      "drive": "Crystal Tea Room is coming up on the Job's Daughters. Purple & White Gala Dinner | Day: Day 1 | Time: 6:00 PM | Location: 100 E Penn Square, Philadelphia, PA 19107.",
+      "walk": "You are at Crystal Tea Room on the Job's Daughters. Purple & White Gala Dinner | Day: Day 1 | Time: 6:00 PM | Location: 100 E Penn Square, Philadelphia, PA 19107."
+    },
+    "job-s-daughters-original-bethel-no-1-hall": {
+      "drive": "Original Bethel No. 1 Hall is coming up on the Job's Daughters. 1921-1930s meeting hall site | Day: Day 1 | Time: 2:00 PM | Location: N 13th St & Arch St, Philadelphia, PA 19107.",
+      "walk": "You are at Original Bethel No. 1 Hall on the Job's Daughters. 1921-1930s meeting hall site | Day: Day 1 | Time: 2:00 PM | Location: N 13th St & Arch St, Philadelphia, PA 19107."
+    },
+    "job-s-daughters-reading-terminal-market": {
+      "drive": "Reading Terminal Market is coming up on the Job's Daughters. Lunch with purple lemonade | Day: Day 1 | Time: 12:30 PM | Location: 1136 Arch St, Philadelphia, PA 19107.",
+      "walk": "You are at Reading Terminal Market on the Job's Daughters. Lunch with purple lemonade | Day: Day 1 | Time: 12:30 PM | Location: 1136 Arch St, Philadelphia, PA 19107."
+    },
+    "job-s-daughters-free-quaker-meeting-house": {
+      "drive": "Free Quaker Meeting House is coming up on the Job's Daughters. Job's daughters during Revolution lesson | Day: Day 1 | Location: N 5th St & Arch St, Philadelphia, PA 19106.",
+      "walk": "You are at Free Quaker Meeting House on the Job's Daughters. Job's daughters during Revolution lesson | Day: Day 1 | Location: N 5th St & Arch St, Philadelphia, PA 19106."
+    },
+    "job-s-daughters-christ-church": {
+      "drive": "Christ Church is coming up on the Job's Daughters. Bethel Worship Service | Day: Day 2 | Time: 9:00 AM | Location: N 2nd St & Market St, Philadelphia, PA 19106.",
+      "walk": "You are at Christ Church on the Job's Daughters. Bethel Worship Service | Day: Day 2 | Time: 9:00 AM | Location: N 2nd St & Market St, Philadelphia, PA 19106."
+    },
+    "job-s-daughters-green-eggs-caf": {
+      "drive": "Green Eggs Café is coming up on the Job's Daughters. Brunch with purple ube lattes | Day: Day 2 | Time: 10:45 AM | Location: 1306 Dickinson St, Philadelphia, PA 19147.",
+      "walk": "You are at Green Eggs Café on the Job's Daughters. Brunch with purple ube lattes | Day: Day 2 | Time: 10:45 AM | Location: 1306 Dickinson St, Philadelphia, PA 19147."
+    },
+    "job-s-daughters-sweetbriar-mansion": {
+      "drive": "Sweetbriar Mansion is coming up on the Job's Daughters. Closing ceremony with purple roses | Day: Day 2 | Time: 12:30 PM | Location: 3801 Lansdowne Dr, Philadelphia, PA 19131.",
+      "walk": "You are at Sweetbriar Mansion on the Job's Daughters. Closing ceremony with purple roses | Day: Day 2 | Time: 12:30 PM | Location: 3801 Lansdowne Dr, Philadelphia, PA 19131."
+    },
+    "masonic-scavenger-hunt-masonic-temple": {
+      "drive": "Masonic Temple is coming up on the Masonic Scavenger Hunt. The Temple That Watched City Hall Rise | Day: 1 Day | Time: Start | Location: 1 N Broad St, Philadelphia, PA 19107.",
+      "walk": "You are at Masonic Temple on the Masonic Scavenger Hunt. The Temple That Watched City Hall Rise | Day: 1 Day | Time: Start | Location: 1 N Broad St, Philadelphia, PA 19107."
+    },
+    "masonic-scavenger-hunt-city-hall": {
+      "drive": "City Hall is coming up on the Masonic Scavenger Hunt. Compass & Square on Penn's Hat | Day: 1 Day | Location: 1400 John F Kennedy Blvd, Philadelphia, PA 19107.",
+      "walk": "You are at City Hall on the Masonic Scavenger Hunt. Compass & Square on Penn's Hat | Day: 1 Day | Location: 1400 John F Kennedy Blvd, Philadelphia, PA 19107."
+    },
+    "masonic-scavenger-hunt-pennsylvania-hospital": {
+      "drive": "Pennsylvania Hospital is coming up on the Masonic Scavenger Hunt. Hospital Gate With Oldest Masonic Mark | Day: 1 Day | Location: 8th & Spruce St, Philadelphia, PA.",
+      "walk": "You are at Pennsylvania Hospital on the Masonic Scavenger Hunt. Hospital Gate With Oldest Masonic Mark | Day: 1 Day | Location: 8th & Spruce St, Philadelphia, PA."
+    },
+    "masonic-scavenger-hunt-prince-hall-grand-lodge": {
+      "drive": "Prince Hall Grand Lodge is coming up on the Masonic Scavenger Hunt. Prince Hall's 1920s Egyptian Fortress | Day: 1 Day | Location: 4301 N Broad St, Philadelphia, PA.",
+      "walk": "You are at Prince Hall Grand Lodge on the Masonic Scavenger Hunt. Prince Hall's 1920s Egyptian Fortress | Day: 1 Day | Location: 4301 N Broad St, Philadelphia, PA."
+    },
+    "black-architects-tour-union-league": {
+      "drive": "Union League is coming up on the Black Architects Tour. Abele's Renaissance Revival additions (1909-1911) | Day: Day 1 | Time: 3:30 PM | Location: 140 S Broad St, Philadelphia, PA 19102.",
+      "walk": "You are at Union League on the Black Architects Tour. Abele's Renaissance Revival additions (1909-1911) | Day: Day 1 | Time: 3:30 PM | Location: 140 S Broad St, Philadelphia, PA 19102."
+    },
+    "black-architects-tour-philadanco-building": {
+      "drive": "Philadanco Building is coming up on the Black Architects Tour. Joan Myers Brown, first Black woman major arts facility | Day: Day 2 | Time: 5:00 PM | Location: 1735 Market St, Philadelphia, PA 19103.",
+      "walk": "You are at Philadanco Building on the Black Architects Tour. Joan Myers Brown, first Black woman major arts facility | Day: Day 2 | Time: 5:00 PM | Location: 1735 Market St, Philadelphia, PA 19103."
+    },
+    "black-architects-tour-free-library-central": {
+      "drive": "Free Library Central is coming up on the Black Architects Tour. Abele's grand staircase and rotunda (1917-1927) | Day: Day 1 | Time: 10:30 AM | Location: 1901 Vine St, Philadelphia, PA 19103.",
+      "walk": "You are at Free Library Central on the Black Architects Tour. Abele's grand staircase and rotunda (1917-1927) | Day: Day 1 | Time: 10:30 AM | Location: 1901 Vine St, Philadelphia, PA 19103."
+    },
+    "black-architects-tour-african-american-museum": {
+      "drive": "African American Museum is coming up on the Black Architects Tour. Theodore Cam Jr. design (1976) | Day: Day 2 | Time: 2:00 PM | Location: 701 Arch St, Philadelphia, PA 19106.",
+      "walk": "You are at African American Museum on the Black Architects Tour. Theodore Cam Jr. design (1976) | Day: Day 2 | Time: 2:00 PM | Location: 701 Arch St, Philadelphia, PA 19106."
+    },
+    "black-architects-tour-philadelphia-museum-of-art": {
+      "drive": "Philadelphia Museum of Art is coming up on the Black Architects Tour. Julian Abele design (1916-1928) | Day: Day 1 | Time: 9:00 AM | Location: 2600 Benjamin Franklin Parkway, Philadelphia, PA 19130.",
+      "walk": "You are at Philadelphia Museum of Art on the Black Architects Tour. Julian Abele design (1916-1928) | Day: Day 1 | Time: 9:00 AM | Location: 2600 Benjamin Franklin Parkway, Philadelphia, PA 19130."
+    },
+    "black-architects-tour-penn-campus-fisher-library": {
+      "drive": "Penn Campus - Fisher Library is coming up on the Black Architects Tour. Abele's Gothic masterpiece (1891/1911) | Day: Day 1 | Time: 1:30 PM | Location: 220 S 34th St, Philadelphia, PA 19104.",
+      "walk": "You are at Penn Campus - Fisher Library on the Black Architects Tour. Abele's Gothic masterpiece (1891/1911) | Day: Day 1 | Time: 1:30 PM | Location: 220 S 34th St, Philadelphia, PA 19104."
+    },
+    "black-architects-tour-irvine-auditorium": {
+      "drive": "Irvine Auditorium is coming up on the Black Architects Tour. Abele's neo-Gothic concert hall (1925-1931) | Day: Day 1 | Location: 3401 Spruce St, Philadelphia, PA 19104.",
+      "walk": "You are at Irvine Auditorium on the Black Architects Tour. Abele's neo-Gothic concert hall (1925-1931) | Day: Day 1 | Location: 3401 Spruce St, Philadelphia, PA 19104."
+    },
+    "black-architects-tour-progress-plaza": {
+      "drive": "Progress Plaza is coming up on the Black Architects Tour. Louis de Moll, first Black-owned shopping center (1968) | Day: Day 2 | Time: 3:30 PM | Location: 1501 N Broad St, Philadelphia, PA 19122.",
+      "walk": "You are at Progress Plaza on the Black Architects Tour. Louis de Moll, first Black-owned shopping center (1968) | Day: Day 2 | Time: 3:30 PM | Location: 1501 N Broad St, Philadelphia, PA 19122."
+    },
+    "black-architects-tour-berean-savings-and-loan": {
+      "drive": "Berean Savings & Loan is coming up on the Black Architects Tour. Walter Livingston Jr. Brutalist design (1972) | Day: Day 2 | Time: 9:30 AM | Location: 5419 W Girard Ave, Philadelphia, PA 19131.",
+      "walk": "You are at Berean Savings & Loan on the Black Architects Tour. Walter Livingston Jr. Brutalist design (1972) | Day: Day 2 | Time: 9:30 AM | Location: 5419 W Girard Ave, Philadelphia, PA 19131."
+    },
+    "black-architects-tour-zion-baptist-church": {
+      "drive": "Zion Baptist Church is coming up on the Black Architects Tour. Livingston's 1970s modernist sanctuary | Day: Day 2 | Time: 11:00 AM | Location: 3600 N Broad St, Philadelphia, PA 19140.",
+      "walk": "You are at Zion Baptist Church on the Black Architects Tour. Livingston's 1970s modernist sanctuary | Day: Day 2 | Time: 11:00 AM | Location: 3600 N Broad St, Philadelphia, PA 19140."
+    },
+    "septa-broad-street-line-julian-abele-sites": {
+      "drive": "Julian Abele Sites is coming up on the SEPTA Broad Street Line. First Black UPenn architect | Day: Part 3 | Location: 200 S Broad St, Philadelphia, PA 19102.",
+      "walk": "You are at Julian Abele Sites on the SEPTA Broad Street Line. First Black UPenn architect | Day: Part 3 | Location: 200 S Broad St, Philadelphia, PA 19102."
+    },
+    "septa-broad-street-line-william-still-marker": {
+      "drive": "William Still Marker is coming up on the SEPTA Broad Street Line. Father of the Underground Railroad | Day: Part 3 | Location: 244 S 12th St, Philadelphia, PA.",
+      "walk": "You are at William Still Marker on the SEPTA Broad Street Line. Father of the Underground Railroad | Day: Part 3 | Location: 244 S 12th St, Philadelphia, PA."
+    },
+    "septa-broad-street-line-divine-lorraine-hotel": {
+      "drive": "Divine Lorraine Hotel is coming up on the SEPTA Broad Street Line. Nation's first racially integrated hotel | Day: Part 2 | Location: 699 N Broad St, Philadelphia, PA 19123.",
+      "walk": "You are at Divine Lorraine Hotel on the SEPTA Broad Street Line. Nation's first racially integrated hotel | Day: Part 2 | Location: 699 N Broad St, Philadelphia, PA 19123."
+    },
+    "septa-broad-street-line-first-african-baptist-church": {
+      "drive": "First African Baptist Church is coming up on the SEPTA Broad Street Line. Key abolition site | Day: Part 3 | Location: 1608 Christian St, Philadelphia, PA 19146.",
+      "walk": "You are at First African Baptist Church on the SEPTA Broad Street Line. Key abolition site | Day: Part 3 | Location: 1608 Christian St, Philadelphia, PA 19146."
+    },
+    "septa-broad-street-line-cecil-b-moore-mural": {
+      "drive": "Cecil B. Moore Mural is coming up on the SEPTA Broad Street Line. NAACP leader, voting rights | Day: Part 2 | Location: N 15th St & Cecil B Moore Ave, Philadelphia, PA 19121.",
+      "walk": "You are at Cecil B. Moore Mural on the SEPTA Broad Street Line. NAACP leader, voting rights | Day: Part 2 | Location: N 15th St & Cecil B Moore Ave, Philadelphia, PA 19121."
+    },
+    "septa-broad-street-line-berks-street-arts-district": {
+      "drive": "Berks Street Arts District is coming up on the SEPTA Broad Street Line. 1950s Black poets and painters hub | Day: Part 2 | Location: N 7th St & W Berks St, Philadelphia, PA 19122.",
+      "walk": "You are at Berks Street Arts District on the SEPTA Broad Street Line. 1950s Black poets and painters hub | Day: Part 2 | Location: N 7th St & W Berks St, Philadelphia, PA 19122."
+    },
+    "septa-broad-street-line-north-philly-black-metropolis": {
+      "drive": "North Philly Black Metropolis is coming up on the SEPTA Broad Street Line. Historic zone for Black commerce | Day: Part 1 | Location: 2601 N Broad St, Philadelphia, PA 19132.",
+      "walk": "You are at North Philly Black Metropolis on the SEPTA Broad Street Line. Historic zone for Black commerce | Day: Part 1 | Location: 2601 N Broad St, Philadelphia, PA 19132."
+    },
+    "septa-broad-street-line-lehigh-black-labor-sites": {
+      "drive": "Lehigh Black Labor Sites is coming up on the SEPTA Broad Street Line. Factories where Black workers unionized | Day: Part 2 | Location: N Broad St & W Lehigh Ave, Philadelphia, PA 19132.",
+      "walk": "You are at Lehigh Black Labor Sites on the SEPTA Broad Street Line. Factories where Black workers unionized | Day: Part 2 | Location: N Broad St & W Lehigh Ave, Philadelphia, PA 19132."
+    },
+    "septa-broad-street-line-erie-avenue-cultural-corridor": {
+      "drive": "Erie Avenue Cultural Corridor is coming up on the SEPTA Broad Street Line. 1940s jazz clubs, Coltrane influence | Day: Part 1 | Location: 500 E Erie Ave, Philadelphia, PA 19134.",
+      "walk": "You are at Erie Avenue Cultural Corridor on the SEPTA Broad Street Line. 1940s jazz clubs, Coltrane influence | Day: Part 1 | Location: 500 E Erie Ave, Philadelphia, PA 19134."
+    },
+    "septa-broad-street-line-hunting-park-centers": {
+      "drive": "Hunting Park Centers is coming up on the SEPTA Broad Street Line. Early Black mutual aid societies | Day: Part 1 | Location: N Broad St & W Hunting Park Ave, Philadelphia, PA 19140.",
+      "walk": "You are at Hunting Park Centers on the SEPTA Broad Street Line. Early Black mutual aid societies | Day: Part 1 | Location: N Broad St & W Hunting Park Ave, Philadelphia, PA 19140."
+    },
+    "septa-broad-street-line-wyoming-ave-business-district": {
+      "drive": "Wyoming Ave Business District is coming up on the SEPTA Broad Street Line. 1920s Black entrepreneurs corridor | Day: Part 1 | Location: N 13th St & W Wyoming Ave, Philadelphia, PA 19140.",
+      "walk": "You are at Wyoming Ave Business District on the SEPTA Broad Street Line. 1920s Black entrepreneurs corridor | Day: Part 1 | Location: N 13th St & W Wyoming Ave, Philadelphia, PA 19140."
+    },
+    "septa-broad-street-line-aces-museum-black-wwii-veterans": {
+      "drive": "Aces Museum Black WWII Veterans is coming up on the SEPTA Broad Street Line. Philly's Black troops artifacts | Day: Part 3 | Location: 5801 Germantown Ave, Philadelphia, PA.",
+      "walk": "You are at Aces Museum Black WWII Veterans on the SEPTA Broad Street Line. Philly's Black troops artifacts | Day: Part 3 | Location: 5801 Germantown Ave, Philadelphia, PA."
+    },
+    "septa-broad-street-line-olney-black-history-markers": {
+      "drive": "Olney Black History Markers is coming up on the SEPTA Broad Street Line. Black WWII veterans plaques | Day: Part 1 | Location: 5th St & Olney Ave, Philadelphia, PA 19120.",
+      "walk": "You are at Olney Black History Markers on the SEPTA Broad Street Line. Black WWII veterans plaques | Day: Part 1 | Location: 5th St & Olney Ave, Philadelphia, PA 19120."
+    },
+    "septa-broad-street-line-rockland-black-churches": {
+      "drive": "Rockland Black Churches is coming up on the SEPTA Broad Street Line. AME-affiliated churches cluster | Day: Part 2 | Location: N 11th St & W Grange Ave, Philadelphia, PA 19141.",
+      "walk": "You are at Rockland Black Churches on the SEPTA Broad Street Line. AME-affiliated churches cluster | Day: Part 2 | Location: N 11th St & W Grange Ave, Philadelphia, PA 19141."
+    },
+    "philadelphia-foundations-harriet-tubman-mural": {
+      "drive": "Harriet Tubman Mural is coming up on the Philadelphia Foundations. AR overlay with coded signals | Day: Day 1 | Time: Morning | Location: 2900 Germantown Ave, Philadelphia, PA 19133.",
+      "walk": "You are at Harriet Tubman Mural on the Philadelphia Foundations. AR overlay with coded signals | Day: Day 1 | Time: Morning | Location: 2900 Germantown Ave, Philadelphia, PA 19133."
+    },
+    "philadelphia-foundations-fair-hill-burial-ground": {
+      "drive": "Fair Hill Burial Ground is coming up on the Philadelphia Foundations. Quaker site (1703), Lucretia Mott, Robert Purvis | Day: Day 1 | Time: Morning | Location: 2901 Germantown Ave, Philadelphia, PA 19133.",
+      "walk": "You are at Fair Hill Burial Ground on the Philadelphia Foundations. Quaker site (1703), Lucretia Mott, Robert Purvis | Day: Day 1 | Time: Morning | Location: 2901 Germantown Ave, Philadelphia, PA 19133."
+    },
+    "philadelphia-foundations-belmont-mansion": {
+      "drive": "Belmont Mansion is coming up on the Philadelphia Foundations. 1742 estate, Underground Railroad sanctuary | Day: Day 1 | Time: Afternoon | Location: 2000 Belmont Mansion Dr, Philadelphia, PA 19131.",
+      "walk": "You are at Belmont Mansion on the Philadelphia Foundations. 1742 estate, Underground Railroad sanctuary | Day: Day 1 | Time: Afternoon | Location: 2000 Belmont Mansion Dr, Philadelphia, PA 19131."
+    },
+    "philadelphia-foundations-ebenezer-maxwell-mansion": {
+      "drive": "Ebenezer Maxwell Mansion is coming up on the Philadelphia Foundations. Victorian abolition network hub | Day: Day 2 | Time: Afternoon | Location: 200 W Tulpehocken St, Philadelphia, PA 19144.",
+      "walk": "You are at Ebenezer Maxwell Mansion on the Philadelphia Foundations. Victorian abolition network hub | Day: Day 2 | Time: Afternoon | Location: 200 W Tulpehocken St, Philadelphia, PA 19144."
+    },
+    "philadelphia-foundations-johnson-house": {
+      "drive": "Johnson House is coming up on the Philadelphia Foundations. Philly's only intact Underground Railroad station | Day: Day 2 | Time: Morning | Location: 6306 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Johnson House on the Philadelphia Foundations. Philly's only intact Underground Railroad station | Day: Day 2 | Time: Morning | Location: 6306 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "philadelphia-foundations-cliveden": {
+      "drive": "Cliveden is coming up on the Philadelphia Foundations. Underground Railroad role | Day: Day 2 | Time: Afternoon | Location: 6401 Germantown Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Cliveden on the Philadelphia Foundations. Underground Railroad role | Day: Day 2 | Time: Afternoon | Location: 6401 Germantown Ave, Philadelphia, PA 19144."
+    },
+    "move-bombing-memorial-municipal-services-building": {
+      "drive": "Municipal Services Building is coming up on the MOVE Bombing Memorial. Remembering MOVE exhibit, Commission testimonies | Day: 1 Day | Time: 9:00 AM | Location: 1401 John F Kennedy Blvd, Philadelphia, PA 19102.",
+      "walk": "You are at Municipal Services Building on the MOVE Bombing Memorial. Remembering MOVE exhibit, Commission testimonies | Day: 1 Day | Time: 9:00 AM | Location: 1401 John F Kennedy Blvd, Philadelphia, PA 19102."
+    },
+    "move-bombing-memorial-african-american-museum": {
+      "drive": "African American Museum is coming up on the MOVE Bombing Memorial. Medical Apartheid exhibit, healing panels | Day: 1 Day | Time: 5:15 PM | Location: 701 Arch St, Philadelphia, PA 19106.",
+      "walk": "You are at African American Museum on the MOVE Bombing Memorial. Medical Apartheid exhibit, healing panels | Day: 1 Day | Time: 5:15 PM | Location: 701 Arch St, Philadelphia, PA 19106."
+    },
+    "move-bombing-memorial-powelton-village": {
+      "drive": "Powelton Village is coming up on the MOVE Bombing Memorial. MOVE's first stronghold (1973-1978) | Day: 1 Day | Time: 11:00 AM | Location: 311 N 33rd St, Philadelphia, PA 19104.",
+      "walk": "You are at Powelton Village on the MOVE Bombing Memorial. MOVE's first stronghold (1973-1978) | Day: 1 Day | Time: 11:00 AM | Location: 311 N 33rd St, Philadelphia, PA 19104."
+    },
+    "move-bombing-memorial-chef-curt-s-bbq": {
+      "drive": "Chef Curt's BBQ is coming up on the MOVE Bombing Memorial. Community lunch, owner stories | Day: Chef Curt's BBQ | Time: 12:00 PM | Location: N 62nd St & Market St, Philadelphia, PA 19139.",
+      "walk": "You are at Chef Curt's BBQ on the MOVE Bombing Memorial. Community lunch, owner stories | Day: Chef Curt's BBQ | Time: 12:00 PM | Location: N 62nd St & Market St, Philadelphia, PA 19139."
+    },
+    "move-bombing-memorial-osage-avenue": {
+      "drive": "Osage Avenue is coming up on the MOVE Bombing Memorial. Bomb site, 11 victims memorial | Day: 1 Day | Time: 2:00 PM | Location: 6221 Osage Ave, Philadelphia, PA 19143.",
+      "walk": "You are at Osage Avenue on the MOVE Bombing Memorial. Bomb site, 11 victims memorial | Day: 1 Day | Time: 2:00 PM | Location: 6221 Osage Ave, Philadelphia, PA 19143."
+    },
+    "move-bombing-memorial-cobbs-creek-park": {
+      "drive": "Cobbs Creek Park is coming up on the MOVE Bombing Memorial. Where firefighters let it burn | Day: 1 Day | Time: 3:30 PM | Location: N 63rd St & Vine St, Philadelphia, PA 19139.",
+      "walk": "You are at Cobbs Creek Park on the MOVE Bombing Memorial. Where firefighters let it burn | Day: 1 Day | Time: 3:30 PM | Location: N 63rd St & Vine St, Philadelphia, PA 19139."
+    },
+    "philly-black-art-odyssey-pa-academy-fine-arts": {
+      "drive": "PA Academy Fine Arts is coming up on the Philly Black Art Odyssey. Kehinde Wiley, Nick Cave, Mickalene Thomas | Day: Day 2 | Time: 2:30 PM | Location: 128 N Broad St, Philadelphia, PA 19102.",
+      "walk": "You are at PA Academy Fine Arts on the Philly Black Art Odyssey. Kehinde Wiley, Nick Cave, Mickalene Thomas | Day: Day 2 | Time: 2:30 PM | Location: 128 N Broad St, Philadelphia, PA 19102."
+    },
+    "philly-black-art-odyssey-public-sculptures": {
+      "drive": "Public Sculptures is coming up on the Philly Black Art Odyssey. Octavius Catto, Tuskegee Airmen, Keith Haring murals | Day: Day 3 | Time: 2:30 PM | Location: 151 N 15th St, Philadelphia, PA 19102.",
+      "walk": "You are at Public Sculptures on the Philly Black Art Odyssey. Octavius Catto, Tuskegee Airmen, Keith Haring murals | Day: Day 3 | Time: 2:30 PM | Location: 151 N 15th St, Philadelphia, PA 19102."
+    },
+    "philly-black-art-odyssey-brandywine-workshop": {
+      "drive": "Brandywine Workshop is coming up on the Philly Black Art Odyssey. Elizabeth Catlett lithographs, prints | Day: Day 2 | Time: 10:00 AM | Location: 1520 Sansom St, Philadelphia, PA.",
+      "walk": "You are at Brandywine Workshop on the Philly Black Art Odyssey. Elizabeth Catlett lithographs, prints | Day: Day 2 | Time: 10:00 AM | Location: 1520 Sansom St, Philadelphia, PA."
+    },
+    "philly-black-art-odyssey-african-american-museum": {
+      "drive": "African American Museum is coming up on the Philly Black Art Odyssey. CCH Pounder collection, African diaspora art | Day: Day 1 | Time: 9:00 AM | Location: 701 Arch St, Philadelphia, PA 19106.",
+      "walk": "You are at African American Museum on the Philly Black Art Odyssey. CCH Pounder collection, African diaspora art | Day: Day 1 | Time: 9:00 AM | Location: 701 Arch St, Philadelphia, PA 19106."
+    },
+    "philly-black-art-odyssey-barnes-foundation": {
+      "drive": "Barnes Foundation is coming up on the Philly Black Art Odyssey. African masks, Mickalene Thomas exhibit | Day: Day 1 | Time: 3:00 PM | Location: 2025 Benjamin Franklin Pkwy, Philadelphia, PA 19130.",
+      "walk": "You are at Barnes Foundation on the Philly Black Art Odyssey. African masks, Mickalene Thomas exhibit | Day: Day 1 | Time: 3:00 PM | Location: 2025 Benjamin Franklin Pkwy, Philadelphia, PA 19130."
+    },
+    "philly-black-art-odyssey-mural-arts-tour": {
+      "drive": "Mural Arts Tour is coming up on the Philly Black Art Odyssey. Black Be Beautiful, Cecil B. Moore murals | Day: Day 3 | Time: 9:00 AM | Location: 1729 Mount Vernon St, Philadelphia, PA 19130.",
+      "walk": "You are at Mural Arts Tour on the Philly Black Art Odyssey. Black Be Beautiful, Cecil B. Moore murals | Day: Day 3 | Time: 9:00 AM | Location: 1729 Mount Vernon St, Philadelphia, PA 19130."
+    },
+    "philly-black-art-odyssey-philadelphia-museum-of-art": {
+      "drive": "Philadelphia Museum of Art is coming up on the Philly Black Art Odyssey. Time is Always Now - 60 works by 28 artists | Day: Day 1 | Time: 11:30 AM | Location: 2600 Benjamin Franklin Parkway, Philadelphia, PA 19130.",
+      "walk": "You are at Philadelphia Museum of Art on the Philly Black Art Odyssey. Time is Always Now - 60 works by 28 artists | Day: Day 1 | Time: 11:30 AM | Location: 2600 Benjamin Franklin Parkway, Philadelphia, PA 19130."
+    },
+    "philly-black-art-odyssey-october-gallery": {
+      "drive": "October Gallery is coming up on the Philly Black Art Odyssey. Emerging Black artists, mixed media | Day: Day 2 | Time: 11:30 AM | Location: 2101 N Front St, Philadelphia, PA.",
+      "walk": "You are at October Gallery on the Philly Black Art Odyssey. Emerging Black artists, mixed media | Day: Day 2 | Time: 11:30 AM | Location: 2101 N Front St, Philadelphia, PA."
+    },
+    "philly-black-art-odyssey-woodmere-art-museum": {
+      "drive": "Woodmere Art Museum is coming up on the Philly Black Art Odyssey. We Speak exhibit - 70 works, 1920s-1970s | Day: Day 1 | Time: Evening | Location: 9201 Germantown Ave, Philadelphia, PA 19118.",
+      "walk": "You are at Woodmere Art Museum on the Philly Black Art Odyssey. We Speak exhibit - 70 works, 1920s-1970s | Day: Day 1 | Time: Evening | Location: 9201 Germantown Ave, Philadelphia, PA 19118."
+    },
+    "philly-black-art-odyssey-moody-jones-gallery": {
+      "drive": "Moody Jones Gallery is coming up on the Philly Black Art Odyssey. New and emerging Black artists | Day: Day 2 | Time: 5:00 PM | Location: 107 S Easton Rd, Glenside, PA 19038.",
+      "walk": "You are at Moody Jones Gallery on the Philly Black Art Odyssey. New and emerging Black artists | Day: Day 2 | Time: 5:00 PM | Location: 107 S Easton Rd, Glenside, PA 19038."
+    },
+    "college-hop-tour-pa-academy-of-fine-arts": {
+      "drive": "PA Academy of Fine Arts is coming up on the College Hop Tour. Historic cast collection, student galleries | Day: Day 3 | Time: 3:30 PM | Location: 128 N Broad St, Philadelphia, PA 19102.",
+      "walk": "You are at PA Academy of Fine Arts on the College Hop Tour. Historic cast collection, student galleries | Day: Day 3 | Time: 3:30 PM | Location: 128 N Broad St, Philadelphia, PA 19102."
+    },
+    "college-hop-tour-university-of-the-arts": {
+      "drive": "University of the Arts is coming up on the College Hop Tour. Terra Hall, dance/music rehearsals | Day: Day 3 | Time: 9:30 AM | Location: 211 S Broad St, Philadelphia, PA 19107.",
+      "walk": "You are at University of the Arts on the College Hop Tour. Terra Hall, dance/music rehearsals | Day: Day 3 | Time: 9:30 AM | Location: 211 S Broad St, Philadelphia, PA 19107."
+    },
+    "college-hop-tour-curtis-institute-of-music": {
+      "drive": "Curtis Institute of Music is coming up on the College Hop Tour. Free student recitals, world-class classical | Day: Day 3 | Time: 11:00 AM | Location: 1726 Locust St, Philadelphia, PA 19103.",
+      "walk": "You are at Curtis Institute of Music on the College Hop Tour. Free student recitals, world-class classical | Day: Day 3 | Time: 11:00 AM | Location: 1726 Locust St, Philadelphia, PA 19103."
+    },
+    "college-hop-tour-community-college-of-philly": {
+      "drive": "Community College of Philly is coming up on the College Hop Tour. Rooftop garden, Career & Tech Center | Day: Day 3 | Time: 1:00 PM | Location: 1700 Spring Garden St, Philadelphia, PA 19130.",
+      "walk": "You are at Community College of Philly on the College Hop Tour. Rooftop garden, Career & Tech Center | Day: Day 3 | Time: 1:00 PM | Location: 1700 Spring Garden St, Philadelphia, PA 19130."
+    },
+    "college-hop-tour-drexel-university": {
+      "drive": "Drexel University is coming up on the College Hop Tour. Mario the Dragon statue, Health Sciences Building | Day: Day 1 | Time: 11:00 AM | Location: 3201 Market St, Philadelphia, PA 19104.",
+      "walk": "You are at Drexel University on the College Hop Tour. Mario the Dragon statue, Health Sciences Building | Day: Day 1 | Time: 11:00 AM | Location: 3201 Market St, Philadelphia, PA 19104."
+    },
+    "college-hop-tour-university-of-pennsylvania": {
+      "drive": "University of Pennsylvania is coming up on the College Hop Tour. Ivy League campus, Fisher Library, College Hall | Day: Day 1 | Time: 9:00 AM | Location: 3401 Walnut St, Philadelphia, PA 19104.",
+      "walk": "You are at University of Pennsylvania on the College Hop Tour. Ivy League campus, Fisher Library, College Hall | Day: Day 1 | Time: 9:00 AM | Location: 3401 Walnut St, Philadelphia, PA 19104."
+    },
+    "college-hop-tour-temple-university": {
+      "drive": "Temple University is coming up on the College Hop Tour. Bell Tower, Diamond Band, 30+ murals | Day: Day 2 | Time: 9:00 AM | Location: 1801 N Broad St, Philadelphia, PA 19122.",
+      "walk": "You are at Temple University on the College Hop Tour. Bell Tower, Diamond Band, 30+ murals | Day: Day 2 | Time: 9:00 AM | Location: 1801 N Broad St, Philadelphia, PA 19122."
+    },
+    "college-hop-tour-saint-joseph-s-university": {
+      "drive": "Saint Joseph's University is coming up on the College Hop Tour. Hawk Hill, Barbelin Tower | Day: Day 2 | Time: 4:30 PM | Location: 5600 City Ave, Philadelphia, PA 19131.",
+      "walk": "You are at Saint Joseph's University on the College Hop Tour. Hawk Hill, Barbelin Tower | Day: Day 2 | Time: 4:30 PM | Location: 5600 City Ave, Philadelphia, PA 19131."
+    },
+    "college-hop-tour-thomas-jefferson-university": {
+      "drive": "Thomas Jefferson University is coming up on the College Hop Tour. 100-acre wooded campus, fashion studios | Day: Day 1 | Time: 3:30 PM | Location: 4201 Henry Ave, Philadelphia, PA 19144.",
+      "walk": "You are at Thomas Jefferson University on the College Hop Tour. 100-acre wooded campus, fashion studios | Day: Day 1 | Time: 3:30 PM | Location: 4201 Henry Ave, Philadelphia, PA 19144."
+    },
+    "college-hop-tour-la-salle-university": {
+      "drive": "La Salle University is coming up on the College Hop Tour. 1930s Collegiate Gothic, De La Salle chapel | Day: Day 2 | Time: 11:30 AM | Location: 1900 W Olney Ave, Philadelphia, PA 19141.",
+      "walk": "You are at La Salle University on the College Hop Tour. 1930s Collegiate Gothic, De La Salle chapel | Day: Day 2 | Time: 11:30 AM | Location: 1900 W Olney Ave, Philadelphia, PA 19141."
+    },
+    "college-hop-tour-chestnut-hill-college": {
+      "drive": "Chestnut Hill College is coming up on the College Hop Tour. 1920s castle campus on hill | Day: Day 2 | Time: 2:30 PM | Location: 9601 Germantown Ave, Philadelphia, PA 19118.",
+      "walk": "You are at Chestnut Hill College on the College Hop Tour. 1920s castle campus on hill | Day: Day 2 | Time: 2:30 PM | Location: 9601 Germantown Ave, Philadelphia, PA 19118."
+    },
+    "speakeasy-tour-haunt": {
+      "drive": "Haunt is coming up on the Speakeasy Tour. #7 Spooky - Gothic decor, 1800s morgue site | Day: 1 Day | Time: 6:00 PM | Location: 1315 Sansom St, Philadelphia, PA 19107.",
+      "walk": "You are at Haunt on the Speakeasy Tour. #7 Spooky - Gothic decor, 1800s morgue site | Day: 1 Day | Time: 6:00 PM | Location: 1315 Sansom St, Philadelphia, PA 19107."
+    },
+    "speakeasy-tour-midnight-and-the-wicked": {
+      "drive": "Midnight & The Wicked is coming up on the Speakeasy Tour. #10 Jazz - Live jazz, 1920s glamour | Day: 1 Day | Time: 9:00 PM | Location: 111 S 13th St, Philadelphia, PA 19107.",
+      "walk": "You are at Midnight & The Wicked on the Speakeasy Tour. #10 Jazz - Live jazz, 1920s glamour | Day: 1 Day | Time: 9:00 PM | Location: 111 S 13th St, Philadelphia, PA 19107."
+    },
+    "speakeasy-tour-charlie-was-a-sinner": {
+      "drive": "Charlie Was A Sinner is coming up on the Speakeasy Tour. #8 Dramatic - Burlesque nights | Day: 1 Day | Time: 7:00 PM | Location: 131 S 13th St, Philadelphia, PA 19107.",
+      "walk": "You are at Charlie Was A Sinner on the Speakeasy Tour. #8 Dramatic - Burlesque nights | Day: 1 Day | Time: 7:00 PM | Location: 131 S 13th St, Philadelphia, PA 19107."
+    },
+    "speakeasy-tour-andra-hem": {
+      "drive": "Andra Hem is coming up on the Speakeasy Tour. #6 Swedish - Nordic cocktails, hidden behind furniture | Day: 1 Day | Time: 5:00 PM | Location: 218 S 16th St, Philadelphia, PA 19102.",
+      "walk": "You are at Andra Hem on the Speakeasy Tour. #6 Swedish - Nordic cocktails, hidden behind furniture | Day: 1 Day | Time: 5:00 PM | Location: 218 S 16th St, Philadelphia, PA 19102."
+    },
+    "speakeasy-tour-hop-sing-laundromat": {
+      "drive": "Hop Sing Laundromat is coming up on the Speakeasy Tour. #3 Iconic - World's 50 Best Bars, password entry | Day: 1 Day | Time: 2:00 PM | Location: 1029 Race St, Philadelphia, PA 19107.",
+      "walk": "You are at Hop Sing Laundromat on the Speakeasy Tour. #3 Iconic - World's 50 Best Bars, password entry | Day: 1 Day | Time: 2:00 PM | Location: 1029 Race St, Philadelphia, PA 19107."
+    },
+    "speakeasy-tour-franklin-mortgage-and-investment": {
+      "drive": "Franklin Mortgage & Investment is coming up on the Speakeasy Tour. #2 Elite - USA TODAY top speakeasy | Day: 1 Day | Time: 1:00 PM | Location: 112 S 18th St, Philadelphia, PA 19103.",
+      "walk": "You are at Franklin Mortgage & Investment on the Speakeasy Tour. #2 Elite - USA TODAY top speakeasy | Day: 1 Day | Time: 1:00 PM | Location: 112 S 18th St, Philadelphia, PA 19103."
+    },
+    "speakeasy-tour-mask-and-wig-club": {
+      "drive": "Mask and Wig Club is coming up on the Speakeasy Tour. #9 Collegiate - 1889 private club | Day: 1 Day | Time: 8:00 PM | Location: 310 S Quince St, Philadelphia, PA 19107.",
+      "walk": "You are at Mask and Wig Club on the Speakeasy Tour. #9 Collegiate - 1889 private club | Day: 1 Day | Time: 8:00 PM | Location: 310 S Quince St, Philadelphia, PA 19107."
+    },
+    "speakeasy-tour-the-ranstead-room": {
+      "drive": "The Ranstead Room is coming up on the Speakeasy Tour. #1 Classic - 1920s alley bootlegger site | Day: 1 Day | Time: Noon | Location: 2013 Ranstead St, Philadelphia, PA 19103.",
+      "walk": "You are at The Ranstead Room on the Speakeasy Tour. #1 Classic - 1920s alley bootlegger site | Day: 1 Day | Time: Noon | Location: 2013 Ranstead St, Philadelphia, PA 19103."
+    },
+    "speakeasy-tour-1-tippling-place": {
+      "drive": "1 Tippling Place is coming up on the Speakeasy Tour. #4 Craft - James Beard bartenders | Day: 1 Day | Time: 3:00 PM | Location: 2006 Chestnut St, Philadelphia, PA 19103.",
+      "walk": "You are at 1 Tippling Place on the Speakeasy Tour. #4 Craft - James Beard bartenders | Day: 1 Day | Time: 3:00 PM | Location: 2006 Chestnut St, Philadelphia, PA 19103."
+    },
+    "speakeasy-tour-the-library-bar": {
+      "drive": "The Library Bar is coming up on the Speakeasy Tour. #5 Literary - Behind bookcase in Bar Hygge | Day: 1 Day | Time: 4:00 PM | Location: 210 W Rittenhouse Sq, Philadelphia, PA 19103.",
+      "walk": "You are at The Library Bar on the Speakeasy Tour. #5 Literary - Behind bookcase in Bar Hygge | Day: 1 Day | Time: 4:00 PM | Location: 210 W Rittenhouse Sq, Philadelphia, PA 19103."
     }
   }
 };
