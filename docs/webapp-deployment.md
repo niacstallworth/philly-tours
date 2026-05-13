@@ -2,7 +2,7 @@
 
 This repo now includes a static browser webapp in `webapp/` backed by generated tour and narration data.
 
-Use this guide when you want to deploy the webapp to your own server instead of opening local files directly.
+Use this guide for extra web deployment context. The top-level `README.md` is the source of truth for the current Philly Tours production deployment.
 
 ## What Needs To Be Hosted
 
@@ -32,7 +32,7 @@ That command rebuilds:
 - `webapp/tours-data.js`
 - `webapp/narration-data.js`
 
-If you want a fresh upload package for Cloudflare Pages or another static host:
+If you want a fresh upload package for another static host or an emergency manual upload:
 
 ```bash
 npm run webapp:package
@@ -78,35 +78,45 @@ Example:
 - static web root: `/srv/philly-tours/webapp`
 - audio files: `/srv/philly-tours/assets/audio`
 
-## Cloudflare Pages Recommendation
+## Cloudflare Pages Production Path
 
-For this repo, Cloudflare Pages is the easiest production path because:
+Production deploys for this repo now run through GitHub Actions into the existing Cloudflare Pages project. This avoids local `web-dist` builds and keeps deploys consistent.
+
+The normal flow is:
+
+```text
+push to main
+-> GitHub Actions
+-> npm run webapp:build
+-> wrangler pages deploy web-dist --project-name philly-tours
+```
+
+GitHub Actions needs these repository secrets:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN`
+- `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`
+- `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY`
+- `EXPO_PUBLIC_ONESIGNAL_APP_ID`
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- `EXPO_PUBLIC_SUPABASE_URL`
+
+Do not put `CLOUDFLARE_API_TOKEN` in Cloudflare Pages plaintext variables. It belongs in GitHub Actions secrets.
+
+Cloudflare Pages remains the production host because:
 
 - HTTPS is included
 - custom domains are straightforward
 - the webapp is static
 - browser camera and geolocation work correctly on secure origins
 
-Recommended structure for Cloudflare:
+The deployed structure is:
 
 - use `web-dist/` as the publish directory
 - keep `webapp/_redirects` so SPA routes fall back to `index.html`
 - let the build step copy `assets/audio/` and `assets/models/` into the deploy output
 
-### Cloudflare Pages Deploy Flow
-
-1. Run:
-
-```bash
-npm install
-npm run webapp:build
-```
-
-2. Make sure this deploy directory exists:
-
-- `web-dist/`
-
-It should include:
+`web-dist/` should include:
 
 - `index.html`
 - `app.js`
@@ -114,34 +124,11 @@ It should include:
 - `tours-data.js`
 - `narration-data.js`
 - `ar-data.js`
-- `_redirects`
 - `_headers`
+- `_redirects`
+- `OneSignalSDKWorker.js`
 - `assets/audio/...`
 - `assets/models/...`
-
-3. In Cloudflare Pages:
-
-- create a new Pages project
-- connect your Git repo or use direct upload
-- set the build command to:
-
-```bash
-npm run webapp:build
-```
-
-- set the output directory to:
-
-```text
-web-dist
-```
-
-4. Add browser-safe environment variables in Cloudflare Pages before the build runs:
-
-- `EXPO_PUBLIC_WEB_SYNC_SERVER_URL`
-- `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`
-- `EXPO_PUBLIC_GOOGLE_MAPS_EMBED_URL`
-- `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY`
-- optional `EXPO_PUBLIC_GOOGLE_MAPS_MAP_ID`
 
 Keep the browser key restricted in Google Cloud:
 
@@ -151,7 +138,7 @@ Keep the browser key restricted in Google Cloud:
 
 ### Important Cloudflare Note
 
-Cloudflare Pages publishes one output directory. This repo now uses `web-dist/` so the static app and `/assets/...` paths can ship together.
+The current Cloudflare Pages project is a direct-upload project. GitHub Actions performs the build and then uploads `web-dist/` with Wrangler. Cloudflare dashboard build variables do not feed this repo's production build unless the Pages project is recreated as a Git-connected project.
 
 ### Production Google Maps Note
 
@@ -160,20 +147,19 @@ The Home tab and route views can render in two different ways:
 - with `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY`, the shell uses the interactive Google Maps JavaScript API
 - without that browser key, the Home tab falls back to a Google-hosted embed so production does not show a blank map shell
 
-If you want full in-shell map interactivity on production, publish a browser-restricted `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY` through your deploy environment rather than committing it into `webapp/site-config.js`.
+If you want full in-shell map interactivity on production, publish a browser-restricted `EXPO_PUBLIC_GOOGLE_MAPS_JS_API_KEY` through GitHub Actions secrets rather than committing it into `webapp/site-config.js`.
 
-### Static Upload Shortcut
+### Emergency Static Upload Shortcut
 
-If you prefer Cloudflare's direct upload flow instead of Git integration:
+If GitHub Actions is unavailable:
 
 1. Run:
 
 ```bash
-npm run webapp:package
+npm run deploy:local
 ```
 
-2. In Cloudflare Pages choose the static file upload path.
-3. Upload the contents of `web-dist/` or the packaged archive in `web-release/`.
+This builds locally and uploads directly to Cloudflare Pages. Use it sparingly because it recreates `web-dist/` on the local machine.
 
 ## Nginx Example
 
@@ -229,20 +215,15 @@ If you use Caddy, make sure `/assets/audio/...` resolves to files under `assets/
 
 ## Deploy Checklist
 
-1. Pull the latest repo on the server.
-2. Run `npm install`.
-3. Provide browser-safe deploy env values, either in your host's build settings or in an ignored local file such as `.env.production.local`.
-4. Run `npm run webapp:data`.
-5. Confirm `webapp/tours-data.js`, `webapp/narration-data.js`, and `webapp/site-config.js` were regenerated with the expected browser-safe config.
-6. Point your web server root at `webapp/`.
-7. Expose `assets/audio/` at `/assets/audio/`.
-8. If you have `.glb` files, expose `assets/models/` at `/assets/models/`.
-9. Serve the site on HTTPS.
-10. Verify:
+1. Confirm required GitHub Actions secrets are present.
+2. Push to `main` or manually run `Deploy Cloudflare Pages`.
+3. Confirm the GitHub Actions run succeeds.
+4. Verify:
    - homepage loads
    - Home tab shows a Google map
    - route map loads
    - recorded narration plays
+   - Route alerts can request browser notification permission
    - AR live can request camera permission
    - geolocation works on your deployed domain
 

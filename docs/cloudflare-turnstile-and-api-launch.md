@@ -62,15 +62,13 @@ In Cloudflare Turnstile:
 
 The current app code can use the same site key everywhere if you prefer a single widget.
 
-## 6. Rebuild the webapp after env changes
+## 6. Redeploy the webapp after env changes
 
-After setting the web-facing env values locally:
+The top-level `README.md` is the source of truth for web deployment. Production web builds now run in GitHub Actions, not on the local machine.
 
-```bash
-npm run webapp:build
-```
+After changing browser-facing values such as `EXPO_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`, save them in GitHub Actions secrets and push to `main`, or manually rerun the `Deploy Cloudflare Pages` workflow.
 
-Then upload the refreshed `web-dist/` to Cloudflare Pages.
+`npm run deploy` is intentionally disabled locally. Use `npm run deploy:local` only for emergency direct uploads.
 
 ## 7. Verify
 

@@ -1,7 +1,7 @@
-# Security Policy
+# Security
 
-This branch uses the canonical security policy on `main`:
+The active security policy lives at:
 
-- [Full security policy](https://github.com/niacstallworth/philly-tours/blob/main/docs/security-policy.md)
+- `docs/security-policy.md`
 
-Please do not post unredacted secrets, access tokens, private keys, or production credentials in issues, screenshots, chat transcripts, pull requests, or commits.
+Do not post unredacted secrets, access tokens, private keys, or provider credentials in issues, pull requests, screenshots, chat transcripts, or logs. Rotate any credential that appears in a shared screenshot or transcript.

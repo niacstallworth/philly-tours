@@ -23,7 +23,10 @@ Please do not post unredacted secrets, access tokens, or private keys in issues,
 
 - Keep server-only local secrets in `server.local.env` or a server-owned env file such as `/etc/philly-tours/sync-server.env`.
 - Keep Expo / browser-safe values in `.env` only when they are intended to ship to the client as `EXPO_PUBLIC_*`.
+- Keep production web build values for GitHub Actions in GitHub repository secrets, not in Cloudflare Pages variables. This repo deploys the static webapp through GitHub Actions.
 - Never commit real Stripe, Supabase service-role, AWS, GitHub, Anthropic, Turnstile, or Apple private credentials.
+- Never store `CLOUDFLARE_API_TOKEN` in Cloudflare Pages plaintext variables. It belongs only in GitHub Actions secrets for the deploy workflow.
+- Treat Supabase publishable keys, Turnstile site keys, Google Maps browser keys, and OneSignal app IDs as public browser values. Restrict them with provider-side controls and do not confuse them with server-only secrets.
 - Avoid root-level secret files that native bundlers may try to parse during Android builds.
 
 If a real credential is exposed in logs, screenshots, terminal output, or source:
@@ -32,6 +35,8 @@ If a real credential is exposed in logs, screenshots, terminal output, or source
 2. remove it from local logs and developer artifacts
 3. replace it in the correct env file
 4. redeploy or restart the affected service
+
+If a Cloudflare API token, GitHub token, Stripe secret key, Supabase service-role key, or private provider token appears in a screenshot or chat transcript, rotate it immediately before continuing deployment work.
 
 ## Location, Compass, And Navigation Privacy
 
@@ -75,4 +80,5 @@ The app persists user-facing settings and progress locally, including theme mode
 - Stripe live and test keys must stay separated between local development and production.
 - Production webhooks should point only at the production backend.
 - Builder/admin credentials should not be committed in plaintext CSV or screenshots.
+- Static web deploys are expected to run from GitHub Actions. Local direct upload is an emergency path only.
 - Security-sensitive changes should be reviewed before push when they touch auth, payments, env loading, deployment scripts, native permissions, location behavior, companion device bridges, or external navigation handoffs.
