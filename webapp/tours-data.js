@@ -2,53 +2,263 @@
 // Source: src/data/tours.ts
 window.PHILLY_TOURS_DATA = [
   {
-    "id": "founders-demo-route",
-    "title": "Founders Demo Route",
-    "durationMin": 48,
-    "distanceMiles": 1.8,
-    "rating": 4.7,
+    "id": "black-american-legacy-and-quaker-heritage",
+    "title": "Black American Legacy & Quaker Heritage",
+    "durationMin": 248,
+    "distanceMiles": 5.6,
+    "rating": 4.8,
     "stops": [
       {
-        "id": "founders-demo-route-welcome-plaza",
-        "title": "Welcome Plaza",
-        "description": "Sample stop for the public demo catalog. This is not part of the private production tour set.",
-        "lat": 39.9526,
-        "lng": -75.1652,
+        "id": "mother-bethel",
+        "title": "Mother Bethel AME Church",
+        "description": "Founded in 1794 by Richard Allen, with layered storytelling and reconstruction potential.",
+        "lat": 39.958,
+        "lng": -75.158,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 40,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "presidents-house",
+        "title": "President's House / Liberty Bell Center",
+        "description": "A crucial stop for interpreting freedom, contradiction, and public memory in Independence Mall.",
+        "lat": 39.9598,
+        "lng": -75.1596,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 40,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "johnson-house",
+        "title": "Johnson House",
+        "description": "Underground Railroad history with room for figure-presence AR and route overlays.",
+        "lat": 40.0389,
+        "lng": -75.1813,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 40,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "the-woodlands",
+        "title": "The Woodlands",
+        "description": "A cemetery and mansion site where context cards and before/after scenes can do real narrative work.",
+        "lat": 39.9472,
+        "lng": -75.207,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 40,
+        "modelUrl": "",
+        "audioUrl": ""
+      }
+    ]
+  },
+  {
+    "id": "rainbow-girls-philadelphia",
+    "title": "Rainbow Girls Philadelphia",
+    "durationMin": 96,
+    "distanceMiles": 2.2,
+    "rating": 4.9,
+    "stops": [
+      {
+        "id": "masonic-temple",
+        "title": "Masonic Temple",
+        "description": "A dramatic anchor stop with ornament, ritual history, and strong visual framing.",
+        "lat": 39.9552,
+        "lng": -75.1633,
         "coordQuality": "approximate",
         "triggerRadiusM": 35,
         "modelUrl": "",
         "audioUrl": ""
       },
       {
-        "id": "founders-demo-route-story-corner",
-        "title": "Story Corner",
-        "description": "A placeholder point showing how a stop can appear in the route flow without exposing premium narration or archives.",
-        "lat": 39.9551,
-        "lng": -75.1608,
+        "id": "reading-terminal-market",
+        "title": "Reading Terminal Market",
+        "description": "High-energy storytelling around gathering, commerce, and everyday Philadelphia life.",
+        "lat": 39.953,
+        "lng": -75.1594,
         "coordQuality": "approximate",
         "triggerRadiusM": 35,
         "modelUrl": "",
-        "audioUrl": "",
-        "arType": "none"
+        "audioUrl": ""
       },
       {
-        "id": "founders-demo-route-compass-garden",
-        "title": "Compass Garden",
-        "description": "Demo-only waypoint for map, compass, and progress surfaces in the public repository.",
-        "lat": 39.9498,
-        "lng": -75.1589,
+        "id": "please-touch-museum",
+        "title": "Please Touch Museum",
+        "description": "A destination stop that leans into play, imagination, and museum-centered discovery.",
+        "lat": 39.983,
+        "lng": -75.2092,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 45,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "shofuso",
+        "title": "Shofuso Japanese House & Garden",
+        "description": "A quiet visual reset with garden atmosphere and place-based interpretation.",
+        "lat": 39.9799,
+        "lng": -75.1888,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 45,
+        "modelUrl": "",
+        "audioUrl": ""
+      }
+    ]
+  },
+  {
+    "id": "divine-9-legacy-tour",
+    "title": "Divine 9 Legacy Tour",
+    "durationMin": 88,
+    "distanceMiles": 2.1,
+    "rating": 4.9,
+    "stops": [
+      {
+        "id": "alpha-phi-alpha",
+        "title": "Alpha Phi Alpha - 42nd & Chestnut",
+        "description": "An origin-point style stop with strong chapter storytelling possibilities.",
+        "lat": 39.9563,
+        "lng": -75.205,
         "coordQuality": "approximate",
         "triggerRadiusM": 35,
         "modelUrl": "",
-        "audioUrl": "",
-        "arType": "none"
+        "audioUrl": ""
       },
       {
-        "id": "founders-demo-route-finish-arch",
-        "title": "Finish Arch",
-        "description": "Closing sample stop. Real route sequencing, research, and media are kept outside the public repo.",
-        "lat": 39.9482,
-        "lng": -75.1636,
+        "id": "delta-sigma-theta",
+        "title": "Delta Sigma Theta - 40th & Market",
+        "description": "A compact stop that can foreground service, organizing, and neighborhood presence.",
+        "lat": 39.9598,
+        "lng": -75.2013,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 35,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "phi-beta-sigma",
+        "title": "Phi Beta Sigma - 44th & Market",
+        "description": "Good candidate for archival image stacks and chapter timelines.",
+        "lat": 39.9586,
+        "lng": -75.2089,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 35,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "iota-phi-theta",
+        "title": "Iota Phi Theta - Temple Greek Row",
+        "description": "A northward jump that broadens the legacy map beyond one campus cluster.",
+        "lat": 39.9812,
+        "lng": -75.1552,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 35,
+        "modelUrl": "",
+        "audioUrl": ""
+      }
+    ]
+  },
+  {
+    "id": "black-american-sports",
+    "title": "Black American Sports",
+    "durationMin": 104,
+    "distanceMiles": 2.7,
+    "rating": 4.8,
+    "stops": [
+      {
+        "id": "the-palestra",
+        "title": "The Palestra",
+        "description": "A classic arena stop with room for stat overlays and player memory cards.",
+        "lat": 39.9522,
+        "lng": -75.1932,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 35,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "hampton-park",
+        "title": "Allen Iverson's Hampton Park Courts",
+        "description": "Street-level basketball energy with compelling playground-to-legend framing.",
+        "lat": 39.99,
+        "lng": -75.1729,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 40,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "joe-frazier",
+        "title": "Joe Frazier's Gym (Cloverlay)",
+        "description": "A boxing landmark suited to layered archival storytelling and motion graphics.",
+        "lat": 39.95,
+        "lng": -75.1584,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 35,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "overbrook",
+        "title": "Overbrook High School",
+        "description": "A school site that expands the tour from stars to pipelines and institutions.",
+        "lat": 39.9797,
+        "lng": -75.2415,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 40,
+        "modelUrl": "",
+        "audioUrl": ""
+      }
+    ]
+  },
+  {
+    "id": "library-story-hop-tour",
+    "title": "Library Story Hop Tour",
+    "durationMin": 80,
+    "distanceMiles": 1.8,
+    "rating": 4.8,
+    "stops": [
+      {
+        "id": "library-company",
+        "title": "Library Company of Philadelphia",
+        "description": "A compact but content-rich stop for collection-based storytelling.",
+        "lat": 39.9478,
+        "lng": -75.1509,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 30,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "athenaeum",
+        "title": "Athenaeum of Philadelphia",
+        "description": "An elegant design and architecture anchor with strong visual identity.",
+        "lat": 39.9473,
+        "lng": -75.1495,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 30,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "free-library",
+        "title": "Free Library - Central Parkway",
+        "description": "A civic-scale reading space that works for layered archive storytelling.",
+        "lat": 39.9609,
+        "lng": -75.1693,
+        "coordQuality": "approximate",
+        "triggerRadiusM": 35,
+        "modelUrl": "",
+        "audioUrl": ""
+      },
+      {
+        "id": "blockson",
+        "title": "Charles L. Blockson Collection",
+        "description": "A stop that can spotlight preservation, Black archives, and scholarly stewardship.",
+        "lat": 39.9811,
+        "lng": -75.1553,
         "coordQuality": "approximate",
         "triggerRadiusM": 35,
         "modelUrl": "",

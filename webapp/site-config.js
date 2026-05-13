@@ -4,13 +4,96 @@ window.PHILLY_TOURS_CONFIG = {
   "supabaseUrl": "",
   "supabaseAnonKey": "",
   "newsletterTable": "newsletter_subscribers",
-  "syncServerUrl": "",
+  "syncServerUrl": "https://api.philly-tours.com",
   "cloudflareTurnstileSiteKey": "",
+  "webMapsEnabled": "true",
   "googleMapsProjectUrl": "",
   "googleMapsJsApiKey": "",
   "googleMapsMapId": "",
+  "inPersonTourGuideRateCentsPerMinute": "125",
   "inPersonTourGuidePriceCents": "",
-  "inPersonTourGuideLabel": "In-person tour guide",
+  "inPersonTourGuideLabel": "In-person guided tour",
   "iosAppStoreUrl": "",
-  "androidPlayStoreUrl": ""
+  "androidPlayStoreUrl": "",
+  "city": {
+    "id": "philly",
+    "name": "Philly Tours",
+    "shortName": "Philly",
+    "cityName": "Philadelphia",
+    "stateCode": "PA",
+    "countryCode": "US",
+    "timezone": "America/New_York",
+    "slug": "philly-tours",
+    "websiteOrigin": "https://philly-tours.com",
+    "serviceArea": [
+      "Philadelphia, PA"
+    ],
+    "defaultMapCenter": {
+      "lat": 39.9526,
+      "lng": -75.1652,
+      "zoom": 12
+    },
+    "defaultTourId": "black-american-legacy-and-quaker-heritage"
+  },
+  "branding": {
+    "primary": "#f7c02a",
+    "secondary": "#353432",
+    "kellyGreen": "#007a33",
+    "cityBlue": "#002d72",
+    "ink": "#15100a",
+    "paper": "#fff9df",
+    "heroEyebrow": "Philly is ready",
+    "heroTitle": "Big city stories. Your route, your pace.",
+    "heroBody": "Choose a Philadelphia route, follow the Compass, hear the story, and open AR moments when the street is ready for you.",
+    "homeSeoPanelEyebrow": "Philadelphia walking tours",
+    "homeSeoPanelTitle": "Walk Philly with the story behind the block."
+  },
+  "seo": {
+    "homeTitle": "Philly Tours | Self-Guided Philadelphia Audio & AR Walking Tours",
+    "homeDescription": "Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes.",
+    "catalogTitle": "Philadelphia Walking Tours | Philly Tours",
+    "catalogDescription": "Browse self-guided Philadelphia walking tours with audio narration, maps, Compass guidance, and AR-ready story stops.",
+    "homePanelEyebrow": "Philadelphia walking tours",
+    "homePanelTitle": "Walk Philly with the story behind the block.",
+    "homePanelBody": "Philly Tours is a self-guided Philadelphia tour companion for visitors, families, locals, students, and culture lovers who want more than a generic sightseeing loop. Choose a route, follow the map, hear narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes.",
+    "homePanelHighlights": [
+      "Self-guided audio tours",
+      "Black history routes",
+      "Compass walking guidance",
+      "AR-ready stops",
+      "Philadelphia neighborhoods"
+    ],
+    "organizationType": [
+      "Organization",
+      "TravelAgency"
+    ],
+    "searchImage": "/assets/search/philly-tours-search-thumbnail.jpg",
+    "knowsAbout": [
+      "Philadelphia walking tours",
+      "Philadelphia audio tours",
+      "Black history tours in Philadelphia",
+      "Philadelphia architecture tours",
+      "self-guided city tours",
+      "AR-guided walking tours"
+    ]
+  },
+  "social": {
+    "sameAs": [
+      "https://philly-tours.com/"
+    ],
+    "channels": []
+  },
+  "businessProfile": {
+    "businessName": "Philly Tours",
+    "website": "https://philly-tours.com",
+    "serviceArea": "Philadelphia, PA",
+    "primaryCategory": "Tour agency",
+    "secondaryCategories": [
+      "Sightseeing tour agency",
+      "Tour operator",
+      "Tourist attraction"
+    ],
+    "shortDescription": "Self-guided Philadelphia walking tours with audio, maps, Compass guidance, AR-ready stops, and hidden city stories.",
+    "fullDescription": "Philly Tours helps visitors, locals, families, students, and culture lovers walk Philadelphia with more context. Choose a self-guided route, follow the map, hear audio narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes."
+  }
 };

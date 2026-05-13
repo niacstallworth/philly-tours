@@ -241,7 +241,7 @@ const fallbackTours = [
   }
 ];
 
-const tours = normalizeTours(window.PHILLY_TOURS_DATA || fallbackTours);
+let tours = normalizeTours(window.PHILLY_TOURS_DATA || fallbackTours);
 const narrationData = window.PHILLY_TOURS_NARRATION || {
   catalogByStopId: {},
   scriptMapByStopId: {}
@@ -250,14 +250,44 @@ const blogPosts = normalizeBlogPosts(window.PHILLY_TOURS_BLOG || []);
 const arData = window.PHILLY_TOURS_AR || {};
 const siteConfig = {
   ...(window.PHILLY_TOURS_CONFIG || {}),
+  ...(window.PHILLY_TOURS_RUNTIME_CONFIG || {}),
   ...(window.PHILLY_TOURS_LOCAL_CONFIG || {})
 };
+const WEB_MAPS_ENABLED = parseBooleanConfig(siteConfig.webMapsEnabled, true);
+const cityConfig = siteConfig.city || {};
+const brandingConfig = siteConfig.branding || {};
+const seoConfig = siteConfig.seo || {};
+const SITE_NAME = cityConfig.name || "Philly Tours";
+const CITY_NAME = cityConfig.cityName || "Philadelphia";
+const HOME_HERO_EYEBROW = brandingConfig.heroEyebrow || "Philly is ready";
+const HOME_HERO_TITLE = brandingConfig.heroTitle || "Big city stories. Your route, your pace.";
+const HOME_HERO_BODY =
+  brandingConfig.heroBody ||
+  `Choose a ${CITY_NAME} route, follow the Compass, hear the story, and open AR moments when the street is ready for you.`;
+const HOME_PANEL_EYEBROW = seoConfig.homePanelEyebrow || brandingConfig.homeSeoPanelEyebrow || `${CITY_NAME} walking tours`;
+const HOME_PANEL_TITLE =
+  seoConfig.homePanelTitle || brandingConfig.homeSeoPanelTitle || `Walk ${CITY_NAME} with the story behind the block.`;
+const HOME_PANEL_BODY =
+  seoConfig.homePanelBody ||
+  `${SITE_NAME} is a self-guided ${CITY_NAME} tour companion for visitors, families, locals, students, and culture lovers who want more than a generic sightseeing loop. Choose a route, follow the map, hear narration, use Compass guidance, and discover AR-ready story stops across Black history, architecture, sports, libraries, neighborhoods, and hidden city routes.`;
+const HOME_PANEL_HIGHLIGHTS =
+  Array.isArray(seoConfig.homePanelHighlights) && seoConfig.homePanelHighlights.length
+    ? seoConfig.homePanelHighlights
+    : [
+        "Self-guided audio tours",
+        "Black history routes",
+        "Compass walking guidance",
+        "AR-ready stops",
+        `${CITY_NAME} neighborhoods`
+      ];
 
 const STORAGE_KEY = "philly-ar-tours-web-progress";
 const GLASSES_MODE_KEY = "philly-ar-tours-web-glasses-mode";
 const AUTH_STORAGE_KEY = "philly-ar-tours-web-session";
 const OAUTH_PROVIDER_STORAGE_KEY = "philly-ar-tours-web-oauth-provider";
 const TOUR_ORDER_STORAGE_KEY = "philly-ar-tours-web-tour-order-v1";
+const DEFAULT_IN_PERSON_GUIDE_RATE_CENTS_PER_MINUTE = 125;
+const STOP_FLEX_UNLOCK_COUNT = 3;
 const PRODUCTION_HOSTS = new Set(["philly-tours.com", "www.philly-tours.com"]);
 const CONTACT_EMAIL = "info@foundersthreads.org";
 const SOCIAL_CHANNELS = [
@@ -305,6 +335,20 @@ const SOCIAL_CHANNELS = [
   }
 ];
 const RSS_FEED_PATH = "./rss.xml";
+const RSS_UPDATES = [
+  {
+    title: "New route drops",
+    detail: "Fresh walking and driving story collections as they go live."
+  },
+  {
+    title: "Pilot ride alerts",
+    detail: "Invites for field tests, premium audio launches, and heritage viewer updates."
+  },
+  {
+    title: "Founder notes",
+    detail: "Short product and curation updates pulled into one RSS feed."
+  }
+];
 const BOARD_LEVELS = [
   { title: "Visitor", minXp: 0 },
   { title: "Route Scout", minXp: 100 },
@@ -397,6 +441,7 @@ const state = {
     headingDegrees: null,
     headingError: "",
     autoAdvanceNote: "",
+    stopAccessNote: "",
     followNearestStop: true
   },
   glassesMode: loadGlassesMode(),
@@ -498,6 +543,7 @@ updateTopbarScrollState();
 render();
 initializeWebXRSupport().catch(() => undefined);
 initializeWebAuth();
+refreshSupabaseTourCatalog({ render: true }).catch(() => undefined);
 
 function scrollViewportToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -508,7 +554,7 @@ function scrollViewportToTop() {
 function scrollHomeMapIntoView() {
   window.requestAnimationFrame(() => {
     const mapElement = document.getElementById("home-map");
-    const target = mapElement?.closest(".home-hero-panel") || mapElement;
+    const target = mapElement?.closest(".route-pack-map") || mapElement;
     if (!target) {
       return;
     }
@@ -520,14 +566,8 @@ function openTourPageForStop(tour, stopId) {
   if (!tour) {
     return;
   }
-  const resolvedStopId = tour.stops.some((stop) => stop.id === stopId) ? stopId : tour.stops[0]?.id ?? "";
-  state.selectedTourId = tour.id;
-  state.selectedStopId = resolvedStopId;
-  state.activeTab = "map";
-  state.home.focusTourId = null;
-  state.routePageTourId = tour.id;
-  scrollViewportToTop();
-  render();
+  const requestedStopId = tour.stops.some((stop) => stop.id === stopId) ? stopId : tour.stops[0]?.id ?? "";
+  trySelectStop(tour, requestedStopId, { openRoutePage: true });
 }
 
 function updateTopbarScrollState() {
@@ -596,6 +636,125 @@ function getBlogPostBySlug(slug) {
 
 function getRecentBlogPosts(limit = 3) {
   return blogPosts.slice(0, Math.max(0, limit));
+}
+
+function pickStopMediaUrl(stop, kind, preferredVariants) {
+  const assets = Array.isArray(stop?.mediaAssets) ? stop.mediaAssets : [];
+  for (const preferredVariant of preferredVariants) {
+    const matched = assets.find(
+      (asset) => asset?.kind === kind && (preferredVariant == null ? !asset?.variant : asset?.variant === preferredVariant) && asset?.url
+    );
+    if (matched?.url) {
+      return matched.url;
+    }
+  }
+  return assets.find((asset) => asset?.kind === kind && asset?.url)?.url || "";
+}
+
+function mapPrivateTourDetailToRuntimeTour(detail) {
+  return normalizeTour({
+    id: detail.id,
+    title: detail.title,
+    durationMin: Number(detail.duration_min || 0),
+    distanceMiles: Number(detail.distance_miles || 0),
+    rating: Number(detail.rating || 0),
+    requiredPlanId: detail.required_plan_id || null,
+    isAccessible: Boolean(detail.is_accessible),
+    previewOnly: Boolean(detail.preview_only),
+    cardMedia: detail.cover_image_url
+      ? {
+          type: "image",
+          src: detail.cover_image_url,
+          alt: `${detail.title} cover`
+        }
+      : undefined,
+    stops: (detail.stops || []).map((stop) => ({
+      id: stop.id,
+      title: stop.title,
+      description: stop.description || "",
+      lat: Number(stop.lat || 0),
+      lng: Number(stop.lng || 0),
+      coordQuality: stop.coord_quality || "approximate",
+      triggerRadiusM: Number(stop.trigger_radius_m || 35),
+      verticalOffsetM: stop.vertical_offset_m == null ? undefined : Number(stop.vertical_offset_m),
+      modelUrl: pickStopMediaUrl(stop, "model", ["hero", "default", null]),
+      audioUrl: pickStopMediaUrl(stop, "audio", ["walk", "default", "drive", null]),
+      arType: stop.ar_type || undefined,
+      arPriority: stop.ar_priority == null ? undefined : Number(stop.ar_priority),
+      assetNeeded: stop.asset_needed || undefined,
+      estimatedEffort: stop.estimated_effort || undefined,
+      streetView: stop.street_view && typeof stop.street_view === "object" ? stop.street_view : null
+    }))
+  });
+}
+
+function replaceTours(nextTours) {
+  if (!Array.isArray(nextTours) || !nextTours.length) {
+    return;
+  }
+
+  tours = nextTours;
+  state.expandedTourCardId = getTourById(state.expandedTourCardId)?.id || nextTours[0].id;
+  if (!getTourById(state.selectedTourId)) {
+    state.selectedTourId = nextTours[0].id;
+  }
+
+  const selectedTour = getSelectedTour();
+  if (!selectedTour?.stops?.some((stop) => stop.id === state.selectedStopId)) {
+    state.selectedStopId = getRecommendedNextStop(selectedTour)?.id ?? selectedTour.stops[0]?.id ?? "";
+  }
+
+  if (state.home.focusTourId && !getTourById(state.home.focusTourId)) {
+    state.home.focusTourId = null;
+  }
+
+  if (state.routePageTourId && !getTourById(state.routePageTourId)) {
+    state.routePageTourId = null;
+  }
+}
+
+async function refreshSupabaseTourCatalog(options = {}) {
+  const syncServerUrl = getSyncServerUrl();
+  if (!syncServerUrl) {
+    return tours;
+  }
+
+  const response = await fetch(`${syncServerUrl}/api/content/catalog`, {
+    method: "GET",
+    headers: {
+      ...(state.auth.authToken ? { Authorization: `Bearer ${state.auth.authToken}` } : {})
+    }
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || "Unable to load Supabase tour catalog.");
+  }
+
+  const summaries = Array.isArray(payload.tours) ? payload.tours : [];
+  const detailResults = await Promise.all(
+    summaries.map(async (summary) => {
+      const detailResponse = await fetch(`${syncServerUrl}/api/content/tours/${encodeURIComponent(summary.id)}`, {
+        method: "GET",
+        headers: {
+          ...(state.auth.authToken ? { Authorization: `Bearer ${state.auth.authToken}` } : {})
+        }
+      });
+      const detailPayload = await detailResponse.json().catch(() => ({}));
+      if (!detailResponse.ok) {
+        throw new Error(detailPayload.error || `Unable to load tour detail for ${summary.id}.`);
+      }
+      return detailPayload.tour ? mapPrivateTourDetailToRuntimeTour(detailPayload.tour) : null;
+    })
+  );
+
+  const nextTours = detailResults.filter(Boolean);
+  if (nextTours.length) {
+    replaceTours(nextTours);
+    if (options.render !== false) {
+      render();
+    }
+  }
+  return tours;
 }
 
 function normalizeTour(tour) {
@@ -765,6 +924,11 @@ function deriveTags(tour, stops) {
   return [...new Set([...titleWords, ...stopWords])].slice(0, 4);
 }
 
+function getTourSeoUrl(tourOrId) {
+  const id = typeof tourOrId === "string" ? tourOrId : tourOrId?.id;
+  return id ? `/tours/${encodeURIComponent(id)}/` : "/";
+}
+
 function getNarrationEntry(stopId) {
   return narrationData.catalogByStopId?.[stopId] || null;
 }
@@ -809,7 +973,7 @@ function getNarrationLabel(stopId) {
     return "Recorded narration";
   }
   if (mode === "speech") {
-    return "Amy voice fallback";
+    return "Preview narration";
   }
   return "No narration yet";
 }
@@ -1152,8 +1316,14 @@ async function resolveStopStreetViewLocation(streetViewConfig, maps) {
     return null;
   }
 
+  const fallbackLocation = streetViewConfig.viewpoint || streetViewConfig.targetPosition || null;
+
+  if (fallbackLocation) {
+    return fallbackLocation;
+  }
+
   if (!streetViewConfig.address) {
-    return streetViewConfig.viewpoint || streetViewConfig.targetPosition || null;
+    return fallbackLocation;
   }
 
   if (stopStreetViewAddressCache.has(streetViewConfig.address)) {
@@ -1165,11 +1335,11 @@ async function resolveStopStreetViewLocation(streetViewConfig, maps) {
   const location = await new Promise((resolve) => {
     geocoder.geocode({ address: streetViewConfig.address }, (results, status) => {
       if (status !== "OK" || !Array.isArray(results) || results.length === 0) {
-        resolve(streetViewConfig.viewpoint || streetViewConfig.targetPosition || null);
+        resolve(fallbackLocation);
         return;
       }
 
-      resolve(normalizeLatLngLiteral(results[0]?.geometry?.location) || streetViewConfig.viewpoint || streetViewConfig.targetPosition || null);
+      resolve(normalizeLatLngLiteral(results[0]?.geometry?.location) || fallbackLocation);
     });
   });
 
@@ -1202,13 +1372,37 @@ function computeHeadingBetweenPoints(fromPoint, toPoint) {
   return (((Math.atan2(y, x) * 180) / Math.PI) + 360) % 360;
 }
 
-function buildStopStreetViewFallbackMarkup(message) {
+function buildRouteMapFallbackMarkup({ position, title, message, zoom = 14 }) {
+  if (!position) {
+    return `
+      <div class="route-map-fallback">
+        <div>
+          <strong>Map preview unavailable</strong>
+          <span>${escapeHtml(message)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="route-map-fallback">
+      <div>
+        <strong>Map preview fallback</strong>
+        <span>${escapeHtml(message)}</span>
+      </div>
+      ${buildGoogleLatLngEmbedMarkup(position, title, zoom)}
+    </div>
+  `;
+}
+
+function buildStopStreetViewFallbackMarkup(message, fallbackMarkup = "") {
   return `
     <div class="route-map-fallback route-map-fallback--street-view">
       <div>
         <strong>Street View unavailable</strong>
         <span>${escapeHtml(message)}</span>
       </div>
+      ${fallbackMarkup}
     </div>
   `;
 }
@@ -1503,7 +1697,7 @@ function buildHomeInlineMapFallback(selectedTour) {
         return {
           ...leadStop,
           accent: getTourAccent(index)[0] || "#5c45ff",
-          label: String(index + 1)
+          label: getThemeGlyph(tour.theme)
         };
       })
       .filter(Boolean);
@@ -1544,7 +1738,7 @@ function buildHomeInlineMapFallback(selectedTour) {
   const projectedStops = projectLatLngsToPreview(
     renderableStops.map((stop) => ({
       ...stop,
-      label: String(stop.originalIndex + 1),
+      label: getStopStateGlyph(getStopPresentationState(focusedTour, stop)),
       active: stop.id === state.selectedStopId
     }))
   );
@@ -1578,11 +1772,45 @@ function buildHomeMapFallbackMarkup(selectedTour) {
   return buildHomeInlineMapFallback(selectedTour);
 }
 
-function getInPersonTourGuideConfig() {
-  const amountCents = Number(siteConfig.inPersonTourGuidePriceCents || 0);
+function formatUsd(amountCents) {
+  const dollars = Number(amountCents || 0) / 100;
+  return dollars.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD"
+  });
+}
+
+function getInPersonTourGuideConfig(selectedTour = getSelectedTour()) {
+  const configuredRate = Number(
+    siteConfig.inPersonTourGuideRateCentsPerMinute || DEFAULT_IN_PERSON_GUIDE_RATE_CENTS_PER_MINUTE
+  );
+  const fallbackAmountCents = Number(siteConfig.inPersonTourGuidePriceCents || 0);
+  const durationMin = Math.max(0, Math.round(Number(selectedTour?.durationMin || 0)));
+  const rateCentsPerMinute =
+    Number.isFinite(configuredRate) && configuredRate > 0
+      ? Math.round(configuredRate)
+      : DEFAULT_IN_PERSON_GUIDE_RATE_CENTS_PER_MINUTE;
+  const computedAmountCents = durationMin > 0 ? durationMin * rateCentsPerMinute : 0;
+  const amountCents =
+    computedAmountCents ||
+    (Number.isFinite(fallbackAmountCents) && fallbackAmountCents > 0 ? Math.round(fallbackAmountCents) : 0);
+  const labelBase = String(siteConfig.inPersonTourGuideLabel || "In-person guided tour").trim() || "In-person guided tour";
+  const tourTitle = String(selectedTour?.title || "Selected route").trim() || "Selected route";
+
   return {
-    amountCents: Number.isFinite(amountCents) && amountCents > 0 ? Math.round(amountCents) : 0,
-    label: String(siteConfig.inPersonTourGuideLabel || "In-person tour guide").trim() || "In-person tour guide"
+    amountCents,
+    durationMin,
+    rateCentsPerMinute,
+    rateLabel: `${formatUsd(rateCentsPerMinute)}/min`,
+    priceLabel: formatUsd(amountCents),
+    labelBase,
+    label: `${labelBase} · ${formatUsd(amountCents)}`,
+    checkoutTitle: `${labelBase} · ${tourTitle}`,
+    checkoutDescription:
+      durationMin > 0
+        ? `${durationMin}-minute route at ${formatUsd(rateCentsPerMinute)} per minute.`
+        : `Priced at ${formatUsd(rateCentsPerMinute)} per minute.`,
+    availabilityLabel: amountCents ? "Booking ready" : "Guide pricing unavailable"
   };
 }
 
@@ -1600,34 +1828,34 @@ function getResolvedModelUrl(modelUrl) {
 
 function getModelReadinessLabel(meta) {
   if (meta?.webModelAvailable) {
-    return "web preview ready";
+    return "AR preview ready";
   }
 
   if (meta?.iosModelAvailable) {
-    return "ios model ready";
+    return "mobile AR ready";
   }
 
   if (meta?.modelUrl) {
-    return "web model planned";
+    return "AR moment planned";
   }
 
   return "story overlay";
 }
 
 function getGlassesModeLabel() {
-  return state.glassesMode ? "Bluetooth audio mode on" : "Bluetooth audio mode off";
+  return state.glassesMode ? "Headphones or glasses" : "Phone or computer speaker";
 }
 
 function getGlassesModeButtonLabel() {
-  return state.glassesMode ? "Disable Bluetooth audio mode" : "Enable Bluetooth audio mode";
+  return state.glassesMode ? "Play from this device" : "Use headphones or glasses";
 }
 
 function getGlassesModeCopy() {
   if (state.glassesMode) {
-    return "Browser narration will follow this device's current audio output. Use this when you want tour audio to play through your connected Bluetooth headphones or glasses while keeping route and AR controls on the phone.";
+    return "Tour audio will play through whatever headphones, speaker, or glasses this device is using right now.";
   }
 
-  return "Turn this on when your Bluetooth headphones or glasses are already paired to this phone or computer and you want the tour audio routed there.";
+  return "Want a more private listen? Turn this on after connecting headphones, a speaker, or supported glasses.";
 }
 
 function formatCoordinateDegrees(value, positiveSuffix, negativeSuffix) {
@@ -1879,6 +2107,17 @@ function getRoutePreviewDisplay(tour, variant = state.narrationVariant) {
   const liveStaticDurationSeconds = parseDurationSeconds(route?.staticDuration);
   const modeLabel = getRouteModeLabel(variant);
 
+  if (!WEB_MAPS_ENABLED) {
+    return {
+      status: "paused",
+      statusLabel: "Map view coming back soon",
+      durationLabel: formatDurationMinutesFromSeconds(liveDurationSeconds ?? liveStaticDurationSeconds, tour.durationMin),
+      distanceLabel: formatMilesFromMeters(route?.distanceMeters, tour.distanceMiles),
+      legsLabel: `${tour.stops.length} story stops`,
+      message: "The map is temporarily hidden while we clean up the web experience."
+    };
+  }
+
   return {
     status: preview.status,
     statusLabel:
@@ -1904,6 +2143,24 @@ function getRoutePreviewDisplay(tour, variant = state.narrationVariant) {
             ? `Live ${modeLabel} routing is temporarily unavailable, so this page is showing the saved tour estimate.`
             : preview.message || "Static route estimate from the tour catalog."
   };
+}
+
+function parseBooleanConfig(value, defaultValue = false) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["1", "true", "yes", "on"].includes(normalized)) {
+      return true;
+    }
+    if (["0", "false", "no", "off"].includes(normalized)) {
+      return false;
+    }
+  }
+
+  return defaultValue;
 }
 
 function decodeEncodedPolyline(encoded) {
@@ -2346,6 +2603,7 @@ async function finalizeOAuthSignIn(accessToken, provider) {
     session: payload.session
   });
   setActiveTab("profile");
+  refreshSupabaseTourCatalog({ render: false }).catch(() => undefined);
   schedulePostSignInRefresh();
 }
 
@@ -2466,6 +2724,7 @@ async function initializeWebAuth() {
       session: payload.session
     });
     render(false);
+    refreshSupabaseTourCatalog({ render: false }).catch(() => undefined);
   } catch {
     state.auth.message = "Saved web session loaded. If Google actions fail, sign out and try once more.";
     render(false);
@@ -2956,6 +3215,9 @@ function maybeAdvanceCompassTarget(selectedTour, selectedStop, distanceMeters) {
   if (!state.completedStopIds.includes(selectedStop.id)) {
     state.completedStopIds = [...state.completedStopIds, selectedStop.id];
     saveCompletedStops();
+    if (isTourFlexSelectionUnlocked(selectedTour)) {
+      state.map.stopAccessNote = "Flexible stop order is now open for this paid route.";
+    }
   }
 
   const currentIndex = getStopIndexForTour(selectedTour, selectedStop.id);
@@ -3385,17 +3647,17 @@ function hydrateStateFromLocation() {
 
   if (state.activeTab === "home" && effectiveHomeTour) {
     state.selectedTourId = effectiveHomeTour.id;
-    state.selectedStopId = effectiveHomeTour.stops[0]?.id ?? state.selectedStopId;
+    state.selectedStopId = getRecommendedNextStop(effectiveHomeTour)?.id ?? effectiveHomeTour.stops[0]?.id ?? state.selectedStopId;
   }
 
   if (nextRoutePageTour) {
     state.selectedTourId = nextRoutePageTour.id;
-    state.selectedStopId = nextRoutePageTour.stops[0]?.id ?? state.selectedStopId;
+    state.selectedStopId = getRecommendedNextStop(nextRoutePageTour)?.id ?? nextRoutePageTour.stops[0]?.id ?? state.selectedStopId;
   }
 
   if (nextTour) {
     state.selectedTourId = nextTour.id;
-    state.selectedStopId = nextTour.stops[0]?.id ?? state.selectedStopId;
+    state.selectedStopId = getRecommendedNextStop(nextTour)?.id ?? nextTour.stops[0]?.id ?? state.selectedStopId;
   }
 
   if (stopId) {
@@ -3407,6 +3669,15 @@ function hydrateStateFromLocation() {
   }
 
   state.routePageTourId = nextRoutePageTour ? nextRoutePageTour.id : null;
+
+  const activeTourForAccess = effectiveTour || getSelectedTour();
+  if (activeTourForAccess?.stops?.length) {
+    const resolvedStopId = canSelectStopInTour(activeTourForAccess, state.selectedStopId)
+      ? state.selectedStopId
+      : getFirstSelectableStopId(activeTourForAccess);
+    state.map.stopAccessNote = resolvedStopId !== state.selectedStopId ? getBlockedStopSelectionMessage(activeTourForAccess) : "";
+    state.selectedStopId = resolvedStopId;
+  }
 
   state.drawer = null;
   if (drawerTour && getTourById(drawerTour)) {
@@ -3502,6 +3773,10 @@ function handleClick(event) {
     return;
   }
 
+  if (actionTarget instanceof HTMLAnchorElement) {
+    event.preventDefault();
+  }
+
   const { action, tab, tourId, stopId, theme, provider } = actionTarget.dataset;
 
   if (action === "set-tab" && tab) {
@@ -3526,9 +3801,9 @@ function handleClick(event) {
     if (!nextGlassesMode) {
       stopNarration();
       stopArLive();
-      state.glassesModeNotice = "Bluetooth audio mode turned off. Reopen the route or AR screen if you want to continue in standard phone mode.";
+      state.glassesModeNotice = "Audio will play from this device again.";
     } else {
-      state.glassesModeNotice = "Bluetooth audio mode turned on. Narration will follow your active Bluetooth audio output.";
+      state.glassesModeNotice = "Audio will follow your connected headphones, speaker, or glasses.";
     }
     state.glassesMode = nextGlassesMode;
     saveGlassesMode();
@@ -3558,14 +3833,6 @@ function handleClick(event) {
     return;
   }
 
-  if (action === "close-blog-post") {
-    state.activeTab = "blog";
-    state.blog.selectedPostSlug = "";
-    scrollViewportToTop();
-    render();
-    return;
-  }
-
   if (action === "sign-out-webapp") {
     stopNarration();
     stopArLive();
@@ -3573,6 +3840,7 @@ function handleClick(event) {
     clearPendingOAuthProvider();
     resetAuthState();
     render(false);
+    refreshSupabaseTourCatalog({ render: true }).catch(() => undefined);
     return;
   }
 
@@ -3586,8 +3854,9 @@ function handleClick(event) {
     if (!selectedTour) {
       return;
     }
+    clearStopAccessNote();
     state.selectedTourId = selectedTour.id;
-    state.selectedStopId = selectedTour.stops[0]?.id ?? "";
+    state.selectedStopId = getRecommendedNextStop(selectedTour)?.id ?? selectedTour.stops[0]?.id ?? "";
     state.expandedTourCardId = selectedTour.id;
     state.routePageTourId = null;
     state.map.followNearestStop = false;
@@ -3601,17 +3870,19 @@ function handleClick(event) {
     if (!selectedTour) {
       return;
     }
+    clearStopAccessNote();
     state.activeTab = "home";
     state.routePageTourId = null;
     state.home.focusTourId = selectedTour.id;
     state.selectedTourId = selectedTour.id;
-    state.selectedStopId = selectedTour.stops[0]?.id ?? "";
+    state.selectedStopId = getRecommendedNextStop(selectedTour)?.id ?? selectedTour.stops[0]?.id ?? "";
     render();
     scrollHomeMapIntoView();
     return;
   }
 
   if (action === "show-all-home-tours") {
+    clearStopAccessNote();
     state.activeTab = "home";
     state.routePageTourId = null;
     state.home.focusTourId = null;
@@ -3625,11 +3896,12 @@ function handleClick(event) {
     if (!selectedTour) {
       return;
     }
-    openTourPageForStop(selectedTour, selectedTour.stops[0]?.id ?? "");
+    openTourPageForStop(selectedTour, getRecommendedNextStop(selectedTour)?.id ?? selectedTour.stops[0]?.id ?? "");
     return;
   }
 
   if (action === "close-route-page") {
+    clearStopAccessNote();
     state.routePageTourId = null;
     state.activeTab = "home";
     state.home.focusTourId = state.selectedTourId;
@@ -3657,10 +3929,7 @@ function handleClick(event) {
   }
 
   if (action === "select-stop" && stopId) {
-    state.map.followNearestStop = false;
-    state.selectedStopId = stopId;
-    state.map.autoAdvanceNote = "";
-    render();
+    trySelectStop(getSelectedTour(), stopId);
     return;
   }
 
@@ -3675,6 +3944,7 @@ function handleClick(event) {
       state.map.followNearestStop = false;
       state.selectedStopId = nextStop.id;
       state.map.autoAdvanceNote = "";
+      clearStopAccessNote();
       render();
     }
     return;
@@ -3915,6 +4185,11 @@ function toggleStop(stopId) {
     state.completedStopIds = [...state.completedStopIds, stopId];
   }
   saveCompletedStops();
+  if (isTourFlexSelectionUnlocked(getSelectedTour())) {
+    state.map.stopAccessNote = "Flexible stop order is now open for this paid route.";
+  } else if (state.map.stopAccessNote) {
+    state.map.stopAccessNote = getBlockedStopSelectionMessage(getSelectedTour());
+  }
 }
 
 function getTourById(tourId) {
@@ -4038,13 +4313,164 @@ function reorderTourIds(movedTourId, targetTourId) {
 }
 
 function getProgressForTour(tour) {
-  const completed = tour.stops.filter((stop) => state.completedStopIds.includes(stop.id)).length;
+  const completed = getCompletedStopCountForTour(tour);
   const percent = Math.round((completed / tour.stops.length) * 100);
   return { completed, percent };
 }
 
+function getCompletedStopCountForTour(tour) {
+  return tour.stops.filter((stop) => state.completedStopIds.includes(stop.id)).length;
+}
+
 function getRecommendedNextStop(tour) {
   return tour.stops.find((stop) => !state.completedStopIds.includes(stop.id)) ?? tour.stops[0];
+}
+
+function isTourFlexSelectionUnlocked(tour) {
+  return state.audioAccess.fullUnlocked && getCompletedStopCountForTour(tour) >= STOP_FLEX_UNLOCK_COUNT;
+}
+
+function canSelectStopInTour(tour, stopId) {
+  if (!tour?.stops?.length || !stopId) {
+    return false;
+  }
+
+  if (state.completedStopIds.includes(stopId) || state.selectedStopId === stopId) {
+    return true;
+  }
+
+  if (isTourFlexSelectionUnlocked(tour)) {
+    return true;
+  }
+
+  return getRecommendedNextStop(tour)?.id === stopId;
+}
+
+function getFirstSelectableStopId(tour) {
+  return getRecommendedNextStop(tour)?.id || tour?.stops?.[0]?.id || "";
+}
+
+function getBlockedStopSelectionMessage(tour) {
+  const completed = getCompletedStopCountForTour(tour);
+  if (!state.audioAccess.fullUnlocked) {
+    return `Flexible stop order opens on the paid plan after your first ${STOP_FLEX_UNLOCK_COUNT} completed stops.`;
+  }
+
+  const remaining = Math.max(STOP_FLEX_UNLOCK_COUNT - completed, 0);
+  if (remaining > 0) {
+    return `Finish ${remaining} more guided stop${remaining === 1 ? "" : "s"} to unlock flexible stop order for this route.`;
+  }
+
+  return "Flexible stop order is not open on this route yet.";
+}
+
+function clearStopAccessNote() {
+  state.map.stopAccessNote = "";
+}
+
+function getStopPresentationState(tour, stop) {
+  if (!tour || !stop) {
+    return "locked";
+  }
+  if (state.selectedStopId === stop.id) {
+    return "current";
+  }
+  if (state.completedStopIds.includes(stop.id)) {
+    return "visited";
+  }
+  if (isTourFlexSelectionUnlocked(tour)) {
+    return "open";
+  }
+  if (getRecommendedNextStop(tour)?.id === stop.id) {
+    return getCompletedStopCountForTour(tour) === 0 ? "start" : "recommended";
+  }
+  return "locked";
+}
+
+function getStopStateGlyph(stopState) {
+  switch (stopState) {
+    case "current":
+      return "✦";
+    case "visited":
+      return "◉";
+    case "start":
+      return "◇";
+    case "recommended":
+      return "◈";
+    case "open":
+      return "⟡";
+    default:
+      return "◌";
+  }
+}
+
+function getStopStateLabel(stopState) {
+  switch (stopState) {
+    case "current":
+      return "Current";
+    case "visited":
+      return "Visited";
+    case "start":
+      return "Start here";
+    case "recommended":
+      return "Recommended next";
+    case "open":
+      return "Open choice";
+    default:
+      return "Locked";
+  }
+}
+
+function getThemeGlyph(theme) {
+  switch (String(theme || "").trim().toLowerCase()) {
+    case "history":
+      return "✦";
+    case "family":
+      return "❖";
+    case "campus":
+      return "△";
+    case "sports":
+      return "✶";
+    case "innovation":
+      return "◇";
+    case "books":
+      return "▣";
+    case "corridor":
+      return "⟡";
+    case "medicine":
+      return "✚";
+    case "fraternal":
+      return "⬢";
+    default:
+      return "◈";
+  }
+}
+
+function trySelectStop(tour, stopId, options = {}) {
+  if (!tour || !stopId) {
+    return false;
+  }
+
+  const resolvedStopId = canSelectStopInTour(tour, stopId) ? stopId : getFirstSelectableStopId(tour);
+  const blocked = resolvedStopId !== stopId;
+
+  state.map.followNearestStop = false;
+  state.map.autoAdvanceNote = "";
+  state.map.stopAccessNote = blocked ? getBlockedStopSelectionMessage(tour) : "";
+  state.selectedTourId = tour.id;
+  state.selectedStopId = resolvedStopId;
+
+  if (options.openRoutePage) {
+    state.activeTab = "map";
+    state.home.focusTourId = null;
+    state.routePageTourId = tour.id;
+    if (options.scrollToTop !== false) {
+      scrollViewportToTop();
+    }
+  }
+
+  render();
+  return !blocked;
 }
 
 function buildTourNarrative(tour) {
@@ -4137,7 +4563,7 @@ function renderAuthScreen() {
         <div class="auth-form auth-form--cinematic">
           <div class="auth-form-top">
             <span class="status-pill">Private access</span>
-            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Ready" : "Coming soon"}</span>
+            <span class="status-pill ${hasProviderAuth ? "is-live" : ""}">${hasProviderAuth ? "Ready" : "Invite list"}</span>
           </div>
           <div class="auth-provider-row auth-provider-row--waiver">
             <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${providerButtonsEnabled ? "" : "disabled"}>
@@ -4166,12 +4592,12 @@ function renderAuthScreen() {
           ${
             hasProviderAuth
               ? ""
-              : '<p class="subscription-status">Sign-in is coming soon.</p>'
+              : '<p class="subscription-status">Join the newsletter for access updates.</p>'
           }
           ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
           <div class="drawer-copy">
             <strong>Follow Founders Threads</strong>
-            <p>The socials live on the front door too, not buried lower in settings.</p>
+            <p>Follow for route drops, field notes, and launch updates.</p>
           </div>
           ${renderSocialChannels()}
           <div class="button-row auth-button-row">
@@ -4203,7 +4629,7 @@ function renderSettingsSignInCard() {
           <h3>${activeUser ? "You are signed in" : "Sign in with Google or Apple"}</h3>
         </div>
         <span class="status-pill ${activeUser || hasProviderAuth ? "is-live" : ""}">${
-          activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Coming soon"
+          activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Invite list"
         }</span>
       </div>
       ${
@@ -4237,7 +4663,7 @@ function renderSettingsSignInCard() {
       ${
         hasProviderAuth
           ? ""
-          : '<p class="subscription-status">Sign-in is coming soon.</p>'
+          : '<p class="subscription-status">Join the newsletter for access updates.</p>'
       }
       ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
       <div class="button-row">
@@ -4271,6 +4697,20 @@ function getCheckoutStatusMarkup() {
         : "subscription-status";
 
   return `<p class="${statusClass}" role="status">${escapeHtml(state.checkout.message)}</p>`;
+}
+
+function renderInPersonGuideExclusiveContentMarkup() {
+  return `
+    <div class="route-guide-moat-block" aria-label="Exclusive in-person tour content">
+      <p class="route-guide-moat-kicker">Included with the in-person option only</p>
+      <ul class="route-guide-moat">
+        <li>Oral History</li>
+        <li>Private Archives</li>
+        <li>Hidden Locations</li>
+        <li>Scholar-backed narratives</li>
+      </ul>
+    </div>
+  `;
 }
 
 function getAppleStoreIconMarkup() {
@@ -4321,20 +4761,20 @@ function renderPlatformBadgeGrid() {
       })}
       ${renderStoreBadge({
         label: "App Store",
-        copy: iosAppStoreUrl ? "Download on iPhone and iPad" : "iPhone + iPad listing coming soon",
+        copy: iosAppStoreUrl ? "Download on iPhone and iPad" : "iPhone + iPad release in progress",
         href: iosAppStoreUrl,
         iconMarkup: getAppleStoreIconMarkup()
       })}
       ${renderStoreBadge({
         label: "Google Play",
-        copy: androidPlayStoreUrl ? "Get it on Android" : "Android listing coming soon",
+        copy: androidPlayStoreUrl ? "Get it on Android" : "Android release in progress",
         href: androidPlayStoreUrl,
         iconMarkup: getGooglePlayIconMarkup(),
         hideCopy: true
       })}
       ${renderStoreBadge({
         label: "AR field mode",
-        copy: "Camera handoff for on-site tours",
+        copy: "Camera guide for on-site tours",
         href: "",
         iconMarkup: `<span class="platform-glyph">◌</span>`
       })}
@@ -4510,6 +4950,7 @@ async function submitWebappAuth() {
     });
     setActiveTab("profile");
     render();
+    refreshSupabaseTourCatalog({ render: false }).catch(() => undefined);
     schedulePostSignInRefresh();
   } catch (error) {
     state.auth.status = "error";
@@ -4625,7 +5066,8 @@ async function startUpgradeCheckout() {
 }
 
 async function startTourGuideCheckout() {
-  const guideConfig = getInPersonTourGuideConfig();
+  const selectedTour = state.routePageTourId ? getTourById(state.routePageTourId) || getSelectedTour() : getSelectedTour();
+  const guideConfig = getInPersonTourGuideConfig(selectedTour);
   if (!guideConfig.amountCents) {
     state.checkout.status = "error";
     state.checkout.message = "Tour guide checkout is unavailable right now.";
@@ -4635,14 +5077,21 @@ async function startTourGuideCheckout() {
 
   await startCheckoutProduct({
     amount: guideConfig.amountCents,
-    title: guideConfig.label,
-    planId: "in-person-tour-guide",
+    title: guideConfig.checkoutTitle,
+    planId: `in-person-guided-tour:${selectedTour.id}`,
     successTab: "map",
-    idempotencyKeyPrefix: "web-tour-guide"
+    idempotencyKeyPrefix: "web-tour-guide",
+    metadata: {
+      pricingModel: "in-person-guided-tour",
+      pricingRateCentsPerMinute: String(guideConfig.rateCentsPerMinute),
+      tourDurationMin: String(guideConfig.durationMin),
+      tourId: String(selectedTour.id),
+      tourTitle: String(selectedTour.title)
+    }
   });
 }
 
-async function startCheckoutProduct({ amount, title, planId, successTab, idempotencyKeyPrefix }) {
+async function startCheckoutProduct({ amount, title, planId, successTab, idempotencyKeyPrefix, metadata }) {
   const syncServerUrl = getSyncServerUrl();
   if (!syncServerUrl) {
     state.checkout.status = "error";
@@ -4670,6 +5119,7 @@ async function startCheckoutProduct({ amount, title, planId, successTab, idempot
         amount,
         title,
         planId,
+        ...(metadata ? { metadata } : {}),
         successUrl,
         cancelUrl,
         idempotencyKey: `${idempotencyKeyPrefix}-${state.auth.session?.userId || "email-checkout"}-${Date.now()}`
@@ -4694,33 +5144,58 @@ async function startCheckoutProduct({ amount, title, planId, successTab, idempot
 }
 
 function getChromeTabKey() {
-  return state.routePageTourId ? "map" : state.activeTab;
+  return state.routePageTourId && WEB_MAPS_ENABLED ? "map" : state.activeTab;
 }
 
 function getSceneConfig(selectedTour, globalStats) {
   switch (state.activeTab) {
     case "home":
+      const heroTours = [selectedTour, ...tours.filter((tour) => tour.id !== selectedTour.id)].slice(0, 3);
       return {
-        eyebrow: "Home atlas",
-        title: "Welcome to Philadelphia Tours by Founders Threads.",
-        body: "",
+        eyebrow: HOME_HERO_EYEBROW,
+        title: HOME_HERO_TITLE,
+        body: HOME_HERO_BODY,
+        actions: [
+          { label: "Explore tours", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Open AR mode", action: "set-tab", tab: "ar", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card hero-floating-card--compact">
-            <strong>${state.home.focusTourId ? "Focused tour" : "Collection overview"}</strong>
-            <h3>${state.home.focusTourId ? selectedTour.title : `${tours.length} tours available`}</h3>
-            <p>${state.home.focusTourId ? truncateCopy(selectedTour.summary, 136) : "Choose a tour below to isolate its compass points on the map."}</p>
-          </article>
+          <div class="home-hero-collage" aria-label="Featured ${escapeHtml(CITY_NAME)} tour imagery">
+            ${heroTours
+              .map((tour, index) => {
+                const artwork = getTourCardArtwork(tour);
+                return `
+                  <figure class="home-hero-collage__image home-hero-collage__image--${index + 1}">
+                    ${artwork.url ? `<img src="${escapeHtml(artwork.url)}" alt="${escapeHtml(artwork.title)}" ${index === 0 ? "loading=\"eager\"" : "loading=\"lazy\""} />` : `<span>${escapeHtml(tour.neighborhood)}</span>`}
+                    <figcaption>${escapeHtml(tour.theme)}</figcaption>
+                  </figure>
+                `;
+              })
+              .join("")}
+            <article class="home-hero-ticket">
+              <span>Tours available</span>
+              <strong>${tours.length}</strong>
+              <p>Maps, narration, Compass guidance, and AR-ready stops.</p>
+            </article>
+          </div>
         `
       };
     case "map":
       return {
-        eyebrow: "Founders Compass",
-        title: "Point the webapp at the next meaningful Philadelphia stop.",
-        body: "Choose a Compass path, start location and heading, then let the selected card steer the live bearing, distance, and story order.",
+        eyebrow: "Kelly Green Compass",
+        title: "Pick the route. Philly pulls you forward.",
+        body: "The Compass turns a Philadelphia walk into a clear next move: route, bearing, distance, story, then the next place that matters.",
+        actions: [
+          { label: "Start Compass", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Open Board", action: "set-tab", tab: "progress", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card">
+          <article class="hero-impact-card hero-impact-card--green">
+            <span class="hero-impact-card__badge">Selected route</span>
+            <strong class="hero-impact-card__number">${selectedTour.stops.length}</strong>
+            <span class="hero-impact-card__label">story stops</span>
             <h3>${selectedTour.title}</h3>
             <p>${truncateCopy(selectedTour.summary, 138)}</p>
             <div class="hero-floating-meta">
@@ -4733,13 +5208,19 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "ar":
       return {
-        eyebrow: "AR field mode",
-        title: "Use AR when you are near a stop and ready to look closer.",
-        body: "The AR tab helps you get oriented, hear the story, and move into the mobile app when it is time for the full camera experience.",
+        eyebrow: "Pennsylvania Blue AR",
+        title: "When the street is ready, the story opens.",
+        body: "Use AR near a stop to orient yourself, hear the moment, and move into the camera guide without losing the route.",
+        actions: [
+          { label: "Open Compass", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "View Board", action: "set-tab", tab: "progress", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card hero-floating-card--compact">
-            <strong>Selected tour</strong>
+          <article class="hero-impact-card hero-impact-card--blue">
+            <span class="hero-impact-card__badge">Camera guide</span>
+            <strong class="hero-impact-card__number">AR</strong>
+            <span class="hero-impact-card__label">on-site mode</span>
             <h3>${selectedTour.title}</h3>
             <p>${selectedTour.arFocus}</p>
           </article>
@@ -4747,31 +5228,49 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "progress":
       return {
-        eyebrow: "Founders board",
-        title: "Your Collection Board",
-        body: "Keep a clean record of what you have started and what still deserves a visit, without turning the experience into a cluttered dashboard.",
+        eyebrow: "Tour Board",
+        title: "Every stop joins your Philly story.",
+        actions: [
+          { label: "Browse routes", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Open AR Guide", action: "set-tab", tab: "ar", variant: "ghost" }
+        ],
         metrics: [],
         floatingCard: `
-          <article class="hero-floating-card hero-floating-card--compact">
-            <strong>Current streak</strong>
+          <article class="hero-impact-card hero-impact-card--yellow">
+            <span class="hero-impact-card__badge">Collection board</span>
+            <strong class="hero-impact-card__number">${globalStats.completedStops}</strong>
+            <span class="hero-impact-card__label">stops saved</span>
             <h3>${Math.max(globalStats.toursStarted, 1)} active collections</h3>
-            <p>Every completed stop feeds the same cross-device memory of your journey.</p>
+            <p>Progress stays useful, celebratory, and ready for the next walk.</p>
           </article>
         `
       };
     case "profile":
       return {
-        eyebrow: "Settings",
-        title: "Settings, sign-in, contact, and platform access",
-        body: "Use Settings to sign in, stay connected, and move between the web experience and the mobile apps.",
+        eyebrow: "Philly Tours profile",
+        title: "Keep your route access close.",
+        body: "Sign in, unlock audio, follow launch updates, and move between the web companion and the mobile touring app.",
+        actions: [
+          { label: "Browse routes", action: "set-tab", tab: "map", variant: "primary" },
+          { label: "Back home", action: "set-tab", tab: "home", variant: "ghost" }
+        ],
         metrics: [],
-        floatingCard: ""
+        floatingCard: `
+          <article class="hero-impact-card hero-impact-card--white">
+            <span class="hero-impact-card__badge">Access pass</span>
+            <strong class="hero-impact-card__number">PT</strong>
+            <span class="hero-impact-card__label">member ready</span>
+            <h3>Audio, app links, and updates in one place.</h3>
+            <p>Profile should feel like a polished pass, not a settings drawer.</p>
+          </article>
+        `
       };
     default:
       return {
         eyebrow: "",
         title: "",
         body: "",
+        actions: [],
         metrics: [],
         floatingCard: ""
       };
@@ -5009,6 +5508,12 @@ function renderSceneHero(selectedTour, globalStats) {
   if (!scene.eyebrow && !scene.title && !scene.body && !scene.metrics.length && !scene.floatingCard) {
     return "";
   }
+  const heroActions = scene.actions?.length
+    ? scene.actions
+    : [
+        { label: "Explore tours", action: "set-tab", tab: "map", variant: "primary" },
+        { label: "Open AR mode", action: "set-tab", tab: "ar", variant: "ghost" }
+      ];
   return `
     <section class="scene-hero scene-hero--${getChromeTabKey()}">
       <div class="scene-hero__veil"></div>
@@ -5018,8 +5523,20 @@ function renderSceneHero(selectedTour, globalStats) {
           <h2>${scene.title}</h2>
           <p class="hero-text">${scene.body}</p>
           <div class="hero-button-row">
-            <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Explore tours</button>
-            <button type="button" class="ghost-button" data-action="set-tab" data-tab="ar">Open AR mode</button>
+            ${heroActions
+              .map(
+                (action) => `
+                  <button
+                    type="button"
+                    class="${action.variant === "ghost" ? "ghost-button" : "primary-button"}"
+                    data-action="${escapeHtml(action.action)}"
+                    ${action.tab ? `data-tab="${escapeHtml(action.tab)}"` : ""}
+                  >
+                    ${escapeHtml(action.label)}
+                  </button>
+                `
+              )
+              .join("")}
           </div>
           <div class="hero-social-row">
             <span>routes</span>
@@ -5072,10 +5589,12 @@ function render(shouldSyncHash = true) {
   const selectedStop = getSelectedStop();
   const globalStats = getGlobalStats();
 
-  if (state.routePageTourId) {
+  if (WEB_MAPS_ENABLED && state.routePageTourId) {
     const routeTour = getTourById(state.routePageTourId) || selectedTour;
     void ensureRoutePreviewLoaded(routeTour, state.narrationVariant);
-  } else if (state.activeTab === "home" && state.home.focusTourId) {
+  } else if (WEB_MAPS_ENABLED && state.activeTab === "map") {
+    void ensureRoutePreviewLoaded(selectedTour, state.narrationVariant);
+  } else if (WEB_MAPS_ENABLED && state.activeTab === "home" && state.home.focusTourId) {
     const focusedTour = getTourById(state.home.focusTourId);
     if (focusedTour) {
       void ensureRoutePreviewLoaded(focusedTour, state.narrationVariant);
@@ -5103,19 +5622,21 @@ function render(shouldSyncHash = true) {
 
   mountWebTurnstile();
 
-  const routeMapElement = document.getElementById("route-map");
-  if (routeMapElement) {
-    void initRouteMap(selectedTour, selectedStop, "route-map");
-  }
+  if (WEB_MAPS_ENABLED) {
+    const routeMapElement = document.getElementById("route-map");
+    if (routeMapElement) {
+      void initRouteMap(selectedTour, selectedStop, "route-map");
+    }
 
-  const stopStreetViewElement = document.getElementById("stop-street-view");
-  if (stopStreetViewElement) {
-    void initStopStreetView(selectedStop, "stop-street-view");
-  }
+    const stopStreetViewElement = document.getElementById("stop-street-view");
+    if (stopStreetViewElement) {
+      void initStopStreetView(selectedStop, "stop-street-view");
+    }
 
-  const homeMapElement = document.getElementById("home-map");
-  if (homeMapElement) {
-    void initHomeMap(selectedTour, "home-map");
+    const homeMapElement = document.getElementById("home-map");
+    if (homeMapElement) {
+      void initHomeMap(selectedTour, "home-map");
+    }
   }
 
   if (state.activeTab === "ar" && state.ar.mode === "live" && arStream) {
@@ -5152,6 +5673,14 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
 }
 
 function renderSelectedStopStreetViewPanel(selectedStop) {
+  if (!WEB_MAPS_ENABLED) {
+    return renderMapsPausedPanel({
+      eyebrow: "Selected stop preview paused",
+      title: "Street View is temporarily hidden",
+      body: `We are fixing map rendering for ${selectedStop.title}. Use the stop details and audio while backend work continues.`
+    });
+  }
+
   const locationLabel = selectedStop.fullAddress || selectedStop.locationLabel || selectedStop.title;
   const streetViewUrl = buildGoogleStreetViewUrl(selectedStop);
 
@@ -5185,33 +5714,146 @@ function renderSelectedStopStreetViewPanel(selectedStop) {
   `;
 }
 
+function renderStopAccessNotice(selectedTour) {
+  const message = state.map.stopAccessNote || (!isTourFlexSelectionUnlocked(selectedTour) ? getBlockedStopSelectionMessage(selectedTour) : "");
+  if (!message) {
+    return "";
+  }
+
+  return `
+    <div class="drawer-copy stop-access-note">
+      <strong>${isTourFlexSelectionUnlocked(selectedTour) ? "Flexible stop order" : "Route flow"}</strong>
+      <p>${escapeHtml(message)}</p>
+    </div>
+  `;
+}
+
+function getStopFlowCopy(selectedTour) {
+  if (isTourFlexSelectionUnlocked(selectedTour)) {
+    return "Flexible stop order is open now, but the default flow still gives the strongest story and logistics.";
+  }
+
+  return "Follow the guided flow by default. Flexible stop order opens after 3 completed stops on the paid plan.";
+}
+
+function renderStopRow(selectedTour, stop) {
+  const stopState = getStopPresentationState(selectedTour, stop);
+  return `
+    <button
+      type="button"
+      class="stop-row stop-row--${stopState} ${selectedTour && state.selectedStopId === stop.id ? "active" : ""}"
+      data-action="select-stop"
+      data-stop-id="${stop.id}"
+      aria-label="${escapeHtml(`${getStopStateLabel(stopState)} stop: ${stop.title}`)}"
+    >
+      <div class="stop-row-copy">
+        <span class="stop-glyph" aria-hidden="true">${getStopStateGlyph(stopState)}</span>
+        <div>
+          <strong>${stop.title}</strong>
+          <p>${stop.fullAddress || stop.locationLabel || truncateCopy(stop.description, 88)}</p>
+        </div>
+      </div>
+      <span class="check-badge check-badge--${stopState}">
+        ${getStopStateLabel(stopState)}
+      </span>
+    </button>
+  `;
+}
+
+function renderMapsPausedPanel({
+  eyebrow = "Map view coming back soon",
+  title = "Maps are temporarily hidden",
+  body = "We are tidying up the web map experience. Route details, audio, and checkout are still available."
+} = {}) {
+  return `
+    <div class="panel panel--map-host route-pack-map">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">${escapeHtml(eyebrow)}</p>
+          <h3>${escapeHtml(title)}</h3>
+        </div>
+        <span class="status-pill">Temporary</span>
+      </div>
+      <div class="drawer-copy emphasis">
+        <strong>Rendering update in progress</strong>
+        <p>${escapeHtml(body)}</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderHomeTab(selectedTour) {
   const focusedTour = state.home.focusTourId ? getTourById(state.home.focusTourId) : null;
   const previewTour = focusedTour || selectedTour;
-  const routePreview = getRoutePreviewDisplay(previewTour);
 
   return `
     <section class="section-grid home-grid home-grid--cinematic">
       <article class="panel panel--map-host home-hero-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">City-wide collection map</p>
-            <h3>${focusedTour ? focusedTour.title : "All available tours in one map view"}</h3>
+            <p class="eyebrow">${WEB_MAPS_ENABLED ? "City-wide collection map" : "Route collection overview"}</p>
+            <h3>${focusedTour ? focusedTour.title : WEB_MAPS_ENABLED ? "All available tours in one map view" : "All available tours in one route list"}</h3>
           </div>
-          <span class="status-pill ${focusedTour ? "is-live" : ""}">${focusedTour ? "Tour isolated" : `${tours.length} tours live`}</span>
+          <span class="status-pill ${focusedTour && WEB_MAPS_ENABLED ? "is-live" : ""}">${focusedTour ? (WEB_MAPS_ENABLED ? "Tour isolated" : "Route selected") : `${tours.length} tours available`}</span>
         </div>
         ${focusedTour
           ? ""
-          : `<p class="lede">Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map.</p>`}
-        ${renderStoryLogisticsCard(focusedTour || previewTour)}
-        <div class="panel panel--map-host route-pack-map">
-          <div class="route-map-shell route-map-shell--home">
-            <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
+          : `<p class="lede">${WEB_MAPS_ENABLED ? "Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map." : "Map rendering is temporarily hidden, so start with the route list below and open any tour page for stops, story flow, and guided checkout."}</p>`}
+        <section class="home-local-seo-panel" aria-label="${escapeHtml(`${CITY_NAME} walking tour overview`)}">
+          <div class="home-local-seo-panel__lead">
+            <p class="eyebrow">${escapeHtml(HOME_PANEL_EYEBROW)}</p>
+            <h3>${escapeHtml(HOME_PANEL_TITLE)}</h3>
           </div>
-        </div>
-        <div class="in-app-browser-notice">
-          <strong>Want the best map view?</strong>
-          <p>Open this page in your phone browser for the smoothest map and compass experience.</p>
+          <div class="home-local-seo-panel__copy">
+            <p>${escapeHtml(HOME_PANEL_BODY)}</p>
+            <div class="home-trust-strip home-trust-strip--local">
+              ${HOME_PANEL_HIGHLIGHTS.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+            </div>
+          </div>
+        </section>
+        <section class="home-value-grid" aria-label="${escapeHtml(`Why ${SITE_NAME} is different`)}">
+          <article class="home-value-card">
+            <span>01</span>
+            <strong>Not a bus loop.</strong>
+            <p>Routes are built for walkers who want context, momentum, and time to notice the city around them.</p>
+          </article>
+          <article class="home-value-card">
+            <span>02</span>
+            <strong>Stories with direction.</strong>
+            <p>Each route connects stops in a useful order so the walk feels intentional, not like a list of pins.</p>
+          </article>
+          <article class="home-value-card">
+            <span>03</span>
+            <strong>Made for ${escapeHtml(CITY_NAME)} depth.</strong>
+            <p>Explore heritage, public memory, sports culture, architecture, libraries, and neighborhood history.</p>
+          </article>
+        </section>
+        ${renderStoryLogisticsCard(focusedTour || previewTour)}
+        ${
+          WEB_MAPS_ENABLED
+            ? `
+              <div class="panel panel--map-host route-pack-map">
+                <div class="route-map-shell route-map-shell--home">
+                  <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
+                </div>
+              </div>
+              <div class="in-app-browser-notice">
+                <strong>Want the best map view?</strong>
+                <p>Open this page in your phone browser for the smoothest map and compass experience.</p>
+              </div>
+            `
+            : renderMapsPausedPanel({
+                eyebrow: "Map rendering update",
+                title: "Interactive maps are temporarily hidden",
+                body: "We are stabilizing route rendering on the public webapp. Tour pages, stop lists, narration, and guided checkout are still live."
+              })
+        }
+        <div class="home-tour-section-heading">
+          <div>
+            <p class="eyebrow">Choose your route</p>
+            <h3>${escapeHtml(`Pick a ${CITY_NAME} story and go.`)}</h3>
+          </div>
+          <span>${tours.length} guided routes</span>
         </div>
         <div class="home-tour-grid">
           ${tours
@@ -5219,6 +5861,7 @@ function renderHomeTab(selectedTour) {
               const progress = getProgressForTour(tour);
               const isFocused = focusedTour?.id === tour.id;
               const artwork = renderTourCardArtwork(tour);
+              const progressLabel = progress.percent > 0 ? `${progress.percent}% complete` : "Ready to start";
               const palette = [
                 ["#5d42ff", "#a68eff"],
                 ["#ff8b5c", "#ffd38b"],
@@ -5237,12 +5880,12 @@ function renderHomeTab(selectedTour) {
                     </div>
                   </div>
                   <div class="experience-card-body">
-                    <p>${truncateCopy(tour.summary, 154)}</p>
+                    <p>${truncateCopy(tour.summary, 126)}</p>
                     <div class="tour-card-meta">
                       <span>${tour.durationMin} min</span>
                       <span>${tour.distanceMiles} mi</span>
                       <span>${tour.stops.length} stops</span>
-                      <span>${progress.percent}% complete</span>
+                      <span>${progressLabel}</span>
                     </div>
                     <div class="button-row compact">
                       <button
@@ -5251,11 +5894,11 @@ function renderHomeTab(selectedTour) {
                         data-action="${isFocused ? "show-all-home-tours" : "focus-home-tour"}"
                         ${isFocused ? "" : `data-tour-id="${tour.id}"`}
                       >
-                        ${isFocused ? "Show all tours" : "Focus tour"}
+                        ${isFocused ? "Show all routes" : "Preview route"}
                       </button>
-                      <button type="button" class="ghost-button" data-action="open-route-page" data-tour-id="${tour.id}">
-                        Open route page
-                      </button>
+                      <a class="ghost-button seo-route-link" href="${getTourSeoUrl(tour)}" data-action="open-route-page" data-tour-id="${tour.id}">
+                        View details
+                      </a>
                     </div>
                   </div>
                 </article>
@@ -5270,14 +5913,14 @@ function renderHomeTab(selectedTour) {
 
 function renderStoryLogisticsCard(tour) {
   const leadStops = (tour?.stops || []).slice(0, 4).map((stop) => stop.title);
-  const stopPreview = leadStops.length ? leadStops.join(" -> ") : "Compass start -> next meaningful stop";
+  const stopPreview = leadStops.length ? leadStops.join(" -> ") : "Start here -> next stop -> keep going";
   return `
     <div class="story-logistics-card">
       <div>
-        <p class="eyebrow">Story Logistics</p>
-        <strong>Routes shaped by story, geography, and momentum.</strong>
+        <p class="eyebrow">How this walk flows</p>
+        <strong>A route that feels easy to follow.</strong>
       </div>
-      <p>Each next stop is chosen to keep the route moving forward, avoiding awkward jumps while preserving the story arc.</p>
+      <p>Each stop is placed in an order that keeps the walk moving naturally while the story builds from one place to the next.</p>
       <span>${stopPreview}</span>
     </div>
   `;
@@ -5378,7 +6021,7 @@ function renderRouteTab(selectedTour, selectedStop) {
   const themes = ["all", ...new Set(tours.map((tour) => tour.theme.toLowerCase()))];
   const visibleTours = getVisibleTours();
   const googleMapProject = getGoogleMapsProjectConfig();
-  const guideConfig = getInPersonTourGuideConfig();
+  const guideConfig = getInPersonTourGuideConfig(selectedTour);
   const routeProgress = getProgressForTour(selectedTour);
   const routePreview = getRoutePreviewDisplay(selectedTour);
   const recommendedStop = getRecommendedNextStop(selectedTour);
@@ -5395,8 +6038,8 @@ function renderRouteTab(selectedTour, selectedStop) {
       <article class="panel panel--catalog">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Compass paths</p>
-            <h3>Choose your next bearing</h3>
+            <p class="eyebrow">Choose a route</p>
+            <h3>Pick where you want to go next</h3>
           </div>
           <span class="status-pill">${visibleTours.length} showing</span>
         </div>
@@ -5480,7 +6123,7 @@ function renderRouteTab(selectedTour, selectedStop) {
         <article class="panel panel--map-host route-detail-page">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Selected compass path</p>
+              <p class="eyebrow">Current route</p>
               <h3>${selectedTour.title}</h3>
             </div>
             <span class="status-pill">${selectedTour.theme}</span>
@@ -5507,11 +6150,11 @@ function renderRouteTab(selectedTour, selectedStop) {
               <p>${recommendedStop.title}${recommendedStop.fullAddress || recommendedStop.locationLabel ? ` · ${recommendedStop.fullAddress || recommendedStop.locationLabel}` : ""}</p>
             </div>
             <div>
-              <strong>Story Logistics flow</strong>
+              <strong>How the walk flows</strong>
               <p>${buildTourNarrative(selectedTour)}</p>
             </div>
             <div>
-              <strong>Route preview</strong>
+              <strong>Walk overview</strong>
               <p>${routePreview.legsLabel}</p>
             </div>
           </div>
@@ -5520,28 +6163,39 @@ function renderRouteTab(selectedTour, selectedStop) {
             <span class="chip">${selectedTour.neighborhood}</span>
             <span class="chip">${selectedTour.stops.length} compass points</span>
           </div>
-          <div class="panel panel--map-host route-pack-map">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow">Compass map</p>
-                <h3>Stop map and order</h3>
-              </div>
-              <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
-            </div>
-            <div class="route-map-shell">
-              <div id="route-map" class="route-map" aria-label="Route map preview"></div>
-            </div>
-          </div>
-          ${renderSelectedStopStreetViewPanel(selectedStop)}
+          ${
+            WEB_MAPS_ENABLED
+              ? `
+                <div class="panel panel--map-host route-pack-map">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Compass map</p>
+                      <h3>Stop map and order</h3>
+                    </div>
+                    <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
+                  </div>
+                  <div class="route-map-shell">
+                    <div id="route-map" class="route-map" aria-label="Route map preview"></div>
+                  </div>
+                </div>
+                ${renderSelectedStopStreetViewPanel(selectedStop)}
+              `
+              : renderMapsPausedPanel({
+                  eyebrow: "Map view coming back soon",
+                  title: "The walk guide is still here",
+                  body: `You can still use the Compass, stop list, and audio for ${selectedTour.title} while we tidy up the map view.`
+                })
+          }
           <div class="panel panel--preview-callout route-guide-panel">
             <div class="panel-header">
               <div>
                 <p class="eyebrow">In-person tour guide</p>
                 <h3>Purchase a guided version of this route</h3>
               </div>
-              <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Available on May 1st"}</span>
+              <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.availabilityLabel}</span>
             </div>
-            <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
+            <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and a shareable route map for the group. ${guideConfig.checkoutDescription}</p>
+            ${renderInPersonGuideExclusiveContentMarkup()}
             <div class="button-row">
               <button
                 type="button"
@@ -5549,19 +6203,19 @@ function renderRouteTab(selectedTour, selectedStop) {
                 data-action="start-tour-guide-checkout"
                 ${state.checkout.status === "submitting" || !guideConfig.amountCents ? "disabled" : ""}
               >
-                ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Configure guide checkout"}
+                ${guideConfig.amountCents ? `Book guide · ${guideConfig.priceLabel}` : "Guide booking unavailable"}
               </button>
-              ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open Google map pack</a>` : ""}
+              ${WEB_MAPS_ENABLED && googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open route map</a>` : ""}
             </div>
             ${getCheckoutStatusMarkup()}
           </div>
           <div class="companion-panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Audio posture</p>
-                <h3>Cross-device companion mode</h3>
+                <p class="eyebrow">How you want to listen</p>
+                <h3>Audio settings</h3>
               </div>
-              <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
+              <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Connected" : "This device"}</span>
             </div>
             <p>${getGlassesModeCopy()}</p>
             ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
@@ -5569,19 +6223,19 @@ function renderRouteTab(selectedTour, selectedStop) {
               <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
                 ${getGlassesModeButtonLabel()}
               </button>
-              <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open in phone app</a>
+              <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open on your phone</a>
             </div>
           </div>
           <div class="narration-panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">Narration</p>
-                <h3>Live runtime audio</h3>
+                <p class="eyebrow">Listen here</p>
+                <h3>Audio for this stop</h3>
               </div>
               <span class="status-pill ${state.audioAccess.fullUnlocked ? "is-live" : ""}">${audioAccess.pill}</span>
             </div>
             <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
-              <strong>${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to Bluetooth audio output` : getNarrationLabel(selectedStop.id)}</strong>
+              <strong>${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} through your connected audio` : getNarrationLabel(selectedStop.id)}</strong>
               <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
             </div>
             <div class="variant-toggle">
@@ -5596,13 +6250,13 @@ function renderRouteTab(selectedTour, selectedStop) {
                 data-stop-id="${selectedStop.id}"
                 ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
               >
-                ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
+                ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play preview narration"}
               </button>
               <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
               ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
             </div>
             <div class="drawer-copy">
-              <strong>Transcript preview</strong>
+              <strong>Preview script</strong>
               <p>${narrationPreview}</p>
             </div>
           </div>
@@ -5610,7 +6264,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
               ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
             </button>
-            <a class="ghost-button link-button" href="#tab=home&homeTour=${selectedTour.id}">Copy route page</a>
+            <a class="ghost-button link-button" href="${getTourSeoUrl(selectedTour)}">Open tour page</a>
             <a
               class="ghost-button link-button"
               href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
@@ -5622,28 +6276,12 @@ function renderRouteTab(selectedTour, selectedStop) {
             <button type="button" class="ghost-button" data-action="set-tab" data-tab="progress">Open board</button>
           </div>
           <div class="drawer-copy emphasis">
-            <strong>Compass points in this path</strong>
-            <p>Select a point below to update the compass, narration controls, and phone handoff target.</p>
+            <strong>Stops on this walk</strong>
+            <p>${getStopFlowCopy(selectedTour)}</p>
           </div>
+          ${renderStopAccessNotice(selectedTour)}
           <div class="stop-list">
-            ${selectedTour.stops
-              .map((stop, index) => `
-                <button
-                  type="button"
-                  class="stop-row ${selectedStop.id === stop.id ? "active" : ""}"
-                  data-action="select-stop"
-                  data-stop-id="${stop.id}"
-                >
-                  <div>
-                    <strong>${index + 1}. ${stop.title}</strong>
-                    <p>${stop.fullAddress || stop.locationLabel || truncateCopy(stop.description, 88)}</p>
-                  </div>
-                  <span class="check-badge ${state.completedStopIds.includes(stop.id) ? "done" : ""}">
-                    ${selectedStop.id === stop.id ? "Viewing" : state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
-                  </span>
-                </button>
-              `)
-              .join("")}
+            ${selectedTour.stops.map((stop) => renderStopRow(selectedTour, stop)).join("")}
           </div>
         </article>
       </section>
@@ -5728,9 +6366,9 @@ function renderRouteCatalogTab(selectedTour) {
                       <span>Start with ${nextStop.title}</span>
                     </div>
                     <div class="button-row compact">
-                      <button type="button" class="primary-button" data-action="open-route-page" data-tour-id="${tour.id}">
+                      <a class="primary-button seo-route-link" href="${getTourSeoUrl(tour)}" data-action="open-route-page" data-tour-id="${tour.id}">
                         Open route page
-                      </button>
+                      </a>
                       <button type="button" class="ghost-button" data-action="select-tour" data-tour-id="${tour.id}">
                         ${isSelected ? "Selected" : "Select route"}
                       </button>
@@ -5748,7 +6386,7 @@ function renderRouteCatalogTab(selectedTour) {
 
 function renderRouteProductPage(selectedTour, selectedStop) {
   const googleMapProject = getGoogleMapsProjectConfig();
-  const guideConfig = getInPersonTourGuideConfig();
+  const guideConfig = getInPersonTourGuideConfig(selectedTour);
   const routeProgress = getProgressForTour(selectedTour);
   const routePreview = getRoutePreviewDisplay(selectedTour);
   const recommendedStop = getRecommendedNextStop(selectedTour);
@@ -5767,7 +6405,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
         </div>
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Tour pack page</p>
+            <p class="eyebrow">Tour page</p>
             <h3>${selectedTour.title}</h3>
           </div>
           <span class="status-pill">${selectedTour.theme}</span>
@@ -5801,11 +6439,11 @@ function renderRouteProductPage(selectedTour, selectedStop) {
             <p>${recommendedStop.title}${recommendedStop.fullAddress || recommendedStop.locationLabel ? ` · ${recommendedStop.fullAddress || recommendedStop.locationLabel}` : ""}</p>
           </div>
           <div>
-            <strong>Story Logistics flow</strong>
+            <strong>How the walk flows</strong>
             <p>${buildTourNarrative(selectedTour)}</p>
           </div>
           <div>
-            <strong>Route preview</strong>
+            <strong>Walk overview</strong>
             <p>${routePreview.legsLabel}</p>
           </div>
         </div>
@@ -5814,28 +6452,39 @@ function renderRouteProductPage(selectedTour, selectedStop) {
           <span class="chip">${selectedTour.neighborhood}</span>
           <span class="chip">${selectedTour.stops.length} stops on route</span>
         </div>
-        <div class="panel panel--map-host route-pack-map">
-          <div class="panel-header">
-            <div>
-              <p class="eyebrow">Route preview</p>
-              <h3>Stop map and order</h3>
-            </div>
-            <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
-          </div>
-          <div class="route-map-shell">
-            <div id="route-map" class="route-map" aria-label="Route map preview"></div>
-          </div>
-        </div>
-        ${renderSelectedStopStreetViewPanel(selectedStop)}
+        ${
+          WEB_MAPS_ENABLED
+            ? `
+              <div class="panel panel--map-host route-pack-map">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Route preview</p>
+                    <h3>Stop map and order</h3>
+                  </div>
+                  <span class="status-pill ${routePreview.status === "ready" ? "is-live" : ""}">${routePreview.statusLabel}</span>
+                </div>
+                <div class="route-map-shell">
+                  <div id="route-map" class="route-map" aria-label="Route map preview"></div>
+                </div>
+              </div>
+              ${renderSelectedStopStreetViewPanel(selectedStop)}
+            `
+            : renderMapsPausedPanel({
+                eyebrow: "Map view coming back soon",
+                title: "This route is still ready to use",
+                body: `We are tidying up the map view for ${selectedTour.title}. The stop list, route details, audio, and guided checkout are all still here below.`
+              })
+        }
         <div class="panel panel--preview-callout route-guide-panel">
           <div class="panel-header">
             <div>
               <p class="eyebrow">In-person tour guide</p>
               <h3>Purchase a guided version of this route</h3>
             </div>
-            <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.amountCents ? "Stripe ready" : "Available on May 1st"}</span>
+            <span class="status-pill ${guideConfig.amountCents ? "is-live" : ""}">${guideConfig.availabilityLabel}</span>
           </div>
-          <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and the matching Google map pack for the tour group.</p>
+          <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and a shareable route map for the group. ${guideConfig.checkoutDescription}</p>
+          ${renderInPersonGuideExclusiveContentMarkup()}
           <div class="button-row">
             <button
               type="button"
@@ -5843,39 +6492,39 @@ function renderRouteProductPage(selectedTour, selectedStop) {
               data-action="start-tour-guide-checkout"
               ${state.checkout.status === "submitting" || !guideConfig.amountCents ? "disabled" : ""}
             >
-              ${guideConfig.amountCents ? `Purchase ${guideConfig.label}` : "Configure guide checkout"}
+              ${guideConfig.amountCents ? `Book guide · ${guideConfig.priceLabel}` : "Guide booking unavailable"}
             </button>
-            ${googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open Google map pack</a>` : ""}
+            ${WEB_MAPS_ENABLED && googleMapProject ? `<a class="ghost-button link-button" href="${escapeHtml(googleMapProject.publicUrl)}" target="_blank" rel="noreferrer">Open route map</a>` : ""}
           </div>
           ${getCheckoutStatusMarkup()}
         </div>
-        <div class="companion-panel">
-          <div class="panel-header">
-            <div>
-              <p class="eyebrow">Audio posture</p>
-              <h3>Cross-device companion mode</h3>
+          <div class="companion-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">How you want to listen</p>
+                <h3>Audio settings</h3>
+              </div>
+              <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Connected" : "This device"}</span>
             </div>
-            <span class="status-pill ${state.glassesMode ? "is-live" : ""}">${state.glassesMode ? "Ready" : "Standby"}</span>
-          </div>
           <p>${getGlassesModeCopy()}</p>
           ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
           <div class="button-row">
             <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
               ${getGlassesModeButtonLabel()}
             </button>
-            <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open in phone app</a>
+            <a class="ghost-button link-button" href="${buildPhoneAppHandoffLink(selectedTour.id, selectedStop.id)}">Open on your phone</a>
           </div>
         </div>
         <div class="narration-panel">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Narration</p>
-              <h3>Selected stop audio</h3>
+              <p class="eyebrow">Listen here</p>
+              <h3>Audio for this stop</h3>
             </div>
             <span class="status-pill ${state.audioAccess.fullUnlocked ? "is-live" : ""}">${audioAccess.pill}</span>
           </div>
           <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
-            <strong>${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} to Bluetooth audio output` : getNarrationLabel(selectedStop.id)}</strong>
+            <strong>${state.glassesMode ? `${getNarrationLabel(selectedStop.id)} through your connected audio` : getNarrationLabel(selectedStop.id)}</strong>
             <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
           </div>
           <div class="variant-toggle">
@@ -5890,13 +6539,13 @@ function renderRouteProductPage(selectedTour, selectedStop) {
               data-stop-id="${selectedStop.id}"
               ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
             >
-              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
+              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play preview narration"}
             </button>
             <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${selectedStop.id}">Full stop brief</button>
             ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
           </div>
           <div class="drawer-copy">
-            <strong>Transcript preview</strong>
+            <strong>Preview script</strong>
             <p>${narrationPreview}</p>
           </div>
         </div>
@@ -5904,7 +6553,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
           <button type="button" class="primary-button" data-action="toggle-stop" data-stop-id="${selectedStop.id}">
             ${state.completedStopIds.includes(selectedStop.id) ? "Mark as upcoming" : "Mark stop complete"}
           </button>
-          <a class="ghost-button link-button" href="#tab=home&homeTour=${selectedTour.id}">Copy route page</a>
+          <a class="ghost-button link-button" href="${getTourSeoUrl(selectedTour)}">Open tour page</a>
           <a
             class="ghost-button link-button"
             href="https://www.google.com/maps/search/?api=1&query=${selectedStop.lat},${selectedStop.lng}"
@@ -5916,27 +6565,11 @@ function renderRouteProductPage(selectedTour, selectedStop) {
         </div>
         <div class="drawer-copy emphasis">
           <strong>Stops in this route</strong>
-          <p>Select a stop below to update the route page details, narration controls, and phone handoff target.</p>
+          <p>${getStopFlowCopy(selectedTour)}</p>
         </div>
+        ${renderStopAccessNotice(selectedTour)}
         <div class="stop-list">
-          ${selectedTour.stops
-            .map((stop, index) => `
-              <button
-                type="button"
-                class="stop-row ${selectedStop.id === stop.id ? "active" : ""}"
-                data-action="select-stop"
-                data-stop-id="${stop.id}"
-              >
-                <div>
-                  <strong>${index + 1}. ${stop.title}</strong>
-                  <p>${stop.fullAddress || stop.locationLabel || truncateCopy(stop.description, 88)}</p>
-                </div>
-                <span class="check-badge ${state.completedStopIds.includes(stop.id) ? "done" : ""}">
-                  ${selectedStop.id === stop.id ? "Viewing" : state.completedStopIds.includes(stop.id) ? "Done" : "Open"}
-                </span>
-              </button>
-            `)
-            .join("")}
+          ${selectedTour.stops.map((stop) => renderStopRow(selectedTour, stop)).join("")}
         </div>
       </article>
     </section>
@@ -6032,31 +6665,31 @@ function renderDrawer() {
           </div>
           <div class="drawer-stats">
             <div><strong>${tour.title}</strong><span>Tour collection</span></div>
-            <div><strong>${stop.radius}m</strong><span>Trigger radius</span></div>
+            <div><strong>${stop.radius}m</strong><span>Story radius</span></div>
             <div><strong>${state.completedStopIds.includes(stop.id) ? "Done" : "Upcoming"}</strong><span>Progress state</span></div>
           </div>
           <div class="drawer-copy">
-            <strong>Coordinates</strong>
+            <strong>Map point</strong>
             <p>${stop.lat.toFixed(4)}, ${stop.lng.toFixed(4)}</p>
           </div>
           <div class="drawer-copy">
-            <strong>Narration source</strong>
-            <p>${getNarrationLabel(stop.id)}${state.narrationState.source === "speech" ? " using Amy when available" : ""}</p>
+            <strong>Narration</strong>
+            <p>${getNarrationLabel(stop.id)}</p>
           </div>
           <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
             <strong>${audioAccess.pill}</strong>
             <p>${audioAccess.message}${audioAccess.cta ? ` ${audioAccess.cta}` : ""}</p>
           </div>
           <div class="drawer-copy">
-            <strong>Model readiness</strong>
+            <strong>AR preview</strong>
             <p>${
               arOverlayMeta?.webModelAvailable
-                ? `Web preview available at ${resolvedModelUrl}`
+                ? "A web AR preview is available for this stop."
                 : arOverlayMeta?.iosModelAvailable
-                  ? "An iOS model exists for this stop, but there is no deployed web model yet."
+                  ? "A mobile AR scene is prepared for this stop."
                   : arOverlayMeta?.modelUrl
-                    ? `This stop has a planned web model target (${resolvedModelUrl}) but the runtime file has not been deployed yet.`
-                    : "No model target is attached to this stop yet."
+                    ? "An AR moment is planned for this stop."
+                    : "This stop currently uses story, map, and audio guidance."
             }</p>
           </div>
           <div class="variant-toggle">
@@ -6071,7 +6704,7 @@ function renderDrawer() {
               data-stop-id="${stop.id}"
               ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
             >
-              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play Amy fallback"}
+              ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play recorded narration" : "Play preview narration"}
             </button>
             ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
           </div>
@@ -6116,12 +6749,12 @@ function renderArTab(selectedTour) {
     : false;
   const arDistanceLabel =
     state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m` : effectiveStop && state.ar.locationReady ? "Located" : "Locating";
-  const arRangeLabel = state.ar.inRange ? "Within trigger radius" : "Move closer to trigger";
+  const arRangeLabel = state.ar.inRange ? "Within arrival zone" : "Move closer to the stop";
   const arCameraLabel = state.ar.cameraReady ? "Camera live" : "Camera pending";
   const arGpsLabel = state.ar.locationReady ? "GPS locked" : "Acquiring GPS";
   const arCoordinateLabel = getArCoordinateLabel();
-  const focusStateLabel = state.ar.inRange ? "Ready to trigger" : effectiveStop && state.ar.locationReady ? "Located" : state.ar.locationReady ? "Navigating" : "Scanning";
-  const focusAutomationLabel = state.ar.autoNarrationEnabled ? "Auto narration armed" : "Manual narration";
+  const focusStateLabel = state.ar.inRange ? "Ready for the story" : effectiveStop && state.ar.locationReady ? "Located" : state.ar.locationReady ? "Navigating" : "Finding your place";
+  const focusAutomationLabel = state.ar.autoNarrationEnabled ? "Auto narration on" : "Manual narration";
   const focusSourceLabel =
     nearestStop && nearestStopTour?.id === selectedTour.id ? "Following nearest live stop" : "Following selected route stop";
   const audioAccess = effectiveStop ? getAudioAccessSummary(effectiveStop.id) : getAudioAccessSummary("");
@@ -6151,12 +6784,12 @@ function renderArTab(selectedTour) {
       <article class="panel panel--hero-callout">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Launch mode</p>
-            <h3>AR camera handoff for when you are already on location</h3>
+            <p class="eyebrow">On-site mode</p>
+            <h3>AR guide for when you are already near a stop</h3>
           </div>
           <span class="status-pill ${state.ar.mode === "live" ? "is-live" : ""}">${state.ar.mode === "live" ? "Live now" : "Standby"}</span>
         </div>
-        <p class="lede">Use the AR tab after you have chosen a route and reached the area. It helps you orient, trigger nearby stops, and keep narration moving without guessing what to do next.</p>
+        <p class="lede">Use the AR tab after you have chosen a route and reached the area. It helps you orient, open nearby stops, and keep narration moving without guessing what to do next.</p>
         <div class="quick-start-grid">
           <article class="quick-start-card">
             <span class="quick-start-step">1</span>
@@ -6166,12 +6799,12 @@ function renderArTab(selectedTour) {
           <article class="quick-start-card">
             <span class="quick-start-step">2</span>
             <strong>Reach the site</strong>
-            <p>Walk into the trigger radius and let the stop become active.</p>
+            <p>Walk into the arrival zone and let the stop become active.</p>
           </article>
           <article class="quick-start-card">
             <span class="quick-start-step">3</span>
             <strong>Hear the story</strong>
-            <p>Use phone audio or Bluetooth glasses for the narration handoff.</p>
+            <p>Use phone audio, headphones, or supported glasses for narration.</p>
           </article>
         </div>
       </article>
@@ -6179,8 +6812,8 @@ function renderArTab(selectedTour) {
       <article class="panel ar-live-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">AR live</p>
-            <h3>Camera-first field mode</h3>
+            <p class="eyebrow">Camera guide</p>
+            <h3>Camera-first route view</h3>
           </div>
           <span class="status-pill">${state.ar.mode === "live" ? "AR Live" : "Standby"}</span>
         </div>
@@ -6205,9 +6838,9 @@ function renderArTab(selectedTour) {
         </div>
         <div class="button-row">
           <button type="button" class="primary-button" data-action="${state.ar.mode === "live" ? "stop-ar-live" : "start-ar-live"}">
-            ${state.ar.mode === "live" ? "Stop AR Live" : "Launch AR Camera"}
+            ${state.ar.mode === "live" ? "Stop Camera Guide" : "Launch Camera Guide"}
           </button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open Compass</button>
         </div>
         ${state.ar.error ? `<div class="drawer-copy"><strong>Status</strong><p>${state.ar.error}</p></div>` : ""}
         ${headsetMarkup}
@@ -6246,8 +6879,8 @@ function renderArTab(selectedTour) {
             <p>${state.ar.distanceToNearestM !== null ? `${state.ar.distanceToNearestM}m away` : "Waiting for location lock"}</p>
           </div>
           <div>
-            <strong>Range trigger</strong>
-            <p>${effectiveStop ? `${effectiveStop.radius}m activation radius` : "No stop selected"}</p>
+            <strong>Arrival zone</strong>
+            <p>${effectiveStop ? `${effectiveStop.radius}m story radius` : "No stop selected"}</p>
           </div>
         </div>
         ${
@@ -6256,7 +6889,7 @@ function renderArTab(selectedTour) {
               <div class="focus-stop-rail">
                 <div class="focus-stop-rail__header">
                   <strong>Route controls</strong>
-                  <span>Stop ${activeStopIndex + 1} of ${selectedTour.stops.length}</span>
+                  <span>${getStopStateLabel(getStopPresentationState(selectedTour, effectiveStop))} stop · ${selectedTour.stops.length} on this route</span>
                 </div>
                 <div class="focus-stop-rail__actions">
                   <button type="button" class="ghost-button" data-action="select-prev-stop" ${previousStop ? "" : "disabled"}>
@@ -6269,14 +6902,14 @@ function renderArTab(selectedTour) {
                 <div class="focus-stop-rail__list">
                   ${selectedTour.stops
                     .map(
-                      (stop, index) => `
+                      (stop) => `
                         <button
                           type="button"
-                          class="focus-stop-pill ${effectiveStop.id === stop.id ? "active" : ""}"
+                          class="focus-stop-pill focus-stop-pill--${getStopPresentationState(selectedTour, stop)} ${effectiveStop.id === stop.id ? "active" : ""}"
                           data-action="select-stop"
                           data-stop-id="${stop.id}"
                         >
-                          <span>${index + 1}</span>
+                          <span>${getStopStateGlyph(getStopPresentationState(selectedTour, stop))} ${getStopStateLabel(getStopPresentationState(selectedTour, stop))}</span>
                           <strong>${stop.title}</strong>
                         </button>
                       `
@@ -6294,7 +6927,7 @@ function renderArTab(selectedTour) {
                   <p>${effectiveStop.fullAddress || effectiveStop.locationLabel || effectiveStop.title}</p>
                 </div>
                 <div>
-                  <strong>Coordinates</strong>
+                  <strong>Map point</strong>
                   <p>${effectiveStop.lat.toFixed(5)}, ${effectiveStop.lng.toFixed(5)}</p>
                 </div>
                 <div>
@@ -6312,7 +6945,7 @@ function renderArTab(selectedTour) {
                   Open in maps
                 </a>
                 <button type="button" class="ghost-button" data-action="select-stop" data-stop-id="${effectiveStop.id}">Lock this stop</button>
-                <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open route backup</button>
+                <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Open Compass</button>
               </div>
               ${state.glassesModeNotice ? `<div class="drawer-copy"><strong>Status</strong><p>${state.glassesModeNotice}</p></div>` : ""}
               <div class="button-row">
@@ -6320,7 +6953,7 @@ function renderArTab(selectedTour) {
                   ${state.ar.autoNarrationEnabled ? "Auto narration on" : "Auto narration off"}
                 </button>
                 <button type="button" class="ghost-button ${state.glassesMode ? "active" : ""}" data-action="toggle-glasses-mode">
-                  ${state.glassesMode ? "Glasses audio on" : "Glasses audio off"}
+                  ${state.glassesMode ? "Bluetooth audio on" : "Phone audio"}
                 </button>
               </div>
               <div class="drawer-copy ${audioAccess.locked ? "emphasis" : ""}">
@@ -6335,7 +6968,7 @@ function renderArTab(selectedTour) {
                   data-stop-id="${effectiveStop.id}"
                   ${narrationMode === "none" || (!isNarrating && audioAccess.locked) ? "disabled" : ""}
                 >
-                  ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play stop narration" : "Play Amy fallback"}
+                  ${isNarrating ? "Stop narration" : narrationMode === "recorded" ? "Play stop narration" : "Play preview narration"}
                 </button>
                 <button type="button" class="ghost-button" data-action="open-stop-drawer" data-stop-id="${effectiveStop.id}">Open stop brief</button>
                 ${audioAccess.locked ? '<button type="button" class="ghost-button" data-action="start-upgrade-checkout">Unlock full audio</button>' : ""}
@@ -6345,7 +6978,7 @@ function renderArTab(selectedTour) {
             : ""
         }
         <div class="button-row">
-          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">Inspect stops</button>
+          <button type="button" class="primary-button" data-action="set-tab" data-tab="map">View stops</button>
           <button type="button" class="ghost-button" data-action="select-tour" data-tour-id="${selectedTour.id}">Keep this route selected</button>
         </div>
       </article>
@@ -6621,12 +7254,13 @@ function renderProgressTab(globalStats) {
             </div>
             <div class="timeline">
               ${activeTour.stops.slice(0, 8).map((stop, index) => {
+                const stopState = getStopPresentationState(activeTour, stop);
                 const done = completedStopSet.has(stop.id);
                 const open = openedStopSet.has(stop.id) || narratedStopSet.has(stop.id);
                 return `
                   <div class="timeline-row">
-                    <span class="timeline-dot ${done ? "done" : open ? "open" : ""}">${index + 1}</span>
-                    <div><strong>${stop.title}</strong><span>${done ? "Completed" : open ? "In progress" : "Locked"}</span></div>
+                    <span class="timeline-dot timeline-dot--${stopState} ${done ? "done" : open ? "open" : ""}">${getStopStateGlyph(stopState)}</span>
+                    <div><strong>${stop.title}</strong><span>${getStopStateLabel(stopState)}</span></div>
                   </div>
                 `;
               }).join("")}
@@ -6881,8 +7515,15 @@ async function initStopStreetView(selectedStop, elementId = "stop-street-view") 
   }
 
   const streetViewConfig = getStopStreetViewConfig(selectedStop);
+  const fallbackPosition = streetViewConfig?.viewpoint || streetViewConfig?.targetPosition || getRenderableLatLng(selectedStop);
+  const fallbackEmbedMarkup = fallbackPosition
+    ? buildGoogleLatLngEmbedMarkup(fallbackPosition, `${selectedStop.title} location preview`, 16)
+    : "";
   if (!streetViewConfig) {
-    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("This stop does not have a map preview yet.");
+    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup(
+      "This stop does not have a map preview yet.",
+      fallbackEmbedMarkup
+    );
     return;
   }
 
@@ -6893,7 +7534,10 @@ async function initStopStreetView(selectedStop, elementId = "stop-street-view") 
     maps = await loadGoogleMapsApi();
   } catch (error) {
     if (document.getElementById(elementId) === streetViewElement && requestToken === stopStreetViewRequestToken) {
-      streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup((error && error.message) || "Unable to load Google Street View.");
+      streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup(
+        (error && error.message) || "Unable to load Google Street View.",
+        fallbackEmbedMarkup
+      );
     }
     return;
   }
@@ -6908,7 +7552,10 @@ async function initStopStreetView(selectedStop, elementId = "stop-street-view") 
   }
 
   if (!resolvedStreetViewLocation && !streetViewConfig.panoId) {
-    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("This stop does not have a mappable address or coordinate for Street View yet.");
+    streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup(
+      "This stop does not have a mappable address or coordinate for Street View yet.",
+      fallbackEmbedMarkup
+    );
     return;
   }
 
@@ -6932,7 +7579,10 @@ async function initStopStreetView(selectedStop, elementId = "stop-street-view") 
       }
 
       if (status !== maps.StreetViewStatus.OK || !data?.location?.pano) {
-        streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup("Google Street View imagery is not available close to this stop yet.");
+        streetViewElement.innerHTML = buildStopStreetViewFallbackMarkup(
+          "Google Street View imagery is not available close to this stop yet.",
+          fallbackEmbedMarkup
+        );
         return;
       }
 
@@ -6977,13 +7627,20 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
 
   const renderableStops = getRenderableStops(selectedTour?.stops || []);
   const activeRenderableStop = renderableStops.find((stop) => stop.id === selectedStop?.id) ?? renderableStops[0] ?? null;
+  const fallbackCenter = activeRenderableStop
+    ? { lat: activeRenderableStop.lat, lng: activeRenderableStop.lng }
+    : { lat: 39.9526, lng: -75.1652 };
 
   let maps;
   try {
     maps = await loadGoogleMapsApi();
   } catch (error) {
     if (document.getElementById(elementId) === mapElement) {
-      mapElement.innerHTML = `<div class="route-map-fallback"><div><strong>Google map unavailable</strong><span>${escapeHtml((error && error.message) || "Unable to load the map.")}</span></div></div>`;
+      mapElement.innerHTML = buildRouteMapFallbackMarkup({
+        position: fallbackCenter,
+        title: `${selectedTour.title} route preview`,
+        message: (error && error.message) || "Unable to load the interactive map."
+      });
     }
     return;
   }
@@ -7004,25 +7661,24 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
       ? { mapTypeId: "hybrid" }
       : { styles: buildGoogleShellMapStyles(), mapTypeId: "roadmap" }),
     backgroundColor: "#141b2d",
-    ...(getGoogleMapsMapId() ? { mapId: getGoogleMapsMapId() } : {})
+    center: fallbackCenter,
+    zoom: 14
   });
 
   routeMapLayers = [];
 
   const bounds = new maps.LatLngBounds();
-  const fallbackCenter = activeRenderableStop
-    ? { lat: activeRenderableStop.lat, lng: activeRenderableStop.lng }
-    : { lat: 39.9526, lng: -75.1652 };
 
   renderableStops.forEach((stop) => {
+    const stopState = getStopPresentationState(selectedTour, stop);
     const isSelected = stop.id === selectedStop.id;
     const isDone = state.completedStopIds.includes(stop.id);
     const marker = new maps.Marker({
       map: routeMap,
       position: { lat: stop.lat, lng: stop.lng },
-      title: `${stop.originalIndex + 1}. ${stop.title}`,
+      title: `${getStopStateLabel(stopState)} stop: ${stop.title}`,
       label: {
-        text: String(stop.originalIndex + 1),
+        text: getStopStateGlyph(stopState),
         color: isSelected ? "#6b3b2f" : "#fffaf5",
         fontWeight: "700"
       },
@@ -7211,11 +7867,12 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     const selectedStopId = state.selectedStopId;
 
     focusedRenderableStops.forEach((stop) => {
+      const stopState = getStopPresentationState(focusedTour, stop);
       const isSelected = stop.id === selectedStopId;
       const marker = createHomeMarker({
         position: { lat: stop.lat, lng: stop.lng },
-        title: `${stop.originalIndex + 1}. ${stop.title}`,
-        glyphText: String(stop.originalIndex + 1),
+        title: `${getStopStateLabel(stopState)} stop: ${stop.title}`,
+        glyphText: getStopStateGlyph(stopState),
         color: isSelected ? accent?.[1] || "#f1d1b2" : accent?.[0] || "#b45b3d",
         borderColor: isSelected ? accent?.[0] || "#b45b3d" : "#fffaf5",
         glyphColor: isSelected ? "#6b3b2f" : "#fffaf5",
@@ -7243,14 +7900,15 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
         state.routePageTourId = null;
         state.home.focusTourId = tour.id;
         state.selectedTourId = tour.id;
-        state.selectedStopId = stopId ?? leadStop.id ?? state.selectedStopId;
+        state.selectedStopId = stopId ?? getRecommendedNextStop(tour)?.id ?? leadStop.id ?? state.selectedStopId;
+        clearStopAccessNote();
         render();
       };
 
       const marker = createHomeMarker({
         position: { lat: leadStop.lat, lng: leadStop.lng },
         title: tour.title,
-        glyphText: String(index + 1),
+        glyphText: getThemeGlyph(tour.theme),
         color: accent?.[0] || "#5c45ff",
         borderColor: "#fffaf5",
         glyphColor: "#fffaf5",
@@ -7297,7 +7955,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
       : focusedRenderableStops[0]
         ? { lat: focusedRenderableStops[0].lat, lng: focusedRenderableStops[0].lng }
         : collectionCenter,
-    title: focusedTour ? focusedTour.title : "Philly Tours",
+    title: focusedTour ? focusedTour.title : SITE_NAME,
     zoom: focusedTour ? 14 : 12,
     maps,
     map: routeMap

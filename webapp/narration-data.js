@@ -2,39 +2,167 @@
 // Sources: src/data/narrationCatalog.ts, src/data/narrationScriptMap.ts
 window.PHILLY_TOURS_NARRATION = {
   "catalogByStopId": {
-    "founders-demo-route-welcome-plaza": {
+    "mother-bethel": {
       "drive": "",
       "walk": ""
     },
-    "founders-demo-route-story-corner": {
+    "presidents-house": {
       "drive": "",
       "walk": ""
     },
-    "founders-demo-route-compass-garden": {
+    "johnson-house": {
       "drive": "",
       "walk": ""
     },
-    "founders-demo-route-finish-arch": {
+    "the-woodlands": {
+      "drive": "",
+      "walk": ""
+    },
+    "masonic-temple": {
+      "drive": "",
+      "walk": ""
+    },
+    "reading-terminal-market": {
+      "drive": "",
+      "walk": ""
+    },
+    "please-touch-museum": {
+      "drive": "",
+      "walk": ""
+    },
+    "shofuso": {
+      "drive": "",
+      "walk": ""
+    },
+    "alpha-phi-alpha": {
+      "drive": "",
+      "walk": ""
+    },
+    "delta-sigma-theta": {
+      "drive": "",
+      "walk": ""
+    },
+    "phi-beta-sigma": {
+      "drive": "",
+      "walk": ""
+    },
+    "iota-phi-theta": {
+      "drive": "",
+      "walk": ""
+    },
+    "the-palestra": {
+      "drive": "",
+      "walk": ""
+    },
+    "hampton-park": {
+      "drive": "",
+      "walk": ""
+    },
+    "joe-frazier": {
+      "drive": "",
+      "walk": ""
+    },
+    "overbrook": {
+      "drive": "",
+      "walk": ""
+    },
+    "library-company": {
+      "drive": "",
+      "walk": ""
+    },
+    "athenaeum": {
+      "drive": "",
+      "walk": ""
+    },
+    "free-library": {
+      "drive": "",
+      "walk": ""
+    },
+    "blockson": {
       "drive": "",
       "walk": ""
     }
   },
   "scriptMapByStopId": {
-    "founders-demo-route-welcome-plaza": {
-      "drive": "Welcome Plaza is ahead. This is a public demo stop used to show route narration without exposing production tour writing.",
-      "walk": "You are now at Welcome Plaza. This short sample narration exists only to demonstrate the public app flow."
+    "mother-bethel": {
+      "drive": "Mother Bethel AME Church is coming up on the Black American Legacy & Quaker Heritage. Founded in 1794 by Richard Allen, with layered storytelling and reconstruction potential.",
+      "walk": "You are at Mother Bethel AME Church on the Black American Legacy & Quaker Heritage. Founded in 1794 by Richard Allen, with layered storytelling and reconstruction potential."
     },
-    "founders-demo-route-story-corner": {
-      "drive": "Story Corner is ahead. In the private system, stops like this would carry richer historical narration and media.",
-      "walk": "You are now at Story Corner. This placeholder script shows where premium story content would normally appear."
+    "presidents-house": {
+      "drive": "President's House / Liberty Bell Center is coming up on the Black American Legacy & Quaker Heritage. A crucial stop for interpreting freedom, contradiction, and public memory in Independence Mall.",
+      "walk": "You are at President's House / Liberty Bell Center on the Black American Legacy & Quaker Heritage. A crucial stop for interpreting freedom, contradiction, and public memory in Independence Mall."
     },
-    "founders-demo-route-compass-garden": {
-      "drive": "Compass Garden is ahead. Use this demo stop to test navigation, progress, and guided movement in the public repo.",
-      "walk": "You are now at Compass Garden. The live production narration library is intentionally not stored in this public repository."
+    "johnson-house": {
+      "drive": "Johnson House is coming up on the Black American Legacy & Quaker Heritage. Underground Railroad history with room for figure-presence AR and route overlays.",
+      "walk": "You are at Johnson House on the Black American Legacy & Quaker Heritage. Underground Railroad history with room for figure-presence AR and route overlays."
     },
-    "founders-demo-route-finish-arch": {
-      "drive": "Finish Arch is ahead. This closes the sample route and marks the end of the public demo catalog.",
-      "walk": "You are now at Finish Arch. Real tour scripts, oral histories, and premium writing are kept outside the public repository."
+    "the-woodlands": {
+      "drive": "The Woodlands is coming up on the Black American Legacy & Quaker Heritage. A cemetery and mansion site where context cards and before/after scenes can do real narrative work.",
+      "walk": "You are at The Woodlands on the Black American Legacy & Quaker Heritage. A cemetery and mansion site where context cards and before/after scenes can do real narrative work."
+    },
+    "masonic-temple": {
+      "drive": "Masonic Temple is coming up on the Rainbow Girls Philadelphia. A dramatic anchor stop with ornament, ritual history, and strong visual framing.",
+      "walk": "You are at Masonic Temple on the Rainbow Girls Philadelphia. A dramatic anchor stop with ornament, ritual history, and strong visual framing."
+    },
+    "reading-terminal-market": {
+      "drive": "Reading Terminal Market is coming up on the Rainbow Girls Philadelphia. High-energy storytelling around gathering, commerce, and everyday Philadelphia life.",
+      "walk": "You are at Reading Terminal Market on the Rainbow Girls Philadelphia. High-energy storytelling around gathering, commerce, and everyday Philadelphia life."
+    },
+    "please-touch-museum": {
+      "drive": "Please Touch Museum is coming up on the Rainbow Girls Philadelphia. A destination stop that leans into play, imagination, and museum-centered discovery.",
+      "walk": "You are at Please Touch Museum on the Rainbow Girls Philadelphia. A destination stop that leans into play, imagination, and museum-centered discovery."
+    },
+    "shofuso": {
+      "drive": "Shofuso Japanese House & Garden is coming up on the Rainbow Girls Philadelphia. A quiet visual reset with garden atmosphere and place-based interpretation.",
+      "walk": "You are at Shofuso Japanese House & Garden on the Rainbow Girls Philadelphia. A quiet visual reset with garden atmosphere and place-based interpretation."
+    },
+    "alpha-phi-alpha": {
+      "drive": "Alpha Phi Alpha - 42nd & Chestnut is coming up on the Divine 9 Legacy Tour. An origin-point style stop with strong chapter storytelling possibilities.",
+      "walk": "You are at Alpha Phi Alpha - 42nd & Chestnut on the Divine 9 Legacy Tour. An origin-point style stop with strong chapter storytelling possibilities."
+    },
+    "delta-sigma-theta": {
+      "drive": "Delta Sigma Theta - 40th & Market is coming up on the Divine 9 Legacy Tour. A compact stop that can foreground service, organizing, and neighborhood presence.",
+      "walk": "You are at Delta Sigma Theta - 40th & Market on the Divine 9 Legacy Tour. A compact stop that can foreground service, organizing, and neighborhood presence."
+    },
+    "phi-beta-sigma": {
+      "drive": "Phi Beta Sigma - 44th & Market is coming up on the Divine 9 Legacy Tour. Good candidate for archival image stacks and chapter timelines.",
+      "walk": "You are at Phi Beta Sigma - 44th & Market on the Divine 9 Legacy Tour. Good candidate for archival image stacks and chapter timelines."
+    },
+    "iota-phi-theta": {
+      "drive": "Iota Phi Theta - Temple Greek Row is coming up on the Divine 9 Legacy Tour. A northward jump that broadens the legacy map beyond one campus cluster.",
+      "walk": "You are at Iota Phi Theta - Temple Greek Row on the Divine 9 Legacy Tour. A northward jump that broadens the legacy map beyond one campus cluster."
+    },
+    "the-palestra": {
+      "drive": "The Palestra is coming up on the Black American Sports. A classic arena stop with room for stat overlays and player memory cards.",
+      "walk": "You are at The Palestra on the Black American Sports. A classic arena stop with room for stat overlays and player memory cards."
+    },
+    "hampton-park": {
+      "drive": "Allen Iverson's Hampton Park Courts is coming up on the Black American Sports. Street-level basketball energy with compelling playground-to-legend framing.",
+      "walk": "You are at Allen Iverson's Hampton Park Courts on the Black American Sports. Street-level basketball energy with compelling playground-to-legend framing."
+    },
+    "joe-frazier": {
+      "drive": "Joe Frazier's Gym (Cloverlay) is coming up on the Black American Sports. A boxing landmark suited to layered archival storytelling and motion graphics.",
+      "walk": "You are at Joe Frazier's Gym (Cloverlay) on the Black American Sports. A boxing landmark suited to layered archival storytelling and motion graphics."
+    },
+    "overbrook": {
+      "drive": "Overbrook High School is coming up on the Black American Sports. A school site that expands the tour from stars to pipelines and institutions.",
+      "walk": "You are at Overbrook High School on the Black American Sports. A school site that expands the tour from stars to pipelines and institutions."
+    },
+    "library-company": {
+      "drive": "Library Company of Philadelphia is coming up on the Library Story Hop Tour. A compact but content-rich stop for collection-based storytelling.",
+      "walk": "You are at Library Company of Philadelphia on the Library Story Hop Tour. A compact but content-rich stop for collection-based storytelling."
+    },
+    "athenaeum": {
+      "drive": "Athenaeum of Philadelphia is coming up on the Library Story Hop Tour. An elegant design and architecture anchor with strong visual identity.",
+      "walk": "You are at Athenaeum of Philadelphia on the Library Story Hop Tour. An elegant design and architecture anchor with strong visual identity."
+    },
+    "free-library": {
+      "drive": "Free Library - Central Parkway is coming up on the Library Story Hop Tour. A civic-scale reading space that works for layered archive storytelling.",
+      "walk": "You are at Free Library - Central Parkway on the Library Story Hop Tour. A civic-scale reading space that works for layered archive storytelling."
+    },
+    "blockson": {
+      "drive": "Charles L. Blockson Collection is coming up on the Library Story Hop Tour. A stop that can spotlight preservation, Black archives, and scholarly stewardship.",
+      "walk": "You are at Charles L. Blockson Collection on the Library Story Hop Tour. A stop that can spotlight preservation, Black archives, and scholarly stewardship."
     }
   }
 };
