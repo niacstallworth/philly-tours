@@ -155,6 +155,12 @@ Core rules:
 - Rotate any token that appears in a screenshot or chat transcript.
 - Keep production API secrets on the backend host, not in the client bundle.
 
+## License
+
+This project is proprietary. No permission is granted to use, copy, modify, host, redistribute, reuse the design, or create derivative works without prior written permission.
+
+See `LICENSE`.
+
 ## Backend And Payments
 
 The sync server lives in `server/sync-server.js`.

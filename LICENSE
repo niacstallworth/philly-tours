@@ -1,1 +1,51 @@
+Proprietary License
+All Rights Reserved
 
+Copyright (c) 2026 Nia Stallworth / Founders Threads.
+
+Philly Tours, including its software, source code, compiled code, designs,
+visual identity, user interface, user experience, written content, route
+logic, route collections, narration scripts, audio assets, AR concepts,
+generated assets, documentation, branding, and all related materials, is
+proprietary and protected by copyright, trademark, trade dress, and other
+applicable intellectual property laws.
+
+No license is granted by making this repository or any related materials
+available. Unless you have prior written permission from the owner, you may
+not:
+
+- use, run, host, publish, deploy, or operate the software or service;
+- copy, modify, adapt, translate, reverse engineer, or create derivative
+  works from the software, design, content, routes, narration, or assets;
+- redistribute, sublicense, sell, rent, lease, transfer, or otherwise provide
+  any part of the project to another person or organization;
+- use the Philly Tours name, Founders Threads name, logos, branding, visual
+  style, route structure, tour concepts, product design, or trade dress;
+- train, fine-tune, evaluate, or otherwise develop machine learning or AI
+  systems using the source code, content, designs, narration, routes, or
+  assets;
+- remove or alter copyright, proprietary, attribution, or rights notices.
+
+Viewing this repository does not give you permission to use it. Forking,
+cloning, downloading, or accessing the repository is allowed only to the
+extent technically necessary to review the project with the owner's permission
+or as otherwise required by law.
+
+Third-party dependencies, SDKs, tools, and vendor materials remain governed
+by their own licenses. Nothing in this license changes the terms that apply
+to those third-party components.
+
+Any permission, partnership, commercial use, educational use, research use,
+or reuse of any portion of this project must be approved in writing by the
+owner before use.
+
+For permission requests, contact:
+
+info@foundersthreads.org
+
+THE PROJECT IS PROVIDED, IF AT ALL, "AS IS" AND WITHOUT WARRANTIES OF ANY
+KIND. THE OWNER DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. TO
+THE MAXIMUM EXTENT PERMITTED BY LAW, THE OWNER WILL NOT BE LIABLE FOR ANY
+CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM ACCESS TO OR USE OF THE
+PROJECT.
