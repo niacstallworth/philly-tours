@@ -81,6 +81,7 @@ const TOUR_GUIDE_NOTIFICATION_EMAIL = process.env.TOUR_GUIDE_NOTIFICATION_EMAIL 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
 const GOOGLE_MAPS_DEFAULT_REGION = (process.env.GOOGLE_MAPS_DEFAULT_REGION || "us").trim();
 const GOOGLE_MAPS_DEFAULT_LANGUAGE = (process.env.GOOGLE_MAPS_DEFAULT_LANGUAGE || "en").trim();
+const EXCLUDED_LAUNCH_TOUR_IDS = new Set(["founders-demo-route", "founders-premium-sample"]);
 
 function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
@@ -1407,9 +1408,10 @@ async function listAccessiblePrivateTours(actor) {
      from private_content.tours t
      left join private_content.tour_stops s on s.tour_id = t.id
      where t.is_published = true
+       and not (t.id = any($2::text[]))
      group by t.id
      order by t.sort_order asc, t.title asc`,
-    [activePlanIds]
+    [activePlanIds, [...EXCLUDED_LAUNCH_TOUR_IDS]]
   );
   return rows;
 }
@@ -1435,8 +1437,9 @@ async function getAccessiblePrivateTourDetail(tourId, actor) {
      from private_content.tours
      where id = $1
        and is_published = true
+       and not (id = any($2::text[]))
      limit 1`,
-    [tourId]
+    [tourId, [...EXCLUDED_LAUNCH_TOUR_IDS]]
   );
   const tour = tourResult.rows[0];
   if (!tour) {
