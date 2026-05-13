@@ -246,6 +246,7 @@ const narrationData = window.PHILLY_TOURS_NARRATION || {
   catalogByStopId: {},
   scriptMapByStopId: {}
 };
+const blogPosts = normalizeBlogPosts(window.PHILLY_TOURS_BLOG || []);
 const arData = window.PHILLY_TOURS_AR || {};
 const siteConfig = {
   ...(window.PHILLY_TOURS_CONFIG || {}),
@@ -304,20 +305,6 @@ const SOCIAL_CHANNELS = [
   }
 ];
 const RSS_FEED_PATH = "./rss.xml";
-const RSS_UPDATES = [
-  {
-    title: "New route drops",
-    detail: "Fresh walking and driving story collections as they go live."
-  },
-  {
-    title: "Pilot ride alerts",
-    detail: "Invites for field tests, premium audio launches, and heritage viewer updates."
-  },
-  {
-    title: "Founder notes",
-    detail: "Short product and curation updates pulled into one RSS feed."
-  }
-];
 const BOARD_LEVELS = [
   { title: "Visitor", minXp: 0 },
   { title: "Route Scout", minXp: 100 },
@@ -432,6 +419,9 @@ const state = {
   routePageTourId: null,
   home: {
     focusTourId: null
+  },
+  blog: {
+    selectedPostSlug: blogPosts[0]?.slug || ""
   },
   maps: {
     routePreviewsByTourId: {}
@@ -576,6 +566,36 @@ function normalizeTours(rawTours) {
   }
 
   return rawTours.map((tour) => normalizeTour(tour));
+}
+
+function normalizeBlogPosts(rawPosts) {
+  if (!Array.isArray(rawPosts)) {
+    return [];
+  }
+
+  return rawPosts
+    .filter((post) => post && post.slug && post.title)
+    .map((post) => ({
+      slug: String(post.slug).trim(),
+      title: String(post.title).trim(),
+      publishedAt: String(post.publishedAt || "").trim(),
+      excerpt: String(post.excerpt || "").trim(),
+      tags: Array.isArray(post.tags) ? post.tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+      bodyHtml: String(post.bodyHtml || "").trim(),
+      bodyText: String(post.bodyText || "").trim()
+    }))
+    .sort((a, b) => String(b.publishedAt).localeCompare(String(a.publishedAt)));
+}
+
+function getBlogPostBySlug(slug) {
+  if (!slug) {
+    return null;
+  }
+  return blogPosts.find((post) => post.slug === slug) || null;
+}
+
+function getRecentBlogPosts(limit = 3) {
+  return blogPosts.slice(0, Math.max(0, limit));
 }
 
 function normalizeTour(tour) {
@@ -3347,10 +3367,11 @@ function hydrateStateFromLocation() {
   const homeTour = params.get("homeTour");
   const drawerTour = params.get("drawerTour");
   const drawerStop = params.get("drawerStop");
+  const blogPost = params.get("post");
   const checkoutState = params.get("checkout");
   const pendingCheckoutPlanId = loadPendingCheckoutPlanId();
 
-  if (tab && ["home", "map", "ar", "progress", "profile"].includes(tab)) {
+  if (tab && ["home", "map", "ar", "progress", "blog", "profile"].includes(tab)) {
     state.activeTab = tab;
   }
 
@@ -3392,6 +3413,12 @@ function hydrateStateFromLocation() {
     state.drawer = { type: "tour", id: drawerTour };
   } else if (drawerStop && getStopById(drawerStop)) {
     state.drawer = { type: "stop", id: drawerStop };
+  }
+
+  if (blogPost && getBlogPostBySlug(blogPost)) {
+    state.blog.selectedPostSlug = blogPost;
+  } else if (state.activeTab === "blog") {
+    state.blog.selectedPostSlug = state.blog.selectedPostSlug || blogPosts[0]?.slug || "";
   }
 
   if (checkoutState === "success") {
@@ -3437,6 +3464,10 @@ function syncLocationHash() {
     params.set("drawerStop", state.drawer.id);
   }
 
+  if (normalizedTab === "blog" && state.blog.selectedPostSlug) {
+    params.set("post", state.blog.selectedPostSlug);
+  }
+
   const nextHash = params.toString();
   if (window.location.hash.replace(/^#/, "") !== nextHash) {
     window.history.replaceState(null, "", `#${nextHash}`);
@@ -3448,6 +3479,9 @@ function setActiveTab(nextTab) {
     stopArLive();
   }
   state.activeTab = nextTab;
+  if (nextTab === "blog" && !state.blog.selectedPostSlug) {
+    state.blog.selectedPostSlug = blogPosts[0]?.slug || "";
+  }
   if (nextTab !== "map") {
     state.routePageTourId = null;
   }
@@ -3509,6 +3543,26 @@ function handleClick(event) {
 
   if (action === "start-tour-guide-checkout") {
     startTourGuideCheckout();
+    return;
+  }
+
+  if (action === "open-blog-post") {
+    const post = getBlogPostBySlug(actionTarget.dataset.postSlug || "");
+    if (!post) {
+      return;
+    }
+    state.activeTab = "blog";
+    state.blog.selectedPostSlug = post.slug;
+    scrollViewportToTop();
+    render();
+    return;
+  }
+
+  if (action === "close-blog-post") {
+    state.activeTab = "blog";
+    state.blog.selectedPostSlug = "";
+    scrollViewportToTop();
+    render();
     return;
   }
 
@@ -4821,29 +4875,129 @@ function renderSocialIconStrip() {
 }
 
 function renderRssUpdates() {
+  const recentPosts = getRecentBlogPosts(3);
+  if (!recentPosts.length) {
+    return "";
+  }
+
   return `
     <div class="rss-updates-card">
       <div class="rss-updates-card__header">
         <div>
-          <strong>RSS updates</strong>
-          <p>Subscribe for route drops, launch notes, and pilot alerts.</p>
+          <strong>Latest posts</strong>
+          <p>Read route drops, launch notes, and guided-tour updates in the app or over RSS.</p>
         </div>
         <a class="ghost-button link-button" href="${RSS_FEED_PATH}" target="_blank" rel="noreferrer">Open feed</a>
       </div>
       <div class="rss-update-list">
-        ${RSS_UPDATES.map(
+        ${recentPosts.map(
           (item) => `
             <article class="rss-update-item">
-              <span class="rss-pill">RSS</span>
+              <span class="rss-pill">Blog</span>
               <div>
-                <strong>${item.title}</strong>
-                <p>${item.detail}</p>
+                <strong>${escapeHtml(item.title)}</strong>
+                <p>${escapeHtml(item.excerpt)}</p>
               </div>
+              <button type="button" class="ghost-button rss-update-item__action" data-action="open-blog-post" data-post-slug="${escapeHtml(item.slug)}">Read</button>
             </article>
           `
         ).join("")}
       </div>
     </div>
+  `;
+}
+
+function formatBlogPublishedDate(value) {
+  if (!value) {
+    return "Recent post";
+  }
+
+  const date = new Date(`${value}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).format(date);
+}
+
+function renderBlogTab() {
+  const selectedPost = getBlogPostBySlug(state.blog.selectedPostSlug) || blogPosts[0] || null;
+
+  if (!blogPosts.length) {
+    return `
+      <section class="section-grid blog-grid">
+        <article class="panel blog-empty-state">
+          <p class="eyebrow">Blog</p>
+          <h3>Posts are coming soon</h3>
+          <p class="lede">This space will hold route notes, launch updates, and guide commentary from Founders Threads.</p>
+        </article>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="section-grid blog-grid">
+      <article class="panel blog-rail">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Blog</p>
+            <h3>Founder notes and route updates</h3>
+          </div>
+          <span class="status-pill">${blogPosts.length} posts</span>
+        </div>
+        <p class="lede">Read launch notes, guided-tour updates, and curation decisions directly inside the webapp.</p>
+        <div class="button-row compact">
+          <a class="ghost-button link-button" href="${RSS_FEED_PATH}" target="_blank" rel="noreferrer">Open RSS feed</a>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse tours</button>
+        </div>
+        <div class="blog-post-list">
+          ${blogPosts
+            .map(
+              (post) => `
+                <button
+                  type="button"
+                  class="blog-post-card ${selectedPost?.slug === post.slug ? "active" : ""}"
+                  data-action="open-blog-post"
+                  data-post-slug="${escapeHtml(post.slug)}"
+                >
+                  <span class="blog-post-card__date">${escapeHtml(formatBlogPublishedDate(post.publishedAt))}</span>
+                  <strong>${escapeHtml(post.title)}</strong>
+                  <p>${escapeHtml(post.excerpt)}</p>
+                  <div class="blog-tag-row">
+                    ${post.tags.map((tag) => `<span class="chip">${escapeHtml(tag)}</span>`).join("")}
+                  </div>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      </article>
+      <article class="panel blog-post-panel">
+        ${
+          selectedPost
+            ? `
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Founder post</p>
+                  <h3>${escapeHtml(selectedPost.title)}</h3>
+                </div>
+                <span class="status-pill">${escapeHtml(formatBlogPublishedDate(selectedPost.publishedAt))}</span>
+              </div>
+              <div class="blog-tag-row blog-tag-row--header">
+                ${selectedPost.tags.map((tag) => `<span class="chip">${escapeHtml(tag)}</span>`).join("")}
+              </div>
+              <div class="blog-post-content">${selectedPost.bodyHtml}</div>
+            `
+            : `
+              <p class="lede">Choose a post to read the latest Founders Threads update.</p>
+            `
+        }
+      </article>
+    </section>
   `;
 }
 
@@ -4988,6 +5142,8 @@ function renderActiveTab(selectedTour, selectedStop, globalStats) {
       return renderArTab(selectedTour);
     case "progress":
       return renderProgressTab(globalStats);
+    case "blog":
+      return renderBlogTab();
     case "profile":
       return renderProfileTab();
     default:
@@ -6616,7 +6772,7 @@ function renderProfileTab() {
         <div class="button-row">
           <a class="primary-button link-button" href="mailto:${CONTACT_EMAIL}">Contact us</a>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse tours</button>
-          <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Resume route</button>
+          <button type="button" class="ghost-button" data-action="set-tab" data-tab="blog">Read the blog</button>
         </div>
         <div class="native-ar-notice">
           <strong>For the full AR experience, use the mobile app.</strong>

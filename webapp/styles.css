@@ -225,6 +225,7 @@ button {
 .route-grid,
 .ar-grid,
 .progress-grid,
+.blog-grid,
 .profile-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -239,6 +240,106 @@ button {
   gap: 16px;
   align-items: flex-start;
   margin-bottom: 16px;
+}
+
+.blog-rail,
+.blog-post-panel {
+  min-height: 100%;
+}
+
+.blog-post-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.blog-post-card {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  text-align: left;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(36, 48, 58, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.blog-post-card:hover,
+.blog-post-card.active {
+  transform: translateY(-2px);
+  border-color: rgba(92, 61, 244, 0.26);
+  box-shadow: 0 18px 34px rgba(55, 67, 81, 0.08);
+}
+
+.blog-post-card strong,
+.blog-post-content h1,
+.blog-post-content h2,
+.blog-post-content h3 {
+  font-family: "Fraunces", serif;
+  letter-spacing: -0.02em;
+}
+
+.blog-post-card p,
+.blog-post-content p,
+.blog-post-content li,
+.blog-post-card__date {
+  color: var(--muted);
+}
+
+.blog-post-card__date {
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.blog-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.blog-tag-row--header {
+  margin: 0 0 18px;
+}
+
+.blog-post-content {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.blog-post-content h1,
+.blog-post-content h2,
+.blog-post-content h3 {
+  margin: 1.35em 0 0.5em;
+  color: var(--ink);
+}
+
+.blog-post-content p,
+.blog-post-content ul {
+  margin: 0 0 1rem;
+}
+
+.blog-post-content ul {
+  padding-left: 1.2rem;
+}
+
+.blog-post-content a {
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.blog-post-content code {
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(92, 61, 244, 0.1);
+  color: var(--accent-deep);
+  font-size: 0.92em;
+}
+
+.blog-empty-state {
+  grid-column: 1 / -1;
 }
 
 .panel h3 {
@@ -726,9 +827,9 @@ button {
 
 .rss-update-item {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 12px;
-  align-items: start;
+  align-items: center;
   padding: 14px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.78);
@@ -743,6 +844,10 @@ button {
 .rss-update-item p {
   margin: 4px 0 0;
   color: var(--muted);
+}
+
+.rss-update-item__action {
+  justify-self: end;
 }
 
 .rss-pill {
@@ -1689,6 +1794,7 @@ button {
   .route-grid,
   .ar-grid,
   .progress-grid,
+  .blog-grid,
   .profile-grid {
     grid-template-columns: 1fr;
   }
