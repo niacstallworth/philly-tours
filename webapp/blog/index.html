@@ -92,7 +92,7 @@
       <h1>A Founder’s Story</h1>
       <p>Follow A Founder's Story with founder-life photos, videos, route notes, guided-tour updates, and Philadelphia walking-tour commentary.</p>
     </header>
-      <section class="seo-link-grid" aria-label="Blog posts">
+      <section id="founder-story-list" class="seo-link-grid" aria-label="Blog posts" data-founder-story-list>
         <article class="seo-card">
           <img class="seo-card__media" src="/assets/images/founders-threads-profile.png" alt="Founders Threads portrait for A Founder's Story" loading="lazy" />
           <p class="seo-meta">2026-05-12</p>
@@ -109,5 +109,42 @@
         </article>
       </section>
     </main>
+    <script src="/site-config.js?v=20260420b"></script>
+    <script>
+      (function () {
+        var list = document.querySelector('[data-founder-story-list]');
+        var config = window.PHILLY_TOURS_CONFIG || {};
+        var syncServerUrl = String(config.syncServerUrl || 'https://api.philly-tours.com').replace(/\/+$/, '');
+        function escapeHtml(value) {
+          return String(value || '').replace(/[&<>\"]/g, function (char) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[char] || char;
+          });
+        }
+        function renderTags(tags) {
+          return (Array.isArray(tags) ? tags : []).map(function (tag) {
+            return '<span>' + escapeHtml(tag) + '</span>';
+          }).join('');
+        }
+        function renderCard(post) {
+          var slug = encodeURIComponent(post.slug || '');
+          var image = post.heroImage ? '<img class="seo-card__media" src="' + escapeHtml(post.heroImage) + '" alt="' + escapeHtml(post.heroImageAlt || post.title) + '" loading="lazy" />' : '';
+          return '<article class="seo-card">' +
+            image +
+            '<p class="seo-meta">' + escapeHtml(post.publishedAt || 'Recent story') + '</p>' +
+            '<h2><a href="/#tab=blog&post=' + slug + '">' + escapeHtml(post.title) + '</a></h2>' +
+            '<p>' + escapeHtml(post.excerpt) + '</p>' +
+            '<div class="seo-chip-row">' + renderTags(post.tags) + '</div>' +
+          '</article>';
+        }
+        if (!list || !syncServerUrl) { return; }
+        fetch(syncServerUrl + '/api/founder-story/posts')
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .then(function (payload) {
+            if (!payload || !Array.isArray(payload.posts) || !payload.posts.length) { return; }
+            list.innerHTML = payload.posts.map(renderCard).join('');
+          })
+          .catch(function () {});
+      })();
+    </script>
   </body>
 </html>

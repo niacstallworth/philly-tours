@@ -312,6 +312,63 @@ function loadBlogPosts() {
     .sort((a, b) => String(b.publishedAt).localeCompare(String(a.publishedAt)));
 }
 
+function normalizeCmsBlogPosts(posts) {
+  if (!Array.isArray(posts)) {
+    return [];
+  }
+  return posts
+    .filter((post) => post && post.slug && post.title)
+    .map((post) => {
+      const bodyMarkdown = String(post.bodyMarkdown || "").trim();
+      const bodyText = String(post.bodyText || "").trim() || stripMarkdown(bodyMarkdown);
+      return {
+        id: post.id == null ? "" : String(post.id),
+        slug: slugify(post.slug),
+        title: String(post.title || "").trim(),
+        publishedAt: String(post.publishedAt || "").trim(),
+        excerpt: String(post.excerpt || "").trim() || buildExcerpt(bodyText),
+        tags: Array.isArray(post.tags) ? post.tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+        heroImage: String(post.heroImage || "").trim(),
+        heroImageAlt: String(post.heroImageAlt || post.title || "").trim(),
+        videoUrl: String(post.videoUrl || "").trim(),
+        mediaCaption: String(post.mediaCaption || "").trim(),
+        gallery: Array.isArray(post.gallery)
+          ? post.gallery
+              .map((item) => ({
+                src: String(item?.src || "").trim(),
+                alt: String(item?.alt || "Founder life photo").trim(),
+                caption: String(item?.caption || "").trim()
+              }))
+              .filter((item) => item.src)
+          : [],
+        isPublished: post.isPublished !== false,
+        bodyHtml: String(post.bodyHtml || "").trim() || markdownToHtml(bodyMarkdown),
+        bodyText
+      };
+    })
+    .sort((a, b) => String(b.publishedAt).localeCompare(String(a.publishedAt)));
+}
+
+async function loadCmsBlogPosts() {
+  const syncServerUrl =
+    process.env.PHILLY_TOURS_FOUNDER_STORY_API_URL ||
+    process.env.EXPO_PUBLIC_WEB_SYNC_SERVER_URL ||
+    process.env.EXPO_PUBLIC_SYNC_SERVER_URL ||
+    "http://127.0.0.1:4000";
+  const endpoint = `${String(syncServerUrl).replace(/\/+$/, "")}/api/founder-story/posts`;
+  try {
+    const response = await fetch(endpoint);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || `Founder Story API returned ${response.status}`);
+    }
+    return normalizeCmsBlogPosts(payload.posts);
+  } catch (error) {
+    console.warn(`Unable to load CMS founder stories from ${endpoint}: ${error.message}`);
+    return [];
+  }
+}
+
 function renderRssXml(posts) {
   const lastBuildDate = posts[0]?.publishedAt
     ? new Date(`${posts[0].publishedAt}T12:00:00Z`).toUTCString()
@@ -395,7 +452,7 @@ function renderRobotsTxt() {
   ].join("\n");
 }
 
-function renderSeoShell({ title, description, canonicalPath, bodyClass = "seo-page", body, jsonLd = [], ogType = "website" }) {
+function renderSeoShell({ title, description, canonicalPath, bodyClass = "seo-page", body, jsonLd = [], ogType = "website", scripts = "" }) {
   const canonicalUrl = absoluteUrl(canonicalPath);
   const safeTitle = escapeHtml(title);
   const safeDescription = escapeHtml(description);
@@ -444,6 +501,7 @@ function renderSeoShell({ title, description, canonicalPath, bodyClass = "seo-pa
     "  </head>",
     `  <body class="${escapeHtml(bodyClass)}">`,
     body,
+    ...(scripts ? [scripts] : []),
     "  </body>",
     "</html>",
     ""
@@ -498,6 +556,48 @@ function renderPostMedia(post) {
   return media.join("\n");
 }
 
+function renderDynamicFounderStoryScript() {
+  return [
+    '    <script src="/site-config.js?v=20260420b"></script>',
+    "    <script>",
+    "      (function () {",
+    "        var list = document.querySelector('[data-founder-story-list]');",
+    "        var config = window.PHILLY_TOURS_CONFIG || {};",
+    "        var syncServerUrl = String(config.syncServerUrl || 'https://api.philly-tours.com').replace(/\\/+$/, '');",
+    "        function escapeHtml(value) {",
+    "          return String(value || '').replace(/[&<>\\\"]/g, function (char) {",
+    "            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '\\\"': '&quot;' }[char] || char;",
+    "          });",
+    "        }",
+    "        function renderTags(tags) {",
+    "          return (Array.isArray(tags) ? tags : []).map(function (tag) {",
+    "            return '<span>' + escapeHtml(tag) + '</span>';",
+    "          }).join('');",
+    "        }",
+    "        function renderCard(post) {",
+    "          var slug = encodeURIComponent(post.slug || '');",
+    "          var image = post.heroImage ? '<img class=\"seo-card__media\" src=\"' + escapeHtml(post.heroImage) + '\" alt=\"' + escapeHtml(post.heroImageAlt || post.title) + '\" loading=\"lazy\" />' : '';",
+    "          return '<article class=\"seo-card\">' +",
+    "            image +",
+    "            '<p class=\"seo-meta\">' + escapeHtml(post.publishedAt || 'Recent story') + '</p>' +",
+    "            '<h2><a href=\"/#tab=blog&post=' + slug + '\">' + escapeHtml(post.title) + '</a></h2>' +",
+    "            '<p>' + escapeHtml(post.excerpt) + '</p>' +",
+    "            '<div class=\"seo-chip-row\">' + renderTags(post.tags) + '</div>' +",
+    "          '</article>';",
+    "        }",
+    "        if (!list || !syncServerUrl) { return; }",
+    "        fetch(syncServerUrl + '/api/founder-story/posts')",
+    "          .then(function (response) { return response.ok ? response.json() : null; })",
+    "          .then(function (payload) {",
+    "            if (!payload || !Array.isArray(payload.posts) || !payload.posts.length) { return; }",
+    "            list.innerHTML = payload.posts.map(renderCard).join('');",
+    "          })",
+    "          .catch(function () {});",
+    "      })();",
+    "    </script>"
+  ].join("\n");
+}
+
 function renderStaticBlogIndex(posts) {
   const description =
     "Follow A Founder's Story with founder-life photos, videos, route notes, guided-tour updates, and Philadelphia walking-tour commentary.";
@@ -505,7 +605,7 @@ function renderStaticBlogIndex(posts) {
     '    <main class="seo-shell">',
     '      <a class="legal-back-link" href="/">Back to Philly Tours</a>',
     renderSeoHeader({ eyebrow: "A Founder's Story", title: "A Founder’s Story", description }),
-    '      <section class="seo-link-grid" aria-label="Blog posts">',
+    '      <section id="founder-story-list" class="seo-link-grid" aria-label="Blog posts" data-founder-story-list>',
     ...posts.map((post) =>
       [
         `        <article class="seo-card">`,
@@ -526,6 +626,7 @@ function renderStaticBlogIndex(posts) {
     description,
     canonicalPath: "/blog/",
     body,
+    scripts: renderDynamicFounderStoryScript(),
     jsonLd: [
       baseOrganizationSchema(),
       {
@@ -781,7 +882,9 @@ loadDotEnvFile(path.join(repoRoot, ".env.local"));
 loadDotEnvFile(path.join(repoRoot, ".env"));
 
 const tours = evaluateModule(sourcePath, "__tours", /export const tours\s*:\s*Tour\[\]\s*=/);
-const blogPosts = loadBlogPosts();
+const markdownBlogPosts = loadBlogPosts();
+const cmsBlogPosts = await loadCmsBlogPosts();
+const blogPosts = cmsBlogPosts.length ? cmsBlogPosts : markdownBlogPosts;
 const narrationCatalogByStopId = evaluateModule(
   narrationCatalogPath,
   "__narrationCatalogByStopId",
@@ -814,7 +917,7 @@ const narrationBanner = [
 
 const blogBanner = [
   "// Auto-generated by scripts/build-webapp-data.mjs",
-  "// Source: content/blog/*.md",
+  `// Source: ${cmsBlogPosts.length ? "Founder Story CMS" : "content/blog/*.md"}`,
   `window.PHILLY_TOURS_BLOG = ${JSON.stringify(blogPosts, null, 2)};`,
   ""
 ].join("\n");

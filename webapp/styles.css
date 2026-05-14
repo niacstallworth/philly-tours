@@ -471,6 +471,70 @@ button {
   line-height: 1.5;
 }
 
+.founder-story-editor {
+  grid-column: 1 / -1;
+}
+
+.founder-story-editor__layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.35fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.founder-story-editor__list {
+  display: grid;
+  gap: 12px;
+  max-height: 720px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.founder-story-editor__form {
+  display: grid;
+  gap: 12px;
+}
+
+.founder-story-editor__form label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.founder-story-editor__form input,
+.founder-story-editor__form textarea {
+  width: 100%;
+  border: 1px solid rgba(92, 61, 244, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.founder-story-editor__form textarea {
+  resize: vertical;
+}
+
+.founder-story-editor__check {
+  display: flex !important;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.founder-story-editor__check input {
+  width: auto;
+}
+
 .blog-empty-state {
   grid-column: 1 / -1;
 }
@@ -5529,6 +5593,10 @@ body {
   }
 
   .founder-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .founder-story-editor__layout {
     grid-template-columns: 1fr;
   }
 

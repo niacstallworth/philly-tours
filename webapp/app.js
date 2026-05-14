@@ -251,7 +251,7 @@ const narrationData = window.PHILLY_TOURS_NARRATION || {
   catalogByStopId: {},
   scriptMapByStopId: {}
 };
-const blogPosts = normalizeBlogPosts(window.PHILLY_TOURS_BLOG || []);
+let blogPosts = normalizeBlogPosts(window.PHILLY_TOURS_BLOG || []);
 const arData = window.PHILLY_TOURS_AR || {};
 const siteConfig = {
   ...(window.PHILLY_TOURS_CONFIG || {}),
@@ -490,6 +490,24 @@ const state = {
   blog: {
     selectedPostSlug: blogPosts[0]?.slug || ""
   },
+  founderStoryEditor: {
+    posts: [],
+    selectedPostId: "",
+    title: "",
+    slug: "",
+    publishedAt: new Date().toISOString().slice(0, 10),
+    excerpt: "",
+    tags: "founder story",
+    heroImage: "",
+    heroImageAlt: "",
+    videoUrl: "",
+    mediaCaption: "",
+    gallery: "",
+    bodyMarkdown: "",
+    isPublished: true,
+    status: "idle",
+    message: ""
+  },
   maps: {
     routePreviewsByTourId: {}
   },
@@ -567,6 +585,7 @@ initializeWebXRSupport().catch(() => undefined);
 initializeWebAuth();
 initializeWebPush().catch(() => undefined);
 refreshSupabaseTourCatalog({ render: true }).catch(() => undefined);
+refreshFounderStoryPosts({ render: true }).catch(() => undefined);
 
 function scrollViewportToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -672,6 +691,43 @@ function getBlogPostBySlug(slug) {
 
 function getRecentBlogPosts(limit = 3) {
   return blogPosts.slice(0, Math.max(0, limit));
+}
+
+function replaceFounderStoryPosts(nextPosts, options = {}) {
+  const normalizedPosts = normalizeBlogPosts(nextPosts);
+  if (!normalizedPosts.length) {
+    return;
+  }
+  blogPosts = normalizedPosts;
+  state.founderStoryEditor.posts = normalizedPosts;
+  if (!getBlogPostBySlug(state.blog.selectedPostSlug)) {
+    state.blog.selectedPostSlug = normalizedPosts[0]?.slug || "";
+  }
+  if (options.render !== false) {
+    render(false);
+  }
+}
+
+async function refreshFounderStoryPosts(options = {}) {
+  const syncServerUrl = getSyncServerUrl();
+  if (!syncServerUrl) {
+    return blogPosts;
+  }
+  const includeDrafts = options.includeDrafts === true && state.auth.session?.roles?.includes("admin");
+  const response = await fetch(`${syncServerUrl}/api/founder-story/posts${includeDrafts ? "?includeDrafts=true" : ""}`, {
+    method: "GET",
+    headers: {
+      ...(state.auth.authToken ? { Authorization: `Bearer ${state.auth.authToken}` } : {})
+    }
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || "Unable to load founder story posts.");
+  }
+  if (Array.isArray(payload.posts) && payload.posts.length) {
+    replaceFounderStoryPosts(payload.posts, { render: options.render !== false });
+  }
+  return blogPosts;
 }
 
 function pickStopMediaUrl(stop, kind, preferredVariants) {
@@ -2762,6 +2818,7 @@ async function initializeWebAuth() {
     });
     render(false);
     refreshSupabaseTourCatalog({ render: false }).catch(() => undefined);
+    refreshFounderStoryPosts({ includeDrafts: payload.session?.roles?.includes("admin"), render: true }).catch(() => undefined);
   } catch {
     state.auth.message = "Saved web session loaded. If Google actions fail, sign out and try once more.";
     render(false);
@@ -3875,6 +3932,31 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "new-founder-story-post") {
+    resetFounderStoryEditor();
+    render(false);
+    return;
+  }
+
+  if (action === "edit-founder-story-post") {
+    const postId = Number(actionTarget.dataset.postId || 0);
+    const post = state.founderStoryEditor.posts.find((item) => Number(item.id) === postId);
+    if (post) {
+      loadFounderStoryEditorPost(post);
+      render(false);
+    }
+    return;
+  }
+
+  if (action === "refresh-founder-story-posts") {
+    refreshFounderStoryPosts({ includeDrafts: true, render: true }).catch((error) => {
+      state.founderStoryEditor.status = "error";
+      state.founderStoryEditor.message = error.message || "Unable to refresh founder stories.";
+      render(false);
+    });
+    return;
+  }
+
   if (action === "sign-out-webapp") {
     stopNarration();
     stopArLive();
@@ -4220,6 +4302,20 @@ function handleInput(event) {
     }
     return;
   }
+
+  if (target.name?.startsWith("founder-story-")) {
+    const key = target.name.replace("founder-story-", "").replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    if (key === "isPublished") {
+      state.founderStoryEditor.isPublished = !!target.checked;
+    } else if (key in state.founderStoryEditor) {
+      state.founderStoryEditor[key] = target.value;
+    }
+    if (state.founderStoryEditor.status !== "idle") {
+      state.founderStoryEditor.status = "idle";
+      state.founderStoryEditor.message = "";
+    }
+    return;
+  }
 }
 
 function handleSubmit(event) {
@@ -4231,6 +4327,12 @@ function handleSubmit(event) {
   if (form.dataset.form === "webapp-auth") {
     event.preventDefault();
     submitWebappAuth();
+    return;
+  }
+
+  if (form.dataset.form === "founder-story-editor") {
+    event.preventDefault();
+    submitFounderStoryPost();
     return;
   }
 
@@ -5845,6 +5947,182 @@ function renderBlogPostMedia(post) {
     `);
   }
   return media.join("");
+}
+
+function parseFounderStoryTags(value) {
+  return String(value || "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function parseFounderStoryGallery(value) {
+  return String(value || "")
+    .split(";")
+    .map((item) => {
+      const [src, alt, caption] = item.split("|").map((part) => String(part || "").trim());
+      return src ? { src, alt: alt || "Founder life photo", caption: caption || "" } : null;
+    })
+    .filter(Boolean);
+}
+
+function stringifyFounderStoryGallery(gallery) {
+  return (gallery || [])
+    .map((item) => [item.src, item.alt, item.caption].filter((part) => String(part || "").trim()).join("|"))
+    .join("; ");
+}
+
+function resetFounderStoryEditor() {
+  state.founderStoryEditor = {
+    ...state.founderStoryEditor,
+    selectedPostId: "",
+    title: "",
+    slug: "",
+    publishedAt: new Date().toISOString().slice(0, 10),
+    excerpt: "",
+    tags: "founder story",
+    heroImage: "",
+    heroImageAlt: "",
+    videoUrl: "",
+    mediaCaption: "",
+    gallery: "",
+    bodyMarkdown: "",
+    isPublished: true,
+    status: "idle",
+    message: ""
+  };
+}
+
+function loadFounderStoryEditorPost(post) {
+  state.founderStoryEditor = {
+    ...state.founderStoryEditor,
+    selectedPostId: String(post.id || ""),
+    title: post.title || "",
+    slug: post.slug || "",
+    publishedAt: post.publishedAt || new Date().toISOString().slice(0, 10),
+    excerpt: post.excerpt || "",
+    tags: (post.tags || []).join(", "),
+    heroImage: post.heroImage || "",
+    heroImageAlt: post.heroImageAlt || "",
+    videoUrl: post.videoUrl || "",
+    mediaCaption: post.mediaCaption || "",
+    gallery: stringifyFounderStoryGallery(post.gallery || []),
+    bodyMarkdown: post.bodyMarkdown || post.bodyText || "",
+    isPublished: post.isPublished !== false,
+    status: "idle",
+    message: ""
+  };
+}
+
+async function submitFounderStoryPost() {
+  const editor = state.founderStoryEditor;
+  const syncServerUrl = getSyncServerUrl();
+  if (!syncServerUrl || !state.auth.authToken) {
+    editor.status = "error";
+    editor.message = "Admin sign-in is required to save founder stories.";
+    render(false);
+    return;
+  }
+  editor.status = "submitting";
+  editor.message = "Saving founder story...";
+  render(false);
+  try {
+    const isUpdate = !!editor.selectedPostId;
+    const response = await fetch(
+      `${syncServerUrl}/api/admin/founder-story/posts${isUpdate ? `/${encodeURIComponent(editor.selectedPostId)}` : ""}`,
+      {
+        method: isUpdate ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${state.auth.authToken}`
+        },
+        body: JSON.stringify({
+          slug: editor.slug,
+          title: editor.title,
+          excerpt: editor.excerpt,
+          tags: parseFounderStoryTags(editor.tags),
+          bodyMarkdown: editor.bodyMarkdown,
+          heroImage: editor.heroImage,
+          heroImageAlt: editor.heroImageAlt,
+          videoUrl: editor.videoUrl,
+          mediaCaption: editor.mediaCaption,
+          gallery: parseFounderStoryGallery(editor.gallery),
+          isPublished: editor.isPublished,
+          publishedAt: editor.publishedAt
+        })
+      }
+    );
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.post) {
+      throw new Error(payload.error || "Unable to save founder story.");
+    }
+    editor.status = "success";
+    editor.message = "Founder story saved.";
+    loadFounderStoryEditorPost(payload.post);
+    await refreshFounderStoryPosts({ includeDrafts: true, render: false });
+    render(false);
+  } catch (error) {
+    editor.status = "error";
+    editor.message = error.message || "Unable to save founder story.";
+    render(false);
+  }
+}
+
+function renderFounderStoryEditor() {
+  const activeUser = state.auth.session;
+  if (!activeUser?.roles?.includes("admin")) {
+    return "";
+  }
+  const editor = state.founderStoryEditor;
+  const posts = editor.posts.length ? editor.posts : blogPosts;
+  return `
+    <article class="panel founder-story-editor">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Founder Story CMS</p>
+          <h3>Edit A Founder’s Story</h3>
+        </div>
+        <span class="status-pill">${posts.length} posts</span>
+      </div>
+      <p class="lede">Create and update founder-life stories from the webapp. Published posts are served from the sync server when available, with the static files as fallback.</p>
+      <div class="button-row compact">
+        <button type="button" class="ghost-button" data-action="new-founder-story-post">New story</button>
+        <button type="button" class="ghost-button" data-action="refresh-founder-story-posts">Refresh stories</button>
+      </div>
+      <div class="founder-story-editor__layout">
+        <div class="founder-story-editor__list">
+          ${posts
+            .map(
+              (post) => `
+                <button type="button" class="blog-post-card ${String(post.id || "") === editor.selectedPostId ? "active" : ""}" data-action="edit-founder-story-post" data-post-id="${escapeHtml(post.id || "")}">
+                  ${post.heroImage ? `<img class="blog-post-card__media" src="${escapeHtml(post.heroImage)}" alt="${escapeHtml(post.heroImageAlt || post.title)}" loading="lazy" />` : ""}
+                  <span class="blog-post-card__date">${escapeHtml(formatBlogPublishedDate(post.publishedAt))}${post.isPublished === false ? " · Draft" : ""}</span>
+                  <strong>${escapeHtml(post.title)}</strong>
+                  <p>${escapeHtml(post.excerpt)}</p>
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+        <form class="founder-story-editor__form" data-form="founder-story-editor">
+          <label>Title<input name="founder-story-title" value="${escapeHtml(editor.title)}" required /></label>
+          <label>Slug<input name="founder-story-slug" value="${escapeHtml(editor.slug)}" placeholder="my-founder-story" /></label>
+          <label>Publish date<input type="date" name="founder-story-published-at" value="${escapeHtml(editor.publishedAt)}" /></label>
+          <label>Excerpt<textarea name="founder-story-excerpt" rows="3">${escapeHtml(editor.excerpt)}</textarea></label>
+          <label>Tags<input name="founder-story-tags" value="${escapeHtml(editor.tags)}" placeholder="founder story, photos" /></label>
+          <label>Hero photo URL<input name="founder-story-hero-image" value="${escapeHtml(editor.heroImage)}" placeholder="/assets/images/founder-photo.jpg" /></label>
+          <label>Hero alt text<input name="founder-story-hero-image-alt" value="${escapeHtml(editor.heroImageAlt)}" /></label>
+          <label>Video URL<input name="founder-story-video-url" value="${escapeHtml(editor.videoUrl)}" placeholder="/assets/videos/founder-clip.mp4" /></label>
+          <label>Media caption<textarea name="founder-story-media-caption" rows="2">${escapeHtml(editor.mediaCaption)}</textarea></label>
+          <label>Gallery<textarea name="founder-story-gallery" rows="3" placeholder="/assets/images/one.jpg|Alt|Caption; /assets/images/two.jpg|Alt|Caption">${escapeHtml(editor.gallery)}</textarea></label>
+          <label>Story body<textarea name="founder-story-body-markdown" rows="10">${escapeHtml(editor.bodyMarkdown)}</textarea></label>
+          <label class="founder-story-editor__check"><input type="checkbox" name="founder-story-is-published" ${editor.isPublished ? "checked" : ""} /> Published</label>
+          <button type="submit" class="primary-button" ${editor.status === "submitting" ? "disabled" : ""}>${editor.status === "submitting" ? "Saving..." : "Save story"}</button>
+          ${editor.message ? `<p class="subscription-status ${editor.status === "error" ? "error" : ""}" role="status">${escapeHtml(editor.message)}</p>` : ""}
+        </form>
+      </div>
+    </article>
+  `;
 }
 
 function renderBlogTab() {
@@ -7818,6 +8096,7 @@ function renderProfileTab() {
   return `
     <section class="section-grid profile-grid profile-grid--cinematic">
       ${renderSettingsSignInCard()}
+      ${renderFounderStoryEditor()}
       <article class="panel">
         <div class="panel-header">
           <div>
