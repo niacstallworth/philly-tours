@@ -4792,7 +4792,7 @@ function renderSettingsSignInCard() {
       <div class="panel-header">
         <div>
           <p class="eyebrow">Sign in</p>
-          <h3>${activeUser ? "You are signed in" : "Sign in with Google or Apple"}</h3>
+          <h3>${activeUser ? "You are signed in" : "Sign in or open admin tools"}</h3>
         </div>
         <span class="status-pill ${activeUser || hasProviderAuth ? "is-live" : ""}">${
           activeUser ? "Signed in" : hasProviderAuth ? "Ready" : "Invite list"
@@ -4804,7 +4804,25 @@ function renderSettingsSignInCard() {
               <strong>${escapeHtml(activeUser.displayName || activeUser.email || "Web session active")}</strong>
               <p>${escapeHtml(activeUser.email || "Your visit is saved on this device.")}</p>
             </div>`
-          : ""
+          : `
+            <form class="profile-admin-login-form" data-form="webapp-auth">
+              <label>
+                Display name
+                <input name="auth-display-name" value="${escapeHtml(state.auth.displayName)}" autocomplete="name" placeholder="Founder Admin" />
+              </label>
+              <label>
+                Email
+                <input type="email" name="auth-email" value="${escapeHtml(state.auth.email)}" autocomplete="email" placeholder="info@foundersthreads.org" required />
+              </label>
+              <label>
+                Admin password
+                <input type="password" name="auth-password" value="${escapeHtml(state.auth.password)}" autocomplete="current-password" placeholder="Builder/admin password" />
+              </label>
+              <button type="submit" class="primary-button" ${state.auth.status === "submitting" ? "disabled" : ""}>
+                ${state.auth.status === "submitting" ? "Signing in..." : "Sign in with email"}
+              </button>
+            </form>
+          `
       }
       <div class="auth-provider-row auth-provider-row--waiver">
         <button type="button" class="ghost-button auth-provider-button" data-action="oauth-sign-in" data-provider="google" ${providerButtonsEnabled ? "" : "disabled"}>
