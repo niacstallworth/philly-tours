@@ -556,6 +556,28 @@ function renderPostMedia(post) {
   return media.join("\n");
 }
 
+function renderSocialShareLinks({ url, title, text }) {
+  const encodedUrl = encodeURIComponent(url);
+  const encodedTitle = encodeURIComponent(title);
+  const encodedText = encodeURIComponent(text);
+  const emailSubject = encodeURIComponent(title);
+  const emailBody = encodeURIComponent(`${text}\n\n${url}`);
+
+  return [
+    '        <aside class="seo-share" aria-label="Share this story">',
+    '          <h2>Share this story</h2>',
+    '          <ul>',
+    `            <li><a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" rel="noopener noreferrer">Facebook</a></li>`,
+    `            <li><a href="https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}" target="_blank" rel="noopener noreferrer">X</a></li>`,
+    `            <li><a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>`,
+    `            <li><a href="https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>`,
+    `            <li><a href="mailto:?subject=${emailSubject}&body=${emailBody}">Email</a></li>`,
+    `            <li><a href="${escapeHtml(url)}">Permalink</a></li>`,
+    "          </ul>",
+    "        </aside>"
+  ].join("\n");
+}
+
 function renderDynamicFounderStoryScript() {
   return [
     '    <script src="/site-config.js?v=20260420b"></script>',
@@ -644,6 +666,7 @@ function renderStaticBlogIndex(posts) {
 
 function renderStaticBlogPost(post) {
   const canonicalPath = `/blog/${post.slug}/`;
+  const canonicalUrl = absoluteUrl(canonicalPath);
   const body = [
     '    <main class="seo-shell">',
     '      <a class="legal-back-link" href="/blog/">All blog posts</a>',
@@ -659,6 +682,11 @@ function renderStaticBlogPost(post) {
       .split("\n")
       .map((line) => `        ${line}`)
       .join("\n"),
+    renderSocialShareLinks({
+      url: canonicalUrl,
+      title: `${post.title} | A Founder's Story`,
+      text: post.excerpt
+    }),
     `        <p class="seo-action-row"><a class="primary-button" href="/#tab=blog&post=${encodeURIComponent(post.slug)}">Open in the webapp</a></p>`,
     "      </article>",
     "    </main>"

@@ -5575,6 +5575,47 @@ body {
   padding-top: 10px;
 }
 
+.seo-share {
+  margin-top: 28px;
+  border-top: 1px solid rgba(75, 20, 140, 0.14);
+  padding-top: 20px;
+}
+
+.seo-share h2 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.seo-share ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seo-share a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  border: 1px solid rgba(75, 20, 140, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0 13px;
+  color: var(--accent-deep);
+  font-size: 0.84rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.seo-share a:hover,
+.seo-share a:focus-visible {
+  border-color: rgba(0, 122, 51, 0.3);
+  background: rgba(0, 122, 51, 0.1);
+  color: var(--kelly-green);
+}
+
 .seo-route-summary {
   margin-bottom: 16px;
 }

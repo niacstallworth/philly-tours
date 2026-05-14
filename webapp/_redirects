@@ -1,3 +1,4 @@
+https://www.philly-tours.com/* https://philly-tours.com/:splat 301
 /blog /blog/index.html 200
 /blog/ /blog/index.html 200
 /blog/:slug /blog/:slug/index.html 200
