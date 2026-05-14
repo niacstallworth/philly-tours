@@ -1507,7 +1507,7 @@ function installGoogleMapHealthFallback({
   zoom = 14,
   maps,
   map,
-  mobileOnly = true
+  mobileOnly = false
 }) {
   if (!mapElement || !fallbackPosition) {
     return;
@@ -2191,6 +2191,38 @@ function getRoutePreviewPath(route) {
     )
     .map(([lat, lng]) => ({ lat, lng }))
     .filter(hasRenderableCoordinates);
+}
+
+function getDirectStopPath(stops) {
+  return getRenderableStops(stops || []).map((stop) => ({ lat: stop.lat, lng: stop.lng }));
+}
+
+function getRouteMapPathForTour(tour, variant = state.narrationVariant) {
+  if (!tour?.id) {
+    return [];
+  }
+
+  const previewPath = getRoutePreviewPath(getRoutePreviewRecord(tour.id, variant)?.route);
+  return previewPath.length >= 2 ? previewPath : getDirectStopPath(tour.stops);
+}
+
+function addRoutePolylineLayer({ maps, map, path, color = "#b45b3d", opacity = 0.9, weight = 4, zIndex = 20 }) {
+  if (!maps || !map || !Array.isArray(path) || path.length < 2) {
+    return null;
+  }
+
+  const polyline = new maps.Polyline({
+    map,
+    path,
+    clickable: false,
+    geodesic: true,
+    strokeColor: color,
+    strokeOpacity: opacity,
+    strokeWeight: weight,
+    zIndex
+  });
+  routeMapLayers.push(polyline);
+  return polyline;
 }
 
 function getRoutePreviewDisplay(tour, variant = state.narrationVariant) {
@@ -8365,12 +8397,20 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
   });
 
   routeMapLayers = [];
+  addRoutePolylineLayer({
+    maps,
+    map: routeMap,
+    path: getRouteMapPathForTour(selectedTour),
+    color: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? "#f1d1b2" : "#b45b3d",
+    opacity: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? 0.84 : 0.92,
+    weight: 5
+  });
 
   const bounds = new maps.LatLngBounds();
 
   renderableStops.forEach((stop) => {
     const stopState = getStopPresentationState(selectedTour, stop);
-    const isSelected = stop.id === selectedStop.id;
+    const isSelected = stop.id === selectedStop?.id;
     const isDone = state.completedStopIds.includes(stop.id);
     const marker = new maps.Marker({
       map: routeMap,
@@ -8481,7 +8521,12 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     maps = await loadGoogleMapsApi();
   } catch (error) {
     if (document.getElementById(elementId) === mapElement) {
-      mapElement.innerHTML = `<div class="route-map-fallback"><div><strong>Google map unavailable</strong><span>${escapeHtml((error && error.message) || "Unable to load the map.")}</span></div></div>`;
+      mapElement.innerHTML = buildRouteMapFallbackMarkup({
+        position: { lat: 39.9526, lng: -75.1652 },
+        title: SITE_NAME,
+        zoom: 12,
+        message: (error && error.message) || "Unable to load the map."
+      });
     }
     return;
   }
@@ -8490,8 +8535,15 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     return;
   }
 
-  const homeMapId = getGoogleMapsMapId() || "DEMO_MAP_ID";
-  const markerLibrary = await loadGoogleMapsMarkerLibrary(maps);
+  const homeMapId = getGoogleMapsMapId();
+  let markerLibrary = null;
+  if (homeMapId) {
+    try {
+      markerLibrary = await loadGoogleMapsMarkerLibrary(maps);
+    } catch (error) {
+      markerLibrary = null;
+    }
+  }
   const advancedMarkersAvailable = Boolean(homeMapId && markerLibrary?.AdvancedMarkerElement);
   const createHomeMarker = ({ position, title, glyphText, color, borderColor, glyphColor, scale, zIndex, onClick }) => {
     if (advancedMarkersAvailable) {
@@ -8564,6 +8616,14 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
   if (focusedTour) {
     const accent = getTourAccent(tours.findIndex((tour) => tour.id === focusedTour.id));
     const selectedStopId = state.selectedStopId;
+    addRoutePolylineLayer({
+      maps,
+      map: routeMap,
+      path: getRouteMapPathForTour(focusedTour),
+      color: accent?.[0] || "#b45b3d",
+      opacity: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? 0.78 : 0.9,
+      weight: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? 5 : 4
+    });
 
     focusedRenderableStops.forEach((stop) => {
       const stopState = getStopPresentationState(focusedTour, stop);
