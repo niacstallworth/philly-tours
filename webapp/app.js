@@ -2850,14 +2850,6 @@ async function startOAuthSignIn(provider) {
     return;
   }
 
-  if (getCloudflareTurnstileSiteKey() && !state.auth.turnstileToken) {
-    state.auth.status = "idle";
-    state.auth.message = "";
-    mountWebTurnstile();
-    render(false);
-    return;
-  }
-
   try {
     state.auth.status = "submitting";
     state.auth.message = `Redirecting to ${provider === "apple" ? "Apple" : "Google"}...`;
@@ -4715,8 +4707,7 @@ function renderAuthScreen() {
   const providerButtonsEnabled =
     hasProviderAuth &&
     hasSyncServer &&
-    state.auth.status !== "submitting" &&
-    (!hasSiteKey || !!state.auth.turnstileToken);
+    state.auth.status !== "submitting";
 
   return `
     <section class="auth-shell">
@@ -4784,8 +4775,7 @@ function renderSettingsSignInCard() {
   const providerButtonsEnabled =
     hasProviderAuth &&
     hasSyncServer &&
-    state.auth.status !== "submitting" &&
-    (!hasSiteKey || !!state.auth.turnstileToken);
+    state.auth.status !== "submitting";
 
   return `
     <article class="panel">
