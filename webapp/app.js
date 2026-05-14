@@ -5595,6 +5595,26 @@ function getSceneConfig(selectedTour, globalStats) {
           </article>
         `
       };
+    case "blog":
+      return {
+        eyebrow: "Founders Notes",
+        title: "Route drops, field notes, and launch updates.",
+        body: "Read the curation decisions, guided-tour launches, and story notes behind the Philly Tours routes.",
+        actions: [
+          { label: "Read latest", action: "open-blog-post", postSlug: blogPosts[0]?.slug || "", variant: "primary" },
+          { label: "Browse routes", action: "set-tab", tab: "map", variant: "ghost" }
+        ],
+        metrics: [],
+        floatingCard: `
+          <article class="hero-impact-card hero-impact-card--purple">
+            <span class="hero-impact-card__badge">Founder notes</span>
+            <strong class="hero-impact-card__number">${blogPosts.length || 0}</strong>
+            <span class="hero-impact-card__label">published updates</span>
+            <h3>${blogPosts[0] ? escapeHtml(blogPosts[0].title) : "Route notes are coming soon."}</h3>
+            <p>${blogPosts[0] ? escapeHtml(truncateCopy(blogPosts[0].excerpt, 132)) : "Follow route launches, guide updates, and curation notes."}</p>
+          </article>
+        `
+      };
     case "profile":
       return {
         eyebrow: "Philly Tours profile",
@@ -5881,6 +5901,7 @@ function renderSceneHero(selectedTour, globalStats) {
                     class="${action.variant === "ghost" ? "ghost-button" : "primary-button"}"
                     data-action="${escapeHtml(action.action)}"
                     ${action.tab ? `data-tab="${escapeHtml(action.tab)}"` : ""}
+                    ${action.postSlug ? `data-post-slug="${escapeHtml(action.postSlug)}"` : ""}
                   >
                     ${escapeHtml(action.label)}
                   </button>

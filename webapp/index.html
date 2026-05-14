@@ -9,7 +9,12 @@
       content="Walk Philadelphia with self-guided audio tours, maps, Compass guidance, AR-ready stops, Black history, architecture, sports, and hidden routes."
     />
     <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="author" content="Philly Tours" />
+    <meta name="application-name" content="Philly Tours" />
+    <meta name="geo.region" content="US-PA" />
+    <meta name="geo.placename" content="Philadelphia" />
     <link rel="canonical" href="https://philly-tours.com/" />
+    <link rel="alternate" type="application/rss+xml" title="Philly Tours Blog" href="/rss.xml" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="48x48" href="/assets/brand/favicon-48x48.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="/assets/brand/favicon-96x96.png" />
@@ -186,6 +191,48 @@
               "height": 630
             },
             "publisher": { "@id": "https://philly-tours.com/#organization" }
+          },
+          {
+            "@type": "Service",
+            "@id": "https://philly-tours.com/#service",
+            "name": "Self-guided Philadelphia walking tours",
+            "serviceType": "Walking tour",
+            "provider": { "@id": "https://philly-tours.com/#organization" },
+            "areaServed": {
+              "@type": "City",
+              "name": "Philadelphia"
+            },
+            "description": "Self-guided Philadelphia walking tours with audio narration, maps, Compass guidance, AR-ready stops, and optional in-person guided tour booking."
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://philly-tours.com/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Can I take a Philly Tours route at my own pace?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Philly Tours routes are built for self-guided walking with maps, stop previews, narration, and Compass guidance."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does Philly Tours offer in-person guided tours?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The webapp supports in-person guided tour checkout for selected Philadelphia storytelling routes."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What types of Philadelphia tours are available?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Routes cover Philadelphia history, Black history, architecture, sports, libraries, neighborhoods, and hidden city stories."
+                }
+              }
+            ]
           }
         ]
       }

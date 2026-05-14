@@ -1,1 +1,9 @@
+/blog /blog/index.html 200
+/blog/ /blog/index.html 200
+/blog/:slug /blog/:slug/index.html 200
+/blog/:slug/ /blog/:slug/index.html 200
+/tours /tours/index.html 200
+/tours/ /tours/index.html 200
+/tours/:slug /tours/:slug/index.html 200
+/tours/:slug/ /tours/:slug/index.html 200
 /* /index.html 200
