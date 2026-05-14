@@ -644,6 +644,19 @@ function normalizeBlogPosts(rawPosts) {
       publishedAt: String(post.publishedAt || "").trim(),
       excerpt: String(post.excerpt || "").trim(),
       tags: Array.isArray(post.tags) ? post.tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+      heroImage: String(post.heroImage || "").trim(),
+      heroImageAlt: String(post.heroImageAlt || post.title || "").trim(),
+      videoUrl: String(post.videoUrl || "").trim(),
+      mediaCaption: String(post.mediaCaption || "").trim(),
+      gallery: Array.isArray(post.gallery)
+        ? post.gallery
+            .map((item) => ({
+              src: String(item?.src || "").trim(),
+              alt: String(item?.alt || "Founder life photo").trim(),
+              caption: String(item?.caption || "").trim()
+            }))
+            .filter((item) => item.src)
+        : [],
       bodyHtml: String(post.bodyHtml || "").trim(),
       bodyText: String(post.bodyText || "").trim()
     }))
@@ -5597,9 +5610,9 @@ function getSceneConfig(selectedTour, globalStats) {
       };
     case "blog":
       return {
-        eyebrow: "Founders Notes",
-        title: "Route drops, field notes, and launch updates.",
-        body: "Read the curation decisions, guided-tour launches, and story notes behind the Philly Tours routes.",
+        eyebrow: "A Founder's Story",
+        title: "Photos, videos, and the story behind the routes.",
+        body: "Follow founder-life moments, route decisions, guided-tour launches, and the personal work behind Philly Tours.",
         actions: [
           { label: "Read latest", action: "open-blog-post", postSlug: blogPosts[0]?.slug || "", variant: "primary" },
           { label: "Browse routes", action: "set-tab", tab: "map", variant: "ghost" }
@@ -5607,11 +5620,11 @@ function getSceneConfig(selectedTour, globalStats) {
         metrics: [],
         floatingCard: `
           <article class="hero-impact-card hero-impact-card--purple">
-            <span class="hero-impact-card__badge">Founder notes</span>
+            <span class="hero-impact-card__badge">A Founder's Story</span>
             <strong class="hero-impact-card__number">${blogPosts.length || 0}</strong>
-            <span class="hero-impact-card__label">published updates</span>
+            <span class="hero-impact-card__label">published stories</span>
             <h3>${blogPosts[0] ? escapeHtml(blogPosts[0].title) : "Route notes are coming soon."}</h3>
-            <p>${blogPosts[0] ? escapeHtml(truncateCopy(blogPosts[0].excerpt, 132)) : "Follow route launches, guide updates, and curation notes."}</p>
+            <p>${blogPosts[0] ? escapeHtml(truncateCopy(blogPosts[0].excerpt, 132)) : "Follow founder photos, videos, route launches, and guide updates."}</p>
           </article>
         `
       };
@@ -5793,6 +5806,47 @@ function formatBlogPublishedDate(value) {
   }).format(date);
 }
 
+function renderBlogPostMedia(post) {
+  if (!post) {
+    return "";
+  }
+  const media = [];
+  if (post.videoUrl) {
+    media.push(`
+      <figure class="founder-media-card founder-media-card--video">
+        <video controls preload="metadata" poster="${escapeHtml(post.heroImage || "/assets/search/philly-tours-search-thumbnail.jpg")}">
+          <source src="${escapeHtml(post.videoUrl)}" />
+        </video>
+        ${post.mediaCaption ? `<figcaption>${escapeHtml(post.mediaCaption)}</figcaption>` : ""}
+      </figure>
+    `);
+  } else if (post.heroImage) {
+    media.push(`
+      <figure class="founder-media-card">
+        <img src="${escapeHtml(post.heroImage)}" alt="${escapeHtml(post.heroImageAlt || post.title)}" loading="lazy" />
+        ${post.mediaCaption ? `<figcaption>${escapeHtml(post.mediaCaption)}</figcaption>` : ""}
+      </figure>
+    `);
+  }
+  if (post.gallery?.length) {
+    media.push(`
+      <div class="founder-gallery" aria-label="Founder life gallery">
+        ${post.gallery
+          .map(
+            (item) => `
+              <figure class="founder-gallery__item">
+                <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" loading="lazy" />
+                ${item.caption ? `<figcaption>${escapeHtml(item.caption)}</figcaption>` : ""}
+              </figure>
+            `
+          )
+          .join("")}
+      </div>
+    `);
+  }
+  return media.join("");
+}
+
 function renderBlogTab() {
   const selectedPost = getBlogPostBySlug(state.blog.selectedPostSlug) || blogPosts[0] || null;
 
@@ -5800,9 +5854,9 @@ function renderBlogTab() {
     return `
       <section class="section-grid blog-grid">
         <article class="panel blog-empty-state">
-          <p class="eyebrow">Blog</p>
+          <p class="eyebrow">A Founder's Story</p>
           <h3>Posts are coming soon</h3>
-          <p class="lede">This space will hold route notes, launch updates, and guide commentary from Founders Threads.</p>
+          <p class="lede">This space will hold founder-life photos, videos, route notes, launch updates, and guide commentary.</p>
         </article>
       </section>
     `;
@@ -5813,12 +5867,12 @@ function renderBlogTab() {
       <article class="panel blog-rail">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Blog</p>
-            <h3>Founder notes and route updates</h3>
+            <p class="eyebrow">A Founder's Story</p>
+            <h3>Photos, videos, and route notes</h3>
           </div>
           <span class="status-pill">${blogPosts.length} posts</span>
         </div>
-        <p class="lede">Read launch notes, guided-tour updates, and curation decisions directly inside the webapp.</p>
+        <p class="lede">Read the personal side of the work: founder-life moments, route decisions, guided-tour updates, and stories behind the build.</p>
         <div class="button-row compact">
           <a class="ghost-button link-button" href="${RSS_FEED_PATH}" target="_blank" rel="noreferrer">Open RSS feed</a>
           <button type="button" class="ghost-button" data-action="set-tab" data-tab="map">Browse tours</button>
@@ -5833,6 +5887,7 @@ function renderBlogTab() {
                   data-action="open-blog-post"
                   data-post-slug="${escapeHtml(post.slug)}"
                 >
+                  ${post.heroImage ? `<img class="blog-post-card__media" src="${escapeHtml(post.heroImage)}" alt="${escapeHtml(post.heroImageAlt || post.title)}" loading="lazy" />` : ""}
                   <span class="blog-post-card__date">${escapeHtml(formatBlogPublishedDate(post.publishedAt))}</span>
                   <strong>${escapeHtml(post.title)}</strong>
                   <p>${escapeHtml(post.excerpt)}</p>
@@ -5851,7 +5906,7 @@ function renderBlogTab() {
             ? `
               <div class="panel-header">
                 <div>
-                  <p class="eyebrow">Founder post</p>
+                  <p class="eyebrow">A Founder's Story</p>
                   <h3>${escapeHtml(selectedPost.title)}</h3>
                 </div>
                 <span class="status-pill">${escapeHtml(formatBlogPublishedDate(selectedPost.publishedAt))}</span>
@@ -5859,10 +5914,11 @@ function renderBlogTab() {
               <div class="blog-tag-row blog-tag-row--header">
                 ${selectedPost.tags.map((tag) => `<span class="chip">${escapeHtml(tag)}</span>`).join("")}
               </div>
+              ${renderBlogPostMedia(selectedPost)}
               <div class="blog-post-content">${selectedPost.bodyHtml}</div>
             `
             : `
-              <p class="lede">Choose a post to read the latest Founders Threads update.</p>
+              <p class="lede">Choose a post to read the latest founder story.</p>
             `
         }
       </article>

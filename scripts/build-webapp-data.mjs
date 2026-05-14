@@ -181,6 +181,16 @@ function buildExcerpt(text, maxLength = 180) {
   return `${normalized.slice(0, maxLength).trimEnd()}...`;
 }
 
+function parseBlogGallery(value) {
+  return String(value || "")
+    .split(";")
+    .map((item) => {
+      const [src, alt, caption] = item.split("|").map((part) => String(part || "").trim());
+      return src ? { src, alt: alt || "Founder life photo", caption: caption || "" } : null;
+    })
+    .filter(Boolean);
+}
+
 function cleanDescription(value, maxLength = 165) {
   return buildExcerpt(
     String(value || "")
@@ -192,6 +202,9 @@ function cleanDescription(value, maxLength = 165) {
 }
 
 function absoluteUrl(pathname = "/") {
+  if (/^https?:\/\//i.test(String(pathname || ""))) {
+    return String(pathname);
+  }
   const normalizedPath = String(pathname || "/").startsWith("/") ? pathname : `/${pathname}`;
   return `${siteOrigin}${normalizedPath}`;
 }
@@ -275,6 +288,11 @@ function loadBlogPosts() {
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean);
+      const heroImage = String(attributes.heroImage || "").trim();
+      const heroImageAlt = String(attributes.heroImageAlt || title).trim();
+      const videoUrl = String(attributes.videoUrl || "").trim();
+      const mediaCaption = String(attributes.mediaCaption || "").trim();
+      const gallery = parseBlogGallery(attributes.gallery);
 
       return {
         slug,
@@ -282,6 +300,11 @@ function loadBlogPosts() {
         publishedAt,
         excerpt,
         tags,
+        heroImage,
+        heroImageAlt,
+        videoUrl,
+        mediaCaption,
+        gallery,
         bodyHtml: markdownToHtml(body),
         bodyText: plainText
       };
@@ -313,9 +336,9 @@ function renderRssXml(posts) {
     '<?xml version="1.0" encoding="UTF-8"?>',
     "<rss version=\"2.0\">",
     "  <channel>",
-    "    <title>Founders Threads Blog</title>",
+    "    <title>A Founder's Story</title>",
     "    <link>https://philly-tours.com/</link>",
-    "    <description>Route launches, guided-tour notes, and product updates from Founders Threads.</description>",
+    "    <description>Founder-life photos, videos, route notes, guided-tour updates, and product stories from Philly Tours.</description>",
     "    <language>en-us</language>",
     `    <lastBuildDate>${escapeXml(lastBuildDate)}</lastBuildDate>`,
     items,
@@ -437,17 +460,56 @@ function renderSeoHeader({ eyebrow, title, description }) {
   ].join("\n");
 }
 
+function renderPostMedia(post) {
+  const media = [];
+  if (post.videoUrl) {
+    media.push([
+      '        <figure class="founder-media-card founder-media-card--video">',
+      `          <video controls preload="metadata" poster="${escapeHtml(post.heroImage || "/assets/search/philly-tours-search-thumbnail.jpg")}">`,
+      `            <source src="${escapeHtml(post.videoUrl)}" />`,
+      "          </video>",
+      post.mediaCaption ? `          <figcaption>${escapeHtml(post.mediaCaption)}</figcaption>` : "",
+      "        </figure>"
+    ].filter(Boolean).join("\n"));
+  } else if (post.heroImage) {
+    media.push([
+      '        <figure class="founder-media-card">',
+      `          <img src="${escapeHtml(post.heroImage)}" alt="${escapeHtml(post.heroImageAlt || post.title)}" loading="lazy" />`,
+      post.mediaCaption ? `          <figcaption>${escapeHtml(post.mediaCaption)}</figcaption>` : "",
+      "        </figure>"
+    ].filter(Boolean).join("\n"));
+  }
+
+  if (post.gallery?.length) {
+    media.push([
+      '        <div class="founder-gallery" aria-label="Founder life gallery">',
+      ...post.gallery.map((item) =>
+        [
+          '          <figure class="founder-gallery__item">',
+          `            <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" loading="lazy" />`,
+          item.caption ? `            <figcaption>${escapeHtml(item.caption)}</figcaption>` : "",
+          "          </figure>"
+        ].filter(Boolean).join("\n")
+      ),
+      "        </div>"
+    ].join("\n"));
+  }
+
+  return media.join("\n");
+}
+
 function renderStaticBlogIndex(posts) {
   const description =
-    "Read Philly Tours route notes, guided-tour launch updates, Philadelphia walking-tour planning tips, and founder commentary.";
+    "Follow A Founder's Story with founder-life photos, videos, route notes, guided-tour updates, and Philadelphia walking-tour commentary.";
   const body = [
     '    <main class="seo-shell">',
     '      <a class="legal-back-link" href="/">Back to Philly Tours</a>',
-    renderSeoHeader({ eyebrow: "Philly Tours blog", title: "Philadelphia tour notes and route updates", description }),
+    renderSeoHeader({ eyebrow: "A Founder's Story", title: "A Founder’s Story", description }),
     '      <section class="seo-link-grid" aria-label="Blog posts">',
     ...posts.map((post) =>
       [
         `        <article class="seo-card">`,
+        post.heroImage ? `          <img class="seo-card__media" src="${escapeHtml(post.heroImage)}" alt="${escapeHtml(post.heroImageAlt || post.title)}" loading="lazy" />` : "",
         `          <p class="seo-meta">${escapeHtml(formatIsoDate(post.publishedAt))}</p>`,
         `          <h2><a href="/blog/${encodeURIComponent(post.slug)}/">${escapeHtml(post.title)}</a></h2>`,
         `          <p>${escapeHtml(post.excerpt)}</p>`,
@@ -460,7 +522,7 @@ function renderStaticBlogIndex(posts) {
   ].join("\n");
 
   return renderSeoShell({
-    title: "Philadelphia Tour Blog | Philly Tours",
+    title: "A Founder's Story | Philly Tours",
     description,
     canonicalPath: "/blog/",
     body,
@@ -469,7 +531,7 @@ function renderStaticBlogIndex(posts) {
       {
         "@type": "Blog",
         "@id": absoluteUrl("/blog/#blog"),
-        "name": "Philly Tours Blog",
+        "name": "A Founder's Story",
         "url": absoluteUrl("/blog/"),
         "description": description,
         "publisher": { "@id": absoluteUrl("/#organization") },
@@ -485,12 +547,13 @@ function renderStaticBlogPost(post) {
     '    <main class="seo-shell">',
     '      <a class="legal-back-link" href="/blog/">All blog posts</a>',
     renderSeoHeader({
-      eyebrow: "Philly Tours blog",
+      eyebrow: "A Founder's Story",
       title: post.title,
       description: post.excerpt
     }),
     '      <article class="seo-article blog-post-content">',
     `        <p class="seo-meta">${escapeHtml(formatIsoDate(post.publishedAt))}</p>`,
+    renderPostMedia(post),
     post.bodyHtml
       .split("\n")
       .map((line) => `        ${line}`)
@@ -501,7 +564,7 @@ function renderStaticBlogPost(post) {
   ].join("\n");
 
   return renderSeoShell({
-    title: `${post.title} | Philly Tours Blog`,
+    title: `${post.title} | A Founder's Story`,
     description: post.excerpt,
     canonicalPath,
     body,
@@ -518,6 +581,8 @@ function renderStaticBlogPost(post) {
         "author": { "@id": absoluteUrl("/#organization") },
         "publisher": { "@id": absoluteUrl("/#organization") },
         "mainEntityOfPage": absoluteUrl(canonicalPath),
+        "image": post.heroImage ? absoluteUrl(post.heroImage) : absoluteUrl("/assets/search/philly-tours-search-thumbnail.jpg"),
+        "video": post.videoUrl ? { "@type": "VideoObject", "name": post.title, "contentUrl": absoluteUrl(post.videoUrl) } : undefined,
         "keywords": post.tags
       }
     ]

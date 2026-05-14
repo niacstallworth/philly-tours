@@ -2,7 +2,10 @@
 title: In-Person Tour Guide Launch
 publishedAt: 2026-05-12
 excerpt: The new guided route checkout is live on the webapp, making it easier to book a hosted Philadelphia storytelling experience.
-tags: launch, guided tours, webapp
+tags: founder story, launch, guided tours, webapp
+heroImage: /assets/images/founders-threads-profile.png
+heroImageAlt: Founders Threads portrait for A Founder's Story
+mediaCaption: A founder-life photo can sit at the top of any story post. Add videoUrl or gallery items in this frontmatter when new founder photos and clips are ready.
 ---
 
 We just turned on **in-person tour guide checkout** in the Philly Tours webapp.

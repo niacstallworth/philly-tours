@@ -2,7 +2,7 @@
 title: Story Routes Update
 publishedAt: 2026-05-01
 excerpt: A quick look at how the route pages are evolving, from richer stop previews to stronger planning tools before you arrive on site.
-tags: product, routes, storytelling
+tags: founder story, product, routes, storytelling
 ---
 
 The route pages are becoming more useful before the walk even starts.
