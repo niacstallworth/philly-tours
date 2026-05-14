@@ -535,36 +535,6 @@ button {
   width: auto;
 }
 
-.profile-admin-login-form {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.profile-admin-login-form label {
-  display: grid;
-  gap: 7px;
-  color: var(--ink);
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.profile-admin-login-form input {
-  width: 100%;
-  border: 1px solid rgba(92, 61, 244, 0.16);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--ink);
-  padding: 12px 14px;
-  font: inherit;
-  font-size: 0.94rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
 .blog-empty-state {
   grid-column: 1 / -1;
 }
