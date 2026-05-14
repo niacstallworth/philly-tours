@@ -242,6 +242,11 @@ const fallbackTours = [
 ];
 
 let tours = normalizeTours(window.PHILLY_TOURS_DATA || fallbackTours);
+const staticTourCardMediaById = new Map(
+  tours
+    .filter((tour) => tour?.id && tour?.cardMedia?.src)
+    .map((tour) => [tour.id, { ...tour.cardMedia }])
+);
 const narrationData = window.PHILLY_TOURS_NARRATION || {
   catalogByStopId: {},
   scriptMapByStopId: {}
@@ -661,6 +666,7 @@ function pickStopMediaUrl(stop, kind, preferredVariants) {
 }
 
 function mapPrivateTourDetailToRuntimeTour(detail) {
+  const fallbackCardMedia = staticTourCardMediaById.get(detail.id);
   return normalizeTour({
     id: detail.id,
     title: detail.title,
@@ -676,7 +682,7 @@ function mapPrivateTourDetailToRuntimeTour(detail) {
           src: detail.cover_image_url,
           alt: `${detail.title} cover`
         }
-      : undefined,
+      : fallbackCardMedia,
     stops: (detail.stops || []).map((stop) => ({
       id: stop.id,
       title: stop.title,
