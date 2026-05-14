@@ -468,6 +468,15 @@ const state = {
     status: "idle",
     message: ""
   },
+  tourGuideBooking: {
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    preferredDate: "",
+    preferredTime: "",
+    partySize: "2",
+    notes: ""
+  },
   audioAccess: {
     fullUnlocked: loadAudioUnlocked(),
     previewedStopIds: loadAudioPreviewedStopIds()
@@ -4137,7 +4146,29 @@ function handleDragEnd() {
 
 function handleInput(event) {
   const target = event.target;
-  if (!(target instanceof HTMLInputElement)) {
+  if (!(target instanceof HTMLInputElement) && !(target instanceof HTMLTextAreaElement) && !(target instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  const bookingFields = {
+    "tour-guide-contact-name": "contactName",
+    "tour-guide-contact-email": "contactEmail",
+    "tour-guide-contact-phone": "contactPhone",
+    "tour-guide-preferred-date": "preferredDate",
+    "tour-guide-preferred-time": "preferredTime",
+    "tour-guide-party-size": "partySize",
+    "tour-guide-notes": "notes"
+  };
+
+  if (bookingFields[target.name]) {
+    state.tourGuideBooking = {
+      ...state.tourGuideBooking,
+      [bookingFields[target.name]]: target.value
+    };
+    if (state.checkout.status !== "idle") {
+      state.checkout.status = "idle";
+      state.checkout.message = "";
+    }
     return;
   }
 
@@ -4719,6 +4750,47 @@ function getCheckoutStatusMarkup() {
   return `<p class="${statusClass}" role="status">${escapeHtml(state.checkout.message)}</p>`;
 }
 
+function renderTourGuideBookingForm() {
+  const booking = state.tourGuideBooking || {};
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().slice(0, 10);
+
+  return `
+    <div class="tour-guide-booking-form" aria-label="Tour guide appointment request">
+      <label>
+        <span>Contact name</span>
+        <input type="text" name="tour-guide-contact-name" autocomplete="name" value="${escapeHtml(booking.contactName || "")}" placeholder="Your name" />
+      </label>
+      <label>
+        <span>Email</span>
+        <input type="email" name="tour-guide-contact-email" autocomplete="email" value="${escapeHtml(booking.contactEmail || "")}" placeholder="you@example.com" />
+      </label>
+      <label>
+        <span>Phone</span>
+        <input type="tel" name="tour-guide-contact-phone" autocomplete="tel" value="${escapeHtml(booking.contactPhone || "")}" placeholder="Optional" />
+      </label>
+      <label>
+        <span>Preferred date</span>
+        <input type="date" name="tour-guide-preferred-date" min="${minDate}" value="${escapeHtml(booking.preferredDate || "")}" />
+      </label>
+      <label>
+        <span>Preferred time</span>
+        <input type="time" name="tour-guide-preferred-time" value="${escapeHtml(booking.preferredTime || "")}" />
+      </label>
+      <label>
+        <span>Group size</span>
+        <input type="number" name="tour-guide-party-size" min="1" max="50" step="1" value="${escapeHtml(booking.partySize || "2")}" />
+      </label>
+      <label class="tour-guide-booking-form__wide">
+        <span>Notes</span>
+        <textarea name="tour-guide-notes" rows="3" maxlength="450" placeholder="Accessibility needs, school/group name, backup timing...">${escapeHtml(booking.notes || "")}</textarea>
+      </label>
+      <p class="tour-guide-booking-form__note">Checkout reserves the request. Founders Threads confirms exact availability by email.</p>
+    </div>
+  `;
+}
+
 function renderInPersonGuideExclusiveContentMarkup() {
   return `
     <div class="route-guide-moat-block" aria-label="Exclusive in-person tour content">
@@ -5292,6 +5364,14 @@ async function startTourGuideCheckout() {
     return;
   }
 
+  const booking = getTourGuideBookingPayload();
+  if (!booking.ok) {
+    state.checkout.status = "error";
+    state.checkout.message = booking.message;
+    render(false);
+    return;
+  }
+
   await startCheckoutProduct({
     amount: guideConfig.amountCents,
     title: guideConfig.checkoutTitle,
@@ -5303,12 +5383,63 @@ async function startTourGuideCheckout() {
       pricingRateCentsPerMinute: String(guideConfig.rateCentsPerMinute),
       tourDurationMin: String(guideConfig.durationMin),
       tourId: String(selectedTour.id),
-      tourTitle: String(selectedTour.title)
-    }
+      tourTitle: String(selectedTour.title),
+      appointmentDate: booking.payload.preferredDate,
+      appointmentTime: booking.payload.preferredTime,
+      appointmentTimezone: "America/New_York",
+      partySize: String(booking.payload.partySize),
+      contactName: booking.payload.contactName,
+      contactEmail: booking.payload.contactEmail,
+      contactPhone: booking.payload.contactPhone,
+      customerNotes: booking.payload.notes
+    },
+    customerEmail: booking.payload.contactEmail,
+    customerName: booking.payload.contactName
   });
 }
 
-async function startCheckoutProduct({ amount, title, planId, successTab, idempotencyKeyPrefix, metadata }) {
+function getTourGuideBookingPayload() {
+  const booking = state.tourGuideBooking || {};
+  const contactName = String(booking.contactName || "").trim();
+  const contactEmail = String(booking.contactEmail || "").trim().toLowerCase();
+  const contactPhone = String(booking.contactPhone || "").trim();
+  const preferredDate = String(booking.preferredDate || "").trim();
+  const preferredTime = String(booking.preferredTime || "").trim();
+  const partySize = Math.max(1, Math.min(50, Math.round(Number(booking.partySize || 0))));
+  const notes = String(booking.notes || "").trim().slice(0, 450);
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!contactName) {
+    return { ok: false, message: "Add the booking contact name." };
+  }
+  if (!emailPattern.test(contactEmail)) {
+    return { ok: false, message: "Add a valid booking contact email." };
+  }
+  if (!preferredDate) {
+    return { ok: false, message: "Choose a preferred tour date." };
+  }
+  if (!preferredTime) {
+    return { ok: false, message: "Choose a preferred tour time." };
+  }
+  if (!Number.isFinite(partySize) || partySize < 1) {
+    return { ok: false, message: "Add the expected group size." };
+  }
+
+  return {
+    ok: true,
+    payload: {
+      contactName,
+      contactEmail,
+      contactPhone,
+      preferredDate,
+      preferredTime,
+      partySize,
+      notes
+    }
+  };
+}
+
+async function startCheckoutProduct({ amount, title, planId, successTab, idempotencyKeyPrefix, metadata, customerEmail, customerName }) {
   const syncServerUrl = getSyncServerUrl();
   if (!syncServerUrl) {
     state.checkout.status = "error";
@@ -5337,6 +5468,8 @@ async function startCheckoutProduct({ amount, title, planId, successTab, idempot
         title,
         planId,
         ...(metadata ? { metadata } : {}),
+        ...(customerEmail ? { customerEmail } : {}),
+        ...(customerName ? { customerName } : {}),
         successUrl,
         cancelUrl,
         idempotencyKey: `${idempotencyKeyPrefix}-${state.auth.session?.userId || "email-checkout"}-${Date.now()}`
@@ -6413,6 +6546,7 @@ function renderRouteTab(selectedTour, selectedStop) {
             </div>
             <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and a shareable route map for the group. ${guideConfig.checkoutDescription}</p>
             ${renderInPersonGuideExclusiveContentMarkup()}
+            ${renderTourGuideBookingForm()}
             <div class="button-row">
               <button
                 type="button"
@@ -6702,6 +6836,7 @@ function renderRouteProductPage(selectedTour, selectedStop) {
           </div>
           <p class="lede">Turn this route into a hosted experience with a live guide, coordinated pacing, and a shareable route map for the group. ${guideConfig.checkoutDescription}</p>
           ${renderInPersonGuideExclusiveContentMarkup()}
+          ${renderTourGuideBookingForm()}
           <div class="button-row">
             <button
               type="button"

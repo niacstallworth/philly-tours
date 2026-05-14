@@ -87,6 +87,15 @@ function normalizeEmail(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function toUserId(email) {
   return normalizeEmail(email).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "demo-user";
 }
@@ -530,6 +539,9 @@ const checkoutSessionRequestSchema = z.object({
   amount: z.number().int().min(50).max(5_000_000),
   title: z.string().min(1).max(200),
   planId: z.string().min(1).max(120).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
+  customerEmail: z.string().email().optional(),
+  customerName: z.string().min(1).max(120).optional(),
   successUrl: z.string().url(),
   cancelUrl: z.string().url(),
   idempotencyKey: z.string().min(8).max(128).optional()
@@ -551,6 +563,18 @@ const iapVerifySchema = z.object({
     });
   }
 });
+
+function sanitizeStripeMetadata(metadata) {
+  const sanitized = {};
+  for (const [key, value] of Object.entries(metadata || {})) {
+    const cleanKey = String(key || "").trim().slice(0, 40);
+    if (!cleanKey) {
+      continue;
+    }
+    sanitized[cleanKey] = String(value || "").trim().slice(0, 500);
+  }
+  return sanitized;
+}
 
 const deletionRequestSchema = z.object({
   email: z.string().email().optional(),
@@ -1118,23 +1142,36 @@ async function sendTourGuidePurchaseNotificationEmail(session) {
     throw new Error("Tour guide purchase email delivery is not configured. Set RESEND_API_KEY on the sync server.");
   }
 
-  const customerName = String(session?.customer_details?.name || "").trim() || "Guest";
-  const customerEmail = normalizeEmail(session?.customer_details?.email || session?.customer_email || "");
+  const metadata = session?.metadata || {};
+  const customerName = String(metadata.contactName || session?.customer_details?.name || "").trim() || "Guest";
+  const customerEmail = normalizeEmail(metadata.contactEmail || session?.customer_details?.email || session?.customer_email || "");
+  const customerPhone = String(metadata.contactPhone || session?.customer_details?.phone || "").trim();
+  const appointmentDate = String(metadata.appointmentDate || "").trim();
+  const appointmentTime = String(metadata.appointmentTime || "").trim();
+  const appointmentTimezone = String(metadata.appointmentTimezone || "America/New_York").trim();
+  const partySize = String(metadata.partySize || "").trim();
+  const notes = String(metadata.customerNotes || "").trim();
+  const tourTitle = String(metadata.tourTitle || "").trim();
   const amountTotal = Number(session?.amount_total || 0);
   const amountLabel = amountTotal > 0 ? `$${(amountTotal / 100).toFixed(2)}` : "Unknown";
-  const description = String(session?.metadata?.productTitle || session?.metadata?.planId || "In-person tour guide").trim();
+  const description = String(metadata.productTitle || metadata.planId || "In-person tour guide").trim();
   const sessionId = String(session?.id || "").trim() || "unknown";
 
   const html = [
     `<div style="font-family: Arial, sans-serif; color: #0b2035; line-height: 1.5;">`,
     `<h2 style="margin-bottom: 12px;">New in-person tour guide purchase</h2>`,
-    `<p>A webapp customer completed checkout for the in-person tour guide product.</p>`,
+    `<p>A webapp customer completed checkout for a guided-tour appointment request.</p>`,
     `<ul>`,
-    `<li><strong>Product:</strong> ${description}</li>`,
-    `<li><strong>Amount:</strong> ${amountLabel}</li>`,
-    `<li><strong>Name:</strong> ${customerName}</li>`,
-    `<li><strong>Email:</strong> ${customerEmail || "Not provided"}</li>`,
-    `<li><strong>Stripe checkout session:</strong> ${sessionId}</li>`,
+    `<li><strong>Product:</strong> ${escapeHtml(description)}</li>`,
+    `<li><strong>Route:</strong> ${escapeHtml(tourTitle || "Not provided")}</li>`,
+    `<li><strong>Requested appointment:</strong> ${escapeHtml(`${appointmentDate || "Date not provided"} ${appointmentTime || ""} ${appointmentTimezone}`)}</li>`,
+    `<li><strong>Group size:</strong> ${escapeHtml(partySize || "Not provided")}</li>`,
+    `<li><strong>Amount:</strong> ${escapeHtml(amountLabel)}</li>`,
+    `<li><strong>Name:</strong> ${escapeHtml(customerName)}</li>`,
+    `<li><strong>Email:</strong> ${escapeHtml(customerEmail || "Not provided")}</li>`,
+    `<li><strong>Phone:</strong> ${escapeHtml(customerPhone || "Not provided")}</li>`,
+    `<li><strong>Notes:</strong> ${escapeHtml(notes || "None")}</li>`,
+    `<li><strong>Stripe checkout session:</strong> ${escapeHtml(sessionId)}</li>`,
     `</ul>`,
     `</div>`
   ].join("");
@@ -1142,12 +1179,17 @@ async function sendTourGuidePurchaseNotificationEmail(session) {
   const text = [
     `New in-person tour guide purchase`,
     ``,
-    `A webapp customer completed checkout for the in-person tour guide product.`,
+    `A webapp customer completed checkout for a guided-tour appointment request.`,
     ``,
     `Product: ${description}`,
+    `Route: ${tourTitle || "Not provided"}`,
+    `Requested appointment: ${appointmentDate || "Date not provided"} ${appointmentTime || ""} ${appointmentTimezone}`,
+    `Group size: ${partySize || "Not provided"}`,
     `Amount: ${amountLabel}`,
     `Name: ${customerName}`,
     `Email: ${customerEmail || "Not provided"}`,
+    `Phone: ${customerPhone || "Not provided"}`,
+    `Notes: ${notes || "None"}`,
     `Stripe checkout session: ${sessionId}`
   ].join("\n");
 
@@ -2083,7 +2125,7 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), (req,
         ["succeeded", updatedAt, JSON.stringify(object), object.id || ""]
       );
       await upsertStripeCheckoutEntitlementFromSession(object);
-      if (String(object?.metadata?.planId || "").trim() === "in-person-tour-guide") {
+      if (String(object?.metadata?.planId || "").trim().startsWith("in-person-guided-tour:")) {
         try {
           await sendTourGuidePurchaseNotificationEmail(object);
         } catch (error) {
@@ -2654,6 +2696,7 @@ app.post("/api/payments/checkout-session", async (req, res) => {
   }
 
   const body = parsed.data;
+  const checkoutMetadata = sanitizeStripeMetadata(body.metadata || {});
   const idem = await handleIdempotency(req, res, "checkout_session", body);
   if (idem.hit) {
     return;
@@ -2689,13 +2732,18 @@ app.post("/api/payments/checkout-session", async (req, res) => {
       {
         mode: "payment",
         ...(customerId ? { customer: customerId } : { customer_creation: "always" }),
+        ...(!customerId && body.customerEmail ? { customer_email: body.customerEmail } : {}),
+        phone_number_collection: { enabled: true },
         success_url: body.successUrl,
         cancel_url: body.cancelUrl,
         metadata: {
           source: "hosted_checkout",
           ...(userId ? { userId } : {}),
           ...(body.planId ? { planId: body.planId } : {}),
-          productTitle: body.title
+          productTitle: body.title,
+          ...(body.customerName ? { contactName: body.customerName } : {}),
+          ...(body.customerEmail ? { contactEmail: body.customerEmail } : {}),
+          ...checkoutMetadata
         },
         line_items: [
           {
@@ -2727,7 +2775,10 @@ app.post("/api/payments/checkout-session", async (req, res) => {
         "usd",
         "created",
         body.title,
-        JSON.stringify(body.planId ? { planId: body.planId } : {}),
+        JSON.stringify({
+          ...(body.planId ? { planId: body.planId } : {}),
+          ...(Object.keys(checkoutMetadata).length ? { metadata: checkoutMetadata } : {})
+        }),
         now(),
         now()
       ]

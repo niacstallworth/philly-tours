@@ -37,7 +37,9 @@ body {
 }
 
 button,
-input {
+input,
+textarea,
+select {
   font: inherit;
 }
 
@@ -4127,6 +4129,54 @@ body {
   margin: 0;
 }
 
+.tour-guide-booking-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(23, 32, 38, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.tour-guide-booking-form label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.tour-guide-booking-form input,
+.tour-guide-booking-form textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(23, 32, 38, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  padding: 11px 12px;
+}
+
+.tour-guide-booking-form textarea {
+  resize: vertical;
+  min-height: 86px;
+}
+
+.tour-guide-booking-form__wide,
+.tour-guide-booking-form__note {
+  grid-column: 1 / -1;
+}
+
+.tour-guide-booking-form__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 .route-guide-moat-block {
   margin: 0 0 1rem;
   padding: 1rem 1.1rem;
@@ -4160,7 +4210,8 @@ body {
   .experience-grid,
   .compass-shell,
   .route-page-stats,
-  .home-tour-grid {
+  .home-tour-grid,
+  .tour-guide-booking-form {
     grid-template-columns: 1fr;
   }
 
