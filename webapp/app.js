@@ -2648,8 +2648,24 @@ function hasOAuthRedirectParams() {
     url.searchParams.has("code") ||
     url.searchParams.has("error") ||
     url.searchParams.has("error_description") ||
-    /access_token=|refresh_token=|provider_token=/.test(url.hash)
+    /(^|[&#?])(access_token|refresh_token|provider_token|code|error|error_description)=/.test(url.hash)
   );
+}
+
+function getOAuthRedirectParams() {
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
+  const rawHash = url.hash.replace(/^#/, "");
+  const hashSources = [rawHash, rawHash.replace(/^[^?]*\?/, "")];
+  hashSources.forEach((source) => {
+    const hashParams = new URLSearchParams(source);
+    hashParams.forEach((value, key) => {
+      if (!params.has(key)) {
+        params.set(key, value);
+      }
+    });
+  });
+  return params;
 }
 
 function clearOAuthRedirectParams(nextHash = "") {
@@ -2730,10 +2746,14 @@ async function completeOAuthRedirectIfPresent() {
   render(false);
 
   try {
-    const url = new URL(window.location.href);
-    const authCode = url.searchParams.get("code");
+    const redirectParams = getOAuthRedirectParams();
+    const redirectError = redirectParams.get("error_description") || redirectParams.get("error");
+    if (redirectError) {
+      throw new Error(redirectError);
+    }
+    const authCode = redirectParams.get("code");
 
-    let accessToken = "";
+    let accessToken = redirectParams.get("access_token") || "";
     const { data: existingSessionData, error: existingSessionError } = await client.auth.getSession();
     if (existingSessionError) {
       throw existingSessionError;
