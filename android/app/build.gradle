@@ -72,6 +72,7 @@ def releaseStorePassword = (findProperty("phillyToursUploadStorePassword") ?: Sy
 def releaseKeyAlias = (findProperty("phillyToursUploadKeyAlias") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_ALIAS"))?.toString()
 def releaseKeyPassword = (findProperty("phillyToursUploadKeyPassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_PASSWORD"))?.toString()
 def hasReleaseSigningConfig = releaseStoreFilePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
+def metaWearablesDatEnabled = (findProperty("metaWearablesDatEnabled") ?: "false").toString().toBoolean()
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -95,16 +96,17 @@ android {
     namespace 'com.founders.phillyartours'
     defaultConfig {
         applicationId 'com.founders.phillyartours'
-        minSdkVersion rootProject.ext.minSdkVersion
+        minSdkVersion metaWearablesDatEnabled ? 29 : rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "0.1.0"
         multiDexEnabled true
-        buildConfigField "boolean", "META_WEARABLES_DAT_ENABLED", ((findProperty("metaWearablesDatEnabled") ?: "false").toString())
+        buildConfigField "boolean", "META_WEARABLES_DAT_ENABLED", metaWearablesDatEnabled.toString()
         buildConfigField "String", "META_WEARABLES_DAT_VERSION", "\"${(findProperty("metaWearablesDatVersion") ?: "0.5.0")}\""
         buildConfigField "String", "VUZIX_ULTRALITE_SDK_VERSION", "\"${(findProperty("vuzixUltraliteSdkVersion") ?: "1.9")}\""
         manifestPlaceholders = [
             metaWearablesApplicationId: (findProperty("metaWearablesApplicationId") ?: "0").toString(),
+            metaWearablesClientToken: (findProperty("metaWearablesClientToken") ?: "").toString(),
             googleMapsApiKey: (
                 findProperty("googleMapsApiKey")
                     ?: System.getenv("GOOGLE_MAPS_ANDROID_API_KEY")
@@ -118,7 +120,7 @@ android {
     productFlavors {
         standard {
             dimension "hardware"
-            minSdkVersion rootProject.ext.minSdkVersion
+            minSdkVersion metaWearablesDatEnabled ? 29 : rootProject.ext.minSdkVersion
             buildConfigField "boolean", "VUZIX_ULTRALITE_SDK_ENABLED", "false"
         }
         vuzix {
@@ -195,7 +197,7 @@ dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
     implementation("com.google.ar:core:1.53.0")
 
-    if ((findProperty("metaWearablesDatEnabled") ?: "false").toString().toBoolean()) {
+    if (metaWearablesDatEnabled) {
         implementation("com.meta.wearable:mwdat-core:${findProperty("metaWearablesDatVersion") ?: "0.5.0"}")
     }
 

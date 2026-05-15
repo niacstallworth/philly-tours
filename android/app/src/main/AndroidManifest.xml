@@ -30,6 +30,7 @@
     <meta-data android:name="com.google.android.geo.API_KEY" android:value="${googleMapsApiKey}"/>
     <meta-data android:name="com.google.ar.core" android:value="optional"/>
     <meta-data android:name="com.meta.wearable.mwdat.APPLICATION_ID" android:value="${metaWearablesApplicationId}"/>
+    <meta-data android:name="com.meta.wearable.mwdat.CLIENT_TOKEN" android:value="${metaWearablesClientToken}"/>
     <meta-data android:name="com.meta.wearable.mwdat.ANALYTICS_OPT_OUT" android:value="true"/>
     <activity android:name=".MainActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.App.SplashScreen" android:exported="true" android:screenOrientation="portrait">
       <intent-filter>

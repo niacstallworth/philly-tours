@@ -1514,7 +1514,7 @@ function installGoogleMapHealthFallback({
   zoom = 14,
   maps,
   map,
-  mobileOnly = false
+  mobileOnly = true
 }) {
   if (!mapElement || !fallbackPosition) {
     return;
@@ -8578,7 +8578,7 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
 
   renderableStops.forEach((stop) => {
     const stopState = getStopPresentationState(selectedTour, stop);
-    const isSelected = stop.id === selectedStop?.id;
+    const isSelected = stop.id === selectedStop.id;
     const isDone = state.completedStopIds.includes(stop.id);
     const pinColor = isSelected ? accent?.[0] || "#2563eb" : isDone ? "#059669" : accent?.[0] || "#2563eb";
     const marker = new maps.Marker({
@@ -8686,12 +8686,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     maps = await loadGoogleMapsApi();
   } catch (error) {
     if (document.getElementById(elementId) === mapElement) {
-      mapElement.innerHTML = buildRouteMapFallbackMarkup({
-        position: { lat: 39.9526, lng: -75.1652 },
-        title: SITE_NAME,
-        zoom: 12,
-        message: (error && error.message) || "Unable to load the map."
-      });
+      mapElement.innerHTML = `<div class="route-map-fallback"><div><strong>Google map unavailable</strong><span>${escapeHtml((error && error.message) || "Unable to load the map.")}</span></div></div>`;
     }
     return;
   }
@@ -8700,8 +8695,9 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     return;
   }
 
-  const markerLibrary = null;
-  const advancedMarkersAvailable = false;
+  const homeMapId = getGoogleMapsMapId() || "DEMO_MAP_ID";
+  const markerLibrary = await loadGoogleMapsMarkerLibrary(maps);
+  const advancedMarkersAvailable = Boolean(homeMapId && markerLibrary?.AdvancedMarkerElement);
   const createHomeMarker = ({ position, title, glyphText, color, borderColor, glyphColor, scale, zIndex, onClick }) => {
     if (advancedMarkersAvailable) {
       const marker = new markerLibrary.AdvancedMarkerElement({

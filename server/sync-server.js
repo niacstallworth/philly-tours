@@ -81,7 +81,6 @@ const TOUR_GUIDE_NOTIFICATION_EMAIL = process.env.TOUR_GUIDE_NOTIFICATION_EMAIL 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
 const GOOGLE_MAPS_DEFAULT_REGION = (process.env.GOOGLE_MAPS_DEFAULT_REGION || "us").trim();
 const GOOGLE_MAPS_DEFAULT_LANGUAGE = (process.env.GOOGLE_MAPS_DEFAULT_LANGUAGE || "en").trim();
-const GOOGLE_MAPS_HTTP_REFERER = (process.env.GOOGLE_MAPS_HTTP_REFERER || "https://philly-tours.com/").trim();
 const EXCLUDED_LAUNCH_TOUR_IDS = new Set(["founders-demo-route", "founders-premium-sample"]);
 
 function normalizeEmail(value) {
@@ -878,13 +877,6 @@ function requireGoogleMaps(res) {
   return true;
 }
 
-function googleMapsRequestHeaders(extraHeaders = {}) {
-  return {
-    ...(GOOGLE_MAPS_HTTP_REFERER ? { Referer: GOOGLE_MAPS_HTTP_REFERER } : {}),
-    ...extraHeaders
-  };
-}
-
 async function fetchGoogleMapsJson(url, { method = "GET", headers = {}, body, fieldMask } = {}) {
   const response = await fetch(url, {
     method,
@@ -892,7 +884,7 @@ async function fetchGoogleMapsJson(url, { method = "GET", headers = {}, body, fi
       "Content-Type": "application/json",
       "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
       ...(fieldMask ? { "X-Goog-FieldMask": fieldMask } : {}),
-      ...googleMapsRequestHeaders(headers)
+      ...headers
     },
     body: body ? JSON.stringify(body) : undefined
   });
@@ -917,9 +909,7 @@ async function fetchGoogleWeatherCurrent({ lat, lng, unitsSystem, languageCode }
     languageCode
   });
 
-  const response = await fetch(`https://weather.googleapis.com/v1/currentConditions:lookup?${query.toString()}`, {
-    headers: googleMapsRequestHeaders()
-  });
+  const response = await fetch(`https://weather.googleapis.com/v1/currentConditions:lookup?${query.toString()}`);
   const payload = await readJsonResponse(response, "Unable to parse Google Weather response.");
   if (!response.ok) {
     throw new Error(
@@ -2538,9 +2528,7 @@ app.post("/api/maps/geocode", mapsLimiter, async (req, res) => {
       query.set("latlng", `${body.location.lat},${body.location.lng}`);
     }
 
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${query.toString()}`, {
-      headers: googleMapsRequestHeaders()
-    });
+    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${query.toString()}`);
     const payload = await readJsonResponse(response, "Unable to parse Geocoding API response.");
     if (!response.ok || (payload?.status && payload.status !== "OK" && payload.status !== "ZERO_RESULTS")) {
       throw new Error(payload?.error_message || payload?.status || "Geocoding request failed.");
@@ -2631,9 +2619,7 @@ app.get("/api/maps/static-map", mapsLimiter, async (req, res) => {
       query.append("markers", marker);
     });
 
-    const response = await fetch(`https://maps.googleapis.com/maps/api/staticmap?${query.toString()}`, {
-      headers: googleMapsRequestHeaders()
-    });
+    const response = await fetch(`https://maps.googleapis.com/maps/api/staticmap?${query.toString()}`);
     if (!response.ok) {
       const message = await response.text().catch(() => "");
       throw new Error(message || `Static Maps request failed with status ${response.status}.`);
