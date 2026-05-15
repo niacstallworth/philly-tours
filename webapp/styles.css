@@ -725,13 +725,19 @@ button {
   color: var(--muted);
 }
 
-.search-field input {
+.search-field input,
+.search-field textarea {
   width: 100%;
   border: 1px solid rgba(23, 32, 38, 0.1);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.7);
   padding: 14px 16px;
   color: var(--ink);
+}
+
+.search-field textarea {
+  min-height: 112px;
+  resize: vertical;
 }
 
 .subscription-form {
@@ -3025,7 +3031,8 @@ body {
   color: #f7f2e8;
 }
 
-.search-field input {
+.search-field input,
+.search-field textarea {
   background: #fff;
   border: 1px solid rgba(148, 163, 184, 0.24);
 }

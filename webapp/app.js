@@ -459,6 +459,11 @@ const state = {
     status: "idle",
     message: ""
   },
+  dataDeletion: {
+    reason: "",
+    status: "idle",
+    message: ""
+  },
   webPush: {
     status: "idle",
     message: "",
@@ -4273,6 +4278,15 @@ function handleInput(event) {
     return;
   }
 
+  if (target.name === "data-deletion-reason") {
+    state.dataDeletion.reason = target.value;
+    if (state.dataDeletion.status !== "idle") {
+      state.dataDeletion.status = "idle";
+      state.dataDeletion.message = "";
+    }
+    return;
+  }
+
   if (target.name === "auth-display-name") {
     state.auth.displayName = target.value;
     if (state.auth.status !== "idle") {
@@ -4330,6 +4344,12 @@ function handleSubmit(event) {
   if (form.dataset.form === "founder-story-editor") {
     event.preventDefault();
     submitFounderStoryPost();
+    return;
+  }
+
+  if (form.dataset.form === "data-deletion-request") {
+    event.preventDefault();
+    submitDataDeletionRequest();
     return;
   }
 
@@ -4828,10 +4848,10 @@ function renderSettingsSignInCard() {
       }
       ${state.auth.message ? `<p class="subscription-status ${state.auth.status === "error" ? "error" : ""}" role="status">${escapeHtml(state.auth.message)}</p>` : ""}
       <div class="button-row">
-        ${activeUser ? '<button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>' : ""}
+        ${activeUser ? '<button type="button" class="primary-button" data-action="sign-out-webapp">Sign out</button>' : ""}
         <button
           type="button"
-          class="primary-button"
+          class="${activeUser ? "ghost-button" : "primary-button"}"
           data-action="start-upgrade-checkout"
           ${state.checkout.status === "submitting" ? "disabled" : ""}
         >
@@ -5380,10 +5400,68 @@ function getSubscriptionStatusMarkup() {
   return `<p class="${statusClass}" role="status">${escapeHtml(state.subscription.message)}</p>`;
 }
 
+function getDataDeletionStatusMarkup() {
+  if (!state.dataDeletion.message) {
+    return "";
+  }
+
+  const statusClass =
+    state.dataDeletion.status === "success"
+      ? "subscription-status success"
+      : state.dataDeletion.status === "error"
+        ? "subscription-status error"
+        : "subscription-status";
+
+  return `<p class="${statusClass}" role="status">${escapeHtml(state.dataDeletion.message)}</p>`;
+}
+
 function withAuthRetryGuidance(message, provider = "") {
   const baseMessage = String(message || "Unable to sign in.");
   const retryGuidance = " If sign-in fails, refresh the page and try again.";
   return `${baseMessage}${retryGuidance}`;
+}
+
+async function submitDataDeletionRequest() {
+  const activeUser = state.auth.session;
+  const syncServerUrl = getSyncServerUrl();
+  if (!syncServerUrl || !state.auth.authToken || !activeUser) {
+    state.dataDeletion.status = "error";
+    state.dataDeletion.message = "Sign in before requesting data deletion.";
+    render(false);
+    return;
+  }
+
+  state.dataDeletion.status = "submitting";
+  state.dataDeletion.message = "Sending your deletion request...";
+  render(false);
+
+  try {
+    const response = await fetch(`${syncServerUrl}/api/privacy/delete-request`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${state.auth.authToken}`
+      },
+      body: JSON.stringify({
+        email: activeUser.email || undefined,
+        displayName: activeUser.displayName || undefined,
+        reason: state.dataDeletion.reason.trim() || undefined
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.ok) {
+      throw new Error(payload.error || "Unable to submit deletion request.");
+    }
+
+    state.dataDeletion.reason = "";
+    state.dataDeletion.status = "success";
+    state.dataDeletion.message = "Deletion request received. Founders Threads will process it from the admin queue.";
+  } catch (error) {
+    state.dataDeletion.status = "error";
+    state.dataDeletion.message = error.message || "Unable to submit deletion request right now.";
+  }
+
+  render(false);
 }
 
 async function subscribeProfileEmail() {
@@ -8091,6 +8169,47 @@ function renderProfileTab() {
   return `
     <section class="section-grid profile-grid profile-grid--cinematic">
       ${renderSettingsSignInCard()}
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Account data</p>
+            <h3>Delete user data</h3>
+          </div>
+          <span class="status-pill ${activeUser ? "is-live" : ""}">${activeUser ? "Signed in" : "Sign in required"}</span>
+        </div>
+        <p class="lede">
+          Request deletion of your Philly Tours account and app data. Signed-in requests are sent directly to the admin deletion queue.
+        </p>
+        ${
+          activeUser
+            ? `<form class="subscription-form" data-form="data-deletion-request">
+                <div class="drawer-copy">
+                  <strong>${escapeHtml(activeUser.email || activeUser.displayName || "Current web session")}</strong>
+                  <p>This request includes your signed-in user ID so the support team can find the right records.</p>
+                </div>
+                <label class="search-field">
+                  <span>Deletion request note</span>
+                  <textarea
+                    name="data-deletion-reason"
+                    rows="3"
+                    placeholder="Optional note for support"
+                    ${state.dataDeletion.status === "submitting" ? "disabled" : ""}
+                  >${escapeHtml(state.dataDeletion.reason)}</textarea>
+                </label>
+                <div class="button-row compact">
+                  <button type="submit" class="primary-button" ${state.dataDeletion.status === "submitting" ? "disabled" : ""}>
+                    ${state.dataDeletion.status === "submitting" ? "Sending..." : "Request data deletion"}
+                  </button>
+                  <button type="button" class="ghost-button" data-action="sign-out-webapp">Sign out</button>
+                </div>
+                ${getDataDeletionStatusMarkup()}
+              </form>`
+            : `<div class="drawer-copy auth-helper-box">
+                <strong>Sign in first</strong>
+                <p>Use Google or Apple above, then return here to request deletion for that account.</p>
+              </div>`
+        }
+      </article>
       ${renderFounderStoryEditor()}
       <article class="panel">
         <div class="panel-header">
