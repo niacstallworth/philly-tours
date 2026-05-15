@@ -309,6 +309,24 @@ ${renderSocialShareLinks(post)}
   });
 }
 
+function renderMissingBlogPost() {
+  return renderShell({
+    title: `Story not found | ${BLOG_TITLE}`,
+    description: "This founder story is not published.",
+    canonicalPath: "/blog/",
+    status: 404,
+    jsonLd: [organizationSchema()],
+    body: `    <main class="seo-shell">
+      <a class="legal-back-link" href="/blog/">All blog posts</a>
+      <header class="seo-hero">
+        <p class="eyebrow">${escapeHtml(BLOG_TITLE)}</p>
+        <h1>Story not found</h1>
+        <p>This founder story is not published.</p>
+      </header>
+    </main>`
+  });
+}
+
 function renderRss(posts) {
   const lastBuildDate = posts[0]?.publishedAt
     ? new Date(`${posts[0].publishedAt}T12:00:00Z`).toUTCString()
@@ -389,7 +407,7 @@ async function handleBlogRequest(request, env, url) {
   if (post) {
     return renderBlogPost(post);
   }
-  return env.ASSETS.fetch(request);
+  return renderMissingBlogPost();
 }
 
 export default {
