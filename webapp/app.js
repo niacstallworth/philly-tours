@@ -700,13 +700,12 @@ function getRecentBlogPosts(limit = 3) {
 
 function replaceFounderStoryPosts(nextPosts, options = {}) {
   const normalizedPosts = normalizeBlogPosts(nextPosts);
-  if (!normalizedPosts.length) {
-    return;
-  }
-  blogPosts = normalizedPosts;
   state.founderStoryEditor.posts = normalizedPosts;
-  if (!getBlogPostBySlug(state.blog.selectedPostSlug)) {
-    state.blog.selectedPostSlug = normalizedPosts[0]?.slug || "";
+  if (normalizedPosts.length || options.allowEmptyBlogPosts === true) {
+    blogPosts = normalizedPosts;
+    if (!getBlogPostBySlug(state.blog.selectedPostSlug)) {
+      state.blog.selectedPostSlug = normalizedPosts[0]?.slug || "";
+    }
   }
   if (options.render !== false) {
     render(false);
@@ -729,8 +728,11 @@ async function refreshFounderStoryPosts(options = {}) {
   if (!response.ok) {
     throw new Error(payload.error || "Unable to load founder story posts.");
   }
-  if (Array.isArray(payload.posts) && payload.posts.length) {
-    replaceFounderStoryPosts(payload.posts, { render: options.render !== false });
+  if (Array.isArray(payload.posts)) {
+    replaceFounderStoryPosts(payload.posts, {
+      render: options.render !== false,
+      allowEmptyBlogPosts: options.allowEmptyBlogPosts === true
+    });
   }
   return blogPosts;
 }
@@ -6160,7 +6162,7 @@ async function submitFounderStoryPost() {
     editor.status = "success";
     editor.message = "Founder story saved.";
     loadFounderStoryEditorPost(payload.post);
-    await refreshFounderStoryPosts({ includeDrafts: true, render: false });
+    await refreshFounderStoryPosts({ includeDrafts: true, render: false, allowEmptyBlogPosts: true });
     render(false);
   } catch (error) {
     editor.status = "error";
@@ -6220,7 +6222,7 @@ function renderFounderStoryEditor() {
     return "";
   }
   const editor = state.founderStoryEditor;
-  const posts = editor.posts.length ? editor.posts : blogPosts;
+  const posts = editor.posts;
   return `
     <article class="panel founder-story-editor">
       <div class="panel-header">
@@ -6237,9 +6239,11 @@ function renderFounderStoryEditor() {
       </div>
       <div class="founder-story-editor__layout">
         <div class="founder-story-editor__list">
-          ${posts
-            .map(
-              (post) => `
+          ${
+            posts.length
+              ? posts
+                  .map(
+                    (post) => `
                 <button type="button" class="blog-post-card ${String(post.id || "") === editor.selectedPostId ? "active" : ""}" data-action="edit-founder-story-post" data-post-id="${escapeHtml(post.id || "")}">
                   ${post.heroImage ? `<img class="blog-post-card__media" src="${escapeHtml(post.heroImage)}" alt="${escapeHtml(post.heroImageAlt || post.title)}" loading="lazy" />` : ""}
                   <span class="blog-post-card__date">${escapeHtml(formatBlogPublishedDate(post.publishedAt))}${post.isPublished === false ? " · Draft" : ""}</span>
@@ -6247,8 +6251,14 @@ function renderFounderStoryEditor() {
                   <p>${escapeHtml(post.excerpt)}</p>
                 </button>
               `
-            )
-            .join("")}
+                  )
+                  .join("")
+              : `<div class="blog-post-card">
+                  <span class="blog-post-card__date">CMS</span>
+                  <strong>No CMS stories yet</strong>
+                  <p>Create a new story to add the first editable blog post.</p>
+                </div>`
+          }
         </div>
         <form class="founder-story-editor__form" data-form="founder-story-editor">
           <label>Title<input name="founder-story-title" value="${escapeHtml(editor.title)}" required /></label>
