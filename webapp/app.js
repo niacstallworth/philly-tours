@@ -2739,10 +2739,14 @@ async function completeOAuthRedirectIfPresent() {
     return false;
   }
 
+  state.activeTab = "profile";
+  state.routePageTourId = null;
+  state.home.focusTourId = null;
+
   const client = await getSupabaseBrowserClient();
   if (!client) {
     clearPendingOAuthProvider();
-    clearOAuthRedirectParams();
+    clearOAuthRedirectParams("tab=profile");
     state.auth.status = "error";
     state.auth.message = "Sign-in is unavailable right now.";
     return false;
@@ -2781,7 +2785,7 @@ async function completeOAuthRedirectIfPresent() {
     return true;
   } catch (error) {
     clearPendingOAuthProvider();
-    clearOAuthRedirectParams();
+    clearOAuthRedirectParams("tab=profile");
     clearWebAuthSession();
     state.auth.session = null;
     state.auth.authToken = "";
@@ -2888,7 +2892,7 @@ async function startOAuthSignIn(provider) {
     state.auth.message = `Redirecting to ${provider === "apple" ? "Apple" : "Google"}...`;
     render(false);
     setPendingOAuthProvider(provider);
-    const redirectTo = `${window.location.origin}/auth/provider`;
+    const redirectTo = `${window.location.origin}/auth/provider#tab=profile`;
     const { data, error } = await client.auth.signInWithOAuth({
       provider,
       options: {
