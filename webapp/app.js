@@ -3982,6 +3982,11 @@ function handleClick(event) {
     return;
   }
 
+  if (action === "delete-founder-story-post") {
+    deleteFounderStoryPost();
+    return;
+  }
+
   if (action === "sign-out-webapp") {
     stopNarration();
     stopArLive();
@@ -6164,6 +6169,51 @@ async function submitFounderStoryPost() {
   }
 }
 
+async function deleteFounderStoryPost() {
+  const editor = state.founderStoryEditor;
+  const syncServerUrl = getSyncServerUrl();
+  if (!editor.selectedPostId) {
+    editor.status = "error";
+    editor.message = "Choose a founder story before deleting.";
+    render(false);
+    return;
+  }
+  if (!syncServerUrl || !state.auth.authToken) {
+    editor.status = "error";
+    editor.message = "Admin sign-in is required to delete founder stories.";
+    render(false);
+    return;
+  }
+  const confirmed = window.confirm(`Delete "${editor.title || "this founder story"}"? This cannot be undone.`);
+  if (!confirmed) {
+    return;
+  }
+  editor.status = "submitting";
+  editor.message = "Deleting founder story...";
+  render(false);
+  try {
+    const response = await fetch(`${syncServerUrl}/api/admin/founder-story/posts/${encodeURIComponent(editor.selectedPostId)}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${state.auth.authToken}`
+      }
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload.ok !== true) {
+      throw new Error(payload.error || "Unable to delete founder story.");
+    }
+    resetFounderStoryEditor();
+    state.founderStoryEditor.status = "success";
+    state.founderStoryEditor.message = "Founder story deleted.";
+    await refreshFounderStoryPosts({ includeDrafts: true, render: false });
+    render(false);
+  } catch (error) {
+    editor.status = "error";
+    editor.message = error.message || "Unable to delete founder story.";
+    render(false);
+  }
+}
+
 function renderFounderStoryEditor() {
   const activeUser = state.auth.session;
   if (!activeUser?.roles?.includes("admin")) {
@@ -6213,7 +6263,10 @@ function renderFounderStoryEditor() {
           <label>Gallery<textarea name="founder-story-gallery" rows="3" placeholder="/assets/images/one.jpg|Alt|Caption; /assets/images/two.jpg|Alt|Caption">${escapeHtml(editor.gallery)}</textarea></label>
           <label>Story body<textarea name="founder-story-body-markdown" rows="10">${escapeHtml(editor.bodyMarkdown)}</textarea></label>
           <label class="founder-story-editor__check"><input type="checkbox" name="founder-story-is-published" ${editor.isPublished ? "checked" : ""} /> Published</label>
-          <button type="submit" class="primary-button" ${editor.status === "submitting" ? "disabled" : ""}>${editor.status === "submitting" ? "Saving..." : "Save story"}</button>
+          <div class="button-row compact">
+            <button type="submit" class="primary-button" ${editor.status === "submitting" ? "disabled" : ""}>${editor.status === "submitting" ? "Saving..." : "Save story"}</button>
+            <button type="button" class="ghost-button" data-action="delete-founder-story-post" ${!editor.selectedPostId || editor.status === "submitting" ? "disabled" : ""}>Delete story</button>
+          </div>
           ${editor.message ? `<p class="subscription-status ${editor.status === "error" ? "error" : ""}" role="status">${escapeHtml(editor.message)}</p>` : ""}
         </form>
       </div>

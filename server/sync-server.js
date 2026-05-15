@@ -2884,6 +2884,29 @@ app.put("/api/admin/founder-story/posts/:id", express.json({ limit: "1mb" }), as
   res.json({ ok: true, post: mapFounderStoryPost(rows[0]) });
 });
 
+app.delete("/api/admin/founder-story/posts/:id", async (req, res) => {
+  const actor = requireRoles(req, res, ["admin"]);
+  if (!actor) {
+    return;
+  }
+  const postId = Number(req.params.id);
+  if (!Number.isInteger(postId) || postId <= 0) {
+    res.status(400).json({ error: "Invalid founder story post id." });
+    return;
+  }
+  const { rows } = await dbQuery(
+    `delete from public.founder_story_posts
+     where id = $1
+     returning id`,
+    [postId]
+  );
+  if (!rows[0]) {
+    res.status(404).json({ error: "Founder story post not found." });
+    return;
+  }
+  res.json({ ok: true, deletedPostId: postId });
+});
+
 app.post("/api/payments/intent", async (req, res) => {
   const actor = requireRoles(req, res, ["tourist", "builder", "admin"]);
   if (!actor) {
