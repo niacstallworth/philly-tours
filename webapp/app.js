@@ -2606,7 +2606,7 @@ async function getSupabaseBrowserClient() {
     supabaseClientPromise = import("https://esm.sh/@supabase/supabase-js@2.49.8").then(({ createClient }) =>
       createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
-          flowType: "implicit",
+          flowType: "pkce",
           detectSessionInUrl: true,
           persistSession: true,
           autoRefreshToken: false
@@ -2724,7 +2724,9 @@ async function finalizeOAuthSignIn(accessToken, provider) {
 
 async function completeOAuthRedirectIfPresent() {
   const pendingProvider = getPendingOAuthProvider();
-  if (!pendingProvider && !hasOAuthRedirectParams()) {
+  const redirectParams = getOAuthRedirectParams();
+  const hasRedirectParams = hasOAuthRedirectParams();
+  if (!pendingProvider && !hasRedirectParams) {
     return false;
   }
 
@@ -2746,7 +2748,6 @@ async function completeOAuthRedirectIfPresent() {
   render(false);
 
   try {
-    const redirectParams = getOAuthRedirectParams();
     const redirectError = redirectParams.get("error_description") || redirectParams.get("error");
     if (redirectError) {
       throw new Error(redirectError);
@@ -2777,8 +2778,10 @@ async function completeOAuthRedirectIfPresent() {
     clearOAuthRedirectParams("tab=profile");
     return true;
   } catch (error) {
-    clearPendingOAuthProvider();
-    clearOAuthRedirectParams("tab=profile");
+    if (hasRedirectParams) {
+      clearPendingOAuthProvider();
+      clearOAuthRedirectParams("tab=profile");
+    }
     clearWebAuthSession();
     state.auth.session = null;
     state.auth.authToken = "";
