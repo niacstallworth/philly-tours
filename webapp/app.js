@@ -2758,7 +2758,7 @@ async function completeOAuthRedirectIfPresent() {
     if (existingSessionError) {
       throw existingSessionError;
     }
-    accessToken = existingSessionData?.session?.access_token || "";
+    accessToken = accessToken || existingSessionData?.session?.access_token || "";
 
     if (!accessToken && authCode) {
       const { data, error } = await client.auth.exchangeCodeForSession(authCode);
@@ -2885,7 +2885,7 @@ async function startOAuthSignIn(provider) {
     state.auth.message = `Redirecting to ${provider === "apple" ? "Apple" : "Google"}...`;
     render(false);
     setPendingOAuthProvider(provider);
-    const redirectTo = `${window.location.origin}/auth/provider#tab=profile`;
+    const redirectTo = `${window.location.origin}/auth/provider`;
     const { data, error } = await client.auth.signInWithOAuth({
       provider,
       options: {
