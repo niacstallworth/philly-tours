@@ -2193,38 +2193,6 @@ function getRoutePreviewPath(route) {
     .filter(hasRenderableCoordinates);
 }
 
-function getDirectStopPath(stops) {
-  return getRenderableStops(stops || []).map((stop) => ({ lat: stop.lat, lng: stop.lng }));
-}
-
-function getRouteMapPathForTour(tour, variant = state.narrationVariant) {
-  if (!tour?.id) {
-    return [];
-  }
-
-  const previewPath = getRoutePreviewPath(getRoutePreviewRecord(tour.id, variant)?.route);
-  return previewPath.length >= 2 ? previewPath : getDirectStopPath(tour.stops);
-}
-
-function addRoutePolylineLayer({ maps, map, path, color = "#b45b3d", opacity = 0.9, weight = 4, zIndex = 20 }) {
-  if (!maps || !map || !Array.isArray(path) || path.length < 2) {
-    return null;
-  }
-
-  const polyline = new maps.Polyline({
-    map,
-    path,
-    clickable: false,
-    geodesic: true,
-    strokeColor: color,
-    strokeOpacity: opacity,
-    strokeWeight: weight,
-    zIndex
-  });
-  routeMapLayers.push(polyline);
-  return polyline;
-}
-
 function getRoutePreviewDisplay(tour, variant = state.narrationVariant) {
   const preview = getRoutePreviewRecord(tour.id, variant);
   const route = preview.route;
@@ -4397,12 +4365,12 @@ function getSelectedTour() {
 
 function getTourAccent(index) {
   return [
-    ["#b45b3d", "#f0ceb5"],
-    ["#6d4bc3", "#d8c7ff"],
-    ["#35574f", "#d6eadf"],
-    ["#204b74", "#c9dff3"],
-    ["#8a4f63", "#f3d2dd"],
-    ["#8e6b1f", "#f6e1a8"]
+    ["#2563eb", "#dbeafe"],
+    ["#7c3aed", "#ede9fe"],
+    ["#059669", "#d1fae5"],
+    ["#dc2626", "#fee2e2"],
+    ["#0891b2", "#cffafe"],
+    ["#ea580c", "#ffedd5"]
   ][index % 6];
 }
 
@@ -8393,48 +8361,35 @@ async function initRouteMap(selectedTour, selectedStop, elementId = "route-map")
     fullscreenControl: false,
     gestureHandling: "cooperative",
     clickableIcons: false,
-    ...(normalizeRoutePreviewVariant(state.narrationVariant) === "drive"
-      ? { mapTypeId: "hybrid" }
-      : { styles: buildGoogleShellMapStyles(), mapTypeId: "roadmap" }),
-    backgroundColor: "#141b2d",
+    mapTypeId: "roadmap",
     center: fallbackCenter,
     zoom: 14
   });
 
   routeMapLayers = [];
-  addRoutePolylineLayer({
-    maps,
-    map: routeMap,
-    path: getRouteMapPathForTour(selectedTour),
-    color: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? "#f1d1b2" : "#b45b3d",
-    opacity: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? 0.84 : 0.92,
-    weight: 5
-  });
 
   const bounds = new maps.LatLngBounds();
+  const accent = getTourAccent(tours.findIndex((tour) => tour.id === selectedTour?.id));
 
   renderableStops.forEach((stop) => {
     const stopState = getStopPresentationState(selectedTour, stop);
     const isSelected = stop.id === selectedStop?.id;
     const isDone = state.completedStopIds.includes(stop.id);
+    const pinColor = isSelected ? accent?.[0] || "#2563eb" : isDone ? "#059669" : accent?.[0] || "#2563eb";
     const marker = new maps.Marker({
       map: routeMap,
       position: { lat: stop.lat, lng: stop.lng },
       title: `${getStopStateLabel(stopState)} stop: ${stop.title}`,
       label: {
         text: getStopStateGlyph(stopState),
-        color: isSelected ? "#6b3b2f" : "#fffaf5",
+        color: "#ffffff",
         fontWeight: "700"
       },
-      icon: {
-        path: maps.SymbolPath.CIRCLE,
-        fillColor: isSelected ? "#f1d1b2" : isDone ? "#35574f" : "#172026",
-        fillOpacity: 1,
-        strokeColor: isSelected ? "#b45b3d" : "#fffaf5",
-        strokeOpacity: 1,
-        strokeWeight: isSelected ? 3 : 2,
-        scale: isSelected ? 13 : 10
-      }
+      icon: buildMapPinIcon(maps, pinColor, {
+        strokeColor: "#ffffff",
+        strokeWeight: isSelected ? 2.6 : 2,
+        scale: isSelected ? 1.85 : 1.55
+      })
     });
     routeMapLayers.push(marker);
     bounds.extend({ lat: stop.lat, lng: stop.lng });
@@ -8540,16 +8495,8 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     return;
   }
 
-  const homeMapId = getGoogleMapsMapId();
-  let markerLibrary = null;
-  if (homeMapId) {
-    try {
-      markerLibrary = await loadGoogleMapsMarkerLibrary(maps);
-    } catch (error) {
-      markerLibrary = null;
-    }
-  }
-  const advancedMarkersAvailable = Boolean(homeMapId && markerLibrary?.AdvancedMarkerElement);
+  const markerLibrary = null;
+  const advancedMarkersAvailable = false;
   const createHomeMarker = ({ position, title, glyphText, color, borderColor, glyphColor, scale, zIndex, onClick }) => {
     if (advancedMarkersAvailable) {
       const marker = new markerLibrary.AdvancedMarkerElement({
@@ -8602,12 +8549,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     fullscreenControl: false,
     gestureHandling: "cooperative",
     clickableIcons: false,
-    ...(normalizeRoutePreviewVariant(state.narrationVariant) === "drive"
-      ? { mapTypeId: "hybrid" }
-      : advancedMarkersAvailable
-        ? { mapTypeId: "roadmap", mapId: homeMapId }
-        : { styles: buildGoogleShellMapStyles(), mapTypeId: "roadmap" }),
-    backgroundColor: "#141b2d",
+    mapTypeId: "roadmap",
     center: { lat: 39.9526, lng: -75.1652 },
     zoom: 12
   });
@@ -8621,14 +8563,6 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
   if (focusedTour) {
     const accent = getTourAccent(tours.findIndex((tour) => tour.id === focusedTour.id));
     const selectedStopId = state.selectedStopId;
-    addRoutePolylineLayer({
-      maps,
-      map: routeMap,
-      path: getRouteMapPathForTour(focusedTour),
-      color: accent?.[0] || "#b45b3d",
-      opacity: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? 0.78 : 0.9,
-      weight: normalizeRoutePreviewVariant(state.narrationVariant) === "drive" ? 5 : 4
-    });
 
     focusedRenderableStops.forEach((stop) => {
       const stopState = getStopPresentationState(focusedTour, stop);
