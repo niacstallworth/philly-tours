@@ -2679,7 +2679,7 @@ function hasOAuthRedirectParams() {
   );
 }
 
-function clearOAuthRedirectParams() {
+function clearOAuthRedirectParams(nextHash = "") {
   const url = new URL(window.location.href);
   [
     "code",
@@ -2690,7 +2690,8 @@ function clearOAuthRedirectParams() {
     "provider_token",
     "provider_refresh_token"
   ].forEach((key) => url.searchParams.delete(key));
-  url.hash = "";
+  const normalizedHash = String(nextHash || "").replace(/^#/, "");
+  url.hash = normalizedHash ? `#${normalizedHash}` : "";
   window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
 }
 
@@ -2776,7 +2777,7 @@ async function completeOAuthRedirectIfPresent() {
 
     await finalizeOAuthSignIn(accessToken, pendingProvider || undefined);
     clearPendingOAuthProvider();
-    clearOAuthRedirectParams();
+    clearOAuthRedirectParams("tab=profile");
     return true;
   } catch (error) {
     clearPendingOAuthProvider();
