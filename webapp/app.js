@@ -258,9 +258,7 @@ const siteConfig = {
   ...(window.PHILLY_TOURS_RUNTIME_CONFIG || {}),
   ...(window.PHILLY_TOURS_LOCAL_CONFIG || {})
 };
-const IS_LOCAL_DEV_HOST = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
 const WEB_MAPS_ENABLED = parseBooleanConfig(siteConfig.webMapsEnabled, true);
-const HOME_MAP_DEV_PREVIEW_ENABLED = WEB_MAPS_ENABLED && IS_LOCAL_DEV_HOST;
 const cityConfig = siteConfig.city || {};
 const brandingConfig = siteConfig.branding || {};
 const seoConfig = siteConfig.seo || {};
@@ -6668,14 +6666,14 @@ function renderHomeTab(selectedTour) {
       <article class="panel panel--map-host home-hero-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">${HOME_MAP_DEV_PREVIEW_ENABLED ? "City-wide collection map" : "Route collection overview"}</p>
-            <h3>${focusedTour ? focusedTour.title : HOME_MAP_DEV_PREVIEW_ENABLED ? "All available tours in one map view" : "All available tours in one route list"}</h3>
+            <p class="eyebrow">${WEB_MAPS_ENABLED ? "City-wide collection map" : "Route collection overview"}</p>
+            <h3>${focusedTour ? focusedTour.title : WEB_MAPS_ENABLED ? "All available tours in one map view" : "All available tours in one route list"}</h3>
           </div>
-          <span class="status-pill ${focusedTour && HOME_MAP_DEV_PREVIEW_ENABLED ? "is-live" : ""}">${focusedTour ? (HOME_MAP_DEV_PREVIEW_ENABLED ? "Tour isolated" : "Route selected") : `${tours.length} tours available`}</span>
+          <span class="status-pill ${focusedTour && WEB_MAPS_ENABLED ? "is-live" : ""}">${focusedTour ? (WEB_MAPS_ENABLED ? "Tour isolated" : "Route selected") : `${tours.length} tours available`}</span>
         </div>
         ${focusedTour
           ? ""
-          : `<p class="lede">${HOME_MAP_DEV_PREVIEW_ENABLED ? "Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map." : "Map rendering is temporarily hidden, so start with the route list below and open any tour page for stops, story flow, and guided checkout."}</p>`}
+          : `<p class="lede">${WEB_MAPS_ENABLED ? "Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map." : "Map rendering is temporarily hidden, so start with the route list below and open any tour page for stops, story flow, and guided checkout."}</p>`}
         <section class="home-local-seo-panel" aria-label="${escapeHtml(`${CITY_NAME} walking tour overview`)}">
           <div class="home-local-seo-panel__lead">
             <p class="eyebrow">${escapeHtml(HOME_PANEL_EYEBROW)}</p>
@@ -6707,15 +6705,15 @@ function renderHomeTab(selectedTour) {
         </section>
         ${renderStoryLogisticsCard(focusedTour || previewTour)}
         ${
-          HOME_MAP_DEV_PREVIEW_ENABLED
+          WEB_MAPS_ENABLED
             ? `
-              <div class="panel panel--map-host route-pack-map route-pack-map--dev-preview">
+              <div class="panel panel--map-host route-pack-map">
                 <div class="panel-header">
                   <div>
-                    <p class="eyebrow">Dev map preview</p>
+                    <p class="eyebrow">City-wide collection map</p>
                     <h3>${focusedTour ? escapeHtml(focusedTour.title) : "All route pins"}</h3>
                   </div>
-                  <span class="status-pill is-live">Local only</span>
+                  <span class="status-pill ${focusedTour ? "is-live" : ""}">${focusedTour ? "Tour isolated" : "All tours"}</span>
                 </div>
                 <div class="route-map-shell route-map-shell--home">
                   <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
