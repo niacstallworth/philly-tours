@@ -2,6 +2,8 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+import java.util.Properties
+
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
 /**
@@ -67,10 +69,17 @@ react {
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
 def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInReleaseBuilds') ?: false).toBoolean()
-def releaseStoreFilePath = (findProperty("phillyToursUploadStoreFile") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_FILE"))?.toString()
-def releaseStorePassword = (findProperty("phillyToursUploadStorePassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_PASSWORD"))?.toString()
-def releaseKeyAlias = (findProperty("phillyToursUploadKeyAlias") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_ALIAS"))?.toString()
-def releaseKeyPassword = (findProperty("phillyToursUploadKeyPassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_PASSWORD"))?.toString()
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { stream ->
+        localProperties.load(stream)
+    }
+}
+def releaseStoreFilePath = (findProperty("phillyToursUploadStoreFile") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_FILE") ?: localProperties.getProperty("phillyToursUploadStoreFile"))?.toString()
+def releaseStorePassword = (findProperty("phillyToursUploadStorePassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_STORE_PASSWORD") ?: localProperties.getProperty("phillyToursUploadStorePassword"))?.toString()
+def releaseKeyAlias = (findProperty("phillyToursUploadKeyAlias") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_ALIAS") ?: localProperties.getProperty("phillyToursUploadKeyAlias"))?.toString()
+def releaseKeyPassword = (findProperty("phillyToursUploadKeyPassword") ?: System.getenv("PHILLY_TOURS_UPLOAD_KEY_PASSWORD") ?: localProperties.getProperty("phillyToursUploadKeyPassword"))?.toString()
 def hasReleaseSigningConfig = releaseStoreFilePath && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
 def metaWearablesDatEnabled = (findProperty("metaWearablesDatEnabled") ?: "false").toString().toBoolean()
 
