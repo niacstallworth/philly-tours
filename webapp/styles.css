@@ -253,6 +253,7 @@ button {
 .blog-rail,
 .blog-post-panel {
   min-height: 100%;
+  scroll-margin-top: 96px;
 }
 
 .blog-grid {

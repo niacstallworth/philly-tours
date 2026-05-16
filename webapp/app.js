@@ -609,6 +609,16 @@ function scrollHomeMapIntoView() {
   });
 }
 
+function scrollBlogPostIntoView() {
+  window.requestAnimationFrame(() => {
+    const target = document.querySelector("[data-role='blog-post-reader']");
+    if (!target) {
+      return;
+    }
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 function openTourPageForStop(tour, stopId) {
   if (!tour) {
     return;
@@ -3954,8 +3964,8 @@ function handleClick(event) {
     }
     state.activeTab = "blog";
     state.blog.selectedPostSlug = post.slug;
-    scrollViewportToTop();
     render();
+    scrollBlogPostIntoView();
     return;
   }
 
@@ -6337,7 +6347,7 @@ function renderBlogTab() {
             .join("")}
         </div>
       </article>
-      <article class="panel blog-post-panel">
+      <article class="panel blog-post-panel" data-role="blog-post-reader">
         ${
           selectedPost
             ? `
