@@ -5734,10 +5734,7 @@ function getSceneConfig(selectedTour, globalStats) {
         eyebrow: HOME_HERO_EYEBROW,
         title: HOME_HERO_TITLE,
         body: HOME_HERO_BODY,
-        actions: [
-          { label: "Explore tours", action: "set-tab", tab: "map", variant: "primary" },
-          { label: "Open AR mode", action: "set-tab", tab: "ar", variant: "ghost" }
-        ],
+        actions: [],
         metrics: [],
         floatingCard: `
           <div class="home-hero-collage" aria-label="Featured ${escapeHtml(CITY_NAME)} tour imagery">
@@ -6394,7 +6391,7 @@ function renderSceneHero(selectedTour, globalStats) {
       <div class="scene-hero__content">
         <div class="scene-copy">
           <p class="eyebrow">${scene.eyebrow}</p>
-          <h2>${scene.title}</h2>
+          <h2>${state.activeTab === "home" ? `<span class="scene-copy__title scene-copy__title--marquee">${scene.title}</span>` : scene.title}</h2>
           <p class="hero-text">${scene.body}</p>
           <div class="hero-button-row">
             ${heroActions
