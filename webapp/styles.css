@@ -5345,6 +5345,7 @@ body {
   }
 
   .topbar {
+    top: 60px;
     padding: 14px 16px;
   }
 
@@ -5415,7 +5416,9 @@ body {
 
   .tabbar {
     width: calc(100vw - 10px);
-    bottom: 6px;
+    top: 6px;
+    bottom: auto;
+    transform: translateX(-50%);
   }
 
   .tabbar-label {
