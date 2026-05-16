@@ -258,7 +258,9 @@ const siteConfig = {
   ...(window.PHILLY_TOURS_RUNTIME_CONFIG || {}),
   ...(window.PHILLY_TOURS_LOCAL_CONFIG || {})
 };
+const IS_LOCAL_DEV_HOST = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
 const WEB_MAPS_ENABLED = parseBooleanConfig(siteConfig.webMapsEnabled, true);
+const HOME_MAP_DEV_PREVIEW_ENABLED = WEB_MAPS_ENABLED && IS_LOCAL_DEV_HOST;
 const cityConfig = siteConfig.city || {};
 const brandingConfig = siteConfig.branding || {};
 const seoConfig = siteConfig.seo || {};
@@ -1540,10 +1542,11 @@ function installGoogleMapHealthFallback({
       return true;
     }
 
-    const mapText = String(mapElement.innerText || "");
+    const mapText = `${String(mapElement.innerText || "")}\n${String(document.body?.innerText || "")}`;
     const hasGoogleErrorBanner =
       googleMapsAuthFailed ||
       mapText.includes("Oops! Something went wrong.") ||
+      mapText.includes("This page can't load Google Maps correctly.") ||
       mapText.includes("This page didn't load Google Maps correctly.");
     const hasRenderedMap = !!mapElement.querySelector(".gm-style");
 
@@ -1560,7 +1563,7 @@ function installGoogleMapHealthFallback({
     return false;
   };
 
-  [2200, 6000].forEach((delay) => {
+  [2200, 6000, 12000, 20000].forEach((delay) => {
     window.setTimeout(() => {
       checkAndFallback();
     }, delay);
@@ -6665,14 +6668,14 @@ function renderHomeTab(selectedTour) {
       <article class="panel panel--map-host home-hero-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">${WEB_MAPS_ENABLED ? "City-wide collection map" : "Route collection overview"}</p>
-            <h3>${focusedTour ? focusedTour.title : WEB_MAPS_ENABLED ? "All available tours in one map view" : "All available tours in one route list"}</h3>
+            <p class="eyebrow">${HOME_MAP_DEV_PREVIEW_ENABLED ? "City-wide collection map" : "Route collection overview"}</p>
+            <h3>${focusedTour ? focusedTour.title : HOME_MAP_DEV_PREVIEW_ENABLED ? "All available tours in one map view" : "All available tours in one route list"}</h3>
           </div>
-          <span class="status-pill ${focusedTour && WEB_MAPS_ENABLED ? "is-live" : ""}">${focusedTour ? (WEB_MAPS_ENABLED ? "Tour isolated" : "Route selected") : `${tours.length} tours available`}</span>
+          <span class="status-pill ${focusedTour && HOME_MAP_DEV_PREVIEW_ENABLED ? "is-live" : ""}">${focusedTour ? (HOME_MAP_DEV_PREVIEW_ENABLED ? "Tour isolated" : "Route selected") : `${tours.length} tours available`}</span>
         </div>
         ${focusedTour
           ? ""
-          : `<p class="lede">${WEB_MAPS_ENABLED ? "Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map." : "Map rendering is temporarily hidden, so start with the route list below and open any tour page for stops, story flow, and guided checkout."}</p>`}
+          : `<p class="lede">${HOME_MAP_DEV_PREVIEW_ENABLED ? "Start with the full interactive collection map, then click any color-coded tour pin to isolate that tour without leaving the same map." : "Map rendering is temporarily hidden, so start with the route list below and open any tour page for stops, story flow, and guided checkout."}</p>`}
         <section class="home-local-seo-panel" aria-label="${escapeHtml(`${CITY_NAME} walking tour overview`)}">
           <div class="home-local-seo-panel__lead">
             <p class="eyebrow">${escapeHtml(HOME_PANEL_EYEBROW)}</p>
@@ -6703,6 +6706,24 @@ function renderHomeTab(selectedTour) {
           </article>
         </section>
         ${renderStoryLogisticsCard(focusedTour || previewTour)}
+        ${
+          HOME_MAP_DEV_PREVIEW_ENABLED
+            ? `
+              <div class="panel panel--map-host route-pack-map route-pack-map--dev-preview">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Dev map preview</p>
+                    <h3>${focusedTour ? escapeHtml(focusedTour.title) : "All route pins"}</h3>
+                  </div>
+                  <span class="status-pill is-live">Local only</span>
+                </div>
+                <div class="route-map-shell route-map-shell--home">
+                  <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
+                </div>
+              </div>
+            `
+            : ""
+        }
         <div class="home-tour-section-heading">
           <div>
             <p class="eyebrow">Choose your route</p>
@@ -8686,30 +8707,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     return;
   }
 
-  const homeMapId = getGoogleMapsMapId();
-  const markerLibrary = await loadGoogleMapsMarkerLibrary(maps);
-  const advancedMarkersAvailable = Boolean(homeMapId && markerLibrary?.AdvancedMarkerElement);
   const createHomeMarker = ({ position, title, glyphText, color, borderColor, glyphColor, scale, zIndex, onClick }) => {
-    if (advancedMarkersAvailable) {
-      const marker = new markerLibrary.AdvancedMarkerElement({
-        map: routeMap,
-        position,
-        title,
-        zIndex,
-        content: buildAdvancedPinContent({
-          background: color,
-          borderColor,
-          glyphColor,
-          glyphText,
-          scale
-        })
-      });
-      if (typeof onClick === "function") {
-        marker.addListener("click", onClick);
-      }
-      return marker;
-    }
-
     const marker = new maps.Marker({
       map: routeMap,
       position,
@@ -8749,10 +8747,11 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
   routeMapLayers = [];
   const focusedTour = state.home.focusTourId ? getTourById(state.home.focusTourId) : null;
   const focusedRenderableStops = focusedTour ? getRenderableStops(focusedTour.stops) : [];
+  const shouldRenderHomeMarkers = true;
   const bounds = new maps.LatLngBounds();
   const collectionCenter = { lat: 39.9526, lng: -75.1652 };
 
-  if (focusedTour) {
+  if (shouldRenderHomeMarkers && focusedTour) {
     const accent = getTourAccent(tours.findIndex((tour) => tour.id === focusedTour.id));
     const selectedStopId = state.selectedStopId;
 
@@ -8776,7 +8775,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
       routeMapLayers.push(marker);
       bounds.extend({ lat: stop.lat, lng: stop.lng });
     });
-  } else {
+  } else if (shouldRenderHomeMarkers) {
     tours.forEach((tour, index) => {
       const leadStop = getPrimaryRenderableStop(tour);
       if (!leadStop) {
@@ -8848,7 +8847,8 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     title: focusedTour ? focusedTour.title : SITE_NAME,
     zoom: focusedTour ? 14 : 12,
     maps,
-    map: routeMap
+    map: routeMap,
+    mobileOnly: false
   });
 }
 
