@@ -3,9 +3,6 @@ title: The Free African Society and What Public Health Still Needs in a Heat Eme
 publishedAt: 2026-05-16
 excerpt: In 1793, Black Philadelphians organized mutual aid that helped keep the city alive. Philadelphia’s modern heat-emergency response shows why neighborhood trust and logistics still matter.
 tags: American history, public health, mutual aid, climate, Philadelphia
-heroImage: /assets/generated/tour-heroes/black-medical-legacy-hero.avif
-heroImageAlt: Historic public health and community care theme for the Black Medical Legacy route
-mediaCaption: The Free African Society and Mother Bethel AME Church appear as stops in Philly Tours’ route database tied to mutual aid and epidemic response.
 ---
 
 In Philly Tours’ route database, the **Free African Society** stop is tied to a foundational Philadelphia story: how an organized Black mutual-aid institution stepped into public-health work during the **1793 yellow fever epidemic**, when the city’s formal systems were overwhelmed.

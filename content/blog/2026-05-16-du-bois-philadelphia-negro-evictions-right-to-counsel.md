@@ -3,9 +3,6 @@ title: "Du Bois, 'The Philadelphia Negro,' and What Eviction Data Demands Today"
 publishedAt: 2026-05-16
 excerpt: In 1899, W.E.B. Du Bois used Philadelphia as a laboratory for public-policy truth. In 2026, the city’s eviction-prevention systems show why housing data still has to be paired with power and due process.
 tags: American history, housing, eviction, data, Philadelphia, public policy, civil rights
-heroImage: /assets/generated/tour-heroes/black-american-legacy-and-quaker-heritage-hero.jpeg
-heroImageAlt: Historic Black American civic history image for the Black American Legacy route
-mediaCaption: "W.E.B. Du Bois appears in the Philly Tours route database through a stop connected to his landmark 1899 study of Philadelphia’s neighborhoods."
 ---
 
 In the Philly Tours route database, one stop is titled **“W.E.B. Du Bois College House”**—a quiet reminder that one of America’s most influential public intellectuals did some of his most grounded work in Philadelphia. The exhibit referenced there points to *The Philadelphia Negro* (1899), Du Bois’s landmark, data-driven study of life in the city’s Seventh Ward.
@@ -71,4 +68,3 @@ Philly Tours includes Du Bois because his story is not only about a famous name.
 When you encounter the Du Bois stop on the **Black American Legacy & Quaker Heritage** route, treat it as a prompt for the rest of the city. Philadelphia is still living with the question Du Bois posed in 1899: will we use evidence to build a more stable, more fair civic order—or will we merely keep recording instability as if it were inevitable?
 
 Sources: [City of Philadelphia Right to Counsel expansion press release (April 2026)](https://www.phila.gov/2026-04-29-city-officials-announce-expansion-of-right-to-counsel-for-eligible-tenants-facing-eviction/), [Right to Counsel FY2025 annual report (PDF)](https://www.phila.gov/media/20260209111502/RTC-Report-FY2025vf.pdf), [Eviction Diversion in Philadelphia evaluation (PDF)](https://www.phila.gov/media/20231130224132/Eviction-Diversion-Evaluation-Final.pdf).
-

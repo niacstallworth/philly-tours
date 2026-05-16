@@ -46,7 +46,7 @@ function normalizePost(rawPost) {
   const bodyText = String(rawPost?.bodyText || "").replace(/\s+/g, " ").trim();
   const excerpt = String(rawPost?.excerpt || bodyText.slice(0, 180) || title).trim();
   const publishedAt = formatIsoDate(rawPost?.publishedAt);
-  const heroImage = String(rawPost?.heroImage || DEFAULT_IMAGE).trim();
+  const heroImage = String(rawPost?.heroImage || "").trim();
   return {
     ...rawPost,
     title,

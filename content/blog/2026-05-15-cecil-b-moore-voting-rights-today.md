@@ -3,9 +3,6 @@ title: Cecil B. Moore and the Question Behind Voting Rules Today
 publishedAt: 2026-05-15
 excerpt: A North Philadelphia civil rights leader helps frame a current national debate: who gets easy access to the ballot, and who has to fight for it?
 tags: American history, civil rights, voting rights, politics, Philadelphia
-heroImage: /assets/generated/tour-heroes/black-american-legacy-and-quaker-heritage-hero.jpeg
-heroImageAlt: Historic Black American civic history image for the Black American Legacy route
-mediaCaption: Cecil B. Moore appears in the Philly Tours route database through stops tied to North Philadelphia civil rights organizing.
 ---
 
 Cecil B. Moore is not only a name on an avenue in North Philadelphia. In the Philly Tours route database, he appears through stops tied to civil rights organizing, law, protest, and political power: Cecil B. Moore Avenue, the Cecil B. Moore Law Office, and the Cecil B. Moore Mural.
