@@ -6693,25 +6693,6 @@ function renderHomeTab(selectedTour) {
           </article>
         </section>
         ${renderStoryLogisticsCard(focusedTour || previewTour)}
-        ${
-          WEB_MAPS_ENABLED
-            ? `
-              <div class="panel panel--map-host route-pack-map">
-                <div class="route-map-shell route-map-shell--home">
-                  <div id="home-map" class="route-map route-map--home" aria-label="Home map overview"></div>
-                </div>
-              </div>
-              <div class="in-app-browser-notice">
-                <strong>Want the best map view?</strong>
-                <p>Open this page in your phone browser for the smoothest map and compass experience.</p>
-              </div>
-            `
-            : renderMapsPausedPanel({
-                eyebrow: "Map rendering update",
-                title: "Interactive maps are temporarily hidden",
-                body: "We are stabilizing route rendering on the public webapp. Tour pages, stop lists, narration, and guided checkout are still live."
-              })
-        }
         <div class="home-tour-section-heading">
           <div>
             <p class="eyebrow">Choose your route</p>
@@ -8695,7 +8676,7 @@ async function initHomeMap(selectedTour, elementId = "home-map") {
     return;
   }
 
-  const homeMapId = getGoogleMapsMapId() || "DEMO_MAP_ID";
+  const homeMapId = getGoogleMapsMapId();
   const markerLibrary = await loadGoogleMapsMarkerLibrary(maps);
   const advancedMarkersAvailable = Boolean(homeMapId && markerLibrary?.AdvancedMarkerElement);
   const createHomeMarker = ({ position, title, glyphText, color, borderColor, glyphColor, scale, zIndex, onClick }) => {

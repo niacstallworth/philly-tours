@@ -88,6 +88,7 @@
     "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.8",
     "expo-location": "~18.1.5",
+    "expo-notifications": "^55.0.23",
     "expo-speech": "~13.1.7",
     "expo-status-bar": "~2.2.3",
     "expo-web-browser": "~14.2.0",

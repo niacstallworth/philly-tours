@@ -40,6 +40,7 @@
       ]
     },
     "plugins": [
+      "expo-notifications",
       "expo-location",
       [
         "@stripe/stripe-react-native",

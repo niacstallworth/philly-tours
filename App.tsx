@@ -11,6 +11,7 @@ import { getEntitlements, setApiUserId } from "./src/services/payments";
 import { AppMode, OnboardingPayload, OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { clearSession, loadSession, saveSession } from "./src/services/session";
 import { clearGameProgress } from "./src/services/gameProgress";
+import { clearCurrentDevicePushToken, registerCurrentDevicePushToken } from "./src/services/devicePushRegistration";
 import { AppThemeProvider, ThemeSurfaceProvider, useAppTheme, useTypeScale } from "./src/theme/appTheme";
 
 type AppSession = {
@@ -115,6 +116,14 @@ export default function App() {
   }, [session?.userId]);
 
   useEffect(() => {
+    if (!session?.userId) {
+      clearCurrentDevicePushToken().catch(() => undefined);
+      return;
+    }
+    registerCurrentDevicePushToken(session.userId).catch(() => undefined);
+  }, [session?.userId]);
+
+  useEffect(() => {
     async function hydrateInitialLink() {
       const initialUrl = await Linking.getInitialURL();
       if (!initialUrl) {
@@ -165,6 +174,7 @@ export default function App() {
     setSession(null);
     setAuthToken(null);
     setApiUserId("demo-user");
+    clearCurrentDevicePushToken().catch(() => undefined);
     clearSession().catch(() => undefined);
   }
 
@@ -173,6 +183,7 @@ export default function App() {
     setHandoffTarget(null);
     setAuthToken(null);
     setApiUserId("demo-user");
+    clearCurrentDevicePushToken().catch(() => undefined);
     clearSession().catch(() => undefined);
     clearGameProgress().catch(() => undefined);
   }
