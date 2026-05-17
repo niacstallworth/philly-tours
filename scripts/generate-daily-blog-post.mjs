@@ -16,7 +16,9 @@ loadDotEnvFile(path.join(repoRoot, ".env"));
 loadDotEnvFile(path.join(repoRoot, ".env.local"));
 loadDotEnvFile(path.join(repoRoot, ".env.production.local"));
 
-const DEFAULT_TEXT_MODEL = process.env.OPENAI_BLOG_MODEL || "gpt-5";
+const TEXT_PROVIDER = (process.env.BLOG_TEXT_PROVIDER || "anthropic").trim().toLowerCase();
+const DEFAULT_OPENAI_TEXT_MODEL = process.env.OPENAI_BLOG_MODEL || "gpt-5";
+const DEFAULT_ANTHROPIC_TEXT_MODEL = process.env.ANTHROPIC_BLOG_MODEL || process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
 const DEFAULT_IMAGE_MODEL = process.env.OPENAI_BLOG_IMAGE_MODEL || "gpt-image-1";
 const DEFAULT_TIME_ZONE = process.env.BLOG_TIME_ZONE || "America/New_York";
 
@@ -157,7 +159,7 @@ async function callOpenAIResponse({ input, instructions, tools }) {
       "content-type": "application/json"
     },
     body: JSON.stringify({
-      model: DEFAULT_TEXT_MODEL,
+      model: DEFAULT_OPENAI_TEXT_MODEL,
       instructions,
       input,
       tools,
@@ -175,6 +177,63 @@ async function callOpenAIResponse({ input, instructions, tools }) {
     throw new Error(payload?.error?.message || `OpenAI response failed with ${response.status}`);
   }
   return extractResponseText(payload);
+}
+
+function extractAnthropicText(payload) {
+  const chunks = [];
+  for (const item of payload?.content || []) {
+    if (item?.type === "text" && typeof item.text === "string") {
+      chunks.push(item.text);
+    }
+  }
+  return chunks.join("\n").trim();
+}
+
+async function callAnthropicResponse({ input, instructions }) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error("ANTHROPIC_API_KEY is required when BLOG_TEXT_PROVIDER=anthropic.");
+  }
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      model: DEFAULT_ANTHROPIC_TEXT_MODEL,
+      max_tokens: 7000,
+      system: instructions,
+      messages: [{ role: "user", content: input }],
+      tools: [
+        {
+          type: "web_search_20250305",
+          name: "web_search",
+          max_uses: 4,
+          user_location: {
+            type: "approximate",
+            city: "Philadelphia",
+            region: "Pennsylvania",
+            country: "US",
+            timezone: "America/New_York"
+          }
+        }
+      ]
+    })
+  });
+  const raw = await response.text();
+  let payload;
+  try {
+    payload = JSON.parse(raw);
+  } catch {
+    throw new Error(`Anthropic returned non-JSON response: ${raw.slice(0, 500)}`);
+  }
+  if (!response.ok) {
+    throw new Error(payload?.error?.message || `Anthropic response failed with ${response.status}`);
+  }
+  return extractAnthropicText(payload);
 }
 
 async function draftBlogPost({ date }) {
@@ -221,6 +280,15 @@ async function draftBlogPost({ date }) {
     "",
     "Image prompt requirements: square 1:1 editorial collage, no text/logos/watermarks, historically respectful, Philadelphia civic-history imagery, strong mobile-feed composition."
   ].join("\n");
+
+  if (TEXT_PROVIDER === "anthropic") {
+    const text = await callAnthropicResponse({ input, instructions });
+    return extractJsonObject(text);
+  }
+
+  if (TEXT_PROVIDER !== "openai") {
+    throw new Error(`Unsupported BLOG_TEXT_PROVIDER: ${TEXT_PROVIDER}. Use "anthropic" or "openai".`);
+  }
 
   const toolSets = [[{ type: "web_search" }], [{ type: "web_search_preview" }]];
   let lastError;
@@ -317,15 +385,22 @@ async function generateHeroImage({ prompt, outputPath }) {
 function renderMarkdown({ date, draft, imagePath }) {
   const tags = draft.tags.map((tag) => String(tag).trim()).filter(Boolean).slice(0, 8).join(", ");
   const body = String(draft.bodyMarkdown || "").trim();
-  return [
+  const frontMatter = [
     "---",
     `title: ${yamlScalar(draft.title)}`,
     `publishedAt: ${yamlScalar(date)}`,
     `excerpt: ${yamlScalar(draft.excerpt)}`,
-    `tags: ${yamlScalar(tags)}`,
-    `heroImage: ${yamlScalar(imagePath)}`,
-    `heroImageAlt: ${yamlScalar(draft.heroImageAlt || draft.title)}`,
-    `mediaCaption: ${yamlScalar(draft.mediaCaption || "A Philly Tours route stop connected to American history and present-day civic life.")}`,
+    `tags: ${yamlScalar(tags)}`
+  ];
+  if (String(imagePath || "").trim()) {
+    frontMatter.push(
+      `heroImage: ${yamlScalar(imagePath)}`,
+      `heroImageAlt: ${yamlScalar(draft.heroImageAlt || draft.title)}`,
+      `mediaCaption: ${yamlScalar(draft.mediaCaption || "A Philly Tours route stop connected to American history and present-day civic life.")}`
+    );
+  }
+  return [
+    ...frontMatter,
     "---",
     "",
     body,
@@ -358,7 +433,7 @@ async function main() {
   const postPath = path.join(blogDir, `${postSlug}.md`);
   const imageFileName = `${slugStem}.jpg`;
   const imageAssetPath = path.join(blogAssetDir, imageFileName);
-  const imagePublicPath = `/assets/blog/${imageFileName}`;
+  const imagePublicPath = args.skipImage ? "" : `/assets/blog/${imageFileName}`;
 
   if (!args.skipImage) {
     await generateHeroImage({ prompt: draft.imagePrompt, outputPath: imageAssetPath });
