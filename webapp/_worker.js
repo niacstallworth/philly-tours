@@ -117,9 +117,10 @@ async function fetchMergedBlogPosts(request, env) {
   return Array.from(postsBySlug.values()).sort((a, b) => String(b.publishedAt).localeCompare(String(a.publishedAt)));
 }
 
-function renderHead({ title, description, canonicalPath, ogType = "website", image = DEFAULT_IMAGE, jsonLd = [] }) {
+function renderHead({ title, description, canonicalPath, ogType = "website", image = DEFAULT_IMAGE, imageAlt = title, jsonLd = [] }) {
   const canonicalUrl = absoluteUrl(canonicalPath);
   const socialImage = String(image || "").trim() ? absoluteUrl(image) : DEFAULT_IMAGE;
+  const safeImageAlt = escapeHtml(String(imageAlt || title || description || "Philly Tours image").trim());
   return `    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#4b148c" />
@@ -139,10 +140,12 @@ function renderHead({ title, description, canonicalPath, ogType = "website", ima
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
     <meta property="og:type" content="${escapeHtml(ogType)}" />
     <meta property="og:image" content="${escapeHtml(socialImage)}" />
+    <meta property="og:image:alt" content="${safeImageAlt}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(description)}" />
     <meta name="twitter:image" content="${escapeHtml(socialImage)}" />
+    <meta name="twitter:image:alt" content="${safeImageAlt}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -276,6 +279,7 @@ function renderBlogPost(post) {
     canonicalPath,
     ogType: "article",
     image: post.heroImage,
+    imageAlt: post.heroImageAlt || post.title,
     jsonLd: [
       organizationSchema(),
       {

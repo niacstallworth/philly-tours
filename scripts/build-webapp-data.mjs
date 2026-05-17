@@ -181,12 +181,12 @@ function buildExcerpt(text, maxLength = 180) {
   return `${normalized.slice(0, maxLength).trimEnd()}...`;
 }
 
-function parseBlogGallery(value) {
+function parseBlogGallery(value, fallbackAlt = "A Founder's Story") {
   return String(value || "")
     .split(";")
     .map((item) => {
       const [src, alt, caption] = item.split("|").map((part) => String(part || "").trim());
-      return src ? { src, alt: alt || "Founder life photo", caption: caption || "" } : null;
+      return src ? { src, alt: alt || caption || `Gallery image for ${fallbackAlt}`, caption: caption || "" } : null;
     })
     .filter(Boolean);
 }
@@ -292,7 +292,7 @@ function loadBlogPosts() {
       const heroImageAlt = String(attributes.heroImageAlt || title).trim();
       const videoUrl = String(attributes.videoUrl || "").trim();
       const mediaCaption = String(attributes.mediaCaption || "").trim();
-      const gallery = parseBlogGallery(attributes.gallery);
+      const gallery = parseBlogGallery(attributes.gallery, title);
 
       return {
         slug,
@@ -336,7 +336,7 @@ function normalizeCmsBlogPosts(posts) {
           ? post.gallery
               .map((item) => ({
                 src: String(item?.src || "").trim(),
-                alt: String(item?.alt || "Founder life photo").trim(),
+                alt: String(item?.alt || item?.caption || `Gallery image for ${post.title || "A Founder's Story"}`).trim(),
                 caption: String(item?.caption || "").trim()
               }))
               .filter((item) => item.src)
@@ -461,6 +461,7 @@ function renderSeoShell({
   jsonLd = [],
   ogType = "website",
   image = "/assets/search/philly-tours-search-thumbnail.jpg",
+  imageAlt = title,
   scripts = ""
 }) {
   const canonicalUrl = absoluteUrl(canonicalPath);
@@ -469,6 +470,7 @@ function renderSeoShell({
     : absoluteUrl("/assets/search/philly-tours-search-thumbnail.jpg");
   const safeTitle = escapeHtml(title);
   const safeDescription = escapeHtml(description);
+  const safeImageAlt = escapeHtml(String(imageAlt || title || description || "Philly Tours image").trim());
   const graph = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
 
   return [
@@ -494,10 +496,12 @@ function renderSeoShell({
     `    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />`,
     `    <meta property="og:type" content="${escapeHtml(ogType)}" />`,
     `    <meta property="og:image" content="${escapeHtml(socialImage)}" />`,
+    `    <meta property="og:image:alt" content="${safeImageAlt}" />`,
     '    <meta name="twitter:card" content="summary_large_image" />',
     `    <meta name="twitter:title" content="${safeTitle}" />`,
     `    <meta name="twitter:description" content="${safeDescription}" />`,
     `    <meta name="twitter:image" content="${escapeHtml(socialImage)}" />`,
+    `    <meta name="twitter:image:alt" content="${safeImageAlt}" />`,
     '    <link rel="preconnect" href="https://fonts.googleapis.com" />',
     '    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />',
     '    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />',
@@ -712,6 +716,7 @@ function renderStaticBlogPost(post) {
     body,
     ogType: "article",
     image: post.heroImage || "/assets/search/philly-tours-search-thumbnail.jpg",
+    imageAlt: post.heroImageAlt || post.title,
     jsonLd: [
       baseOrganizationSchema(),
       {
