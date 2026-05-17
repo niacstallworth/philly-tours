@@ -103,6 +103,38 @@ GitHub Actions needs these repository secrets:
 
 Do not put `CLOUDFLARE_API_TOKEN` in Cloudflare Pages plaintext variables. It belongs in GitHub Actions secrets.
 
+## Daily Blog Publishing Pipeline
+
+Daily blog publishing now runs through `.github/workflows/daily-blog-publish.yml`, not the local Codex desktop automation. The scheduled job:
+
+```text
+GitHub schedule or manual dispatch
+-> node scripts/generate-daily-blog-post.mjs
+-> npm run webapp:build
+-> commit generated source/static blog changes
+-> wrangler pages deploy web-dist --project-name philly-tours
+```
+
+The generator skips automatically when a `content/blog/YYYY-MM-DD-*.md` file already exists for the publication date, unless the workflow is manually dispatched with `force: true`.
+
+Additional required secret:
+
+- `OPENAI_API_KEY`
+
+Optional repository variables:
+
+- `OPENAI_BLOG_MODEL` defaults to `gpt-5`
+- `OPENAI_BLOG_IMAGE_MODEL` defaults to `gpt-image-1`
+
+Manual local test commands:
+
+```bash
+node scripts/generate-daily-blog-post.mjs --date 2026-05-18 --dry-run --skip-image
+npm run webapp:build
+```
+
+For production, commit the Markdown post and hero image source package plus generated `webapp/blog*`, `webapp/rss.xml`, and `webapp/sitemap.xml` outputs when the workflow runs. `web-dist/` remains deploy-only output and should not be committed.
+
 Cloudflare Pages remains the production host because:
 
 - HTTPS is included
