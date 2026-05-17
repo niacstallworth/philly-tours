@@ -3,6 +3,8 @@ title: Garrett Morgan’s 1923 Traffic Signal and What “Vision Zero” Require
 publishedAt: 2026-05-16
 excerpt: A Black inventor’s three-position traffic signal was a small piece of civic infrastructure with a big idea—cities can design safety into everyday life. Philadelphia’s Vision Zero work shows how hard (and necessary) that idea still is.
 tags: American history, transportation, infrastructure, public policy, traffic safety, Philadelphia
+heroImage: /assets/blog/garrett-morgan-traffic-signal-vision-zero.jpg
+heroImageAlt: Mixed-media portrait collage of Garrett Morgan, an early traffic signal, and a safer Philadelphia street scene.
 ---
 
 In the Philly Tours route database, one stop on the **Black Inventors Tour** is titled **“Garrett Morgan Traffic Signal”** at **S 13th Street & Market Street**. It’s easy to pass a traffic light without thinking about it. But Garrett Morgan’s story is a reminder that everyday street hardware can be a moral argument—an attempt to make public life less deadly, more orderly, and more fair.

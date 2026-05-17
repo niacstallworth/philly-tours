@@ -15,8 +15,8 @@ window.PHILLY_TOURS_BLOG = [
       "public policy",
       "civil rights"
     ],
-    "heroImage": "",
-    "heroImageAlt": "Du Bois, 'The Philadelphia Negro,' and What Eviction Data Demands Today",
+    "heroImage": "/assets/blog/du-bois-philadelphia-negro-evictions-right-to-counsel.jpg",
+    "heroImageAlt": "Mixed-media portrait collage of W.E.B. Du Bois layered with Philadelphia rowhouses, civic maps, and housing-policy documents.",
     "videoUrl": "",
     "mediaCaption": "",
     "gallery": [],
@@ -35,8 +35,8 @@ window.PHILLY_TOURS_BLOG = [
       "climate",
       "Philadelphia"
     ],
-    "heroImage": "",
-    "heroImageAlt": "The Free African Society and What Public Health Still Needs in a Heat Emergency",
+    "heroImage": "/assets/blog/free-african-society-heat-health-emergency.jpg",
+    "heroImageAlt": "Mixed-media collage of Black Philadelphians organizing mutual aid and public-health care across historic and modern Philadelphia.",
     "videoUrl": "",
     "mediaCaption": "",
     "gallery": [],
@@ -56,8 +56,8 @@ window.PHILLY_TOURS_BLOG = [
       "traffic safety",
       "Philadelphia"
     ],
-    "heroImage": "",
-    "heroImageAlt": "Garrett Morgan’s 1923 Traffic Signal and What “Vision Zero” Requires Now",
+    "heroImage": "/assets/blog/garrett-morgan-traffic-signal-vision-zero.jpg",
+    "heroImageAlt": "Mixed-media portrait collage of Garrett Morgan, an early traffic signal, and a safer Philadelphia street scene.",
     "videoUrl": "",
     "mediaCaption": "",
     "gallery": [],
@@ -76,8 +76,8 @@ window.PHILLY_TOURS_BLOG = [
       "politics",
       "Philadelphia"
     ],
-    "heroImage": "",
-    "heroImageAlt": "Cecil B. Moore and the Question Behind Voting Rules Today",
+    "heroImage": "/assets/blog/cecil-b-moore-voting-rights-today.jpg",
+    "heroImageAlt": "Mixed-media portrait collage of Cecil B. Moore with North Philadelphia civil-rights organizing and voting-rights imagery.",
     "videoUrl": "",
     "mediaCaption": "",
     "gallery": [],

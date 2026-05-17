@@ -3,6 +3,8 @@ title: "Du Bois, 'The Philadelphia Negro,' and What Eviction Data Demands Today"
 publishedAt: 2026-05-16
 excerpt: In 1899, W.E.B. Du Bois used Philadelphia as a laboratory for public-policy truth. In 2026, the city’s eviction-prevention systems show why housing data still has to be paired with power and due process.
 tags: American history, housing, eviction, data, Philadelphia, public policy, civil rights
+heroImage: /assets/blog/du-bois-philadelphia-negro-evictions-right-to-counsel.jpg
+heroImageAlt: Mixed-media portrait collage of W.E.B. Du Bois layered with Philadelphia rowhouses, civic maps, and housing-policy documents.
 ---
 
 In the Philly Tours route database, one stop is titled **“W.E.B. Du Bois College House”**—a quiet reminder that one of America’s most influential public intellectuals did some of his most grounded work in Philadelphia. The exhibit referenced there points to *The Philadelphia Negro* (1899), Du Bois’s landmark, data-driven study of life in the city’s Seventh Ward.
