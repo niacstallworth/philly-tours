@@ -1,8 +1,6 @@
 name: Daily Blog Publish
 
 on:
-  schedule:
-    - cron: "15 11 * * *"
   workflow_dispatch:
     inputs:
       date:
