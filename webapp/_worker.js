@@ -81,7 +81,13 @@ async function fetchFounderStoryPosts() {
 
 async function fetchStaticBlogPosts(request, env) {
   const blogDataUrl = new URL("/blog-data.js", request.url);
-  const response = await env.ASSETS.fetch(new Request(blogDataUrl.toString(), request));
+  const response = await env.ASSETS.fetch(
+    new Request(blogDataUrl.toString(), {
+      headers: request.headers,
+      cf: request.cf,
+      method: "GET"
+    })
+  );
   if (!response.ok) {
     return [];
   }
