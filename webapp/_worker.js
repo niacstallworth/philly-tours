@@ -176,11 +176,11 @@ function organizationSchema() {
   };
 }
 
-function renderShell({ title, description, canonicalPath, ogType, image, jsonLd, body, status = 200 }) {
+function renderShell({ title, description, canonicalPath, ogType, image, imageAlt, jsonLd, body, status = 200 }) {
   const html = `<!doctype html>
 <html lang="en">
   <head>
-${renderHead({ title, description, canonicalPath, ogType, image, jsonLd })}
+${renderHead({ title, description, canonicalPath, ogType, image, imageAlt, jsonLd })}
   </head>
   <body class="seo-page">
 ${body}
