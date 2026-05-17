@@ -60,6 +60,7 @@
     "webapp:package": "npm run webapp:build && node scripts/package-webapp-dist.mjs",
     "webapp:serve": "npm run webapp:data && node scripts/serve-webapp.mjs",
     "blog:generate:daily": "node scripts/generate-daily-blog-post.mjs",
+    "blog:images:backlog": "node scripts/generate-blog-image-backlog.mjs",
     "preflight:store": "node scripts/store-release-preflight.mjs",
     "store:screenshots:frame": "node scripts/generate-store-framed-screenshots.mjs",
     "sync-server": "node server/sync-server.js",
